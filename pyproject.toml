@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "pybotters_wrapper"
+version = "0.1.0"
+description = ""
+authors = ["ko0hi <ko0hi.0304@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.9.7 || >3.9.7,<4.0"
+pybotters = "^0.13.1"
+numpy = "^1.23.3"
+websockets = "^10.3"
+fastapi = "^0.85.0"
+uvicorn = "^0.18.3"
+pandas = "^1.5.0"
+loguru = "^0.6.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
