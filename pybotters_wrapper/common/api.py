@@ -9,13 +9,15 @@ class API:
 
     async def request(self, method, url, *, params=None, data=None, **kwargs):
         url = self._attach_base_url(url)
-        return self._client.request(method, url, params=params, data=data, **kwargs)
+        return await self._client.request(
+            method, url, params=params, data=data, **kwargs
+        )
 
     async def get(self, url, *, params=None, data=None, **kwargs):
-        return self.request("GET", url, params=params, data=data, **kwargs)
+        return await self.request("GET", url, params=params, data=data, **kwargs)
 
     async def post(self, url, *, params=None, data=None, **kwargs):
-        return self.request("POST", url, params=params, data=data, **kwargs)
+        return await self.request("POST", url, params=params, data=data, **kwargs)
 
     async def market_order(self, symbol, side, size, **kwargs):
         raise NotImplementedError
