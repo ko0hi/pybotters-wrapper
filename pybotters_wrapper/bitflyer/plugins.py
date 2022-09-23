@@ -39,7 +39,6 @@ def book(
     class _BitflyerBook(Book[Board]):
         async def initialize(self, client: pybotters.Client, **kwargs):
             await self.store.wait()
-            self.set_mid(self.store.mid_price[symbol])
             for i in self.store.find():
                 self._update(StoreChange("insert", i))
 

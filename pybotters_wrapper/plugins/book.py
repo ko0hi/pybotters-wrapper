@@ -36,6 +36,7 @@ class Book(WatchPlugin[T]):
         self._mid = None
 
     def update(self, d: dict, op: str, **kwargs):
+        self.set_mid(d["mid"])
         if op == "insert":
             self._insert(d["side"], d["price"], d["size"])
         elif op == "delete":
@@ -79,6 +80,8 @@ class Book(WatchPlugin[T]):
         return self._make_returns(self.bid_bucket, lhs, rhs, non_zero_only, True)
 
     def set_mid(self, mid):
+        if isinstance(mid, list):
+            raise RuntimeError
         self._mid = mid
 
     def reset(self):
