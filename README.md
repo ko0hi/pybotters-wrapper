@@ -1,2 +1,6 @@
 # pybotters_wrapper
-# pybotters-wrapper
+
+library未満snippet以上。
+仕様は予告なく変わります。
+
+
