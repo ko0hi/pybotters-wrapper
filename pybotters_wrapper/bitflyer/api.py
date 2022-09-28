@@ -26,7 +26,7 @@ class BitflyerAPI(API):
         self, symbol, side, size, price, time_in_force="GTC", **kwargs
     ):
         res = await self.post(
-            f"{self.BASE_URL}/v1/me/sendchildorder",
+            f"/v1/me/sendchildorder",
             data={
                 "product_code": symbol,
                 "side": side,
