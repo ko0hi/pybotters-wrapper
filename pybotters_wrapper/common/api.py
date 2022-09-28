@@ -29,7 +29,4 @@ class API:
         raise NotImplementedError
 
     def _attach_base_url(self, url):
-        if self._client._base_url is None:
-            return self.BASE_URL + url
-        else:
-            return url
+        return url if self._client._base_url else self.BASE_URL + url

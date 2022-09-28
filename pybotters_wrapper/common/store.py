@@ -105,4 +105,22 @@ class DataStoreWrapper(Generic[T]):
     def ws(self):
         return self._ws
 
+    @property
+    def board(self):
+        raise NotImplementedError
 
+    @property
+    def trades(self):
+        raise NotImplementedError
+
+    @property
+    def events(self):
+        raise NotImplementedError
+
+    @property
+    def position(self):
+        raise NotImplementedError
+
+    @property
+    def orders(self):
+        raise NotImplementedError
