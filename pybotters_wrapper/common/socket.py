@@ -1,4 +1,4 @@
-class SocketBase:
+class SocketChannels:
     ENDPOINT = None
 
     @classmethod

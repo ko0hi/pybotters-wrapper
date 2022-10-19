@@ -1,10 +1,10 @@
 from pybotters.models.phemex import PhemexDataStore
 from pybotters_wrapper.common import DataStoreWrapper
-from pybotters_wrapper.phemex import PhemexSocket
+from pybotters_wrapper.phemex import PhemexSocketChannels
 
 
 class PhemexDataStoreWrapper(DataStoreWrapper[PhemexDataStore]):
-    _SOCKET = PhemexSocket
+    _SOCKET = PhemexSocketChannels
 
     def __init__(self, store: PhemexDataStore = None, *args, **kwargs):
         super(PhemexDataStoreWrapper, self).__init__(

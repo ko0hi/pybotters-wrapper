@@ -1,7 +1,7 @@
-from pybotters_wrapper.common import SocketBase
+from pybotters_wrapper.common import SocketChannels
 
 
-class GMOSocket(SocketBase):
+class GMOSocketChannels(SocketChannels):
     PUBLIC_ENDPOINT = "wss://api.coin.z.com/ws/public/v1"
     PRIVATE_ENDPOINT = "wss://api.coin.z.com/ws/private/v1"
     ENDPOINT = PUBLIC_ENDPOINT

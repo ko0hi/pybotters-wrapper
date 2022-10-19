@@ -1,10 +1,10 @@
 from pybotters.models.bitflyer import bitFlyerDataStore, Board
 from pybotters_wrapper.common import DataStoreWrapper
-from pybotters_wrapper.bitflyer import BitflyerSocket
+from pybotters_wrapper.bitflyer import BitflyerSocketChannels
 
 
 class BitflyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
-    _SOCKET = BitflyerSocket
+    _SOCKET = BitflyerSocketChannels
 
     def __init__(self, store: bitFlyerDataStore = None, *args, **kwargs):
         super(BitflyerDataStoreWrapper, self).__init__(

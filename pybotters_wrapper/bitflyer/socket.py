@@ -1,7 +1,7 @@
-from pybotters_wrapper.common import SocketBase
+from pybotters_wrapper.common import SocketChannels
 
 
-class BitflyerSocket(SocketBase):
+class BitflyerSocketChannels(SocketChannels):
     ID = 0
     ENDPOINT = "wss://ws.lightstream.bitflyer.com/json-rpc"
 
@@ -9,7 +9,7 @@ class BitflyerSocket(SocketBase):
     def _subscribe(cls, channel, **kwargs):
         params = {"method": "subscribe", "params": {"channel": channel, "id": cls.ID}}
         params.update(kwargs)
-        BitflyerSocket.ID += 1
+        BitflyerSocketChannels.ID += 1
         return params
 
     @classmethod

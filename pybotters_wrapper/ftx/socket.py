@@ -1,7 +1,7 @@
-from pybotters_wrapper.common import SocketBase
+from pybotters_wrapper.common import SocketChannels
 
 
-class FTXSocket(SocketBase):
+class FTXSocketChannels(SocketChannels):
     ENDPOINT = "wss://ftx.com/ws"
 
     @classmethod

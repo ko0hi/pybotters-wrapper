@@ -1,3 +1,3 @@
-from .socket import OKXSocket
+from .socket import OKXSocketChannels
 from .store import OKXDataStoreWrapper
 from . import plugins

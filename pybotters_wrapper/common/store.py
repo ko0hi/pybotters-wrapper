@@ -5,7 +5,7 @@ import loguru
 import pybotters
 from pybotters.store import DataStore, DataStoreManager
 
-from pybotters_wrapper.common import SocketBase
+from pybotters_wrapper.common import SocketChannels
 
 if TYPE_CHECKING:
     from pybotters import Item
@@ -78,6 +78,11 @@ class DataStoreWrapper(Generic[T]):
 
         return self._ws
 
+    def subscribe(self, topic, *args, **kwargs) -> 'DataStoreWrapper':
+        getattr(self.socket, topic)(*args, **kwargs)
+        pass
+        return self
+
     async def _wait_socket_responses(self, waits):
         while not all([len(w) for w in waits]):
             self._logger.debug("[WAITING SOCKET RESPONSE]")
@@ -90,7 +95,7 @@ class DataStoreWrapper(Generic[T]):
             return None
 
     @property
-    def socket(self) -> SocketBase:
+    def socket(self) -> SocketChannels:
         return self._SOCKET
 
     @property

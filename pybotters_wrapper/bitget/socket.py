@@ -1,7 +1,7 @@
-from pybotters_wrapper.common import SocketBase
+from pybotters_wrapper.common import SocketChannels
 
 
-class BitgetSocket(SocketBase):
+class BitgetSocketChannels(SocketChannels):
     ENDPOINT = "wss://ws.bitget.com/mix/v1/stream"
 
     @classmethod

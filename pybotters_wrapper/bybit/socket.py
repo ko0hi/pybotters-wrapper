@@ -1,7 +1,7 @@
-from pybotters_wrapper.common import SocketBase
+from pybotters_wrapper.common import SocketChannels
 
 
-class BybitSocket(SocketBase):
+class BybitSocket(SocketChannels):
     ENDPOINT = "wss://stream.bybit.com/realtime"
 
     @classmethod
