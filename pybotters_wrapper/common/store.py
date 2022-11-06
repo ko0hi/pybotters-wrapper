@@ -19,13 +19,6 @@ if TYPE_CHECKING:
     from pybotters_wrapper.common import WebsocketChannels
 
 
-class OnMessagePlugin:
-    def onmessage(
-        self, msg: "Item", ws: "ClientWebSocketResponse", store: "DataStoreManager"
-    ) -> None:
-        raise NotImplementedError
-
-
 T = TypeVar("T", bound=DataStoreManager)
 
 
@@ -37,44 +30,14 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
     _ORDERBOOK_STORE: tuple[Type[OrderbookStore], str] = None
 
     def __init__(self, store: T):
-        # store
         self._store = store
-        self._plugins = {}
-
-        self._transformed_stores = {
-            "ticker": None, "trades": None, "orderbook": None
-        }
+        self._transformed_stores = {}
         self._init_transformed_stores()
-
-        # websocket
-        self._ws = {}
-
         self._ws_channels = self._SOCKET_CHANNELS_CLS()
         self._ws_connections = []
 
     def __repr__(self):
         return self._store.__class__.__name__
-
-    def _init_transformed_stores(self):
-        self._transformed_stores["ticker"] = self._init_ticker_store()
-        self._transformed_stores["trades"] = self._init_trades_store()
-        self._transformed_stores["orderbook"] = self._init_orderbook_store()
-
-    def _init_transformed_store(self, cls_name_tuple):
-        if cls_name_tuple is None:
-            return None
-        store_cls, store_name = cls_name_tuple
-        return store_cls(getattr(self.store, store_name))
-
-    def _init_ticker_store(self) -> 'TickerStore' | None:
-        return self._init_transformed_store(self._TICKER_STORE)
-
-    def _init_trades_store(self) -> 'TradesStore' | None:
-        return self._init_transformed_store(self._TRADES_STORE)
-
-    def _init_orderbook_store(self) -> 'OrderbookStore' | None:
-        return self._init_transformed_store(self._ORDERBOOK_STORE)
-
 
     async def initialize(self, *args, **kwargs):
         return await self._store.initialize(*args, **kwargs)
@@ -82,12 +45,6 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
     async def wait(self):
         await self._store.wait()
 
-    def register(self, plugin: OnMessagePlugin, name: str = None) -> OnMessagePlugin:
-        name = name or f"p{len(self._plugins)}"
-        self._plugins[name] = plugin
-        return plugin
-
-    # socket 周りのAPI
     def onmessage(self, msg: "Item", ws: "ClientWebSocketResponse") -> None:
         self._store.onmessage(msg, ws)
 
@@ -105,9 +62,6 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
         >>> store.subscribe(["ticker", "orderbook"], symbol="BTCUSDT")
         >>> store.subscribe([("ticker", {"symbol": "BTC_USDT"}), ("ticker", {"symbol": "ETHUSDT"})])
 
-        :param channel:
-        :param kwargs:
-        :return:
         """
         if isinstance(channel, str):
             self._ws_channels.add(channel, **kwargs)
@@ -141,6 +95,26 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
             await self._wait_socket_responses(waits)
 
         return self._ws_connections
+
+    def _init_transformed_stores(self):
+        self._transformed_stores["ticker"] = self._init_ticker_store()
+        self._transformed_stores["trades"] = self._init_trades_store()
+        self._transformed_stores["orderbook"] = self._init_orderbook_store()
+
+    def _init_transformed_store(self, cls_name_tuple):
+        if cls_name_tuple is None:
+            return None
+        store_cls, store_name = cls_name_tuple
+        return store_cls(getattr(self.store, store_name))
+
+    def _init_ticker_store(self) -> "TickerStore" | None:
+        return self._init_transformed_store(self._TICKER_STORE)
+
+    def _init_trades_store(self) -> "TradesStore" | None:
+        return self._init_transformed_store(self._TRADES_STORE)
+
+    def _init_orderbook_store(self) -> "OrderbookStore" | None:
+        return self._init_transformed_store(self._ORDERBOOK_STORE)
 
     def _parse_endpoint(self, endpoint) -> str:
         return endpoint or self._ws_channels.ENDPOINT
@@ -193,50 +167,6 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
                 break
         self.log("All channels got ready")
 
-    async def watch(self, store_name, operations=None, parser=None):
-        store = getattr(self, store_name)
-        assert isinstance(store, DataStore)
-
-        operations = operations or {"insert", "delete", "update"}
-
-        with store.watch() as stream:
-            async for change in stream:
-                if change.operation in operations:
-                    data = change.data
-                    if parser is not None:
-                        data = parser(data)
-                    yield data
-
-    async def watch_treads(self, operations=None):
-        async for item in self.watch(
-            "trades", operations, self._parse_trades_watch_item
-        ):
-            yield item
-
-    @classmethod
-    def parse_item(cls, store_name: str, item: "Item") -> dict:
-        return getattr(cls, f"parse_{store_name}")(item)
-
-    @classmethod
-    def parse_ticker(cls, item: "Item") -> dict:
-        raise NotImplementedError
-
-    @classmethod
-    def _parse_trades_watch_item(cls, item: "Item") -> dict:
-        raise NotImplementedError
-
-    @classmethod
-    def parse_orderbook(cls, item: "Item") -> dict:
-        raise NotImplementedError
-
-    @property
-    def socket_channels(self):
-        return self._ws_channels
-
-    @property
-    def socket(self) -> WebsocketChannels:
-        return self._SOCKET_CHANNELS_CLS
-
     @property
     def store(self) -> T:
         return self._store
@@ -253,14 +183,6 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
     @property
     def orderbook(self):
         return self._transformed_stores["orderbook"]
-
-    @property
-    def plugins(self):
-        return self._plugins
-
-    @property
-    def ws(self):
-        return self._ws
 
     @property
     def board(self):
@@ -291,7 +213,6 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
         return self._ws_channels
 
 
-
 class TransformedDataStore(DataStore):
     def __init__(self, ds: DataStore, *, auto_cast=False):
         super(TransformedDataStore, self).__init__(auto_cast=auto_cast)
@@ -314,13 +235,13 @@ class TransformedDataStore(DataStore):
     def _on_wait(self):
         ...
 
-    def _on_watch(self, change: 'StoreChange'):
+    def _on_watch(self, change: "StoreChange"):
         ...
 
-    def _transform_data(self, change: 'StoreChange') -> 'Item':
+    def _transform_data(self, change: "StoreChange") -> "Item":
         return change.data
 
-    def _get_method(self, change: 'StoreChange') -> Callable:
+    def _get_method(self, change: "StoreChange") -> Callable:
         return getattr(self, f"_{change.operation}")
 
     def _make_register_item(self, transformed_item: Item, change: StoreChange) -> Item:
@@ -335,7 +256,7 @@ class TickerItem(NamedTuple):
 class TickerStore(TransformedDataStore):
     _KEYS = ["symbol"]
 
-    def _transform_data(self, change: 'StoreChange') -> 'TickerItem':
+    def _transform_data(self, change: "StoreChange") -> "TickerItem":
         raise NotImplementedError
 
 
@@ -351,7 +272,7 @@ class TradesItem(NamedTuple):
 class TradesStore(TransformedDataStore):
     _KEYS = ["id", "symbol"]
 
-    def _transform_data(self, change: 'StoreChange') -> 'TradesItem':
+    def _transform_data(self, change: "StoreChange") -> "TradesItem":
         raise NotImplementedError
 
 
@@ -369,7 +290,7 @@ class OrderbookStore(TransformedDataStore):
         super(OrderbookStore, self).__init__(*args, **kwargs)
         self._mid = None
 
-    def _transform_data(self, change: 'StoreChange') -> 'OrderbookItem':
+    def _transform_data(self, change: "StoreChange") -> "OrderbookItem":
         raise NotImplementedError
 
     def _on_wait(self):
