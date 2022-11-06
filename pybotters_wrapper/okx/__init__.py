@@ -1,3 +1,3 @@
-from .socket import OKXSocketChannels
-from .store import OKXDataStoreWrapper
+from .socket import OKXWebsocketChannels
+from .store import OKXDataStoreManagerWrapper
 from . import plugins

@@ -1,7 +1,7 @@
-from pybotters_wrapper.common import SocketChannels
+from pybotters_wrapper.common import WebsocketChannels
 
 
-class CoinCheckSocketChannels(SocketChannels):
+class CoinCheckWebsocketChannels(WebsocketChannels):
     ENDPOINT = "wss://ws-api.coincheck.com/"
 
     @classmethod

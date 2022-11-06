@@ -1,3 +1,3 @@
-from .socket import FTXSocketChannels
-from .store import FTXDataStoreWrapper
+from .socket import FTXWebsocketChannels
+from .store import FTXDataStoreManagerWrapper
 from . import plugins

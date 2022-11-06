@@ -1,62 +1,55 @@
-from pybotters_wrapper.common import SocketChannels
+import uuid
+
+from pybotters_wrapper.common import WebsocketChannels
 
 
-class BitflyerSocketChannels(SocketChannels):
-    ID = 0
+class bitFlyerWebsocketChannels(WebsocketChannels):
     ENDPOINT = "wss://ws.lightstream.bitflyer.com/json-rpc"
 
-    @classmethod
-    def _subscribe(cls, channel, **kwargs):
-        params = {"method": "subscribe", "params": {"channel": channel, "id": cls.ID}}
+    def _make_endpoint_and_request_pair(self, channel, **kwargs) -> dict:
+        params = {
+            "method": "subscribe",
+            "params": {"channel": channel, "id": str(uuid.uuid4())},
+        }
         params.update(kwargs)
-        BitflyerSocketChannels.ID += 1
-        return params
+        return self.ENDPOINT, params
 
-    @classmethod
-    def ticker(cls, symbol):
-        return cls._subscribe(f"lightning_ticker_{symbol}")
+    # common channel methods
+    def ticker(self, symbol, **kwargs):
+        return self._subscribe(f"lightning_ticker_{symbol}")
 
-    @classmethod
-    def board(cls, symbol):
-        return cls._subscribe(f"lightning_board_{symbol}")
+    def orderbook(self, symbol, **kwargs):
+        return [self.board(symbol), self.board_snapshot(symbol)]
 
-    @classmethod
-    def book(cls, symbol, **kwargs):
-        return [cls.board(symbol), cls.board_snapshot(symbol)]
+    def trades(self, symbol, **kwargs):
+        return self.executions(symbol)
 
-    @classmethod
-    def board_snapshot(cls, symbol):
-        return cls._subscribe(f"lightning_board_snapshot_{symbol}")
+    # exchange channel methods
+    def board(self, symbol):
+        return self._subscribe(f"lightning_board_{symbol}")
 
-    @classmethod
-    def executions(cls, symbol):
-        return cls._subscribe(f"lightning_executions_{symbol}")
+    def board_snapshot(self, symbol):
+        return self._subscribe(f"lightning_board_snapshot_{symbol}")
 
-    @classmethod
-    def trades(cls, symbol, **kwargs):
-        return cls.executions(symbol)
+    def executions(self, symbol):
+        return self._subscribe(f"lightning_executions_{symbol}")
 
-    @classmethod
-    def child_order(cls):
-        return cls._subscribe("child_order_events")
+    def child_order(self):
+        return self._subscribe("child_order_events")
 
-    @classmethod
-    def parent_order(cls):
-        return cls._subscribe("parent_order_envets")
+    def parent_order(self):
+        return self._subscribe("parent_order_envets")
 
-    @classmethod
-    def public_channels(cls, symbol):
+    def public(self, symbol):
         return [
-            cls.ticker(symbol),
-            cls.board(symbol),
-            cls.board_snapshot(symbol),
-            cls.executions(symbol),
+            self.ticker(symbol),
+            self.board(symbol),
+            self.board_snapshot(symbol),
+            self.executions(symbol),
         ]
 
-    @classmethod
-    def private_channels(cls):
-        return [cls.child_order(), cls.parent_order()]
+    def private_channels(self):
+        return [self.child_order(), self.parent_order()]
 
-    @classmethod
-    def all_channels(cls, symbol):
-        return cls.public_channels(symbol) + cls.private_channels()
+    def all_channels(self, symbol):
+        return self.public(symbol) + self.private()

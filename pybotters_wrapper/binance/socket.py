@@ -1,7 +1,7 @@
-from pybotters_wrapper.common import SocketChannels
+from pybotters_wrapper.common import WebsocketChannels
 
 
-class BinanceSocketChannels(SocketChannels):
+class BinanceWebsocketChannels(WebsocketChannels):
     ID = 0
     ENDPOINT = "wss://fstream.binance.com/ws"
 

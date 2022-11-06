@@ -1,3 +1,3 @@
-from .socket import BybitSocket
-from .store import BybitUSDTDataStoreWrapper
+from .socket import BybitUSDTWebsocketChannels
+from .store import BybitUSDTDataStoreManagerWrapper
 from . import plugins

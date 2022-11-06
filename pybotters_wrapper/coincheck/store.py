@@ -1,9 +1,9 @@
 from pybotters.models.coincheck import CoincheckDataStore
-from pybotters_wrapper.common import DataStoreWrapper
+from pybotters_wrapper.common import DataStoreManagerWrapper
 
 
-class CoincheckDataStoreWrapper(DataStoreWrapper[CoincheckDataStore]):
+class CoincheckDataStoreManagerWrapper(DataStoreManagerWrapper[CoincheckDataStore]):
     def __init__(self, store: CoincheckDataStore = None, *args, **kwargs):
-        super(CoincheckDataStoreWrapper, self).__init__(
+        super(CoincheckDataStoreManagerWrapper, self).__init__(
             store or CoincheckDataStore(), *args, **kwargs
         )

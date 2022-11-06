@@ -1,12 +1,12 @@
 from pybotters.models.binance import BinanceDataStore
-from pybotters_wrapper.common import DataStoreWrapper
-from pybotters_wrapper.binance import BinanceSocketChannels
+from pybotters_wrapper.common import DataStoreManagerWrapper
+from pybotters_wrapper.binance import BinanceWebsocketChannels
 
 
-class BinanceDataStoreWrapper(DataStoreWrapper[BinanceDataStore]):
-    _SOCKET = BinanceSocketChannels
+class BinanceDataStoreManagerWrapper(DataStoreManagerWrapper[BinanceDataStore]):
+    _SOCKET_CHANNELS_CLS = BinanceWebsocketChannels
 
     def __init__(self, store: BinanceDataStore = None, *args, **kwargs):
-        super(BinanceDataStoreWrapper, self).__init__(
+        super(BinanceDataStoreManagerWrapper, self).__init__(
             store or BinanceDataStore(), *args, **kwargs
         )

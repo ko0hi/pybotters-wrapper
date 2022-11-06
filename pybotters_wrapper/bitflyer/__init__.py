@@ -1,4 +1,4 @@
 from .api import BitflyerAPI
-from .socket import BitflyerSocketChannels
-from .store import BitflyerDataStoreWrapper
+from .socket import bitFlyerWebsocketChannels
+from .store import bitFlyerDataStoreManagerWrapper
 from . import plugins

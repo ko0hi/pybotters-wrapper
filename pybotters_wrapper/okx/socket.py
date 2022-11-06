@@ -1,7 +1,7 @@
-from pybotters_wrapper.common import SocketChannels
+from pybotters_wrapper.common import WebsocketChannels
 
 
-class OKXSocketChannels(SocketChannels):
+class OKXWebsocketChannels(WebsocketChannels):
     ENDPOINT = "wss://ws.okx.com:8443/ws/v5/public"
 
     @classmethod

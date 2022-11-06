@@ -1,14 +1,22 @@
-from pybotters_wrapper.common import SocketChannels
+from pybotters_wrapper.common import WebsocketChannels
 
 
-class BybitSocket(SocketChannels):
-    ENDPOINT = "wss://stream.bybit.com/realtime"
+class BybitUSDTWebsocketChannels(WebsocketChannels):
+    ENDPOINT = "wss://stream.bybit.com/realtime_public"
 
-    @classmethod
-    def _subscribe(cls, *args):
-        params = {"op": "subscribe", "args": list(args)}
-        return params
+    def _make_endpoint_and_request_pair(self, *args):
+        reequest = {"op": "subscribe", "args": list(args)}
+        return self.ENDPOINT, reequest
 
-    @classmethod
-    def trades(cls, symbol, **kwargs):
-        return cls._subscribe(f"trade.{symbol}")
+    def ticker(self, symbol: str, **kwargs):
+        return self.instrument(symbol, **kwargs)
+
+    def trades(self, symbol: str, **kwargs):
+        return self._subscribe(f"trade.{symbol}")
+
+    def orderbook(self, symbol: str, **kwargs):
+        return self._subscribe(f"orderBook_200.100ms.{symbol}")
+
+
+    def instrument(self, symbol: str, **kwargs):
+        return self._subscribe(f"instrument_info.100ms.{symbol}")
