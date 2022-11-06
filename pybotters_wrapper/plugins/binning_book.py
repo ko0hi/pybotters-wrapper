@@ -5,8 +5,11 @@ import numpy as np
 import pybotters
 from pybotters.store import DataStore
 
+from pybotters_wrapper.common import DataStoreManagerWrapper
+from pybotters_wrapper.common.store import OrderbookStore
 from pybotters_wrapper.utils import Bucket
-from pybotters_wrapper.plugins import WatchPlugin
+
+from ._base import DataStorePlugin
 
 
 T = TypeVar('T', bound=DataStore)
@@ -19,30 +22,29 @@ class BookChange(NamedTuple):
     size: float
 
 
-class Book(WatchPlugin[T]):
+class BinningBook(DataStorePlugin):
     def __init__(
         self,
-        store: DataStore,
-        min_key: int,
-        max_key: int,
+        store: DataStoreManagerWrapper,
+        *,
+        min_bin: int,
+        max_bin: int,
         pips: int = 1,
         precision: int = 10,
     ):
-        super(Book, self).__init__(store)
+        super(BinningBook, self).__init__(store.orderbook)
         self._buckets: dict[Bucket] = {
-            "ask": Bucket(min_key, max_key, pips, precision),
-            "bid": Bucket(min_key, max_key, pips, precision),
+            "SELL": Bucket(min_bin, max_bin, pips, precision),
+            "BUY": Bucket(min_bin, max_bin, pips, precision),
         }
         self._mid = None
 
-    def update(self, d: dict, op: str, **kwargs):
-        self.set_mid(d["mid"])
+    def on_watch(self, d: dict, op: str):
+        self.set_mid(self.store.mid)
         if op == "insert":
             self._insert(d["side"], d["price"], d["size"])
         elif op == "delete":
             self._delete(d["side"], d["price"], d["size"])
-        else:
-            raise RuntimeError(f"Unsupported: {op}")
 
     def _insert(self, side: str, price, size):
         self._buckets[side].insert(price, size)
@@ -90,9 +92,11 @@ class Book(WatchPlugin[T]):
 
     def _find_best_ask(self):
         start = self.ask_bucket.bucketize(self._mid) if self._mid else 0
-        for i in range(start, self.ask_bucket.size()):
+        n = self.ask_bucket.size()
+        for i in range(start, n):
             if self.ask_bucket.get(i) > 0:
                 return i
+        return n-1
 
     def _find_best_bid(self):
         start = (
@@ -103,6 +107,7 @@ class Book(WatchPlugin[T]):
         for i in range(start, 0, -1):
             if self.bid_bucket.get(i) > 0:
                 return i
+        return 0
 
     def bucket(self, side):
         return self._buckets[side]
@@ -121,11 +126,11 @@ class Book(WatchPlugin[T]):
 
     @property
     def ask_bucket(self):
-        return self._buckets["ask"]
+        return self._buckets["SELL"]
 
     @property
     def bid_bucket(self):
-        return self._buckets["bid"]
+        return self._buckets["BUY"]
 
     @classmethod
     def _make_returns(cls, bucket: Bucket, lhs, rhs, non_zero_only=True, is_bid=False):
