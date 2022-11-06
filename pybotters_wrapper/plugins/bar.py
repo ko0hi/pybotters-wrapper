@@ -220,3 +220,24 @@ class TimeBarStreamDataFrame(BarStreamDataFrame):
     def remaining_time(self):
         return 1 - (self.remain_seconds / self._seconds)
 
+
+class VolumeBarStreamDataFrame(BarStreamDataFrame):
+    def __init__(
+        self,
+        store: DataStoreManagerWrapper,
+        *,
+        volume_unit: float,
+        maxlen: int = 9999,
+        df: pd.DataFrame = None,
+        callback: Callable[[pd.DataFrame], any] = None,
+    ):
+        super(VolumeBarStreamDataFrame, self).__init__(
+            store,
+            maxlen=maxlen,
+            df=df,
+            callback=callback,
+        )
+        self._volume_unit = volume_unit
+
+    def _is_new_bar(self, d: dict, op: str, **kwargs) -> bool:
+        return self._cur_bar["size"] > self._volume_unit
