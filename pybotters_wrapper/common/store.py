@@ -48,9 +48,6 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
     def onmessage(self, msg: "Item", ws: "ClientWebSocketResponse") -> None:
         self._store.onmessage(msg, ws)
 
-        for p in self._plugins.values():
-            p.onmessage(msg, ws, self.store)
-
     def subscribe(
         self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
     ) -> "DataStoreManagerWrapper":

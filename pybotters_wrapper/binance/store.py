@@ -6,7 +6,6 @@ from pybotters_wrapper.binance import BinanceWebsocketChannels
 class BinanceDataStoreManagerWrapper(DataStoreManagerWrapper[BinanceDataStore]):
     _SOCKET_CHANNELS_CLS = BinanceWebsocketChannels
 
-    def __init__(self, store: BinanceDataStore = None, *args, **kwargs):
-        super(BinanceDataStoreManagerWrapper, self).__init__(
-            store or BinanceDataStore(), *args, **kwargs
-        )
+    def __init__(self, store: BinanceDataStore = None):
+        super(BinanceDataStoreManagerWrapper, self).__init__(store or BinanceDataStore())
+        raise NotImplementedError
