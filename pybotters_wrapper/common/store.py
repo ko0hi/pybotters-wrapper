@@ -101,7 +101,7 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
         self._normalized_stores["trades"] = self._init_trades_store()
         self._normalized_stores["orderbook"] = self._init_orderbook_store()
 
-    def _init_transformed_store(self, cls_name_tuple):
+    def _init_normalized_store(self, cls_name_tuple):
         if cls_name_tuple is None:
             return None
         if isinstance(cls_name_tuple[1], str):
@@ -114,13 +114,13 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
             return store_cls(*stores)
 
     def _init_ticker_store(self) -> "TickerStore" | None:
-        return self._init_transformed_store(self._TICKER_STORE)
+        return self._init_normalized_store(self._TICKER_STORE)
 
     def _init_trades_store(self) -> "TradesStore" | None:
-        return self._init_transformed_store(self._TRADES_STORE)
+        return self._init_normalized_store(self._TRADES_STORE)
 
     def _init_orderbook_store(self) -> "OrderbookStore" | None:
-        return self._init_transformed_store(self._ORDERBOOK_STORE)
+        return self._init_normalized_store(self._ORDERBOOK_STORE)
 
     def _parse_endpoint(self, endpoint) -> str:
         return endpoint or self._ws_channels.ENDPOINT
