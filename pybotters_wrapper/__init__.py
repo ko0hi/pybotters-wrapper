@@ -18,7 +18,9 @@ from pybotters_wrapper.utils.bucket import Bucket
 
 from ._apis import (
     create_store,
-    create_plugin
+    create_api,
+    create_plugin,
+    get_base_url
 )
 
 log = utils.logger.log

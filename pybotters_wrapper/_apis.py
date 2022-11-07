@@ -1,8 +1,11 @@
+from typing import Type
+
+import pybotters
 from pybotters.store import DataStoreManager
 
 import pybotters_wrapper as pbw
 
-from pybotters_wrapper.common import DataStoreManagerWrapper
+from pybotters_wrapper.common import DataStoreManagerWrapper, API
 from pybotters_wrapper import plugins
 
 EXCHANGE2STORE = {
@@ -18,11 +21,19 @@ EXCHANGE2STORE = {
     "phemex": pbw.phemex.PhemexDataStoreManagerWrapper,
 }
 
+EXCHANGE2API: dict[str, Type[API]] = {
+    "ftx": pbw.ftx.FTXAPI
+}
+
 
 def create_store(
     exchange: str, *, store: DataStoreManager = None, **kwargs
 ) -> DataStoreManagerWrapper:
     return EXCHANGE2STORE[exchange](store, **kwargs)
+
+
+def create_api(exchange: str, client: pybotters.Client, **kwargs) -> API:
+    return EXCHANGE2API[exchange](client, **kwargs)
 
 
 def create_plugin(
@@ -33,3 +44,7 @@ def create_plugin(
     except AttributeError:
         raise RuntimeError(f"Unsupported plugin: {name}")
     return factory_fn(store, **kwargs)
+
+
+def get_base_url(exchange: str) -> str:
+    return EXCHANGE2API[exchange].BASE_URL
