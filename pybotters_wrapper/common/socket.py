@@ -17,6 +17,7 @@ class WebsocketChannels(LoggingMixin):
     def __init__(self):
         # endpoint-2-channels
         self._subscribe_list = defaultdict(list)
+        self._cash = defaultdict(set)
 
     def add(self, channel, **kwargs):
         return getattr(self, channel)(**kwargs)
@@ -26,8 +27,12 @@ class WebsocketChannels(LoggingMixin):
 
     def _subscribe(self, *args, **kwargs) -> dict:
         endpoint, send = self._make_endpoint_and_request_pair(*args, **kwargs)
-        self._subscribe_list[endpoint].append(send)
-        self.log(f"Add socket channel: {endpoint} / {send}")
+        send_str = str(send)
+        if send_str not in self._cash[endpoint]:
+            self._subscribe_list[endpoint].append(send)
+            self._cash[endpoint].add(send_str)
+            self.log(f"Add socket channel: {endpoint} / {send}")
+
         return endpoint, send
 
     def _make_endpoint_and_request_pair(self, *args, **kwargs) -> [str, dict]:
