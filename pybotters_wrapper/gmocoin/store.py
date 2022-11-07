@@ -1,4 +1,3 @@
-import uuid
 import pandas as pd
 
 from pybotters.models.gmocoin import GMOCoinDataStore
@@ -8,14 +7,14 @@ from pybotters_wrapper.gmocoin import GMOWebsocketChannels
 
 
 class GMOCoinTickerStore(TickerStore):
-    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
+    def _normalize(self, d: dict, op: str) -> "TickerItem":
         return {"symbol": str(d["symbol"]), "price": float(d["last"])}
 
 
 class GMOCoinTradesStore(TradesStore):
-    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
+    def _normalize(self, d: dict, op: str) -> "TickerItem":
         return {
-            "id": uuid.uuid4(),
+            "id": hash(tuple(d)),
             "symbol": str(d["symbol"]),
             "side": str(d["side"]),
             "price": float(d["price"]),
@@ -25,7 +24,7 @@ class GMOCoinTradesStore(TradesStore):
 
 
 class GMOCoinOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
+    def _normalize(self, d: dict, op: str) -> "TickerItem":
         return {
             "symbol": str(d["symbol"]),
             "side": str(d["side"]),

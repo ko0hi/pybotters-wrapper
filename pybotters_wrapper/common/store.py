@@ -217,32 +217,43 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
 
 
 class NormalizedDataStore(DataStore):
-    def __init__(self, *stores: DataStore, auto_cast=False):
+    def __init__(self, store: DataStore, auto_cast=False):
         super(NormalizedDataStore, self).__init__(auto_cast=auto_cast)
-        self._stores = stores
-        self._watch_tasks = [
-            asyncio.create_task(self._watch_store(ds)) for ds in stores
-        ]
+        self._store = store
+        self._watch_task = asyncio.create_task(self._watch_store())
 
-    async def _watch_store(self, store: DataStore):
-        with store.watch() as stream:
+    async def _wait_store(self):
+        while True:
+            await self._store.wait()
+            self._on_wait()
+
+    async def _watch_store(self):
+        with self._store.watch() as stream:
             async for change in stream:
-                method = self._get_method(change, store)
-                transformed_data = self._normalize(
-                    {**change.data}, change.operation, store
-                )
-                method([self._make_register_item(transformed_data, change, store)])
+                self._on_watch(change)
+                self._register(change)
 
-    def _get_method(self, change: "StoreChange", store: "DataStore") -> Callable:
+    def _on_wait(self):
+        ...
+
+    def _on_watch(self, change: "StoreChange"):
+        ...
+
+    def _get_method(self, change: "StoreChange") -> Callable:
         return getattr(self, f"_{change.operation}")
 
-    def _normalize(self, d: dict, op: str, store: "DataStore") -> "Item":
+    def _normalize(self, d: dict, op: str) -> "Item":
         return d
 
     def _make_register_item(
-        self, transformed_item: "Item", change: "StoreChange", store: "DataStore"
+        self, transformed_item: "Item", change: "StoreChange"
     ) -> "Item":
         return {**transformed_item, "info": change.data}
+
+    def _register(self, change: "StoreChange"):
+        method = self._get_method(change)
+        normalized_data = self._normalize({**change.data}, change.operation)
+        method([self._make_register_item(normalized_data, change)])
 
 
 class TickerItem(NamedTuple):
@@ -253,7 +264,7 @@ class TickerItem(NamedTuple):
 class TickerStore(NormalizedDataStore):
     _KEYS = ["symbol"]
 
-    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
+    def _normalize(self, d: dict, op: str) -> "TickerItem":
         raise NotImplementedError
 
 
@@ -269,7 +280,7 @@ class TradesItem(NamedTuple):
 class TradesStore(NormalizedDataStore):
     _KEYS = ["id", "symbol"]
 
-    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TradesItem":
+    def _normalize(self, d: dict, op: str) -> "TradesItem":
         raise NotImplementedError
 
 
@@ -287,7 +298,7 @@ class OrderbookStore(NormalizedDataStore):
         super(OrderbookStore, self).__init__(*args, **kwargs)
         self._mid = None
 
-    def _normalize(self, d: dict, op: str, store: "DataStore") -> "OrderbookItem":
+    def _normalize(self, d: dict, op: str) -> "OrderbookItem":
         raise NotImplementedError
 
     def _on_wait(self):
@@ -313,14 +324,47 @@ class OrderbookStore(NormalizedDataStore):
         return self._mid
 
 
-class OrderEventItem(NamedTuple):
+class OrderItem(NamedTuple):
     id: str
-    status: str  # ordered, filled, canceled
     symbol: str
+    side: str
+    price: float
+    size: float
+    type: str
+
+
+class OrderStore(NormalizedDataStore):
+    _KEYS = ["id", "symbol"]
+
+    def _normalize(self, d: dict, op: str) -> "OrderItem":
+        raise NotImplementedError
+
+
+class ExecutionItem(NamedTuple):
+    id: str
+    symbol: str
+    side: str
+    price: float
     size: float
     timestamp: pd.Timestamp
 
 
-class OrderEventStore(NormalizedDataStore):
-    def _normalize(self, d: dict, op: str, store: "DataStore") -> "OrderEventStore":
+class ExecutionStore(NormalizedDataStore):
+    _KEYS = ["id", "symbol"]
+
+    def _normalize(self, d: dict, op: str) -> "ExecutionItem":
+        raise NotImplementedError
+
+
+class PositionItem(NamedTuple):
+    symbol: str
+    side: str
+    price: float
+    size: float
+
+
+class PositionStore(NormalizedDataStore):
+    _KEYS = ["symbol", "side"]
+
+    def _normalize(self, d: dict, op: str) -> "PositionItem":
         raise NotImplementedError

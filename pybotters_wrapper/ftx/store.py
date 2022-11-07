@@ -2,33 +2,81 @@ import pandas as pd
 from pybotters.models.ftx import FTXDataStore
 
 from pybotters_wrapper.common import DataStoreManagerWrapper
-from pybotters_wrapper.common.store import TickerStore, TradesStore, OrderbookStore
+from pybotters_wrapper.common.store import (
+    TickerStore,
+    TradesStore,
+    OrderbookStore,
+    OrderStore,
+    ExecutionStore,
+    PositionStore
+)
 from pybotters_wrapper.ftx import FTXWebsocketChannels
 
 
 class FTXTickerStore(TickerStore):
-    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
+    def _normalize(self, d: dict, op: str) -> "TickerItem":
         return {"symbol": d["market"], "price": d["last"]}
 
 
 class FTXTradesStore(TradesStore):
-    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
+    def _normalize(self, d: dict, op: str) -> "TickerItem":
         return {
             "id": d["id"],
             "symbol": d["market"],
             "side": d["side"].upper(),
             "price": d["price"],
             "size": d["size"],
-            "timestamp": pd.to_datetime(d["time"])
+            "timestamp": pd.to_datetime(d["time"]),
         }
 
 
 class FTXOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
+    def _normalize(self, d: dict, op: str) -> "TickerItem":
         return {
             "symbol": d["market"],
             "side": d["side"].upper(),
             "price": d["price"],
+            "size": d["size"],
+        }
+
+
+class FTXOrderStore(OrderStore):
+    def _normalize(self, d: dict, op: str) -> "OrderItem":
+        return {
+            "id": d["id"],
+            "symbol": d["market"],
+            "side": d["side"].upper(),
+            "price": d["price"],
+            "size": d["remainingSize"],
+            "type": d["type"].upper()
+        }
+
+
+class FTXExecutionStore(ExecutionStore):
+    def _normalize(self, d: dict, op: str) -> "ExecutionItem":
+        return {
+            "id": d["id"],
+            "symbol": d["market"],
+            "side": d["side"].upper(),
+            "price": d["price"],
+            "size": d["size"],
+            "timestamp": pd.to_datetime(d["time"]),
+        }
+
+
+class FTXPositionStore(PositionStore):
+    def _normalize(self, d: dict, op: str) -> "PositionItem":
+        if d["netSize"] == 0:
+            side = None
+        elif d["netSize"] > 0:
+            side = "BUY"
+        else:
+            side = "SELL"
+
+        return {
+            "symbol": d["future"],
+            "price": d["entryPrice"],
+            "side": side,
             "size": d["size"]
         }
 
@@ -39,6 +87,6 @@ class FTXDataStoreManagerWrapper(DataStoreManagerWrapper[FTXDataStore]):
     _TRADES_STORE = (FTXTradesStore, "trades")
     _ORDERBOOK_STORE = (FTXOrderbookStore, "orderbook")
 
+
     def __init__(self, store: FTXDataStore = None):
         super(FTXDataStoreManagerWrapper, self).__init__(store or FTXDataStore())
-
