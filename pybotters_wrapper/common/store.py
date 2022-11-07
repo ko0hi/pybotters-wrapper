@@ -203,20 +203,16 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
         return self._normalized_stores["orderbook"]
 
     @property
-    def board(self):
-        raise NotImplementedError
+    def order(self):
+        return self._normalized_stores["order"]
 
     @property
-    def events(self):
-        raise NotImplementedError
+    def execution(self):
+        return self._normalized_stores["execution"]
 
     @property
     def position(self):
-        raise NotImplementedError
-
-    @property
-    def orders(self):
-        raise NotImplementedError
+        return self._normalized_stores["position"]
 
     @property
     def exchange(self):
