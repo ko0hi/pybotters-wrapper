@@ -55,7 +55,7 @@ class FTXOrderStore(OrderStore):
 class FTXExecutionStore(ExecutionStore):
     def _normalize(self, d: dict, op: str) -> "ExecutionItem":
         return {
-            "id": d["id"],
+            "id": str(d["orderId"]),
             "symbol": d["market"],
             "side": d["side"].upper(),
             "price": d["price"],

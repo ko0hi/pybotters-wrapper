@@ -6,7 +6,6 @@ import pandas as pd
 
 from pybotters.store import DataStore
 
-from pybotters_wrapper.common import DataStoreManagerWrapper
 from pybotters_wrapper.plugins import DataStorePlugin
 from pybotters_wrapper.utils import StreamDataFrame
 
@@ -25,7 +24,7 @@ class BarStreamDataFrame(DataStorePlugin):
 
     def __init__(
         self,
-        store: DataStoreManagerWrapper,
+        store: 'DataStoreManagerWrapper',
         *,
         maxlen: int = 9999,
         df: pd.DataFrame = None,
@@ -165,7 +164,7 @@ class BarStreamDataFrame(DataStorePlugin):
 class TimeBarStreamDataFrame(BarStreamDataFrame):
     def __init__(
         self,
-        store: DataStoreManagerWrapper,
+        store: 'DataStoreManagerWrapper',
         *,
         seconds: int,
         maxlen: int = 9999,
@@ -224,7 +223,7 @@ class TimeBarStreamDataFrame(BarStreamDataFrame):
 class VolumeBarStreamDataFrame(BarStreamDataFrame):
     def __init__(
         self,
-        store: DataStoreManagerWrapper,
+        store: 'DataStoreManagerWrapper',
         *,
         volume_unit: float,
         maxlen: int = 9999,

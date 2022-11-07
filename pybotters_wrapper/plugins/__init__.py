@@ -8,6 +8,7 @@ from ._base import DataStorePlugin, MultipleDataStoresPlugin
 from .bar import TimeBarStreamDataFrame, VolumeBarStreamDataFrame
 from .binning_book import BinningBook
 from .book_ticker import BookTicker
+from .execution_watcher import ExecutionWatcher
 
 from pybotters_wrapper.common import DataStoreManagerWrapper
 
@@ -103,3 +104,7 @@ def binningbook(
 
 def bookticker(store: DataStoreManagerWrapper) -> BookTicker:
     return _import_and_build_plugin(store, "bookticker", default_cls=BookTicker)
+
+
+def execution_watcher(store: DataStoreManagerWrapper) -> ExecutionWatcher:
+    return _import_and_build_plugin(store, "execution", default_cls=ExecutionWatcher)

@@ -5,14 +5,12 @@ import numpy as np
 import pybotters
 from pybotters.store import DataStore
 
-from pybotters_wrapper.common import DataStoreManagerWrapper
-from pybotters_wrapper.common.store import OrderbookStore
 from pybotters_wrapper.utils import Bucket
 
 from ._base import DataStorePlugin
 
 
-T = TypeVar('T', bound=DataStore)
+T = TypeVar("T", bound=DataStore)
 
 
 class BookChange(NamedTuple):
@@ -25,7 +23,7 @@ class BookChange(NamedTuple):
 class BinningBook(DataStorePlugin):
     def __init__(
         self,
-        store: DataStoreManagerWrapper,
+        store: "DataStoreManagerWrapper",
         *,
         min_bin: int,
         max_bin: int,
@@ -96,7 +94,7 @@ class BinningBook(DataStorePlugin):
         for i in range(start, n):
             if self.ask_bucket.get(i) > 0:
                 return i
-        return n-1
+        return n - 1
 
     def _find_best_bid(self):
         start = (
