@@ -17,7 +17,10 @@ LOG_FORMAT_WITH_ICON = (
 def init_logger(
     logfile=None, enable_icon=False, retention=3, rotation="10MB", **kwargs
 ):
-    logger.remove(0)
+    try:
+        logger.remove(0)
+    except ValueError:
+        pass
     fmt = LOG_FORMAT_WITH_ICON if enable_icon else LOG_FORMAT
     logger.add(sys.stderr, format=fmt, **kwargs)
 
