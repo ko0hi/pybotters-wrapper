@@ -122,31 +122,31 @@ class BarStreamDataFrame(DataStorePlugin):
         raise NotImplementedError
 
     @property
-    def open(self):
+    def open(self) -> np.ndarray:
         return self.df["open"].values
 
     @property
-    def high(self):
+    def high(self) -> np.ndarray:
         return self.df["high"].values
 
     @property
-    def low(self):
+    def low(self) -> np.ndarray:
         return self.df["low"].values
 
     @property
-    def close(self):
+    def close(self) -> np.ndarray:
         return self.df["close"].values
 
     @property
-    def size(self):
+    def size(self) -> np.ndarray:
         return self.df["size"].values
 
     @property
-    def buy_size(self):
+    def buy_size(self) -> np.ndarray:
         return self.df["buy_size"].values
 
     @property
-    def sell_size(self):
+    def sell_size(self) -> np.ndarray:
         return self.df["sell_size"].values
 
     @property
