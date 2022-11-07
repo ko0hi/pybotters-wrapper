@@ -100,6 +100,9 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
         self._normalized_stores["ticker"] = self._init_ticker_store()
         self._normalized_stores["trades"] = self._init_trades_store()
         self._normalized_stores["orderbook"] = self._init_orderbook_store()
+        self._normalized_stores["order"] = self._init_order_store()
+        self._normalized_stores["execution"] = self._init_execution_store()
+        self._normalized_stores["position"] = self._init_position_store()
 
     def _init_normalized_store(self, cls_name_tuple):
         if cls_name_tuple is None:
@@ -121,6 +124,15 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
 
     def _init_orderbook_store(self) -> "OrderbookStore" | None:
         return self._init_normalized_store(self._ORDERBOOK_STORE)
+
+    def _init_order_store(self) -> "OrderStore" | None:
+        return self._init_normalized_store(self._ORDER_STORE)
+
+    def _init_execution_store(self) -> "ExecutionStore" | None:
+        return self._init_normalized_store(self._EXECUTION_STORE)
+
+    def _init_position_store(self) -> "PositionStore" | None:
+        return self._init_normalized_store(self._POSITION_STORE)
 
     def _parse_endpoint(self, endpoint) -> str:
         return endpoint or self._ws_channels.ENDPOINT
