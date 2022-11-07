@@ -191,39 +191,39 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
 
     # common stores
     @property
-    def ticker(self):
+    def ticker(self) -> TickerStore:
         return self._normalized_stores["ticker"]
 
     @property
-    def trades(self):
+    def trades(self) -> TradesStore:
         return self._normalized_stores["trades"]
 
     @property
-    def orderbook(self):
+    def orderbook(self) -> OrderbookStore:
         return self._normalized_stores["orderbook"]
 
     @property
-    def order(self):
+    def order(self) -> OrderStore:
         return self._normalized_stores["order"]
 
     @property
-    def execution(self):
+    def execution(self) -> ExecutionStore:
         return self._normalized_stores["execution"]
 
     @property
-    def position(self):
+    def position(self) -> PositionStore:
         return self._normalized_stores["position"]
 
     @property
-    def exchange(self):
+    def exchange(self) -> str:
         return self.__module__.split(".")[-2]
 
     @property
-    def ws_connections(self):
+    def ws_connections(self) -> list[WebsocketConnection]:
         return self._ws_connections
 
     @property
-    def ws_channels(self):
+    def ws_channels(self) -> WebsocketChannels:
         return self._ws_channels
 
 
