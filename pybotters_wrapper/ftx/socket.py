@@ -17,3 +17,9 @@ class FTXWebsocketChannels(WebsocketChannels):
 
     def orderbook(self, symbol: str, **kwargs):
         return self._subscribe("orderbook", market=symbol)
+
+    def fills(self, **kwargs):
+        return self._subscribe("fills")
+
+    def orders(self, **kwargs):
+        return self._subscribe("orders")
