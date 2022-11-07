@@ -7,12 +7,12 @@ from pybotters_wrapper.ftx import FTXWebsocketChannels
 
 
 class FTXTickerStore(TickerStore):
-    def _normalize(self, d:  dict, op) -> 'TickerItem':
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
         return {"symbol": d["market"], "price": d["last"]}
 
 
 class FTXTradesStore(TradesStore):
-    def _normalize(self, d: dict, op) -> 'TradesItem':
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
         return {
             "id": d["id"],
             "symbol": d["market"],
@@ -24,7 +24,7 @@ class FTXTradesStore(TradesStore):
 
 
 class FTXOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op) -> 'OrderbookItem':
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
         return {
             "symbol": d["market"],
             "side": d["side"].upper(),

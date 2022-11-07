@@ -6,12 +6,12 @@ from pybotters_wrapper.bybit import BybitUSDTWebsocketChannels
 
 
 class BybitUSDTTickerStore(TickerStore):
-    def _normalize(self, d: dict, op) -> "TickerItem":
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
         return {"symbol": d["symbol"], "price": d["last_price"]}
 
 
 class BybitUSDTTradesStore(TradesStore):
-    def _normalize(self, d: dict, op) -> "TradesItem":
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
         return {
             "id": d["trade_id"],
             "symbol": d["symbol"],
@@ -23,7 +23,7 @@ class BybitUSDTTradesStore(TradesStore):
 
 
 class BybitUSDTOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op) -> "OrderbookItem":
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
         return {
             "symbol": d["symbol"],
             "side": d["side"].upper(),

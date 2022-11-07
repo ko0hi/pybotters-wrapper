@@ -11,7 +11,7 @@ from pybotters_wrapper.bitflyer import bitFlyerWebsocketChannels
 
 
 class bitFlyerTickerStore(TickerStore):
-    def _normalize(self, d: dict, op) -> "TickerItem":
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
         return {
             "symbol": d["product_code"],
             "price": d["ltp"],
@@ -19,7 +19,7 @@ class bitFlyerTickerStore(TickerStore):
 
 
 class bitFlyerTradesStore(TradesStore):
-    def _normalize(self, d: dict, op) -> "TradesItem":
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
         side = d["side"]
         if side:
             order_id = side.lower() + "_child_order_acceptance_id"
@@ -36,7 +36,7 @@ class bitFlyerTradesStore(TradesStore):
 
 
 class bitFlyerOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op) -> "OrderbookItem":
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
         return {
             "symbol": d["product_code"],
             "side": d["side"],

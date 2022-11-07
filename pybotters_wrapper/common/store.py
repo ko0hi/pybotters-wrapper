@@ -25,9 +25,9 @@ T = TypeVar("T", bound=DataStoreManager)
 class DataStoreManagerWrapper(Generic[T], LoggingMixin):
     _SOCKET_CHANNELS_CLS: Type[WebsocketChannels] = None
 
-    _TICKER_STORE: tuple[Type[TickerStore], str] = None
-    _TRADES_STORE: tuple[Type[TradesStore], str] = None
-    _ORDERBOOK_STORE: tuple[Type[OrderbookStore], str] = None
+    _TICKER_STORE: tuple[Type[TickerStore], str | tuple[str]] = None
+    _TRADES_STORE: tuple[Type[TradesStore], str | tuple[str]] = None
+    _ORDERBOOK_STORE: tuple[Type[OrderbookStore], str | tuple[str]] = None
 
     def __init__(self, store: T):
         self._store = store
@@ -101,8 +101,14 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
     def _init_transformed_store(self, cls_name_tuple):
         if cls_name_tuple is None:
             return None
-        store_cls, store_name = cls_name_tuple
-        return store_cls(getattr(self.store, store_name))
+        if isinstance(cls_name_tuple[1], str):
+            store_cls, store_name = cls_name_tuple
+            return store_cls(getattr(self.store, store_name))
+        elif isinstance(cls_name_tuple[1], (tuple, list)):
+            store_cls = cls_name_tuple[0]
+            store_names = cls_name_tuple[1]
+            stores = [getattr(self.store, name) for name in store_names]
+            return store_cls(*stores)
 
     def _init_ticker_store(self) -> "TickerStore" | None:
         return self._init_transformed_store(self._TICKER_STORE)
@@ -211,38 +217,30 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
 
 
 class NormalizedDataStore(DataStore):
-    def __init__(self, ds: DataStore, *, auto_cast=False):
+    def __init__(self, *stores: DataStore, auto_cast=False):
         super(NormalizedDataStore, self).__init__(auto_cast=auto_cast)
-        self._ds = ds
-        self._sync_task = asyncio.create_task(self._watch())
+        self._stores = stores
+        self._watch_tasks = [
+            asyncio.create_task(self._watch_store(ds)) for ds in stores
+        ]
 
-    async def _wait(self):
-        while True:
-            await self._ds.wait()
-            self._on_wait()
-
-    async def _watch(self):
-        with self._ds.watch() as stream:
+    async def _watch_store(self, store: DataStore):
+        with store.watch() as stream:
             async for change in stream:
-                self._on_watch(change)
-                method = self._get_method(change)
-                transformed_data = self._normalize({**change.data}, change.operation)
-                method([self._make_register_item(transformed_data, change)])
+                method = self._get_method(change, store)
+                transformed_data = self._normalize(
+                    {**change.data}, change.operation, store
+                )
+                method([self._make_register_item(transformed_data, change, store)])
 
-    def _on_wait(self):
-        ...
-
-    def _on_watch(self, change: "StoreChange"):
-        ...
-
-    def _get_method(self, change: "StoreChange") -> Callable:
+    def _get_method(self, change: "StoreChange", store: "DataStore") -> Callable:
         return getattr(self, f"_{change.operation}")
 
-    def _normalize(self, d: dict, op) -> "Item":
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "Item":
         return d
 
     def _make_register_item(
-        self, transformed_item: "Item", change: "StoreChange"
+        self, transformed_item: "Item", change: "StoreChange", store: "DataStore"
     ) -> "Item":
         return {**transformed_item, "info": change.data}
 
@@ -255,7 +253,7 @@ class TickerItem(NamedTuple):
 class TickerStore(NormalizedDataStore):
     _KEYS = ["symbol"]
 
-    def _normalize(self, d: dict, op) -> "TickerItem":
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TickerItem":
         raise NotImplementedError
 
 
@@ -271,7 +269,7 @@ class TradesItem(NamedTuple):
 class TradesStore(NormalizedDataStore):
     _KEYS = ["id", "symbol"]
 
-    def _normalize(self, d: dict, op) -> "TradesItem":
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "TradesItem":
         raise NotImplementedError
 
 
@@ -289,7 +287,7 @@ class OrderbookStore(NormalizedDataStore):
         super(OrderbookStore, self).__init__(*args, **kwargs)
         self._mid = None
 
-    def _normalize(self, d: dict, op) -> "OrderbookItem":
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "OrderbookItem":
         raise NotImplementedError
 
     def _on_wait(self):
@@ -324,5 +322,5 @@ class OrderEventItem(NamedTuple):
 
 
 class OrderEventStore(NormalizedDataStore):
-    def _normalize(self, d: dict, op) -> "OrderEventStore":
+    def _normalize(self, d: dict, op: str, store: "DataStore") -> "OrderEventStore":
         raise NotImplementedError
