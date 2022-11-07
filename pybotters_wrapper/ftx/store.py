@@ -86,7 +86,9 @@ class FTXDataStoreManagerWrapper(DataStoreManagerWrapper[FTXDataStore]):
     _TICKER_STORE = (FTXTickerStore, "ticker")
     _TRADES_STORE = (FTXTradesStore, "trades")
     _ORDERBOOK_STORE = (FTXOrderbookStore, "orderbook")
-
+    _ORDER_STORE = (FTXOrderStore, "orders")
+    _EXECUTION_STORE = (FTXExecutionStore, "fills")
+    _POSITION_STORE = (FTXPositionStore, "positions")
 
     def __init__(self, store: FTXDataStore = None):
         super(FTXDataStoreManagerWrapper, self).__init__(store or FTXDataStore())
