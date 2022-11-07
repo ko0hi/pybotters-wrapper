@@ -25,9 +25,12 @@ T = TypeVar("T", bound=DataStoreManager)
 class DataStoreManagerWrapper(Generic[T], LoggingMixin):
     _SOCKET_CHANNELS_CLS: Type[WebsocketChannels] = None
 
-    _TICKER_STORE: tuple[Type[TickerStore], str | tuple[str]] = None
-    _TRADES_STORE: tuple[Type[TradesStore], str | tuple[str]] = None
-    _ORDERBOOK_STORE: tuple[Type[OrderbookStore], str | tuple[str]] = None
+    _TICKER_STORE: tuple[Type[TickerStore], str] = None
+    _TRADES_STORE: tuple[Type[TradesStore], str] = None
+    _ORDERBOOK_STORE: tuple[Type[OrderbookStore], str] = None
+    _ORDER_STORE: tuple[Type[OrderStore], str] = None
+    _EXECUTION_STORE: tuple[Type[ExecutionStore], str] = None
+    _POSITION_STORE: tuple[Type[PositionStore], str]
 
     def __init__(self, store: T):
         self._store = store
