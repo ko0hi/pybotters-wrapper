@@ -231,6 +231,7 @@ class NormalizedDataStore(DataStore):
     def __init__(self, store: DataStore, auto_cast=False):
         super(NormalizedDataStore, self).__init__(auto_cast=auto_cast)
         self._store = store
+        self._wait_task = asyncio.create_task(self._wait_store())
         self._watch_task = asyncio.create_task(self._watch_store())
 
     async def _wait_store(self):
