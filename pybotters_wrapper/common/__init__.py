@@ -5,5 +5,7 @@ from .store import (
     TickerStore,
     TradesStore,
     OrderbookStore,
-    OrderEventStore,
+    OrderStore,
+    ExecutionStore,
+    PositionStore
 )
