@@ -5,7 +5,6 @@ from pybotters_wrapper.common import (
     TickerStore,
     TradesStore,
     OrderbookStore,
-    OrderEventStore,
 )
 from pybotters_wrapper.bitflyer import bitFlyerWebsocketChannels
 
@@ -45,10 +44,6 @@ class bitFlyerOrderbookStore(OrderbookStore):
         }
 
 
-class bitFlyerOrderEventStore(OrderEventStore):
-    def _normalize(self, d: dict, op) -> "OrderEventStore":
-        if d["event_type"] in ("ORDER", "CANCEL", "EXECUTION"):
-            return {"id": d["child_order_acceptance_id"], "status": "a"}
 
 
 class bitFlyerDataStoreManagerWrapper(DataStoreManagerWrapper[bitFlyerDataStore]):
