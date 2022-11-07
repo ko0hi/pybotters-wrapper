@@ -63,6 +63,9 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
         >>> store.subscribe([("ticker", {"symbol": "BTC_USDT"}), ("ticker", {"symbol": "ETHUSDT"})])
 
         """
+        if channel == "default":
+            channel = ["ticker", "trades", "orderbook", "order", "execution", "order"]
+
         if isinstance(channel, str):
             self._ws_channels.add(channel, **kwargs)
         elif isinstance(channel, list):
