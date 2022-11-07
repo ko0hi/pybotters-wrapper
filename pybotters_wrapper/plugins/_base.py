@@ -34,6 +34,10 @@ class DataStorePlugin:
     def on_watch_transform(self, d: dict, op: str) -> dict:
         return d
 
+    def stop(self):
+        self._watch_task.cancel()
+        self._wait_task.cancel()
+
 
 class MultipleDataStoresPlugin:
     def __init__(self, *stores: DataStore):
@@ -80,3 +84,6 @@ class MultipleDataStoresPlugin:
     def on_watch_transform(self, store: 'DataStore', d: dict, op: str) -> dict:
         return d
 
+    def stop(self):
+        self._watch_task.cancel()
+        self._wait_task.cancel()
