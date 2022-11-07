@@ -239,7 +239,7 @@ class NormalizedDataStore(DataStore):
         return getattr(self, f"_{change.operation}")
 
     def _normalize(self, d: dict, op) -> "Item":
-        return d.data
+        return d
 
     def _make_register_item(
         self, transformed_item: "Item", change: "StoreChange"
