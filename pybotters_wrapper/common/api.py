@@ -83,6 +83,7 @@ class API:
             order_id = resp_data
             for k in id_key.split("."):
                 order_id = order_id[k]
+            order_id = str(order_id)
         else:
             order_id = None
 
