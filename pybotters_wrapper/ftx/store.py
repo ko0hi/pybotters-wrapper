@@ -7,32 +7,29 @@ from pybotters_wrapper.ftx import FTXWebsocketChannels
 
 
 class FTXTickerStore(TickerStore):
-    def _transform_data(self, change: 'StoreChange') -> 'TickerItem':
-        data = change.data
-        return {"symbol": data["market"], "price": data["last"]}
+    def _normalize(self, d:  dict, op) -> 'TickerItem':
+        return {"symbol": d["market"], "price": d["last"]}
 
 
 class FTXTradesStore(TradesStore):
-    def _transform_data(self, change: 'StoreChange') -> 'TradesItem':
-        data = change.data
+    def _normalize(self, d: dict, op) -> 'TradesItem':
         return {
-            "id": data["id"],
-            "symbol": data["market"],
-            "side": data["side"].upper(),
-            "price": data["price"],
-            "size": data["size"],
-            "timestamp": pd.to_datetime(data["time"])
+            "id": d["id"],
+            "symbol": d["market"],
+            "side": d["side"].upper(),
+            "price": d["price"],
+            "size": d["size"],
+            "timestamp": pd.to_datetime(d["time"])
         }
 
 
 class FTXOrderbookStore(OrderbookStore):
-    def _transform_data(self, change: 'StoreChange') -> 'OrderbookItem':
-        data = change.data
+    def _normalize(self, d: dict, op) -> 'OrderbookItem':
         return {
-            "symbol": data["market"],
-            "side": data["side"].upper(),
-            "price": data["price"],
-            "size": data["size"]
+            "symbol": d["market"],
+            "side": d["side"].upper(),
+            "price": d["price"],
+            "size": d["size"]
         }
 
 

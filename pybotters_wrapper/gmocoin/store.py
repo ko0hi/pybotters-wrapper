@@ -8,32 +8,29 @@ from pybotters_wrapper.gmocoin import GMOWebsocketChannels
 
 
 class GMOCoinTickerStore(TickerStore):
-    def _transform_data(self, change: "StoreChange") -> "TickerItem":
-        data = change.data
-        return {"symbol": str(data["symbol"]), "price": float(data["last"])}
+    def _normalize(self, d: dict, op) -> "TickerItem":
+        return {"symbol": str(d["symbol"]), "price": float(d["last"])}
 
 
 class GMOCoinTradesStore(TradesStore):
-    def _transform_data(self, change: "StoreChange") -> "TradesItem":
-        data = change.data
+    def _normalize(self, d: dict, op) -> "TradesItem":
         return {
             "id": uuid.uuid4(),
-            "symbol": str(data["symbol"]),
-            "side": str(data["side"]),
-            "price": float(data["price"]),
-            "size": float(data["size"]),
-            "timestamp": pd.to_datetime(data["timestamp"]),
+            "symbol": str(d["symbol"]),
+            "side": str(d["side"]),
+            "price": float(d["price"]),
+            "size": float(d["size"]),
+            "timestamp": pd.to_datetime(d["timestamp"]),
         }
 
 
 class GMOCoinOrderbookStore(OrderbookStore):
-    def _transform_data(self, change: 'StoreChange') -> 'OrderbookItem':
-        data = change.data
+    def _normalize(self, d: dict, op) -> "OrderbookItem":
         return {
-            "symbol": str(data["symbol"]),
-            "side": str(data["side"]),
-            "price": float(data["price"]),
-            "size": float(data["size"])
+            "symbol": str(d["symbol"]),
+            "side": str(d["side"]),
+            "price": float(d["price"]),
+            "size": float(d["size"]),
         }
 
 
@@ -45,7 +42,7 @@ class GMOCoinDataStoreManagerWrapper(DataStoreManagerWrapper[GMOCoinDataStore]):
 
     def __init__(self, store: GMOCoinDataStore = None, *args, **kwargs):
         super(GMOCoinDataStoreManagerWrapper, self).__init__(
-            store or GMOCoinDataStore(), *args, **kwargs
+            store or GMOCoinDataStore()
         )
 
     @classmethod

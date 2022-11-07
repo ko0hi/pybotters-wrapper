@@ -1,46 +1,54 @@
 import pandas as pd
 from pybotters.models.bitflyer import bitFlyerDataStore
-from pybotters_wrapper.common import DataStoreManagerWrapper
-from pybotters_wrapper.common.store import TickerStore, TradesStore, OrderbookStore
+from pybotters_wrapper.common import (
+    DataStoreManagerWrapper,
+    TickerStore,
+    TradesStore,
+    OrderbookStore,
+    OrderEventStore,
+)
 from pybotters_wrapper.bitflyer import bitFlyerWebsocketChannels
 
 
 class bitFlyerTickerStore(TickerStore):
-    def _transform_data(self, change: 'StoreChange') -> 'TickerItem':
-        data = change.data
+    def _normalize(self, d: dict, op) -> "TickerItem":
         return {
-            "symbol": data["product_code"],
-            "price": data["ltp"],
+            "symbol": d["product_code"],
+            "price": d["ltp"],
         }
 
 
 class bitFlyerTradesStore(TradesStore):
-    def _transform_data(self, change: 'StoreChange') -> 'TradesItem':
-        data = change.data
-        side = data["side"]
+    def _normalize(self, d: dict, op) -> "TradesItem":
+        side = d["side"]
         if side:
             order_id = side.lower() + "_child_order_acceptance_id"
         else:
-            order_id = data["buy_child_order_acceptance_id"]
+            order_id = d["buy_child_order_acceptance_id"]
         return {
             "id": order_id,
-            "symbol": data["product_code"],
+            "symbol": d["product_code"],
             "side": side,
-            "price": data["price"],
-            "size": data["size"],
-            "timestamp": pd.to_datetime(data["exec_date"])
+            "price": d["price"],
+            "size": d["size"],
+            "timestamp": pd.to_datetime(d["exec_date"]),
         }
 
 
 class bitFlyerOrderbookStore(OrderbookStore):
-    def _transform_data(self, change: 'StoreChange') -> 'OrderbookItem':
-        data = change.data
+    def _normalize(self, d: dict, op) -> "OrderbookItem":
         return {
-            "symbol": data["product_code"],
-            "side": data["side"],
-            "price": data["price"],
-            "size": data["size"]
+            "symbol": d["product_code"],
+            "side": d["side"],
+            "price": d["price"],
+            "size": d["size"],
         }
+
+
+class bitFlyerOrderEventStore(OrderEventStore):
+    def _normalize(self, d: dict, op) -> "OrderEventStore":
+        if d["event_type"] in ("ORDER", "CANCEL", "EXECUTION"):
+            return {"id": d["child_order_acceptance_id"], "status": "a"}
 
 
 class bitFlyerDataStoreManagerWrapper(DataStoreManagerWrapper[bitFlyerDataStore]):
@@ -50,5 +58,6 @@ class bitFlyerDataStoreManagerWrapper(DataStoreManagerWrapper[bitFlyerDataStore]
     _ORDERBOOK_STORE = (bitFlyerOrderbookStore, "board")
 
     def __init__(self, store: bitFlyerDataStore = None, *args, **kwargs):
-        super(bitFlyerDataStoreManagerWrapper, self).__init__(store or bitFlyerDataStore())
-
+        super(bitFlyerDataStoreManagerWrapper, self).__init__(
+            store or bitFlyerDataStore()
+        )

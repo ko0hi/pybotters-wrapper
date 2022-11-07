@@ -31,8 +31,8 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
 
     def __init__(self, store: T):
         self._store = store
-        self._transformed_stores = {}
-        self._init_transformed_stores()
+        self._normalized_stores = {}
+        self._init_normalized_stores()
         self._ws_channels = self._SOCKET_CHANNELS_CLS()
         self._ws_connections = []
 
@@ -93,10 +93,10 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
 
         return self._ws_connections
 
-    def _init_transformed_stores(self):
-        self._transformed_stores["ticker"] = self._init_ticker_store()
-        self._transformed_stores["trades"] = self._init_trades_store()
-        self._transformed_stores["orderbook"] = self._init_orderbook_store()
+    def _init_normalized_stores(self):
+        self._normalized_stores["ticker"] = self._init_ticker_store()
+        self._normalized_stores["trades"] = self._init_trades_store()
+        self._normalized_stores["orderbook"] = self._init_orderbook_store()
 
     def _init_transformed_store(self, cls_name_tuple):
         if cls_name_tuple is None:
@@ -171,15 +171,15 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
     # common stores
     @property
     def ticker(self):
-        return self._transformed_stores["ticker"]
+        return self._normalized_stores["ticker"]
 
     @property
     def trades(self):
-        return self._transformed_stores["trades"]
+        return self._normalized_stores["trades"]
 
     @property
     def orderbook(self):
-        return self._transformed_stores["orderbook"]
+        return self._normalized_stores["orderbook"]
 
     @property
     def board(self):
@@ -210,9 +210,9 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
         return self._ws_channels
 
 
-class TransformedDataStore(DataStore):
+class NormalizedDataStore(DataStore):
     def __init__(self, ds: DataStore, *, auto_cast=False):
-        super(TransformedDataStore, self).__init__(auto_cast=auto_cast)
+        super(NormalizedDataStore, self).__init__(auto_cast=auto_cast)
         self._ds = ds
         self._sync_task = asyncio.create_task(self._watch())
 
@@ -225,8 +225,8 @@ class TransformedDataStore(DataStore):
         with self._ds.watch() as stream:
             async for change in stream:
                 self._on_watch(change)
-                transformed_data = self._transform_data(change)
                 method = self._get_method(change)
+                transformed_data = self._normalize({**change.data}, change.operation)
                 method([self._make_register_item(transformed_data, change)])
 
     def _on_wait(self):
@@ -235,13 +235,15 @@ class TransformedDataStore(DataStore):
     def _on_watch(self, change: "StoreChange"):
         ...
 
-    def _transform_data(self, change: "StoreChange") -> "Item":
-        return change.data
-
     def _get_method(self, change: "StoreChange") -> Callable:
         return getattr(self, f"_{change.operation}")
 
-    def _make_register_item(self, transformed_item: Item, change: StoreChange) -> Item:
+    def _normalize(self, d: dict, op) -> "Item":
+        return d.data
+
+    def _make_register_item(
+        self, transformed_item: "Item", change: "StoreChange"
+    ) -> "Item":
         return {**transformed_item, "info": change.data}
 
 
@@ -250,10 +252,10 @@ class TickerItem(NamedTuple):
     price: float
 
 
-class TickerStore(TransformedDataStore):
+class TickerStore(NormalizedDataStore):
     _KEYS = ["symbol"]
 
-    def _transform_data(self, change: "StoreChange") -> "TickerItem":
+    def _normalize(self, d: dict, op) -> "TickerItem":
         raise NotImplementedError
 
 
@@ -266,10 +268,10 @@ class TradesItem(NamedTuple):
     timestamp: pd.Timestamp
 
 
-class TradesStore(TransformedDataStore):
+class TradesStore(NormalizedDataStore):
     _KEYS = ["id", "symbol"]
 
-    def _transform_data(self, change: "StoreChange") -> "TradesItem":
+    def _normalize(self, d: dict, op) -> "TradesItem":
         raise NotImplementedError
 
 
@@ -280,14 +282,14 @@ class OrderbookItem(NamedTuple):
     size: float
 
 
-class OrderbookStore(TransformedDataStore):
+class OrderbookStore(NormalizedDataStore):
     _KEYS = ["symbol", "side", "price"]
 
     def __init__(self, *args, **kwargs):
         super(OrderbookStore, self).__init__(*args, **kwargs)
         self._mid = None
 
-    def _transform_data(self, change: "StoreChange") -> "OrderbookItem":
+    def _normalize(self, d: dict, op) -> "OrderbookItem":
         raise NotImplementedError
 
     def _on_wait(self):
@@ -311,3 +313,16 @@ class OrderbookStore(TransformedDataStore):
     @property
     def mid(self):
         return self._mid
+
+
+class OrderEventItem(NamedTuple):
+    id: str
+    status: str  # ordered, filled, canceled
+    symbol: str
+    size: float
+    timestamp: pd.Timestamp
+
+
+class OrderEventStore(NormalizedDataStore):
+    def _normalize(self, d: dict, op) -> "OrderEventStore":
+        raise NotImplementedError

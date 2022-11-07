@@ -6,35 +6,29 @@ from pybotters_wrapper.bybit import BybitUSDTWebsocketChannels
 
 
 class BybitUSDTTickerStore(TickerStore):
-    def _transform_data(self, change: 'StoreChange') -> 'TickerItem':
-        data = change.data
-        return {
-            "symbol": data["symbol"],
-            "price": data["last_price"]
-        }
+    def _normalize(self, d: dict, op) -> "TickerItem":
+        return {"symbol": d["symbol"], "price": d["last_price"]}
 
 
 class BybitUSDTTradesStore(TradesStore):
-    def _transform_data(self, change: 'StoreChange') -> 'TradesItem':
-        data = change.data
+    def _normalize(self, d: dict, op) -> "TradesItem":
         return {
-            "id": data["trade_id"],
-            "symbol": data["symbol"],
-            "side": data["side"].upper(),
-            "price": float(data["price"]),
-            "size": data["size"],
-            "timestamp": pd.to_datetime(data["timestamp"])
+            "id": d["trade_id"],
+            "symbol": d["symbol"],
+            "side": d["side"].upper(),
+            "price": float(d["price"]),
+            "size": d["size"],
+            "timestamp": pd.to_datetime(d["timestamp"]),
         }
 
 
 class BybitUSDTOrderbookStore(OrderbookStore):
-    def _transform_data(self, change: 'StoreChange') -> 'OrderbookItem':
-        data = change.data
+    def _normalize(self, d: dict, op) -> "OrderbookItem":
         return {
-            "symbol": data["symbol"],
-            "side": data["side"].upper(),
-            "price": float(data["price"]),
-            "size": float(data["size"])
+            "symbol": d["symbol"],
+            "side": d["side"].upper(),
+            "price": float(d["price"]),
+            "size": float(d["size"]),
         }
 
 
