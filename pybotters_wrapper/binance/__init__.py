@@ -1,3 +1,3 @@
 from .socket import BinanceWebsocketChannels
-from .store import BinanceDataStoreManagerWrapper
+from .store import BinanceDataStoreWrapper
 from . import plugins

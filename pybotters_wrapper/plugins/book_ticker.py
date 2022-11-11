@@ -1,7 +1,7 @@
 from typing import NamedTuple
 
 from pybotters_wrapper.common import (
-    DataStoreManagerWrapper,
+    DataStoreWrapper,
     OrderbookStore,
     TradesStore,
 )
@@ -34,7 +34,7 @@ class BookTicker(MultipleDataStoresPlugin):
         def mid(self):
             return (self.best_ask + self.best_bid) / 2
 
-    def __init__(self, store: DataStoreManagerWrapper):
+    def __init__(self, store: DataStoreWrapper):
         super(BookTicker, self).__init__(store.trades, store.orderbook)
         self._tick = self.Item(None, None, None)
 

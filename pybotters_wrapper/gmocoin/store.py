@@ -1,7 +1,7 @@
 import pandas as pd
 
 from pybotters.models.gmocoin import GMOCoinDataStore
-from pybotters_wrapper.common import DataStoreManagerWrapper
+from pybotters_wrapper.common import DataStoreWrapper
 from pybotters_wrapper.common.store import TickerStore, TradesStore, OrderbookStore
 from pybotters_wrapper.gmocoin import GMOWebsocketChannels
 
@@ -33,14 +33,14 @@ class GMOCoinOrderbookStore(OrderbookStore):
         }
 
 
-class GMOCoinDataStoreManagerWrapper(DataStoreManagerWrapper[GMOCoinDataStore]):
+class GMOCoinDataStoreWrapper(DataStoreWrapper[GMOCoinDataStore]):
     _SOCKET_CHANNELS_CLS = GMOWebsocketChannels
     _TICKER_STORE = (GMOCoinTickerStore, "ticker")
     _TRADES_STORE = (GMOCoinTradesStore, "trades")
     _ORDERBOOK_STORE = GMOCoinOrderbookStore, "orderbooks"
 
     def __init__(self, store: GMOCoinDataStore = None, *args, **kwargs):
-        super(GMOCoinDataStoreManagerWrapper, self).__init__(
+        super(GMOCoinDataStoreWrapper, self).__init__(
             store or GMOCoinDataStore()
         )
 

@@ -1,2 +1,2 @@
 from .socket import GMOWebsocketChannels
-from .store import GMOCoinDataStoreManagerWrapper
+from .store import GMOCoinDataStoreWrapper

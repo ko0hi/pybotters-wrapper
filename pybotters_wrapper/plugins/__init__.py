@@ -10,7 +10,7 @@ from .binning_book import BinningBook
 from .book_ticker import BookTicker
 from .execution_watcher import ExecutionWatcher
 
-from pybotters_wrapper.common import DataStoreManagerWrapper
+from pybotters_wrapper.common import DataStoreWrapper
 
 
 import_cache = {}
@@ -51,7 +51,7 @@ def _import_and_build_plugin(store, name, *, default_cls=None, **kwargs):
 
 
 def timebar(
-    store: DataStoreManagerWrapper,
+    store: DataStoreWrapper,
     *,
     seconds: int,
     maxlen: int = 9999,
@@ -72,7 +72,7 @@ def timebar(
 
 
 def volumebar(
-    store: DataStoreManagerWrapper,
+    store: DataStoreWrapper,
     *,
     volume_unit: float,
     maxlen: int = 9999,
@@ -91,7 +91,7 @@ def volumebar(
 
 
 def binningbook(
-    store: DataStoreManagerWrapper,
+    store: DataStoreWrapper,
     *,
     min_bin: int = 0,
     max_bin: int = 10000000,
@@ -109,9 +109,9 @@ def binningbook(
     )
 
 
-def bookticker(store: DataStoreManagerWrapper) -> BookTicker:
+def bookticker(store: DataStoreWrapper) -> BookTicker:
     return _import_and_build_plugin(store, "bookticker", default_cls=BookTicker)
 
 
-def execution_watcher(store: DataStoreManagerWrapper) -> ExecutionWatcher:
+def execution_watcher(store: DataStoreWrapper) -> ExecutionWatcher:
     return _import_and_build_plugin(store, "execution", default_cls=ExecutionWatcher)

@@ -1,7 +1,7 @@
 import pandas as pd
 from pybotters.models.ftx import FTXDataStore
 
-from pybotters_wrapper.common import DataStoreManagerWrapper
+from pybotters_wrapper.common import DataStoreWrapper
 from pybotters_wrapper.common.store import (
     TickerStore,
     TradesStore,
@@ -81,7 +81,7 @@ class FTXPositionStore(PositionStore):
         }
 
 
-class FTXDataStoreManagerWrapper(DataStoreManagerWrapper[FTXDataStore]):
+class FTXDataStoreWrapper(DataStoreWrapper[FTXDataStore]):
     _SOCKET_CHANNELS_CLS = FTXWebsocketChannels
     _TICKER_STORE = (FTXTickerStore, "ticker")
     _TRADES_STORE = (FTXTradesStore, "trades")
@@ -91,4 +91,4 @@ class FTXDataStoreManagerWrapper(DataStoreManagerWrapper[FTXDataStore]):
     _POSITION_STORE = (FTXPositionStore, "positions")
 
     def __init__(self, store: FTXDataStore = None):
-        super(FTXDataStoreManagerWrapper, self).__init__(store or FTXDataStore())
+        super(FTXDataStoreWrapper, self).__init__(store or FTXDataStore())

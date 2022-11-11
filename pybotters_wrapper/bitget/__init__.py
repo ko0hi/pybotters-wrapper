@@ -1,3 +1,3 @@
 from .socket import BitgetWebsocketChannels
-from .store import BitgetDataStoreManagerWrapper
+from .store import BitgetDataStoreWrapper
 from . import plugins

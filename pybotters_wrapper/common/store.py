@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound=DataStoreManager)
 
 
-class DataStoreManagerWrapper(Generic[T], LoggingMixin):
+class DataStoreWrapper(Generic[T], LoggingMixin):
     _SOCKET_CHANNELS_CLS: Type[WebsocketChannels] = None
 
     _TICKER_STORE: tuple[Type[TickerStore], str] = None
@@ -53,10 +53,10 @@ class DataStoreManagerWrapper(Generic[T], LoggingMixin):
 
     def subscribe(
         self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
-    ) -> "DataStoreManagerWrapper":
+    ) -> "DataStoreWrapper":
         """購読チャンネル追加用メソッド
 
-        >>> store = DataStoreManagerWrapper()
+        >>> store = DataStoreWrapper()
         >>> store.subscribe("ticker")
         >>> store.subscribe("ticker", symbol="BTCUSDT")
         >>> store.subscribe(["ticker", "orderbook"], symbol="BTCUSDT")

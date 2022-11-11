@@ -1,7 +1,7 @@
 import pandas as pd
 from pybotters.models.bitflyer import bitFlyerDataStore
 from pybotters_wrapper.common import (
-    DataStoreManagerWrapper,
+    DataStoreWrapper,
     TickerStore,
     TradesStore,
     OrderbookStore,
@@ -46,13 +46,13 @@ class bitFlyerOrderbookStore(OrderbookStore):
 
 
 
-class bitFlyerDataStoreManagerWrapper(DataStoreManagerWrapper[bitFlyerDataStore]):
+class bitFlyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
     _SOCKET_CHANNELS_CLS = bitFlyerWebsocketChannels
     _TICKER_STORE = (bitFlyerTickerStore, "ticker")
     _TRADES_STORE = (bitFlyerTradesStore, "executions")
     _ORDERBOOK_STORE = (bitFlyerOrderbookStore, "board")
 
     def __init__(self, store: bitFlyerDataStore = None, *args, **kwargs):
-        super(bitFlyerDataStoreManagerWrapper, self).__init__(
+        super(bitFlyerDataStoreWrapper, self).__init__(
             store or bitFlyerDataStore()
         )

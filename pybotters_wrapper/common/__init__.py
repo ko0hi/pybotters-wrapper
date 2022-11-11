@@ -1,7 +1,7 @@
 from .api import API
 from .socket import WebsocketChannels, WebsocketConnection
 from .store import (
-    DataStoreManagerWrapper,
+    DataStoreWrapper,
     TickerStore,
     TradesStore,
     OrderbookStore,

@@ -19,7 +19,7 @@ import pybotters_wrapper as pbw
 class Status:
     def __init__(
         self,
-        store: pbw.common.DataStoreManagerWrapper,
+        store: pbw.common.DataStoreWrapper,
         bar: pbw.plugins.bar.BarStreamDataFrame,
         bar_period: int = 5,
         position_adjust: float = 1.5,
@@ -119,7 +119,7 @@ class Status:
 
 async def market_making(
     api: pbw.common.API,
-    store: pbw.common.DataStoreManagerWrapper,
+    store: pbw.common.DataStoreWrapper,
     status: Status,
     symbol: str,
     m: float,
@@ -208,6 +208,9 @@ async def main(args):
         store = pbw.create_store(args.exchange)
         store.subscribe("default", symbol=args.symbol)
         await store.connect(client)
+
+        pbw.plugins.execution_watcher(store)
+        pbw.plugins.execution_watcher(store)
 
         tbar = pbw.plugins.timebar(store, seconds=10)
 
