@@ -13,10 +13,17 @@ from .execution_watcher import ExecutionWatcher
 from pybotters_wrapper.common import DataStoreManagerWrapper
 
 
+import_cache = {}
+
+
 def _import_module(store):
     try:
         module_path = f"pybotters_wrapper.{store.exchange}.plugins"
-        return importlib.import_module(module_path)
+        if module_path in import_cache:
+            return import_cache[module_path]
+        modu = importlib.import_module(module_path)
+        import_cache[module_path] = modu
+        return modu
     except ModuleNotFoundError as e:
         raise RuntimeError(f"no plugins module for {store.exchange}")
 
