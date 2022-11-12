@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, TypeVar
 from collections import defaultdict
 
 import asyncio
@@ -14,6 +14,9 @@ from pybotters_wrapper.utils import LoggingMixin
 WsHandler = WsStrHandler | WsBytesHandler | WsJsonHandler
 
 
+TWebsocketChannels = TypeVar("TWebsocketChannels", bound="WebsocketChannels")
+
+
 class WebsocketChannels(LoggingMixin):
     ENDPOINT = None
 
@@ -22,47 +25,37 @@ class WebsocketChannels(LoggingMixin):
         self._subscribe_list = defaultdict(list)
         self._cash = defaultdict(set)
 
-    def add(self, channel, **kwargs):
+    def add(self, channel, **kwargs) -> TWebsocketChannels:
         return getattr(self, channel)(**kwargs)
 
-    def get_subscribe_list(self) -> dict[str, list]:
+    def get(self) -> dict[str, list]:
         return self._subscribe_list
 
-    def _subscribe(self, *args, **kwargs) -> dict:
+    def _subscribe(self, *args, **kwargs) -> TWebsocketChannels:
         endpoint, send = self._make_endpoint_and_request_pair(*args, **kwargs)
         send_str = str(send)
         if send_str not in self._cash[endpoint]:
             self._subscribe_list[endpoint].append(send)
             self._cash[endpoint].add(send_str)
             self.log(f"Add socket channel: {endpoint} / {send}")
-
-        return endpoint, send
+        return self
 
     def _make_endpoint_and_request_pair(self, *args, **kwargs) -> [str, dict]:
         raise NotImplementedError
 
-    def ticker(self, symbol: str, **kwargs):
+    def ticker(self, symbol: str, **kwargs) -> "TWebsocketChannels":
         raise NotImplementedError
 
-    def trades(self, symbol: str, **kwargs):
+    def trades(self, symbol: str, **kwargs) -> "TWebsocketChannels":
         raise NotImplementedError
 
-    def orderbook(self, symbol: str, **kwargs):
+    def orderbook(self, symbol: str, **kwargs) -> "TWebsocketChannels":
         raise NotImplementedError
 
-    def order(self, **kwargs):
+    def order(self, **kwargs) -> "TWebsocketChannels":
         raise NotImplementedError
 
-    def position(self, **kwargs):
-        raise NotImplementedError
-
-    def all_channels(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def public(self, **kwargs):
-        raise NotImplementedError
-
-    def private(self, **kwargs):
+    def position(self, **kwargs) -> "TWebsocketChannels":
         raise NotImplementedError
 
 
@@ -98,7 +91,7 @@ class WebsocketConnection(LoggingMixin):
         self._ws = await client.ws_connect(self._endpoint, **params, **kwargs)
 
         if auto_reconnect:
-            asyncio.create_task(self._auto_reconnect(client, on_reconnection))
+            asyncio.create_task(self._auto_reconnect(client, on_reconnection, **kwargs))
 
         return self
 
