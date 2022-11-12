@@ -19,7 +19,9 @@ from pybotters_wrapper.utils.bucket import Bucket
 from ._apis import (
     create_store,
     create_api,
+    create_socket_channels,
     create_plugin,
+    create_ws_connect,
     get_base_url
 )
 
