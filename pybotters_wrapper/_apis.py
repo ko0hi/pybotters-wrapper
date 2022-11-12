@@ -7,7 +7,11 @@ from pybotters.store import DataStoreManager
 import pybotters_wrapper as pbw
 
 from pybotters_wrapper.common import DataStoreWrapper, API
-from pybotters_wrapper.common.socket import WsHandler, WebsocketChannels
+from pybotters_wrapper.common.socket import (
+    WsHandler,
+    WebsocketChannels,
+    WebsocketConnection,
+)
 from pybotters_wrapper import plugins
 
 
@@ -55,7 +59,7 @@ def create_socket_channels(exchange: str) -> TWebsocketChannels:
     return EXCHANGE2STORE[exchange]._SOCKET_CHANNELS_CLS()
 
 
-def create_ws_connect(
+async def create_ws_connect(
     client: pybotters.Client,
     *,
     endpoint: str = None,
@@ -66,15 +70,15 @@ def create_ws_connect(
     hdlr_type: str = "json",
     auto_reconnect: bool = False,
     on_reconnection: Callable = None,
-):
+) -> WebsocketConnection | list[WebsocketConnection]:
     if endpoint is not None and send is not None:
-        return pbw.common.WebsocketConnection(
+        return await WebsocketConnection(
             endpoint, send, hdlr=hdlr, send_type=send_type, hdlr_type=hdlr_type
         ).connect(client, auto_reconnect, on_reconnection)
     elif subscribe_list is not None:
         conns = []
         for endpoint, send in subscribe_list.items():
-            conn = create_ws_connect(
+            conn = await create_ws_connect(
                 client,
                 endpoint=endpoint,
                 send=send,
@@ -82,9 +86,9 @@ def create_ws_connect(
                 send_type=send_type,
                 hdlr_type=hdlr_type,
                 auto_reconnect=auto_reconnect,
-                on_reconnection=on_reconnection
+                on_reconnection=on_reconnection,
             )
-            conns.append(asyncio.create_task(conn))
+            conns.append(conn)
         return conns
     else:
         raise RuntimeError(f"Need either of `endpoint` and `send` or `subscribe_list`")
