@@ -231,11 +231,19 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
 
 class NormalizedDataStore(DataStore):
+    _AVAILABLE_OPERATIONS = ("_insert", "_update", "_delete")
+
     def __init__(self, store: DataStore, auto_cast=False):
         super(NormalizedDataStore, self).__init__(auto_cast=auto_cast)
         self._store = store
         self._wait_task = asyncio.create_task(self._wait_store())
         self._watch_task = asyncio.create_task(self._watch_store())
+
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}"
+            f"({self._store.__class__.__module__}.{self._store.__class__.__name__})"
+        )
 
     async def _wait_store(self):
         while True:
@@ -246,29 +254,35 @@ class NormalizedDataStore(DataStore):
         with self._store.watch() as stream:
             async for change in stream:
                 self._on_watch(change)
-                self._register(change)
 
     def _on_wait(self):
         ...
 
     def _on_watch(self, change: "StoreChange"):
-        ...
+        op = self._get_operation(change)
+        if op is not None:
+            normalized_data = self._normalize({**change.data}, change.operation)
+            item = self._make_item(normalized_data, change)
+            self._check_operation(op)
+            op_fn = getattr(self, "_" + op)
+            op_fn([item])
 
-    def _get_method(self, change: "StoreChange") -> Callable:
+    def _get_operation(self, change: "StoreChange") -> Callable:
         return getattr(self, f"_{change.operation}")
 
     def _normalize(self, d: dict, op: str) -> "Item":
         return d
 
-    def _make_register_item(
+    def _make_item(
         self, transformed_item: "Item", change: "StoreChange"
     ) -> "Item":
         return {**transformed_item, "info": change.data}
 
-    def _register(self, change: "StoreChange"):
-        method = self._get_method(change)
-        normalized_data = self._normalize({**change.data}, change.operation)
-        method([self._make_register_item(normalized_data, change)])
+    def _check_operation(self, op):
+        if op not in self._AVAILABLE_OPERATIONS:
+            raise RuntimeError(
+                f"Unsupported operation '{op}' for {self.__class__.__name__}"
+            )
 
 
 class TickerItem(NamedTuple):
