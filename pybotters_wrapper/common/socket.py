@@ -1,4 +1,7 @@
+from typing import Callable
 from collections import defaultdict
+
+import asyncio
 
 import pybotters
 from pybotters.ws import WebSocketRunner
@@ -63,7 +66,7 @@ class WebsocketChannels(LoggingMixin):
         raise NotImplementedError
 
 
-class WebsocketConnection:
+class WebsocketConnection(LoggingMixin):
     def __init__(
         self,
         endpoint: str,
@@ -81,13 +84,41 @@ class WebsocketConnection:
         self._send_type = send_type
         self._hdlr_type = hdlr_type
 
-    async def connect(self, client: "pybotters.Client", **kwargs) -> WebSocketRunner:
+    async def connect(
+        self,
+        client: "pybotters.Client",
+        auto_reconnect: bool = False,
+        on_reconnection: Callable = None,
+        **kwargs,
+    ) -> WebSocketRunner:
         params = {
             f"send_{self._send_type}": self._send,
             f"hdlr_{self._hdlr_type}": self._hdlr,
         }
         self._ws = await client.ws_connect(self._endpoint, **params, **kwargs)
+
+        if auto_reconnect:
+            asyncio.create_task(self._auto_reconnect(client, on_reconnection))
+
         return self
 
+    async def _auto_reconnect(
+        self, client: "pybotters.Client", on_reconnection: Callable = None, **kwargs
+    ):
+        while True:
+            if not self.connected:
+                self.log(f"websocket disconnected: {self._endpoint} {self._send}")
+                self._ws._task.cancel()
+                await self.connect(client, **kwargs)
+                if on_reconnection:
+                    if asyncio.iscoroutinefunction(on_reconnection):
+                        await on_reconnection()
+                    else:
+                        on_reconnection()
+                self.log(f"websocket recovered: {self._endpoint} {self._send}")
+
+            await asyncio.sleep(15)
+
+    @property
     def connected(self) -> bool:
-        return self._ws.connected
+        return self._ws and self._ws.connected
