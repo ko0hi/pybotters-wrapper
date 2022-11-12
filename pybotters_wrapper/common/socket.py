@@ -22,7 +22,7 @@ class WebsocketChannels(LoggingMixin):
     def add(self, channel, **kwargs):
         return getattr(self, channel)(**kwargs)
 
-    def get_endpoint_and_channels(self) -> dict[str, list]:
+    def get_subscribe_list(self) -> dict[str, list]:
         return self._subscribe_list
 
     def _subscribe(self, *args, **kwargs) -> dict:

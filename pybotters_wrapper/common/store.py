@@ -143,7 +143,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     def _parse_send_json(self, endpoint, send_json) -> dict[str, list[any]]:
         if send_json is None:
             # a user registered channels via `DatastoreWrapper.subscribe`
-            subscribe_lists = self._ws_channels.get_endpoint_and_channels()
+            subscribe_lists = self._ws_channels.get_subscribe_list()
             assert len(subscribe_lists), "No channels have not been subscribed."
             return subscribe_lists
         else:
