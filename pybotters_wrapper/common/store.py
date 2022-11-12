@@ -264,7 +264,7 @@ class NormalizedDataStore(DataStore):
             normalized_data = self._normalize({**change.data}, change.operation)
             item = self._make_item(normalized_data, change)
             self._check_operation(op)
-            op_fn = getattr(self, "_" + op)
+            op_fn = getattr(self, op)
             op_fn([item])
 
     def _get_operation(self, change: "StoreChange") -> Callable:
