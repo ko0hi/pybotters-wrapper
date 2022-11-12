@@ -30,7 +30,16 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     _ORDERBOOK_STORE: tuple[Type[OrderbookStore], str] = None
     _ORDER_STORE: tuple[Type[OrderStore], str] = None
     _EXECUTION_STORE: tuple[Type[ExecutionStore], str] = None
-    _POSITION_STORE: tuple[Type[PositionStore], str]
+    _POSITION_STORE: tuple[Type[PositionStore], str] = None
+
+    _NORMALIZED_CHANNELS = [
+        "ticker",
+        "trades",
+        "orderbook",
+        "order",
+        "execution",
+        "order",
+    ]
 
     def __init__(self, store: T):
         self._store = store
@@ -64,16 +73,19 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
         """
         if channel == "default":
-            channel = ["ticker", "trades", "orderbook", "order", "execution", "order"]
+            channel = self._NORMALIZED_CHANNELS
 
         if isinstance(channel, str):
-            self._ws_channels.add(channel, **kwargs)
+            self._subscribe_one(channel, **kwargs)
         elif isinstance(channel, list):
             for item in channel:
                 if isinstance(item, str):
-                    self._ws_channels.add(item, **kwargs)
+                    self._subscribe_one(item, **kwargs)
                 elif isinstance(item, tuple):
-                    self._ws_channels.add(item[0], **{**kwargs, **item[1]})
+                    self._subscribe_one(item[0], **{**kwargs, **item[1]})
+
+    def _subscribe_one(self, channel: str, **kwargs):
+        self._ws_channels.add(channel, **kwargs)
 
     async def connect(
         self,
@@ -85,6 +97,8 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         waits: list[DataStore | str] = None,
         send_type: str = "json",
         hdlr_type: str = "json",
+        auto_reconnect: bool = False,
+        on_reconnection: Callable = None,
         **kwargs,
     ) -> dict[str, WebSocketRunner]:
         endpoint = self._parse_endpoint(endpoint)
@@ -92,7 +106,17 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         hdlr = self._parse_hdlr_json(hdlr)
 
         for ep, sj in endpoint_to_send_jsons.items():
-            await self._ws_connect(client, ep, sj, hdlr, send_type, hdlr_type, **kwargs)
+            await self._ws_connect(
+                client,
+                ep,
+                sj,
+                hdlr,
+                send_type,
+                hdlr_type,
+                auto_reconnect,
+                on_reconnection,
+                **kwargs,
+            )
 
         if waits is not None:
             await self._wait_socket_responses(waits)
@@ -143,7 +167,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     def _parse_send_json(self, endpoint, send_json) -> dict[str, list[any]]:
         if send_json is None:
             # a user registered channels via `DatastoreWrapper.subscribe`
-            subscribe_lists = self._ws_channels.get_subscribe_list()
+            subscribe_lists = self._ws_channels.get()
             assert len(subscribe_lists), "No channels have not been subscribed."
             return subscribe_lists
         else:
@@ -167,11 +191,13 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         hdlr,
         send_type: str = "json",
         hdlr_type: str = "json",
+        auto_reconnect: bool = False,
+        on_reconnection: Callable = None,
         **kwargs,
     ):
         self.log(f"Connect {endpoint} {send}")
         conn = WebsocketConnection(endpoint, send, hdlr, send_type, hdlr_type)
-        await conn.connect(client, **kwargs)
+        await conn.connect(client, auto_reconnect, on_reconnection, **kwargs)
         self._ws_connections.append(conn)
 
     async def _wait_socket_responses(self, waits):
@@ -268,14 +294,12 @@ class NormalizedDataStore(DataStore):
             op_fn([item])
 
     def _get_operation(self, change: "StoreChange") -> Callable:
-        return getattr(self, f"_{change.operation}")
+        return f"_{change.operation}"
 
     def _normalize(self, d: dict, op: str) -> "Item":
         return d
 
-    def _make_item(
-        self, transformed_item: "Item", change: "StoreChange"
-    ) -> "Item":
+    def _make_item(self, transformed_item: "Item", change: "StoreChange") -> "Item":
         return {**transformed_item, "info": change.data}
 
     def _check_operation(self, op):
