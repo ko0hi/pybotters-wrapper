@@ -75,8 +75,9 @@ class WebsocketConnection(LoggingMixin):
         self._endpoint = endpoint
         self._send = send
         if isinstance(hdlr, list):
-            hdlr = lambda msg, ws: [c(msg, ws) for c in hdlr]  # noqa
-        self._hdlr = hdlr
+            self._hdlr = lambda msg, ws: [c(msg, ws) for c in hdlr]  # noqa
+        else:
+            self._hdlr = hdlr
         self._send_type = send_type
         self._hdlr_type = hdlr_type
 
