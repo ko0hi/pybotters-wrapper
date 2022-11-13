@@ -441,7 +441,7 @@ class ExecutionItem(TypedDict):
 
 class ExecutionStore(NormalizedDataStore):
     _KEYS = ["id", "symbol"]
-    _AVAILABLE_OPERATIONS = ("_insert", )
+    _AVAILABLE_OPERATIONS = ("_insert",)
 
     def _normalize(self, d: dict, op: str) -> "ExecutionItem":
         raise NotImplementedError

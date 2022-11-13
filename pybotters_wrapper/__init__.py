@@ -7,6 +7,7 @@ from . import (
     coincheck,
     ftx,
     gmocoin,
+    kucoin,
     okx,
     phemex,
     common,
