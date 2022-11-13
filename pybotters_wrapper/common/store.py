@@ -1,7 +1,15 @@
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, Callable, Generic, TypeVar, Type, NamedTuple, TypedDict
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Generic,
+    TypeVar,
+    Type,
+    NamedTuple,
+    TypedDict,
+)
 
 import pandas as pd
 import pybotters
@@ -342,8 +350,18 @@ class TradesStore(NormalizedDataStore):
     def _normalize(self, d: dict, op: str) -> "TradesItem":
         raise NotImplementedError
 
-    def _itemize(self, id: str, symbol: str, side: str, price: float, size: float, timestamp: pd.Timestamp) -> "TradesItem":
-        return TradesItem(id=id, symbol=symbol, side=side, price=price, size=size, timestamp=timestamp)
+    def _itemize(
+        self,
+        id: str,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        timestamp: pd.Timestamp,
+    ) -> "TradesItem":
+        return TradesItem(
+            id=id, symbol=symbol, side=side, price=price, size=size, timestamp=timestamp
+        )
 
 
 class OrderbookItem(TypedDict):
@@ -404,8 +422,12 @@ class OrderStore(NormalizedDataStore):
     def _normalize(self, d: dict, op: str) -> "OrderItem":
         raise NotImplementedError
 
-    def _itemize(self, id: str, symbol: str, side: str, price: float, size: float, type: str):
-        return OrderItem(id=id, symbol=symbol, side=side, price=price, size=size, type=type)
+    def _itemize(
+        self, id: str, symbol: str, side: str, price: float, size: float, type: str
+    ):
+        return OrderItem(
+            id=id, symbol=symbol, side=side, price=price, size=size, type=type
+        )
 
 
 class ExecutionItem(TypedDict):
@@ -423,8 +445,18 @@ class ExecutionStore(NormalizedDataStore):
     def _normalize(self, d: dict, op: str) -> "ExecutionItem":
         raise NotImplementedError
 
-    def _itemize(self,id: str, symbol: str, side: str, price: float, size: float, timestamp: pd.Timestamp):
-        return ExecutionItem(id=id, symbol=symbol, side=side, price=price, size=size, timestamp=timestamp)
+    def _itemize(
+        self,
+        id: str,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        timestamp: pd.Timestamp,
+    ):
+        return ExecutionItem(
+            id=id, symbol=symbol, side=side, price=price, size=size, timestamp=timestamp
+        )
 
 
 class PositionItem(TypedDict):
