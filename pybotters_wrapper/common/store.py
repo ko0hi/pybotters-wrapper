@@ -468,7 +468,7 @@ class PositionItem(TypedDict):
 
 
 class PositionStore(NormalizedDataStore):
-    _KEYS = ["symbol", "side"]
+    _KEYS = ["symbol"]
 
     def _normalize(self, d: dict, op: str) -> "PositionItem":
         raise NotImplementedError
