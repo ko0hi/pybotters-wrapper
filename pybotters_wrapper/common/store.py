@@ -301,7 +301,7 @@ class NormalizedDataStore(DataStore):
             op_fn = getattr(self, op)
             op_fn([item])
 
-    def _get_operation(self, change: "StoreChange") -> str:
+    def _get_operation(self, change: "StoreChange") -> str | None:
         return f"_{change.operation}"
 
     def _normalize(self, d: dict, op: str) -> "Item":
