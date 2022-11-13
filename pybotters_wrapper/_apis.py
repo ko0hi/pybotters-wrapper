@@ -29,6 +29,8 @@ EXCHANGE2STORE = {
     "coincheck": pbw.coincheck.CoincheckDataStoreWrapper,
     "ftx": pbw.ftx.FTXDataStoreWrapper,
     "gmocoin": pbw.gmocoin.GMOCoinDataStoreWrapper,
+    "kucoinspot": pbw.kucoin.KucoinSpotDataStoreWrapper,
+    "kucoinfutures": pbw.kucoin.KucoinFuturesDataStoreWrapper,
     "okx": pbw.okx.OKXDataStoreWrapper,
     "phemex": pbw.phemex.PhemexDataStoreWrapper,
 }
