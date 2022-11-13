@@ -308,6 +308,8 @@ class NormalizedDataStore(DataStore):
                 f"Unsupported operation '{op}' for {self.__class__.__name__}"
             )
 
+    def _itemize(self, *args, **kwargs):
+        raise NotImplementedError
 
 
 class TickerItem(TypedDict):
@@ -321,6 +323,8 @@ class TickerStore(NormalizedDataStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
         raise NotImplementedError
 
+    def _itemize(self, symbol: str, price: float):
+        return TickerItem(symbol=symbol, price=price)
 
 
 class TradesItem(TypedDict):
@@ -338,6 +342,8 @@ class TradesStore(NormalizedDataStore):
     def _normalize(self, d: dict, op: str) -> "TradesItem":
         raise NotImplementedError
 
+    def _itemize(self, id: str, symbol: str, side: str, price: float, size: float, timestamp: pd.Timestamp) -> "TradesItem":
+        return TradesItem(id=id, symbol=symbol, side=side, price=price, size=size, timestamp=timestamp)
 
 
 class OrderbookItem(TypedDict):
@@ -398,6 +404,8 @@ class OrderStore(NormalizedDataStore):
     def _normalize(self, d: dict, op: str) -> "OrderItem":
         raise NotImplementedError
 
+    def _itemize(self, id: str, symbol: str, side: str, price: float, size: float, type: str):
+        return OrderItem(id=id, symbol=symbol, side=side, price=price, size=size, type=type)
 
 
 class ExecutionItem(TypedDict):
@@ -415,6 +423,8 @@ class ExecutionStore(NormalizedDataStore):
     def _normalize(self, d: dict, op: str) -> "ExecutionItem":
         raise NotImplementedError
 
+    def _itemize(self,id: str, symbol: str, side: str, price: float, size: float, timestamp: pd.Timestamp):
+        return ExecutionItem(id=id, symbol=symbol, side=side, price=price, size=size, timestamp=timestamp)
 
 
 class PositionItem(TypedDict):
@@ -429,3 +439,6 @@ class PositionStore(NormalizedDataStore):
 
     def _normalize(self, d: dict, op: str) -> "PositionItem":
         raise NotImplementedError
+
+    def _itemize(self, symbol: str, side: str, price: float, size: float):
+        return PositionItem(symbol=symbol, side=side, price=price, size=size)
