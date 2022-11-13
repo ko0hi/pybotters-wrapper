@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, Callable, Generic, TypeVar, Type, NamedTuple
+from typing import TYPE_CHECKING, Callable, Generic, TypeVar, Type, NamedTuple, TypedDict
 
 import pandas as pd
 import pybotters
@@ -309,7 +309,8 @@ class NormalizedDataStore(DataStore):
             )
 
 
-class TickerItem(NamedTuple):
+
+class TickerItem(TypedDict):
     symbol: str
     price: float
 
@@ -321,7 +322,8 @@ class TickerStore(NormalizedDataStore):
         raise NotImplementedError
 
 
-class TradesItem(NamedTuple):
+
+class TradesItem(TypedDict):
     id: str | int
     symbol: str
     side: str
@@ -337,7 +339,8 @@ class TradesStore(NormalizedDataStore):
         raise NotImplementedError
 
 
-class OrderbookItem(NamedTuple):
+
+class OrderbookItem(TypedDict):
     symbol: str
     side: str
     price: int | float
@@ -372,12 +375,15 @@ class OrderbookStore(NormalizedDataStore):
         result["BUY"].sort(key=lambda x: x["price"], reverse=True)
         return result
 
+    def _itemize(self, symbol: str, side: str, price: float, size: float):
+        return OrderbookItem(symbol=symbol, side=side, price=price, size=size)
+
     @property
     def mid(self):
         return self._mid
 
 
-class OrderItem(NamedTuple):
+class OrderItem(TypedDict):
     id: str
     symbol: str
     side: str
@@ -393,7 +399,8 @@ class OrderStore(NormalizedDataStore):
         raise NotImplementedError
 
 
-class ExecutionItem(NamedTuple):
+
+class ExecutionItem(TypedDict):
     id: str
     symbol: str
     side: str
@@ -409,7 +416,8 @@ class ExecutionStore(NormalizedDataStore):
         raise NotImplementedError
 
 
-class PositionItem(NamedTuple):
+
+class PositionItem(TypedDict):
     symbol: str
     side: str
     price: float
