@@ -55,6 +55,9 @@ class WebsocketChannels(LoggingMixin):
     def order(self, **kwargs) -> "TWebsocketChannels":
         raise NotImplementedError
 
+    def execution(self, **kwargs) -> "TWebsocketChannels":
+        raise NotImplementedError
+
     def position(self, **kwargs) -> "TWebsocketChannels":
         raise NotImplementedError
 
