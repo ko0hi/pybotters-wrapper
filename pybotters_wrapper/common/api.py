@@ -5,7 +5,7 @@ import pybotters
 
 
 class OrderResponse(NamedTuple):
-    order_id: str
+    id: str
     resp: aiohttp.ClientResponse
     info: any = None
 
@@ -15,7 +15,7 @@ class OrderResponse(NamedTuple):
 
 
 class CancelResponse(NamedTuple):
-    order_id: str
+    id: str
     is_success: bool
     resp: aiohttp.ClientResponse
     info: any = None
@@ -52,7 +52,7 @@ class API:
         )
 
     async def market_order(
-        self, symbol: str, side: str, size: float, params: dict = None, **kwargs
+        self, symbol: str, side: str, size: float, *, params: dict = None, **kwargs
     ) -> "OrderResponse":
         raise NotImplementedError
 
@@ -60,52 +60,93 @@ class API:
         self,
         symbol: str,
         side: str,
-        size: float,
         price: float,
+        size: float,
+        *,
         params: dict = None,
-        **kwargs
+        **kwargs,
     ) -> "OrderResponse":
         raise NotImplementedError
 
     async def cancel_order(
-        self, order_id: str, params: dict = None, **kwargs
+        self, symbol: str, order_id: str, *, params: dict = None, **kwargs
     ) -> "CancelResponse":
         raise NotImplementedError
 
     def _attach_base_url(self, url):
         return url if self._client._base_url else self.BASE_URL + url
 
-    async def _post_order(self, endpoint: str, data: dict, id_key: str, **kwargs):
-        resp = await self.post(endpoint, data=data, **kwargs)
-        resp_data = await resp.json()
+    async def _new_order(
+        self, endpoint: str, data: dict, id_key: str, params: dict | None, **kwargs
+    ):
+        resp = await self.post(endpoint, data=self._make_data(data, params), **kwargs)
+        return await self._make_market_order_response(resp, id_key)
 
+    async def _make_market_order_response(
+        self, resp: aiohttp.ClientResponse, id_key: str
+    ) -> "OrderResponse":
+        resp_data = await self._to_response_data_new(resp)
+        order_id = self._get_order_id_new(resp, resp_data, id_key)
+        return self._to_order_response(order_id, resp, resp_data)
+
+    async def _cancel_order_impl(
+        self,
+        endpoint: str,
+        data: dict,
+        order_id: str,
+        params: dict | None,
+        method: str = "DELETE",
+        **kwargs,
+    ):
+        resp = await self.request(
+            method, endpoint, data=self._make_data(data, params), **kwargs
+        )
+        return await self._make_cancel_order_response(resp, order_id)
+
+    async def _make_cancel_order_response(
+        self,
+        resp: aiohttp.ClientResponse,
+        order_id: str,
+    ) -> CancelResponse:
+        resp_data = await self._to_response_data_cancel(resp)
+        is_success = self._to_is_success(resp)
+        return self._to_cancel_response(order_id, is_success, resp, resp_data)
+
+    def _make_data(self, data: dict | None, params: dict | None):
+        data = data or {}
+        params = params or {}
+        return {**data, **params}
+
+    async def _to_response_data_new(self, resp: "aiohttp.ClientResponse") -> dict:
+        return await resp.json()
+
+    async def _to_response_data_cancel(self, resp: "aiohttp.ClientResponse") -> dict:
+        return await resp.json()
+
+    def _get_order_id_new(
+        self, resp: "aiohttp.ClientResponse", resp_data: dict, id_key: str
+    ) -> str | None:
         if resp.status == 200:
             order_id = resp_data
             for k in id_key.split("."):
                 order_id = order_id[k]
-            order_id = str(order_id)
+            return str(order_id)
         else:
-            order_id = None
+            return None
 
-        return self._make_market_order_response(resp, resp_data, order_id)
-
-    async def _delete_order(self, endpoint: str, data: dict, order_id: str, **kwargs):
-        resp = await self.delete(endpoint, data=data, **kwargs)
-        resp_data = await resp.json()
-        return self._make_cancel_order_response(resp, resp_data, order_id)
-
-    def _make_market_order_response(
-        self, resp: aiohttp.ClientResponse, resp_data: any, order_id: str
-    ) -> OrderResponse:
+    def _to_order_response(
+        self, order_id: str, resp: "aiohttp.ClientResponse", resp_data: dict
+    ) -> "OrderResponse":
         return OrderResponse(order_id, resp, resp_data)
 
-    def _make_cancel_order_response(
+    def _to_is_success(self, resp: "aiohttp.ClientResponse") -> bool:
+        return resp.status == 200
+
+    def _to_cancel_response(
         self,
-        resp: aiohttp.ClientResponse,
-        resp_data: any,
         order_id: str,
-        is_success: bool = None,
-    ):
-        if is_success is None:
-            is_success = resp.status == 200
+        is_success: bool,
+        resp: "aiohttp.ClientResponse",
+        resp_data: dict,
+    ) -> "CancelResponse":
         return CancelResponse(order_id, is_success, resp, resp_data)
