@@ -42,13 +42,27 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     _EXECUTION_STORE: tuple[Type[ExecutionStore], str] = None
     _POSITION_STORE: tuple[Type[PositionStore], str] = None
 
+    _INITIALIZE_ENDPOINTS: dict[str, tuple[str, str]] = {
+        # for binance, gmo, kucoin
+        "token": None,
+        # for kucoin
+        "token_public": None,
+        "token_private": None,
+        "ticker": None,
+        "trades": None,
+        "orderbook": None,
+        "order": None,
+        "execution": None,
+        "position": None,
+    }
+
     _NORMALIZED_CHANNELS = [
         "ticker",
         "trades",
         "orderbook",
         "order",
         "execution",
-        "order",
+        "position",
     ]
 
     def __init__(self, store: T):
@@ -61,13 +75,45 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     def __repr__(self):
         return self._store.__class__.__name__
 
-    async def initialize(self, *aws: Awaitable[aiohttp.ClientResponse], **kwargs):
+    async def initialize(
+        self,
+        *aws_or_names: Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict],
+        client: pybotters.Client = None,
+    ) -> "DataStoreWrapper":
+        aws = []
+        for a_or_n in aws_or_names:
+            if isinstance(a_or_n, Awaitable):
+                aws.append(a_or_n)
+            elif isinstance(a_or_n, str):
+                if a_or_n in self._INITIALIZE_ENDPOINTS:
+                    method, endpoint = self._get_initialize_endpoint(a_or_n)
+                    if endpoint:
+                        aws.append(client.request(method, endpoint))
+                else:
+                    raise RuntimeError(
+                        f"Unknown endpoint name: {a_or_n}, "
+                        f"available endpoints are {self._INITIALIZE_ENDPOINTS}"
+                    )
+            elif isinstance(a_or_n, tuple):
+                if (
+                    len(a_or_n) == 2
+                    and isinstance(a_or_n[0], str)
+                    and isinstance(a_or_n[1], dict)
+                ):
+                    method, endpoint = self._get_initialize_endpoint(a_or_n[0])
+                    if endpoint:
+                        params = dict(method=method, url=endpoint)
+                        params["params" if method == "GET" else "data"] = a_or_n[1]
+                        aws.append(client.request(**params))
+                else:
+                    raise RuntimeError(f"Unsupported type: {a_or_n}")
         try:
             await self._store.initialize(*aws)
         except AttributeError:
             # initializeはDataStoreManagerのメソッドではなく、各実装クラスレベルでのメソッド
             # bitbankDataStoreなど実装がない
             pass
+        return self
 
     def subscribe(
         self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
@@ -131,12 +177,27 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
         return self._ws_connections
 
-
     async def wait(self):
         await self._store.wait()
 
     def onmessage(self, msg: "Item", ws: "ClientWebSocketResponse") -> None:
         self._store.onmessage(msg, ws)
+
+    def _get_initialize_endpoint(self, key: str) -> tuple[str, str]:
+        if key not in self._INITIALIZE_ENDPOINTS:
+            raise RuntimeError(f"Unsupported initialize endpoint key: `{key}`")
+
+        method_and_endpoint = self._INITIALIZE_ENDPOINTS[key]
+
+        if method_and_endpoint is None:
+            return None, None
+
+        if len(method_and_endpoint) != 2 or not (
+            isinstance(method_and_endpoint[0], str)
+            and isinstance(method_and_endpoint[1], str)
+        ):
+            raise RuntimeError(f"INITIALIZE_ENDPOINT must be tuple[str, str]")
+        return method_and_endpoint
 
     def _init_normalized_stores(self):
         self._normalized_stores["ticker"] = self._init_ticker_store()
