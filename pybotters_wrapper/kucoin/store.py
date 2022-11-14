@@ -88,6 +88,7 @@ class KucoinPositionStore(PositionStore):
 
 
 class _KucoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
+    _WRAP_STORE = pybotters.KuCoinDataStore
     _INITIALIZE_ENDPOINTS = {
         "token": ("POST", "/api/v1/bullet-public"),
         "token_public": ("POST", "/api/v1/bullet-public"),
@@ -108,9 +109,6 @@ class _KucoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
     動的に定めたエンドポイントで上書きをしている
 
     """
-
-    def __init__(self, store = None):
-        super(_KucoinDataStoreWrapper, self).__init__(pybotters.KuCoinDataStore())
 
     def _parse_endpoint(self, endpoint) -> str:
         return endpoint or self.endpoint
