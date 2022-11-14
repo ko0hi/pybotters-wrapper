@@ -84,11 +84,17 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         *aws_or_names: Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict],
         client: pybotters.Client = None,
     ) -> "DataStoreWrapper":
+        def _check_client():
+            assert (
+                    client is not None
+            ), "need to specify `client` as store.initialize(..., client=client)"
+
         aws = []
         for a_or_n in aws_or_names:
             if isinstance(a_or_n, Awaitable):
                 aws.append(a_or_n)
             elif isinstance(a_or_n, str):
+                _check_client()
                 if a_or_n in self._INITIALIZE_ENDPOINTS:
                     method, endpoint = self._get_initialize_endpoint(a_or_n)
                     if endpoint:
@@ -99,6 +105,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                         f"available endpoints are {self._INITIALIZE_ENDPOINTS}"
                     )
             elif isinstance(a_or_n, tuple):
+                _check_client()
                 if (
                     len(a_or_n) == 2
                     and isinstance(a_or_n[0], str)
