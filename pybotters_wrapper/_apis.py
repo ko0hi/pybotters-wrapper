@@ -36,7 +36,14 @@ EXCHANGE2STORE = {
 }
 
 
-EXCHANGE2API: dict[str, Type[API]] = {"ftx": pbw.ftx.FTXAPI}
+EXCHANGE2API: dict[str, Type[API]] = {
+    "bitflyer": pbw.bitflyer.BitflyerAPI,
+    "ftx": pbw.ftx.FTXAPI,
+}
+
+
+def create_client(exchange: str, **kwargs) -> pybotters.Client:
+    return pybotters.Client(base_url=get_base_url(exchange), **kwargs)
 
 
 def create_store(
