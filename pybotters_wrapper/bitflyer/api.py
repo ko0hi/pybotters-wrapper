@@ -4,53 +4,54 @@ from pybotters_wrapper.common import API
 class BitflyerAPI(API):
     BASE_URL = "https://api.bitflyer.com"
 
-    async def market_order(self, symbol, side, size, **kwargs):
-        res = await self.post(
+    async def market_order(
+        self, symbol: str, side: str, size: float, *, params: dict = None, **kwargs
+    ) -> "OrderResponse":
+        return await self._new_order(
             "/v1/me/sendchildorder",
-            data={
+            {
                 "product_code": symbol,
                 "side": side,
                 "size": f"{size:.8f}",
                 "child_order_type": "MARKET",
             },
+            "child_order_acceptance_id",
+            params,
         )
 
-        data = await res.json()
-
-        if res.status != 200:
-            raise RuntimeError(f"Invalid request: {data}")
-        else:
-            return data["child_order_acceptance_id"]
-
     async def limit_order(
-        self, symbol, side, size, price, time_in_force="GTC", **kwargs
-    ):
-        res = await self.post(
-            f"/v1/me/sendchildorder",
-            data={
+        self,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        *,
+        params: dict = None,
+        **kwargs,
+    ) -> "OrderResponse":
+        return await self._new_order(
+            "/v1/me/sendchildorder",
+            {
                 "product_code": symbol,
                 "side": side,
                 "size": f"{size:.8f}",
                 "child_order_type": "LIMIT",
                 "price": int(price),
-                "time_in_force": time_in_force,
             },
+            "child_order_acceptance_id",
+            params,
         )
 
-        data = await res.json()
-
-        if res.status != 200:
-            raise RuntimeError(f"Invalid request: {data}", res)
-        else:
-            return data["child_order_acceptance_id"]
-
-    async def cancel_order(self, symbol, order_id, **kwargs):
-        order_id_key = "child_order_id"
-        if order_id.startswith("JRF"):
-            order_id_key = order_id_key.replace("_id", "_acceptance_id")
-
-        res = await self.post(
+    async def cancel_order(
+        self, symbol: str, order_id: str, *, params: dict = None, **kwargs
+    ) -> "CancelResponse":
+        return await self._cancel_order_impl(
             "/v1/me/cancelchildorder",
-            data={"product_code": symbol, order_id_key: order_id},
+            {"product_code": symbol, "child_order_acceptance_id": order_id},
+            order_id,
+            params,
+            "POST",
         )
-        return res.status == 200
+
+    async def _to_response_data_cancel(self, resp: "aiohttp.ClientResponse") -> None:
+        return None
