@@ -5,16 +5,16 @@ from pybotters_wrapper.common import (
     TickerStore,
     TradesStore,
     OrderbookStore,
+    OrderStore,
+    ExecutionStore,
+    PositionStore,
 )
 from pybotters_wrapper.bitflyer import bitFlyerWebsocketChannels
 
 
 class bitFlyerTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return {
-            "symbol": d["product_code"],
-            "price": d["ltp"],
-        }
+        return self._itemize(d["product_code"], d["ltp"])
 
 
 class bitFlyerTradesStore(TradesStore):
@@ -24,35 +24,74 @@ class bitFlyerTradesStore(TradesStore):
             order_id = side.lower() + "_child_order_acceptance_id"
         else:
             order_id = d["buy_child_order_acceptance_id"]
-        return {
-            "id": order_id,
-            "symbol": d["product_code"],
-            "side": side,
-            "price": d["price"],
-            "size": d["size"],
-            "timestamp": pd.to_datetime(d["exec_date"]),
-        }
+        return self._itemize(
+            order_id,
+            d["product_code"],
+            side,
+            float(d["price"]),
+            float(d["size"]),
+            pd.to_datetime(d["exec_date"]),
+        )
 
 
 class bitFlyerOrderbookStore(OrderbookStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return {
-            "symbol": d["product_code"],
-            "side": d["side"],
-            "price": d["price"],
-            "size": d["size"],
-        }
+        return self._itemize(
+            d["product_code"], d["side"], float(d["price"]), float(d["size"])
+        )
 
 
+class bitFlyerOrderStore(OrderStore):
+    def _normalize(self, d: dict, op: str) -> "OrderItem":
+        return self._itemize(
+            d["child_order_acceptance_id"],
+            d["product_code"],
+            d["side"],
+            float(d["price"]),
+            float(d["size"]),
+            d["child_order_type"],
+        )
+
+
+class bitFlyerExecutionStore(ExecutionStore):
+    def _get_operation(self, change: "StoreChange") -> str | None:
+        if change.data["event_type"] == "EXECUTION":
+            return "_insert"
+
+    def _normalize(self, d: dict, op: str) -> "ExecutionItem":
+        return self._itemize(
+            d["child_order_acceptance_id"],
+            d["product_code"],
+            d["side"],
+            float(d["price"]),
+            float(d["size"]),
+            pd.to_datetime(d["event_date"]),
+        )
+
+
+class bitFlyerPositionStore(PositionStore):
+    def _normalize(self, d: dict, op: str) -> "PositionItem":
+        return self._itemize(
+            d["product_code"],
+            d["side"],
+            float(d["price"]),
+            float(d["size"]),
+        )
 
 
 class bitFlyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
+    _WRAP_STORE = bitFlyerDataStore
+
     _WEBSOCKET_CHANNELS = bitFlyerWebsocketChannels
+
     _TICKER_STORE = (bitFlyerTickerStore, "ticker")
     _TRADES_STORE = (bitFlyerTradesStore, "executions")
     _ORDERBOOK_STORE = (bitFlyerOrderbookStore, "board")
+    _ORDER_STORE = (bitFlyerOrderStore, "childorders")
+    _EXECUTION_STORE = (bitFlyerExecutionStore, "childorderevents")
+    _POSITION_STORE = (bitFlyerPositionStore, "positions")
 
-    def __init__(self, store: bitFlyerDataStore = None, *args, **kwargs):
-        super(bitFlyerDataStoreWrapper, self).__init__(
-            store or bitFlyerDataStore()
-        )
+    _INITIALIZE_ENDPOINTS = {
+        "order": ("GET", "/v1/me/getchildorders"),
+        "position": ("GET", "/v1/me/getpositions")
+    }

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import uuid
 
 from pybotters_wrapper.common import WebsocketChannels
@@ -15,41 +17,39 @@ class bitFlyerWebsocketChannels(WebsocketChannels):
         return self.ENDPOINT, params
 
     # common channel methods
-    def ticker(self, symbol, **kwargs):
-        return self._subscribe(f"lightning_ticker_{symbol}")
+    def ticker(self, symbol, **kwargs) -> bitFlyerWebsocketChannels:
+        return self.lightning_ticker(symbol)
 
-    def orderbook(self, symbol, **kwargs):
-        return [self.board(symbol), self.board_snapshot(symbol)]
+    def orderbook(self, symbol, **kwargs) -> bitFlyerWebsocketChannels:
+        return [self.lightning_board(symbol), self.lightning_board_snapshot(symbol)]
 
-    def trades(self, symbol, **kwargs):
-        return self.executions(symbol)
+    def trades(self, symbol, **kwargs) -> bitFlyerWebsocketChannels:
+        return self.lightning_executions(symbol)
+
+    def order(self, **kwargs) -> bitFlyerWebsocketChannels:
+        return self.child_order_events()
+
+    def execution(self, **kwargs) -> bitFlyerWebsocketChannels:
+        return self.child_order_events()
+
+    def position(self, **kwargs) -> bitFlyerWebsocketChannels:
+        return self.child_order_events()
 
     # exchange channel methods
-    def board(self, symbol):
+    def lightning_ticker(self, symbol: str) -> bitFlyerWebsocketChannels:
+        return self._subscribe(f"lightning_ticker_{symbol}")
+
+    def lightning_board(self, symbol):
         return self._subscribe(f"lightning_board_{symbol}")
 
-    def board_snapshot(self, symbol):
+    def lightning_board_snapshot(self, symbol):
         return self._subscribe(f"lightning_board_snapshot_{symbol}")
 
-    def executions(self, symbol):
+    def lightning_executions(self, symbol):
         return self._subscribe(f"lightning_executions_{symbol}")
 
-    def child_order(self):
+    def child_order_events(self):
         return self._subscribe("child_order_events")
 
-    def parent_order(self):
-        return self._subscribe("parent_order_envets")
-
-    def public(self, symbol):
-        return [
-            self.ticker(symbol),
-            self.board(symbol),
-            self.board_snapshot(symbol),
-            self.executions(symbol),
-        ]
-
-    def private_channels(self):
-        return [self.child_order(), self.parent_order()]
-
-    def all_channels(self, symbol):
-        return self.public(symbol) + self.private()
+    def parent_order_events(self):
+        return self._subscribe("parent_order_events")
