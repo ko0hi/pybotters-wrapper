@@ -34,7 +34,7 @@ class GMOCoinOrderbookStore(OrderbookStore):
 
 
 class GMOCoinDataStoreWrapper(DataStoreWrapper[GMOCoinDataStore]):
-    _SOCKET_CHANNELS_CLS = GMOWebsocketChannels
+    _WEBSOCKET_CHANNELS = GMOWebsocketChannels
     _TICKER_STORE = (GMOCoinTickerStore, "ticker")
     _TRADES_STORE = (GMOCoinTradesStore, "trades")
     _ORDERBOOK_STORE = GMOCoinOrderbookStore, "orderbooks"

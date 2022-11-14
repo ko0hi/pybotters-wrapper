@@ -33,7 +33,7 @@ class BybitUSDTOrderbookStore(OrderbookStore):
 
 
 class BybitUSDTDataStoreWrapper(DataStoreWrapper[BybitUSDTDataStore]):
-    _SOCKET_CHANNELS_CLS = BybitUSDTWebsocketChannels
+    _WEBSOCKET_CHANNELS = BybitUSDTWebsocketChannels
     _TICKER_STORE = (BybitUSDTTickerStore, "instrument")
     _TRADES_STORE = (BybitUSDTTradesStore, "trade")
     _ORDERBOOK_STORE = (BybitUSDTOrderbookStore, "orderbook")

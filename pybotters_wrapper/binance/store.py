@@ -121,15 +121,15 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
 
 
 class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]):
-    _SOCKET_CHANNELS_CLS = BinanceSpotWebsocketChannels
+    _WEBSOCKET_CHANNELS = BinanceSpotWebsocketChannels
     _WRAP_CLS = BinanceSpotDataStore
 
 
 class BinanceUSDSMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceUSDSMDataStore]):
-    _SOCKET_CHANNELS_CLS = BinanceUSDSMWebsocketChannels
+    _WEBSOCKET_CHANNELS = BinanceUSDSMWebsocketChannels
     _WRAP_CLS = BinanceUSDSMDataStore
 
 
 class BinanceCOINMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceCOINMDataStore]):
-    _SOCKET_CHANNELS_CLS = BinanceCOINMWebsocketChannels
+    _WEBSOCKET_CHANNELS = BinanceCOINMWebsocketChannels
     _WRAP_CLS = BinanceCOINMDataStore

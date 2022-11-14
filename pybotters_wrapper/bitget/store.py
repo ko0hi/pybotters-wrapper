@@ -4,7 +4,7 @@ from pybotters_wrapper.bitget import BitgetWebsocketChannels
 
 
 class BitgetDataStoreWrapper(DataStoreWrapper[BitgetDataStore]):
-    _SOCKET_CHANNELS_CLS = BitgetWebsocketChannels
+    _WEBSOCKET_CHANNELS = BitgetWebsocketChannels
 
     def __init__(self, store: BitgetDataStore = None):
         super(BitgetDataStoreWrapper, self).__init__(store or BitgetDataStore())

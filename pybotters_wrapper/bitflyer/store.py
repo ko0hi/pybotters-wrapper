@@ -47,7 +47,7 @@ class bitFlyerOrderbookStore(OrderbookStore):
 
 
 class bitFlyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
-    _SOCKET_CHANNELS_CLS = bitFlyerWebsocketChannels
+    _WEBSOCKET_CHANNELS = bitFlyerWebsocketChannels
     _TICKER_STORE = (bitFlyerTickerStore, "ticker")
     _TRADES_STORE = (bitFlyerTradesStore, "executions")
     _ORDERBOOK_STORE = (bitFlyerOrderbookStore, "board")

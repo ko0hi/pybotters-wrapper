@@ -103,16 +103,16 @@ class _KucoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
 
     """
 
-    def __init__(self):
+    def __init__(self, store = None):
         super(_KucoinDataStoreWrapper, self).__init__(pybotters.KuCoinDataStore())
 
     def _parse_endpoint(self, endpoint) -> str:
         return endpoint or self.endpoint
 
-    def _parse_send_json(self, endpoint, send_json) -> dict[str, list[any]]:
+    def _parse_send(self, endpoint, send) -> dict[str, list[any]]:
         assert endpoint is not None
-        rtn = {endpoint: send_json}
-        if send_json is None:
+        rtn = {endpoint: send}
+        if send is None:
             rtn[endpoint] = []
             subscribe_lists = self._ws_channels.get()
             assert len(subscribe_lists), "No channels have not been subscribed."
@@ -126,8 +126,8 @@ class _KucoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
 
 
 class KucoinSpotDataStoreWrapper(_KucoinDataStoreWrapper):
-    _SOCKET_CHANNELS_CLS = KucoinSpotWebsocketChannels
+    _WEBSOCKET_CHANNELS = KucoinSpotWebsocketChannels
 
 
 class KucoinFuturesDataStoreWrapper(_KucoinDataStoreWrapper):
-    _SOCKET_CHANNELS_CLS = KucoinFuturesWebsocketChannels
+    _WEBSOCKET_CHANNELS = KucoinFuturesWebsocketChannels

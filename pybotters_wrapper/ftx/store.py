@@ -82,7 +82,7 @@ class FTXPositionStore(PositionStore):
 
 
 class FTXDataStoreWrapper(DataStoreWrapper[FTXDataStore]):
-    _SOCKET_CHANNELS_CLS = FTXWebsocketChannels
+    _WEBSOCKET_CHANNELS = FTXWebsocketChannels
     _TICKER_STORE = (FTXTickerStore, "ticker")
     _TRADES_STORE = (FTXTradesStore, "trades")
     _ORDERBOOK_STORE = (FTXOrderbookStore, "orderbook")

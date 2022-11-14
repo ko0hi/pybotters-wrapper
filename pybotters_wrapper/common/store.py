@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import asyncio
 from typing import (
     TYPE_CHECKING,
+    Awaitable,
     Callable,
     Generic,
     TypeVar,
@@ -11,6 +11,8 @@ from typing import (
     TypedDict,
 )
 
+import asyncio
+import aiohttp
 import pandas as pd
 import pybotters
 from pybotters.store import DataStore, DataStoreManager
@@ -31,7 +33,7 @@ T = TypeVar("T", bound=DataStoreManager)
 
 
 class DataStoreWrapper(Generic[T], LoggingMixin):
-    _SOCKET_CHANNELS_CLS: Type[WebsocketChannels] = None
+    _WEBSOCKET_CHANNELS: Type[WebsocketChannels] = None
 
     _TICKER_STORE: tuple[Type[TickerStore], str] = None
     _TRADES_STORE: tuple[Type[TradesStore], str] = None
@@ -53,20 +55,19 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         self._store = store
         self._normalized_stores = {}
         self._init_normalized_stores()
-        self._ws_channels = self._SOCKET_CHANNELS_CLS()
+        self._ws_channels = self._WEBSOCKET_CHANNELS()
         self._ws_connections = []
 
     def __repr__(self):
         return self._store.__class__.__name__
 
-    async def initialize(self, *args, **kwargs):
-        return await self._store.initialize(*args, **kwargs)
-
-    async def wait(self):
-        await self._store.wait()
-
-    def onmessage(self, msg: "Item", ws: "ClientWebSocketResponse") -> None:
-        self._store.onmessage(msg, ws)
+    async def initialize(self, *aws: Awaitable[aiohttp.ClientResponse], **kwargs):
+        try:
+            await self._store.initialize(*aws)
+        except AttributeError:
+            # initializeはDataStoreManagerのメソッドではなく、各実装クラスレベルでのメソッド
+            # bitbankDataStoreなど実装がない
+            pass
 
     def subscribe(
         self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
@@ -84,16 +85,15 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
             channel = self._NORMALIZED_CHANNELS
 
         if isinstance(channel, str):
-            self._subscribe_one(channel, **kwargs)
+            self._ws_channels.add(channel, **kwargs)
         elif isinstance(channel, list):
             for item in channel:
                 if isinstance(item, str):
-                    self._subscribe_one(item, **kwargs)
+                    self._ws_channels.add(item, **kwargs)
                 elif isinstance(item, tuple):
-                    self._subscribe_one(item[0], **{**kwargs, **item[1]})
+                    self._ws_channels.add(item[0], **{**kwargs, **item[1]})
 
-    def _subscribe_one(self, channel: str, **kwargs):
-        self._ws_channels.add(channel, **kwargs)
+        return self
 
     async def connect(
         self,
@@ -110,10 +110,10 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         **kwargs,
     ) -> dict[str, WebSocketRunner]:
         endpoint = self._parse_endpoint(endpoint)
-        endpoint_to_send_jsons = self._parse_send_json(endpoint, send)
-        hdlr = self._parse_hdlr_json(hdlr)
+        endpoint_to_sends = self._parse_send(endpoint, send)
+        hdlr = self._parse_hdlr(hdlr)
 
-        for ep, sj in endpoint_to_send_jsons.items():
+        for ep, sj in endpoint_to_sends.items():
             await self._ws_connect(
                 client,
                 ep,
@@ -131,6 +131,13 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
         return self._ws_connections
 
+
+    async def wait(self):
+        await self._store.wait()
+
+    def onmessage(self, msg: "Item", ws: "ClientWebSocketResponse") -> None:
+        self._store.onmessage(msg, ws)
+
     def _init_normalized_stores(self):
         self._normalized_stores["ticker"] = self._init_ticker_store()
         self._normalized_stores["trades"] = self._init_trades_store()
@@ -139,17 +146,16 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         self._normalized_stores["execution"] = self._init_execution_store()
         self._normalized_stores["position"] = self._init_position_store()
 
-    def _init_normalized_store(self, cls_name_tuple):
+    def _init_normalized_store(
+        self, cls_name_tuple: tuple[Type[NormalizedDataStore], str]
+    ) -> NormalizedDataStore | None:
         if cls_name_tuple is None:
             return None
-        if isinstance(cls_name_tuple[1], str):
+        elif isinstance(cls_name_tuple[1], str):
             store_cls, store_name = cls_name_tuple
             return store_cls(getattr(self.store, store_name))
-        elif isinstance(cls_name_tuple[1], (tuple, list)):
-            store_cls = cls_name_tuple[0]
-            store_names = cls_name_tuple[1]
-            stores = [getattr(self.store, name) for name in store_names]
-            return store_cls(*stores)
+        else:
+            raise RuntimeError(f"Unsupported: {cls_name_tuple}")
 
     def _init_ticker_store(self) -> "TickerStore" | None:
         return self._init_normalized_store(self._TICKER_STORE)
@@ -172,16 +178,16 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     def _parse_endpoint(self, endpoint) -> str:
         return endpoint or self._ws_channels.ENDPOINT
 
-    def _parse_send_json(self, endpoint, send_json) -> dict[str, list[any]]:
-        if send_json is None:
-            # a user registered channels via `DatastoreWrapper.subscribe`
+    def _parse_send(self, endpoint, send) -> dict[str, list[any]]:
+        if send is None:
+            # channels must be registered with `DatastoreWrapper.subscribe`
             subscribe_lists = self._ws_channels.get()
             assert len(subscribe_lists), "No channels have not been subscribed."
             return subscribe_lists
         else:
-            return {endpoint: send_json}
+            return {endpoint: send}
 
-    def _parse_hdlr_json(self, hdlr_json):
+    def _parse_hdlr(self, hdlr_json):
         if hdlr_json is None:
             hdlr_json = self.onmessage
         else:

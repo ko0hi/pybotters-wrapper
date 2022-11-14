@@ -42,7 +42,7 @@ EXCHANGE2API: dict[str, Type[API]] = {"ftx": pbw.ftx.FTXAPI}
 def create_store(
     exchange: str, *, store: DataStoreManager = None, **kwargs
 ) -> DataStoreWrapper:
-    return EXCHANGE2STORE[exchange](store, **kwargs)
+    return EXCHANGE2STORE[exchange](store)
 
 
 def create_api(exchange: str, client: pybotters.Client, **kwargs) -> API:
@@ -58,7 +58,7 @@ def create_plugin(store: DataStoreWrapper, name: str, **kwargs):
 
 
 def create_socket_channels(exchange: str) -> TWebsocketChannels:
-    return EXCHANGE2STORE[exchange]._SOCKET_CHANNELS_CLS()
+    return EXCHANGE2STORE[exchange]._WEBSOCKET_CHANNELS()
 
 
 async def create_ws_connect(
