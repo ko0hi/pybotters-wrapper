@@ -3,53 +3,40 @@ from pybotters_wrapper.common import API
 
 class BinanceAPIBase(API):
     _ORDER_ENDPOINT = None
+    _ORDER_ID_KEY = "orderId"
 
-    async def market_order(
-        self, symbol: str, side: str, size: float, **kwargs
-    ) -> "OrderResponse":
-        return await self._create_order_impl(
-            self._ORDER_ENDPOINT,
-            {
-                "symbol": symbol.upper(),
-                "side": side.upper(),
-                "type": "MARKET",
-                "quantity": f"{size:.8f}",
-            },
-            "orderId",
-            **kwargs
-        )
+    def _make_market_order_data(
+        self, endpoint: str, symbol: str, side: str, size: float
+    ) -> dict:
+        return {
+            "symbol": symbol.upper(),
+            "side": side.upper(),
+            "type": "MARKET",
+            "quantity": f"{size:.8f}",
+        }
 
-    async def limit_order(
+    def _make_limit_order_data(
         self,
+        endpoint: str,
         symbol: str,
         side: str,
         price: float,
         size: float,
-        **kwargs,
-    ) -> "OrderResponse":
-        return await self._create_order_impl(
-            self._ORDER_ENDPOINT,
-            {
-                "symbol": symbol.upper(),
-                "side": side.upper(),
-                "type": "LIMIT",
-                "quantity": f"{size:.8f}",
-                "price": f"{price:.8f}",
-                "timeInForce": "GTC",
-            },
-            "orderId",
-            **kwargs
-        )
+    ) -> dict:
 
-    async def cancel_order(
-        self, symbol: str, order_id: str, **kwargs
-    ) -> "CancelResponse":
-        return await self._cancel_order_impl(
-            self._ORDER_ENDPOINT,
-            {"symbol": symbol.upper(), "orderId": order_id},
-            order_id,
-            **kwargs
-        )
+        return {
+            "symbol": symbol.upper(),
+            "side": side.upper(),
+            "type": "LIMIT",
+            "quantity": f"{size:.8f}",
+            "price": f"{price:.8f}",
+            "timeInForce": "GTC",
+        }
+
+    def _make_cancel_order_data(
+        self, endpoint: str, symbol: str, order_id: str
+    ) -> dict:
+        return {"symbol": symbol.upper(), "orderId": order_id}
 
 
 class BinanceSpotAPI(BinanceAPIBase):
