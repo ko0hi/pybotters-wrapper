@@ -100,9 +100,9 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                     if endpoint:
                         aws.append(client.request(method, endpoint))
                 else:
-                    raise RuntimeError(
+                    self.log(
                         f"Unknown endpoint name: {a_or_n}, "
-                        f"available endpoints are {self._INITIALIZE_ENDPOINTS}"
+                        f"available endpoints are {self._INITIALIZE_ENDPOINTS}",
                     )
             elif isinstance(a_or_n, tuple):
                 _check_client()
