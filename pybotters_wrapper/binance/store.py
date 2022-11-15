@@ -128,8 +128,9 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
                 "id": sends[0]["id"],
             }
 
+        rtn = {}
         for endpoint, send in compressed.items():
-            new_params = []
+            rtn[endpoint] = []
             for p in send["params"]:
                 if p == "LISTEN_KEY":
                     if self.store.listenkey is None:
@@ -138,11 +139,10 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
                             f"HINT: "
                             f"`store.initialize(..., 'token_private', client=client)`"
                         )
-                    new_params.append(self.store.listenkey)
+                    rtn[endpoint].append(self.store.listenkey)
                 else:
-                    new_params.append(send)
-            compressed[endpoint]["params"] = new_params
-        return compressed
+                    rtn[endpoint].append(send)
+        return rtn
 
 
 class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]):
