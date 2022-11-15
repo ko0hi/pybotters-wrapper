@@ -37,7 +37,7 @@ class BinanceTickerStore(TickerStore):
 class BinanceTradesStore(TradesStore):
     def _normalize(self, d: dict, op: str) -> "TradesItem":
         return {
-            "id": d["a"],
+            "id": str(d["a"]),
             "symbol": d["s"],
             "side": "SELL" if d["m"] else "BUY",
             "price": float(d["p"]),
@@ -59,7 +59,7 @@ class BinanceOrderbookStore(OrderbookStore):
 class BinanceOrderStore(OrderStore):
     def _normalize(self, d: dict, op: str) -> "OrderItem":
         return {
-            "id": d["i"],
+            "id": str(d["i"]),
             "symbol": d["s"],
             "side": d["S"],
             "price": float(d["p"]),
@@ -75,7 +75,7 @@ class BinanceExecutionStore(ExecutionStore):
 
     def _normalize(self, d: dict, op: str) -> "ExecutionItem":
         return {
-            "id": d["i"],
+            "id": str(d["i"]),
             "symbol": d["s"],
             "side": d["S"],
             "price": float(d["p"]),
