@@ -309,6 +309,14 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 break
         self.log("All channels got ready")
 
+    def _get_normalized_store(self, name: str) -> NormalizedDataStore:
+        store = self._normalized_stores[name]
+        if store is None:
+            raise RuntimeError(
+                f"Unsupported normalized store: {name} ({self.exchange})"
+            )
+        return store
+
     @property
     def store(self) -> T:
         return self._store
@@ -316,27 +324,27 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     # common stores
     @property
     def ticker(self) -> TickerStore:
-        return self._normalized_stores["ticker"]
+        return self._get_normalized_store("ticker")
 
     @property
     def trades(self) -> TradesStore:
-        return self._normalized_stores["trades"]
+        return self._get_normalized_store("trades")
 
     @property
     def orderbook(self) -> OrderbookStore:
-        return self._normalized_stores["orderbook"]
+        return self._get_normalized_store("orderbook")
 
     @property
     def order(self) -> OrderStore:
-        return self._normalized_stores["order"]
+        return self._get_normalized_store("order")
 
     @property
     def execution(self) -> ExecutionStore:
-        return self._normalized_stores["execution"]
+        return self._get_normalized_store("execution")
 
     @property
     def position(self) -> PositionStore:
-        return self._normalized_stores["position"]
+        return self._get_normalized_store("position")
 
     @property
     def exchange(self) -> str:
