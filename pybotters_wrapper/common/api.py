@@ -52,7 +52,7 @@ class API:
         )
 
     async def market_order(
-        self, symbol: str, side: str, size: float, *, params: dict = None, **kwargs
+        self, symbol: str, side: str, size: float, **kwargs
     ) -> "OrderResponse":
         raise NotImplementedError
 
@@ -62,14 +62,12 @@ class API:
         side: str,
         price: float,
         size: float,
-        *,
-        params: dict = None,
         **kwargs,
     ) -> "OrderResponse":
         raise NotImplementedError
 
     async def cancel_order(
-        self, symbol: str, order_id: str, *, params: dict = None, **kwargs
+        self, symbol: str, order_id: str, **kwargs
     ) -> "CancelResponse":
         raise NotImplementedError
 
@@ -77,9 +75,9 @@ class API:
         return url if self._client._base_url else self.BASE_URL + url
 
     async def _create_order_impl(
-        self, endpoint: str, data: dict, id_key: str, params: dict | None, **kwargs
+        self, endpoint: str, data: dict, id_key: str, **kwargs
     ):
-        resp = await self.post(endpoint, data=self._make_data(data, params), **kwargs)
+        resp = await self.post(endpoint, data=self._make_data(data, **kwargs))
         return await self._make_market_order_response(resp, id_key)
 
     async def _make_market_order_response(
@@ -94,12 +92,11 @@ class API:
         endpoint: str,
         data: dict,
         order_id: str,
-        params: dict | None,
         method: str = "DELETE",
         **kwargs,
     ):
         resp = await self.request(
-            method, endpoint, data=self._make_data(data, params), **kwargs
+            method, endpoint, data=self._make_data(data, **kwargs)
         )
         return await self._make_cancel_order_response(resp, order_id)
 
@@ -112,10 +109,9 @@ class API:
         is_success = self._to_is_success(resp)
         return self._to_cancel_response(order_id, is_success, resp, resp_data)
 
-    def _make_data(self, data: dict | None, params: dict | None):
+    def _make_data(self, data: dict | None, **kwargs):
         data = data or {}
-        params = params or {}
-        return {**data, **params}
+        return {**data, **kwargs}
 
     async def _to_response_data_new(self, resp: "aiohttp.ClientResponse") -> dict:
         return await resp.json()

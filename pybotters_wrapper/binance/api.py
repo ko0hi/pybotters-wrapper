@@ -5,7 +5,7 @@ class BinanceAPIBase(API):
     _ORDER_ENDPOINT = None
 
     async def market_order(
-        self, symbol: str, side: str, size: float, *, params: dict = None, **kwargs
+        self, symbol: str, side: str, size: float, **kwargs
     ) -> "OrderResponse":
         return await self._create_order_impl(
             self._ORDER_ENDPOINT,
@@ -16,7 +16,7 @@ class BinanceAPIBase(API):
                 "quantity": f"{size:.8f}",
             },
             "orderId",
-            params,
+            **kwargs
         )
 
     async def limit_order(
@@ -25,8 +25,6 @@ class BinanceAPIBase(API):
         side: str,
         price: float,
         size: float,
-        *,
-        params: dict = None,
         **kwargs,
     ) -> "OrderResponse":
         return await self._create_order_impl(
@@ -40,17 +38,17 @@ class BinanceAPIBase(API):
                 "timeInForce": "GTC",
             },
             "orderId",
-            params,
+            **kwargs
         )
 
     async def cancel_order(
-        self, symbol: str, order_id: str, *, params: dict = None, **kwargs
+        self, symbol: str, order_id: str, **kwargs
     ) -> "CancelResponse":
         return await self._cancel_order_impl(
             self._ORDER_ENDPOINT,
             {"symbol": symbol.upper(), "orderId": order_id},
             order_id,
-            params,
+            **kwargs
         )
 
 
