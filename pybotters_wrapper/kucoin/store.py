@@ -36,7 +36,7 @@ class KuCoinTradesStore(TradesStore):
             d["side"].upper(),
             float(d["price"]),
             float(d["size"]),
-            pd.to_datetime(int(d.get("time", d["ts"])), unit="ns"),  # spot / futures
+            pd.to_datetime(int(d.get("time", d["ts"])), unit="ns", utc=True),  # spot / futures
         )
 
 
@@ -76,7 +76,7 @@ class KuCoinExecutionStore(ExecutionStore):
             d["side"].upper(),
             price,
             float(d["size"]),
-            pd.to_datetime(int(d["ts"]), unit="ns"),
+            pd.to_datetime(int(d["ts"]), unit="ns", utc=True),
         )
 
 
