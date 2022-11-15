@@ -151,16 +151,28 @@ class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]
         "token": ("POST", "/api/v3/userDataStream"),
         "token_private": ("POST", "/api/v3/userDataStream"),
         "orderbook": ("GET", "/api/v3/depth"),
-        "order": ("GET", "/api/v3/openOrderList"),
+        "order": ("GET", "/api/v3/openOrders"),
     }
     _WRAP_STORE = BinanceSpotDataStore
 
 
 class BinanceUSDSMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceUSDSMDataStore]):
     _WEBSOCKET_CHANNELS = BinanceUSDSMWebsocketChannels
+    _INITIALIZE_ENDPOINTS = {
+        "token": ("POST", "/fapi/v1/listenKey"),
+        "token_private": ("POST", "/fapi/v1/listenKey"),
+        "orderbook": ("GET", "/fapi/v1/depth"),
+        "order": ("GET", "/fapi/v1/openOrders"),
+    }
     _WRAP_STORE = BinanceUSDSMDataStore
 
 
 class BinanceCOINMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceCOINMDataStore]):
     _WEBSOCKET_CHANNELS = BinanceCOINMWebsocketChannels
+    _INITIALIZE_ENDPOINTS = {
+        "token": ("POST", "/dapi/v1/listenKey"),
+        "token_private": ("POST", "/dapi/v1/listenKey"),
+        "orderbook": ("GET", "/dapi/v1/depth"),
+        "order": ("GET", "/dapi/v1/openOrders"),
+    }
     _WRAP_STORE = BinanceCOINMDataStore
