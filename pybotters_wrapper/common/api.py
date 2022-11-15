@@ -2,6 +2,7 @@ from typing import NamedTuple
 
 import aiohttp
 import pybotters
+from loguru import logger
 
 from pybotters_wrapper.utils import LoggingMixin
 
@@ -33,8 +34,9 @@ class API(LoggingMixin):
     _CANCEL_ENDPOINT = None
     _ORDER_ID_KEY = None
 
-    def __init__(self, client: pybotters.Client, **kwargs):
+    def __init__(self, client: pybotters.Client, verbose: bool = False, **kwargs):
         self._client = client
+        self._verbose = verbose
 
     async def request(self, method, url, *, params=None, data=None, **kwargs):
         url = self._attach_base_url(url)
@@ -56,6 +58,7 @@ class API(LoggingMixin):
             "DELETE", url, params=None, data=data, **kwargs
         )
 
+    @logger.catch
     async def market_order(
         self,
         symbol: str,
@@ -70,12 +73,15 @@ class API(LoggingMixin):
         endpoint = self._make_market_endpoint(symbol, side, size, **kwargs)
         data = self._make_market_order_data(endpoint, symbol, side, size)
         data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
+        self.log(f"market order request: {data_w_kwargs}", verbose=self._verbose)
         resp = self.request(method, endpoint, data=data_w_kwargs, **request_params)
         resp_data = await resp.json()
+        self.log(f"market order response: {resp} {resp_data}", verbose=self._verbose)
         order_id = self._make_market_order_id(resp, resp_data, data, order_id_key)
         wrapped_resp = self._make_market_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
+    @logger.catch
     async def limit_order(
         self,
         symbol: str,
@@ -91,14 +97,17 @@ class API(LoggingMixin):
         endpoint = self._make_limit_endpoint(symbol, side, price, size, **kwargs)
         data = self._make_limit_order_data(endpoint, symbol, side, price, size)
         data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
+        self.log(f"limit order request: {data_w_kwargs}", verbose=self._verbose)
         resp = await self.request(
             method, endpoint, data=data_w_kwargs, **request_params
         )
         resp_data = await resp.json()
+        self.log(f"limit order response: {resp} {resp_data}", verbose=self._verbose)
         order_id = self._make_limit_order_id(resp, resp_data, data, order_id_key)
         wrapped_resp = self._make_limit_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
+    @logger.catch
     async def cancel_order(
         self,
         symbol: str,
@@ -111,10 +120,12 @@ class API(LoggingMixin):
         endpoint = self._make_cancel_endpoint(symbol, order_id, **kwargs)
         data = self._make_cancel_order_data(endpoint, symbol, order_id)
         data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
+        self.log(f"cancel order request: {data_w_kwargs}", verbose=self._verbose)
         resp = await self.request(
             method, endpoint, data=data_w_kwargs, **request_params
         )
         resp_data = await resp.json()
+        self.log(f"cancel order response: {resp} {resp_data}", verbose=self._verbose)
         wrapped_resp = self._make_cancel_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
