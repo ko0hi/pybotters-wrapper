@@ -1,11 +1,8 @@
 from pybotters_wrapper.common import API
 
 
-class BinanceSpotAPI(API):
-    BASE_URL = "https://api.binance.com"
-
-    _ORDER_ENDPOINT = "/api/v3/order"
-
+class BinanceAPIBase(API):
+    _ORDER_ENDPOINT = None
     async def market_order(
         self, symbol: str, side: str, size: float, *, params: dict = None, **kwargs
     ) -> "OrderResponse":
@@ -54,3 +51,18 @@ class BinanceSpotAPI(API):
             order_id,
             params,
         )
+
+
+class BinanceSpotAPI(BinanceAPIBase):
+    BASE_URL = "https://api.binance.com"
+    _ORDER_ENDPOINT = "/api/v3/order"
+
+
+class BinanceUSDSMAPI(BinanceAPIBase):
+    BASE_URL = "https://fapi.binance.com"
+    _ORDER_ENDPOINT = "/fapi/v1/order"
+
+
+class BinanceCOINMAPI(BinanceAPIBase):
+    BASE_URL = "https://dapi.binance.com"
+    _ORDER_ENDPOINT = "/dapi/v1/order"
