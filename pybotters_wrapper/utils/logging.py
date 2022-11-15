@@ -34,7 +34,7 @@ init_logger()
 
 
 class LoggingMixin:
-    def log(self, msg, level="debug", verbose=False):
+    def log(self, msg, level="debug", verbose=True):
         if verbose:
             getattr(logger, level)(f"[{self.__class__.__name__}] {msg}")
 
