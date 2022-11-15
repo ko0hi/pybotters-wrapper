@@ -1,7 +1,7 @@
 from pybotters_wrapper.common import API
 
 
-class BitflyerAPI(API):
+class bitFlyerAPI(API):
     BASE_URL = "https://api.bitflyer.com"
 
     async def market_order(
