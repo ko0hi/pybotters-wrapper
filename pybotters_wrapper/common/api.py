@@ -34,9 +34,9 @@ class API(LoggingMixin):
     _LIMIT_ENDPOINT = None
     _CANCEL_ENDPOINT = None
     _ORDER_ID_KEY = None
-    _MARKET_ORDER_METHOD = "POST"
-    _LIMIT_ORDER_METHOD = "POST"
-    _CANCEL_ORDER_METHOD = "DELETE"
+    _MARKET_REQUEST_METHOD = "POST"
+    _LIMIT_REQUEST_METHOD = "POST"
+    _CANCEL_REQUEST_METHOD = "DELETE"
 
     def __init__(self, client: pybotters.Client, verbose: bool = False, **kwargs):
         self._client = client
@@ -209,17 +209,17 @@ class API(LoggingMixin):
 
     async def _make_market_request(self, endpoint: str, data=dict | None, **kwargs):
         return await self._make_request(
-            self._MARKET_ORDER_METHOD, endpoint, data=data, **kwargs
+            self._MARKET_REQUEST_METHOD, endpoint, data=data, **kwargs
         )
 
     async def _make_limit_request(self, endpoint: str, data=dict | None, **kwargs):
         return await self._make_request(
-            self._LIMIT_ORDER_METHOD, endpoint, data=data, **kwargs
+            self._LIMIT_REQUEST_METHOD, endpoint, data=data, **kwargs
         )
 
     async def _make_cancel_request(self, endpoint: str, data=dict | None, **kwargs):
         return await self._make_request(
-            self._CANCEL_ORDER_METHOD, endpoint, data=data, **kwargs
+            self._CANCEL_REQUEST_METHOD, endpoint, data=data, **kwargs
         )
 
     def _make_order_response(
