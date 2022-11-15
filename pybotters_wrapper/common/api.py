@@ -243,7 +243,7 @@ class API(LoggingMixin):
         resp_data: dict,
         order_id: str,
     ) -> "OrderResponse":
-        return self._make_order_response(order_id, resp, resp_data)
+        return self._make_order_response(resp, resp_data, order_id)
 
     def _add_kwargs_to_data(self, data: dict | None, **kwargs):
         data = data or {}
