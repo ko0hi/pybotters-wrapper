@@ -134,8 +134,9 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
                 if p == "LISTEN_KEY":
                     if self.store.listenkey is None:
                         raise RuntimeError(
-                            f"`listenkey` has not been initialized, "
-                            f"private channels are unavailable."
+                            f"`listenkey` has not been initialized. "
+                            f"HINT: "
+                            f"`store.initialize(..., 'token_private', client=client)`"
                         )
                     new_params.append(self.store.listenkey)
                 else:
@@ -150,7 +151,7 @@ class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]
         "token": ("POST", "/api/v3/userDataStream"),
         "token_private": ("POST", "/api/v3/userDataStream"),
         "orderbook": ("GET", "/api/v3/depth"),
-        "order": ("GET", "/api/v3/openOrderList")
+        "order": ("GET", "/api/v3/openOrderList"),
     }
     _WRAP_STORE = BinanceSpotDataStore
 
