@@ -3,52 +3,44 @@ from pybotters_wrapper.common import API
 
 class bitFlyerAPI(API):
     BASE_URL = "https://api.bitflyer.com"
+    _ORDER_ENDPOINT = "/v1/me/sendchildorder"
+    _CANCEL_ENDPOINT = "/v1/me/cancelchildorder"
+    _ORDER_ID_KEY = "child_order_acceptance_id"
+    _CANCEL_REQUEST_METHOD = "POST"
 
-    async def market_order(
-        self, symbol: str, side: str, size: float, **kwargs
-    ) -> "OrderResponse":
-        return await self._create_order_impl(
-            "/v1/me/sendchildorder",
-            {
-                "product_code": symbol,
-                "side": side,
-                "size": f"{size:.8f}",
-                "child_order_type": "MARKET",
-            },
-            "child_order_acceptance_id",
-        )
+    def _make_market_order_data(
+        self, endpoint: str, symbol: str, side: str, size: float
+    ) -> dict:
+        return {
+            "product_code": symbol,
+            "side": side,
+            "size": f"{size:.8f}",
+            "child_order_type": "MARKET",
+        }
 
-    async def limit_order(
+    def _make_limit_order_data(
         self,
+        endpoint: str,
         symbol: str,
         side: str,
         price: float,
         size: float,
-        **kwargs,
-    ) -> "OrderResponse":
-        return await self._create_order_impl(
-            "/v1/me/sendchildorder",
-            {
-                "product_code": symbol,
-                "side": side,
-                "size": f"{size:.8f}",
-                "child_order_type": "LIMIT",
-                "price": int(price),
-            },
-            "child_order_acceptance_id",
-            **kwargs
-        )
+    ) -> dict:
+        return {
+            "product_code": symbol,
+            "side": side,
+            "size": f"{size:.8f}",
+            "child_order_type": "LIMIT",
+            "price": int(price),
+        }
 
-    async def cancel_order(
-        self, symbol: str, order_id: str, **kwargs
-    ) -> "CancelResponse":
-        return await self._cancel_order_impl(
-            "/v1/me/cancelchildorder",
-            {"product_code": symbol, "child_order_acceptance_id": order_id},
-            order_id,
-            "POST",
-            **kwargs
-        )
+    def _make_cancel_order_data(
+        self, endpoint: str, symbol: str, order_id: str
+    ) -> dict:
+        return {"product_code": symbol, "child_order_acceptance_id": order_id}
 
-    async def _to_response_data_cancel(self, resp: "aiohttp.ClientResponse") -> None:
-        return None
+    async def _make_cancel_request(self, endpoint: str, data=dict, **kwargs):
+        resp = await self.request(
+            self._CANCEL_REQUEST_METHOD, endpoint, data=data, **kwargs
+        )
+        return resp, None
