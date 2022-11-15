@@ -41,6 +41,8 @@ EXCHANGE2API: dict[str, Type[API]] = {
     "binanceusdsm": pbw.binance.BinanceUSDSMAPI,
     "binancecoinm": pbw.binance.BinanceCOINMAPI,
     "bitflyer": pbw.bitflyer.bitFlyerAPI,
+    "kucoinspot": pbw.kucoin.KuCoinSpotAPI,
+    "kucoinfutures": pbw.kucoin.KuCoinFuturesAPI,
     "ftx": pbw.ftx.FTXAPI,
 }
 
