@@ -3,6 +3,8 @@ from typing import NamedTuple
 import aiohttp
 import pybotters
 
+from pybotters_wrapper.utils import LoggingMixin
+
 
 class OrderResponse(NamedTuple):
     id: str
@@ -25,7 +27,7 @@ class CancelResponse(NamedTuple):
         return self.resp.status
 
 
-class API:
+class API(LoggingMixin):
     BASE_URL = None
 
     def __init__(self, client: pybotters.Client, **kwargs):
@@ -128,6 +130,7 @@ class API:
                 order_id = order_id[k]
             return str(order_id)
         else:
+            self.log(f"order failed: {resp} {resp_data}", "error")
             return None
 
     def _to_order_response(
