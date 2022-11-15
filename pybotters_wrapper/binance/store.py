@@ -119,6 +119,35 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
         else:
             self._ws_channels.add(channel, **kwargs)
 
+    def _parse_send(
+        self, endpoint: str, send: any, client: pybotters.Client
+    ) -> dict[str, list[any]]:
+        subscribe_list = super()._parse_send(endpoint, send, client)
+
+        # エンドポイントごとにparamsを一つにまとめる（バラバラだと量によっては接続できない場合がある）
+        compressed = {}
+        for endpoint, sends in subscribe_list.items():
+            compressed[endpoint] = {
+                "method": "SUBSCRIBE",
+                "params": [s["params"][0] for s in sends],
+                "id": sends[0]["id"],
+            }
+
+        for endpoint, send in compressed.items():
+            new_params = []
+            for p in send["params"]:
+                if p == "LISTEN_KEY":
+                    if self.store.listenkey is None:
+                        raise RuntimeError(
+                            f"`listenkey` has not been initialized, "
+                            f"private channels are unavailable."
+                        )
+                    new_params.append(self.store.listenkey)
+                else:
+                    new_params.append(send)
+            compressed[endpoint]["params"] = new_params
+        return compressed
+
 
 class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]):
     _WEBSOCKET_CHANNELS = BinanceSpotWebsocketChannels

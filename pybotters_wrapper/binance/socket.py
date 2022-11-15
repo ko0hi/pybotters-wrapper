@@ -18,16 +18,6 @@ class BinanceWebsocketChannels(WebsocketChannels):
 
         return self.ENDPOINT, send_json
 
-    def get(self) -> dict[str, list]:
-        subscribe_list = super().get()
-        compressed = {}
-        for endpoint, sends in subscribe_list.items():
-            compressed[endpoint] = {
-                "method": "SUBSCRIBE",
-                "params": [s['params'][0] for s in sends],
-                "id": sends[0]["id"]
-            }
-        return compressed
 
     # channels for normalized stores
     def ticker(self, symbol: str, **kwargs) -> BinanceWebsocketChannels:
