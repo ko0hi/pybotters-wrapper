@@ -81,7 +81,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
     async def initialize(
         self,
-        *aws_or_names: Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict],
+        aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
         client: pybotters.Client = None,
     ) -> "DataStoreWrapper":
         def _check_client():
