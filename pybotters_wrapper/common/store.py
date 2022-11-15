@@ -225,7 +225,11 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
             return None
         elif isinstance(cls_name_tuple[1], str):
             store_cls, store_name = cls_name_tuple
-            return store_cls(getattr(self.store, store_name))
+            assert issubclass(store_cls, NormalizedDataStore)
+            try:
+                return store_cls(getattr(self.store, store_name))
+            except AttributeError:
+                return None
         else:
             raise RuntimeError(f"Unsupported: {cls_name_tuple}")
 
