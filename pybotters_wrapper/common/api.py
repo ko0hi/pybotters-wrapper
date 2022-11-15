@@ -34,6 +34,9 @@ class API(LoggingMixin):
     _LIMIT_ENDPOINT = None
     _CANCEL_ENDPOINT = None
     _ORDER_ID_KEY = None
+    _MARKET_ORDER_METHOD = "POST"
+    _LIMIT_ORDER_METHOD = "POST"
+    _CANCEL_ORDER_METHOD = "DELETE"
 
     def __init__(self, client: pybotters.Client, verbose: bool = False, **kwargs):
         self._client = client
@@ -68,7 +71,6 @@ class API(LoggingMixin):
         symbol: str,
         side: str,
         size: float,
-        method="POST",
         request_params: dict = None,
         order_id_key: str = None,
         **kwargs,
@@ -78,7 +80,9 @@ class API(LoggingMixin):
         data = self._make_market_order_data(endpoint, symbol, side, size)
         data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
         self.log(f"market order request: {data_w_kwargs}", verbose=self._verbose)
-        resp = self.request(method, endpoint, data=data_w_kwargs, **request_params)
+        resp = self.request(
+            self._MARKET_ORDER_METHOD, endpoint, data=data_w_kwargs, **request_params
+        )
         resp_data = await resp.json()
         self.log(f"market order response: {resp} {resp_data}", verbose=self._verbose)
         order_id = self._make_market_order_id(resp, resp_data, data, order_id_key)
@@ -92,7 +96,6 @@ class API(LoggingMixin):
         side: str,
         price: float,
         size: float,
-        method="POST",
         request_params: dict = None,
         order_id_key: str = None,
         **kwargs,
@@ -103,7 +106,7 @@ class API(LoggingMixin):
         data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
         self.log(f"limit order request: {data_w_kwargs}", verbose=self._verbose)
         resp = await self.request(
-            method, endpoint, data=data_w_kwargs, **request_params
+            self._LIMIT_ORDER_METHOD, endpoint, data=data_w_kwargs, **request_params
         )
         resp_data = await resp.json()
         self.log(f"limit order response: {resp} {resp_data}", verbose=self._verbose)
@@ -116,7 +119,6 @@ class API(LoggingMixin):
         self,
         symbol: str,
         order_id: str,
-        method="DELETE",
         request_params: dict = None,
         **kwargs,
     ) -> "CancelResponse":
@@ -126,7 +128,7 @@ class API(LoggingMixin):
         data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
         self.log(f"cancel order request: {data_w_kwargs}", verbose=self._verbose)
         resp = await self.request(
-            method, endpoint, data=data_w_kwargs, **request_params
+            self._CANCEL_ORDER_METHOD, endpoint, data=data_w_kwargs, **request_params
         )
         resp_data = await resp.json()
         self.log(f"cancel order response: {resp} {resp_data}", verbose=self._verbose)
