@@ -48,18 +48,27 @@ EXCHANGE2API: dict[str, Type[API]] = {
 }
 
 
+def _get_value(exchange, dic):
+    if exchange not in dic:
+        f = [t for t in traceback.extract_stack() if t.filename.endswith("_apis.py")][0]
+        raise RuntimeError(f"Unsupported exchange: {exchange} (`{f.name}()`)")
+    return dic[exchange]
+
+
 def create_client(exchange: str, **kwargs) -> pybotters.Client:
-    return pybotters.Client(base_url=get_base_url(exchange), **kwargs)
+    return pybotters.Client(
+        base_url=_get_value(exchange, EXCHANGE2BASEURL), **kwargs
+    )
 
 
 def create_store(
     exchange: str, *, store: DataStoreManager = None, **kwargs
 ) -> DataStoreWrapper:
-    return EXCHANGE2STORE[exchange](store)
+    return _get_value(exchange, EXCHANGE2STORE)(store)
 
 
 def create_api(exchange: str, client: pybotters.Client, **kwargs) -> API:
-    return EXCHANGE2API[exchange](client, **kwargs)
+    return _get_value(exchange, EXCHANGE2API)(client, **kwargs)
 
 
 def create_plugin(store: DataStoreWrapper, name: str, **kwargs):
