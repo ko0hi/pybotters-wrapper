@@ -1,5 +1,6 @@
 from typing import Generic, TypeVar
 
+import copy
 import pandas as pd
 
 from pybotters.models.binance import (
@@ -128,9 +129,9 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
                 "id": sends[0]["id"],
             }
 
-        rtn = {}
+        rtn = copy.deepcopy(compressed)
         for endpoint, send in compressed.items():
-            rtn[endpoint] = []
+            rtn[endpoint]["params"] = []
             for p in send["params"]:
                 if p == "LISTEN_KEY":
                     if self.store.listenkey is None:
@@ -139,9 +140,9 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
                             f"HINT: "
                             f"`store.initialize(..., 'token_private', client=client)`"
                         )
-                    rtn[endpoint].append(self.store.listenkey)
+                    rtn[endpoint]["params"].append(self.store.listenkey)
                 else:
-                    rtn[endpoint].append(send)
+                    rtn[endpoint]["params"].append(p)
         return rtn
 
 
