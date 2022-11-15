@@ -7,7 +7,7 @@ class bitFlyerAPI(API):
     async def market_order(
         self, symbol: str, side: str, size: float, *, params: dict = None, **kwargs
     ) -> "OrderResponse":
-        return await self._new_order(
+        return await self._create_order_impl(
             "/v1/me/sendchildorder",
             {
                 "product_code": symbol,
@@ -29,7 +29,7 @@ class bitFlyerAPI(API):
         params: dict = None,
         **kwargs,
     ) -> "OrderResponse":
-        return await self._new_order(
+        return await self._create_order_impl(
             "/v1/me/sendchildorder",
             {
                 "product_code": symbol,

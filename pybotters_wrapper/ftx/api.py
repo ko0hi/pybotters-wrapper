@@ -16,7 +16,7 @@ class FTXAPI(API):
             "size": size,
             **params,
         }
-        return await self._new_order(self._ORDER_ENDPOINT, data=data, id_key="result.id")
+        return await self._create_order_impl(self._ORDER_ENDPOINT, data=data, id_key="result.id")
 
     async def limit_order(
         self,
@@ -36,7 +36,7 @@ class FTXAPI(API):
             "price": price,
             **params,
         }
-        return await self._new_order(self._ORDER_ENDPOINT, data=data, id_key="result.id")
+        return await self._create_order_impl(self._ORDER_ENDPOINT, data=data, id_key="result.id")
 
     async def cancel_order(self, order_id: str, **kwargs):
         endpoint = self._ORDER_ENDPOINT + f"/{order_id}"

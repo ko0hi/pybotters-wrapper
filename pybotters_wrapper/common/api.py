@@ -76,7 +76,7 @@ class API:
     def _attach_base_url(self, url):
         return url if self._client._base_url else self.BASE_URL + url
 
-    async def _new_order(
+    async def _create_order_impl(
         self, endpoint: str, data: dict, id_key: str, params: dict | None, **kwargs
     ):
         resp = await self.post(endpoint, data=self._make_data(data, params), **kwargs)
