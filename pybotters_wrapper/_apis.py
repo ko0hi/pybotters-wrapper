@@ -17,6 +17,15 @@ from pybotters_wrapper import plugins
 
 TWebsocketChannels = TypeVar("TWebsocketChannels", bound=WebsocketChannels)
 
+EXCHANGE2BASEURL = {
+    "binancespot": "https://api.binance.com",
+    "binanceusdsm": "https://fapi.binance.com",
+    "binancecoinm": "https://dapi.binance.com",
+    "bitflyer": "https://api.bitflyer.com",
+    "gmocoin": "",  # gmoはpublic/privateで別エンドポイントになるので設定なし
+    "kucoinspot": "https://api.kucoin.com",
+    "kucoinfutures": "https://api-futures.kucoin.com",
+}
 
 EXCHANGE2STORE = {
     "binancespot": pbw.binance.BinanceSpotDataStoreWrapper,
