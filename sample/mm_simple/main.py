@@ -135,7 +135,7 @@ async def market_making(
         logger.info(f"[{side} ENTRY] {resp_order}")
 
         # 注文IDを約定監視にセット
-        execution_watcher.set_order_id(resp_order.order_id)
+        execution_watcher.set_order_id(resp_order.id)
 
         while not execution_watcher.done():
             await asyncio.sleep(1)
@@ -148,7 +148,7 @@ async def market_making(
                 if resp_cancel.is_success:
                     logger.info(f"[{side} CANCELED] {execution_watcher.order_id}")
                     resp_order = await api.limit_order(symbol, side, size, new_price)
-                    execution_watcher.set_order_id(resp_order.order_id)
+                    execution_watcher.set_order_id(resp_order.id)
                     price = new_price
                     logger.info(f"[{side} UPDATE] {resp_order}")
                 else:
@@ -200,17 +200,12 @@ async def main(args):
     # log設定を初期化
     pbw.utils.init_logger("log.txt", rotation="10MB", retention=3)
 
-    async with pybotters.Client(
-        apis=args.api_key_json, base_url=pbw.get_base_url(args.exchange)
-    ) as client:
+    async with pbw.create_client(args.exchange, apis=args.api_key_json) as client:
         api = pbw.create_api(args.exchange, client)
 
         store = pbw.create_store(args.exchange)
         store.subscribe("default", symbol=args.symbol)
         await store.connect(client)
-
-        pbw.plugins.execution_watcher(store)
-        pbw.plugins.execution_watcher(store)
 
         tbar = pbw.plugins.timebar(store, seconds=10)
 
@@ -219,7 +214,7 @@ async def main(args):
             tbar,
             bar_period=args.bar_period,
             position_adjust=args.position_adjust,
-            default_t=args.default_t
+            default_t=args.default_t,
         )
 
         while True:
@@ -237,8 +232,6 @@ async def main(args):
             )
 
             await asyncio.sleep(args.interval)
-
-
 
 
 if __name__ == "__main__":

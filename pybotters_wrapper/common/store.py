@@ -86,7 +86,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     ) -> "DataStoreWrapper":
         def _check_client():
             assert (
-                    client is not None
+                client is not None
             ), "need to specify `client` as store.initialize(..., client=client)"
 
         aws = []
@@ -166,9 +166,9 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         on_reconnection: Callable = None,
         **kwargs,
     ) -> dict[str, WebSocketRunner]:
-        endpoint = self._parse_endpoint(endpoint)
-        endpoint_to_sends = self._parse_send(endpoint, send)
-        hdlr = self._parse_hdlr(hdlr)
+        endpoint = self._parse_endpoint(endpoint, client)
+        endpoint_to_sends = self._parse_send(endpoint, send, client)
+        hdlr = self._parse_hdlr(hdlr, client)
 
         for ep, sj in endpoint_to_sends.items():
             await self._ws_connect(
@@ -251,10 +251,12 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     def _init_position_store(self) -> "PositionStore" | None:
         return self._init_normalized_store(self._POSITION_STORE)
 
-    def _parse_endpoint(self, endpoint) -> str:
+    def _parse_endpoint(self, endpoint: str, client: pybotters.Client) -> str:
         return endpoint or self._ws_channels.ENDPOINT
 
-    def _parse_send(self, endpoint, send) -> dict[str, list[any]]:
+    def _parse_send(
+        self, endpoint: str, send: any, client: pybotters.Client
+    ) -> dict[str, list[any]]:
         if send is None:
             # channels must be registered with `DatastoreWrapper.subscribe`
             subscribe_lists = self._ws_channels.get()
@@ -263,7 +265,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         else:
             return {endpoint: send}
 
-    def _parse_hdlr(self, hdlr_json):
+    def _parse_hdlr(self, hdlr_json: any, client: pybotters.Client):
         if hdlr_json is None:
             hdlr_json = self.onmessage
         else:
