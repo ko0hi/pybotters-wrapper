@@ -80,10 +80,9 @@ class API(LoggingMixin):
         data = self._make_market_order_data(endpoint, symbol, side, size)
         data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
         self.log(f"market order request: {data_w_kwargs}", verbose=self._verbose)
-        resp = self.request(
-            self._MARKET_ORDER_METHOD, endpoint, data=data_w_kwargs, **request_params
+        resp, resp_data = await self._make_market_request(
+            endpoint, data_w_kwargs, **request_params
         )
-        resp_data = await resp.json()
         self.log(f"market order response: {resp} {resp_data}", verbose=self._verbose)
         order_id = self._make_market_order_id(resp, resp_data, data, order_id_key)
         wrapped_resp = self._make_market_order_response(resp, resp_data, order_id)
@@ -105,10 +104,9 @@ class API(LoggingMixin):
         data = self._make_limit_order_data(endpoint, symbol, side, price, size)
         data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
         self.log(f"limit order request: {data_w_kwargs}", verbose=self._verbose)
-        resp = await self.request(
-            self._LIMIT_ORDER_METHOD, endpoint, data=data_w_kwargs, **request_params
+        resp, resp_data = await self._make_limit_request(
+            endpoint, data_w_kwargs, **request_params
         )
-        resp_data = await resp.json()
         self.log(f"limit order response: {resp} {resp_data}", verbose=self._verbose)
         order_id = self._make_limit_order_id(resp, resp_data, data, order_id_key)
         wrapped_resp = self._make_limit_order_response(resp, resp_data, order_id)
@@ -127,10 +125,7 @@ class API(LoggingMixin):
         data = self._make_cancel_order_data(endpoint, symbol, order_id)
         data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
         self.log(f"cancel order request: {data_w_kwargs}", verbose=self._verbose)
-        resp = await self.request(
-            self._CANCEL_ORDER_METHOD, endpoint, data=data_w_kwargs, **request_params
-        )
-        resp_data = await resp.json()
+        resp, resp_data = await self._make_cancel_request(endpoint, data_w_kwargs, **request_params)
         self.log(f"cancel order response: {resp} {resp_data}", verbose=self._verbose)
         wrapped_resp = self._make_cancel_order_response(resp, resp_data, order_id)
         return wrapped_resp
@@ -206,6 +201,26 @@ class API(LoggingMixin):
         order_id_key: str,
     ) -> str:
         return self._make_order_id(resp, resp_data, data, order_id_key)
+
+    async def _make_request(self, method: str, endpoint: str, **kwargs):
+        resp = await self.request(method, endpoint, **kwargs)
+        resp_data = await resp.json()
+        return resp, resp_data
+
+    async def _make_market_request(self, endpoint: str, data=dict | None, **kwargs):
+        return await self._make_request(
+            self._MARKET_ORDER_METHOD, endpoint, data=data, **kwargs
+        )
+
+    async def _make_limit_request(self, endpoint: str, data=dict | None, **kwargs):
+        return await self._make_request(
+            self._LIMIT_ORDER_METHOD, endpoint, data=data, **kwargs
+        )
+
+    async def _make_cancel_request(self, endpoint: str, data=dict | None, **kwargs):
+        return await self._make_request(
+            self._CANCEL_ORDER_METHOD, endpoint, data=data, **kwargs
+        )
 
     def _make_order_response(
         self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
