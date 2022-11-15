@@ -10,7 +10,7 @@ from pybotters_wrapper.utils import LoggingMixin
 class OrderResponse(NamedTuple):
     id: str
     resp: aiohttp.ClientResponse
-    info: any = None
+    resp_data: any = None
 
     @property
     def status(self):
