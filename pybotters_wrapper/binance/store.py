@@ -151,7 +151,12 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
 
 class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]):
     _WEBSOCKET_CHANNELS = BinanceSpotWebsocketChannels
-    _WRAP_CLS = BinanceSpotDataStore
+    _INITIALIZE_ENDPOINTS = {
+        "token": ("POST", "/api/v3/userDataStream"),
+        "token_private": ("POST", "/api/v3/userDataStream"),
+        "orderbook": ("GET", "/api/v3/depth"),
+        "order": ("GET", "/api/v3/openOrderList")
+    }
 
 
 class BinanceUSDSMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceUSDSMDataStore]):
