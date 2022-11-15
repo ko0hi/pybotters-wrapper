@@ -89,6 +89,9 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 client is not None
             ), "need to specify `client` as store.initialize(..., client=client)"
 
+        if isinstance(aws_or_names[0], str) and aws_or_names[0] == "default":
+            aws_or_names = self._INITIALIZE_ENDPOINTS.keys()
+
         aws = []
         for a_or_n in aws_or_names:
             if isinstance(a_or_n, Awaitable):
