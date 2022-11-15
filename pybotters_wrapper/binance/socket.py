@@ -29,13 +29,17 @@ class BinanceWebsocketChannels(WebsocketChannels):
     def orderbook(self, symbol: str, **kwargs) -> BinanceWebsocketChannels:
         return self.depth(symbol)
 
-    def order(self, listen_key: str, **kwargs) -> BinanceWebsocketChannels:
+    def order(self, listen_key: str = "LISTEN_KEY", **kwargs) -> "TWebsocketChannels":
         return self.listenkey(listen_key)
 
-    def execution(self, listen_key: str, **kwargs) -> BinanceWebsocketChannels:
+    def execution(
+        self, listen_key: str = "LISTEN_KEY", **kwargs
+    ) -> BinanceWebsocketChannels:
         return self.listenkey(listen_key)
 
-    def position(self, listen_key: str, **kwargs) -> BinanceWebsocketChannels:
+    def position(
+        self, listen_key: str = "LISTEN_KEY", **kwargs
+    ) -> BinanceWebsocketChannels:
         return self.listenkey(listen_key)
 
     # other channels
