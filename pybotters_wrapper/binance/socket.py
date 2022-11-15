@@ -18,7 +18,6 @@ class BinanceWebsocketChannels(WebsocketChannels):
 
         return self.ENDPOINT, send_json
 
-
     # channels for normalized stores
     def ticker(self, symbol: str, **kwargs) -> BinanceWebsocketChannels:
         return self._subscribe(f"{symbol}@ticker")
