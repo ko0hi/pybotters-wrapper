@@ -17,15 +17,6 @@ class OrderResponse(NamedTuple):
         return self.resp.status
 
 
-class CancelResponse(NamedTuple):
-    id: str
-    resp: aiohttp.ClientResponse
-    info: any = None
-
-    @property
-    def status(self):
-        return self.resp.status
-
 
 class API(LoggingMixin):
     BASE_URL = None
