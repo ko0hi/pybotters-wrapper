@@ -1,3 +1,4 @@
+from .api import BinanceSpotAPI
 from .socket import (
     BinanceSpotWebsocketChannels,
     BinanceUSDSMWebsocketChannels,

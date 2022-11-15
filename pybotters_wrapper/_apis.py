@@ -37,6 +37,7 @@ EXCHANGE2STORE = {
 
 
 EXCHANGE2API: dict[str, Type[API]] = {
+    "binancespot": pbw.binance.BinanceSpotAPI,
     "bitflyer": pbw.bitflyer.bitFlyerAPI,
     "ftx": pbw.ftx.FTXAPI,
 }
