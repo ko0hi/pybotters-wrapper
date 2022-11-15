@@ -12,12 +12,12 @@ from pybotters_wrapper.common.store import (
     PositionStore,
 )
 from pybotters_wrapper.kucoin import (
-    KucoinSpotWebsocketChannels,
-    KucoinFuturesWebsocketChannels,
+    KuCoinSpotWebsocketChannels,
+    KuCoinFuturesWebsocketChannels,
 )
 
 
-class KucoinTickerStore(TickerStore):
+class KuCoinTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
         if "price" in d:
             # spot
@@ -28,7 +28,7 @@ class KucoinTickerStore(TickerStore):
         return self._itemize(d["symbol"], price)
 
 
-class KucoinTradesStore(TradesStore):
+class KuCoinTradesStore(TradesStore):
     def _normalize(self, d: dict, op: str) -> "TradesItem":
         return self._itemize(
             d["tradeId"],
@@ -40,14 +40,14 @@ class KucoinTradesStore(TradesStore):
         )
 
 
-class KucoinOrderbookStore(OrderbookStore):
+class KuCoinOrderbookStore(OrderbookStore):
     def _normalize(self, d: dict, op: str) -> "OrderbookItem":
         return self._itemize(
             d["symbol"], "SELL" if d["side"] == "ask" else "BUY", d["price"], d["size"]
         )
 
 
-class KucoinOrderStore(OrderStore):
+class KuCoinOrderStore(OrderStore):
     def _normalize(self, d: dict, op: str) -> "OrderItem":
         return self._itemize(
             d["orderId"],
@@ -59,7 +59,7 @@ class KucoinOrderStore(OrderStore):
         )
 
 
-class KucoinExecutionStore(ExecutionStore):
+class KuCoinExecutionStore(ExecutionStore):
     def _get_operation(self, change: "StoreChange") -> str | None:
         if change.data["type"] == "filled":
             return "_insert"
@@ -80,14 +80,14 @@ class KucoinExecutionStore(ExecutionStore):
         )
 
 
-class KucoinPositionStore(PositionStore):
+class KuCoinPositionStore(PositionStore):
     def _normalize(self, d: dict, op: str) -> "PositionItem":
         return self._itemize(
             d["symbol"], d["side"], d["avgEntryPrice"], abs(float(d["currentQty"]))
         )
 
 
-class _KucoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
+class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
     _WRAP_STORE = pybotters.KuCoinDataStore
     _INITIALIZE_ENDPOINTS = {
         "token": ("POST", "/api/v1/bullet-public"),
@@ -95,12 +95,12 @@ class _KucoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
         "token_private": ("POST", "/api/v1/bullet-private"),
         "position": ("GET", "/api/v1/positions")
     }
-    _TICKER_STORE = (KucoinTickerStore, "ticker")
-    _TRADES_STORE = (KucoinTradesStore, "execution")
-    _ORDERBOOK_STORE = (KucoinOrderbookStore, "orderbook50")
-    _ORDER_STORE = (KucoinOrderStore, "orders")
-    _EXECUTION_STORE = (KucoinExecutionStore, "orderevents")
-    _POSITION_STORE = (KucoinPositionStore, "positions")
+    _TICKER_STORE = (KuCoinTickerStore, "ticker")
+    _TRADES_STORE = (KuCoinTradesStore, "execution")
+    _ORDERBOOK_STORE = (KuCoinOrderbookStore, "orderbook50")
+    _ORDER_STORE = (KuCoinOrderStore, "orders")
+    _EXECUTION_STORE = (KuCoinExecutionStore, "orderevents")
+    _POSITION_STORE = (KuCoinPositionStore, "positions")
 
     """
 
@@ -131,9 +131,9 @@ class _KucoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
         return self.store.endpoint
 
 
-class KucoinSpotDataStoreWrapper(_KucoinDataStoreWrapper):
-    _WEBSOCKET_CHANNELS = KucoinSpotWebsocketChannels
+class KuCoinSpotDataStoreWrapper(_KuCoinDataStoreWrapper):
+    _WEBSOCKET_CHANNELS = KuCoinSpotWebsocketChannels
 
 
-class KucoinFuturesDataStoreWrapper(_KucoinDataStoreWrapper):
-    _WEBSOCKET_CHANNELS = KucoinFuturesWebsocketChannels
+class KuCoinFuturesDataStoreWrapper(_KuCoinDataStoreWrapper):
+    _WEBSOCKET_CHANNELS = KuCoinFuturesWebsocketChannels

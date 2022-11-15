@@ -3,7 +3,7 @@ import uuid
 from pybotters_wrapper.common import WebsocketChannels
 
 
-class KucoinWebsocketChannels(WebsocketChannels):
+class KuCoinWebsocketChannels(WebsocketChannels):
     def _make_endpoint_and_request_pair(self, channel: str, **kwargs) -> [str, dict]:
         return None, {
             "id": str(uuid.uuid4()),
@@ -19,7 +19,7 @@ class KucoinWebsocketChannels(WebsocketChannels):
             return ",".join(symbols)
 
 
-class KucoinSpotWebsocketChannels(KucoinWebsocketChannels):
+class KuCoinSpotWebsocketChannels(KuCoinWebsocketChannels):
     def ticker(self, symbol: str, **kwargs) -> "TWebsocketChannels":
         return self.market_ticker(symbol)
 
@@ -50,7 +50,7 @@ class KucoinSpotWebsocketChannels(KucoinWebsocketChannels):
         return self._subscribe("/spotMarket/tradeOrders")
 
 
-class KucoinFuturesWebsocketChannels(KucoinWebsocketChannels):
+class KuCoinFuturesWebsocketChannels(KuCoinWebsocketChannels):
     def ticker(self, symbol: str, **kwargs) -> "TWebsocketChannels":
         return self.contract_market_ticker_v2(symbol)
 

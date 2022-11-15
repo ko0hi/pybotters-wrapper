@@ -1,2 +1,2 @@
-from .socket import KucoinSpotWebsocketChannels, KucoinFuturesWebsocketChannels
-from .store import KucoinSpotDataStoreWrapper, KucoinFuturesDataStoreWrapper
+from .socket import KuCoinSpotWebsocketChannels, KuCoinFuturesWebsocketChannels
+from .store import KuCoinSpotDataStoreWrapper, KuCoinFuturesDataStoreWrapper
