@@ -29,6 +29,7 @@ class CancelResponse(NamedTuple):
 
 class API(LoggingMixin):
     BASE_URL = None
+    _ORDER_ENDPOINT = None
     _MARKET_ENDPOINT = None
     _LIMIT_ENDPOINT = None
     _CANCEL_ENDPOINT = None
@@ -39,6 +40,9 @@ class API(LoggingMixin):
         self._verbose = verbose
 
     async def request(self, method, url, *, params=None, data=None, **kwargs):
+        if url is None:
+            raise RuntimeError(f"null endpoint")
+
         url = self._attach_base_url(url)
         return await self._client.request(
             method, url, params=params, data=data, **kwargs
@@ -135,18 +139,15 @@ class API(LoggingMixin):
     def _make_market_endpoint(
         self, symbol: str, side: str, size: float, **kwargs
     ) -> str:
-        assert self._MARKET_ENDPOINT is not None
-        return self._MARKET_ENDPOINT
+        return self._MARKET_ENDPOINT or self._ORDER_ENDPOINT
 
     def _make_limit_endpoint(
         self, symbol: str, side: str, price: float, size: float, **kwargs
     ) -> str:
-        assert self._LIMIT_ENDPOINT is not None
-        return self._LIMIT_ENDPOINT
+        return self._LIMIT_ENDPOINT or self._ORDER_ENDPOINT
 
     def _make_cancel_endpoint(self, symbol: str, order_id: str, **kwargs) -> str:
-        assert self._CANCEL_ENDPOINT is not None
-        return self._CANCEL_ENDPOINT
+        return self._CANCEL_ENDPOINT or self._ORDER_ENDPOINT
 
     def _make_market_order_data(
         self, endpoint: str, symbol: str, side: str, size: float
