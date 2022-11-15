@@ -3,6 +3,7 @@ from pybotters_wrapper.common import API
 
 class BinanceAPIBase(API):
     _ORDER_ENDPOINT = None
+
     async def market_order(
         self, symbol: str, side: str, size: float, *, params: dict = None, **kwargs
     ) -> "OrderResponse":
