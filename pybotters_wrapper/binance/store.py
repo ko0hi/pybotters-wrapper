@@ -104,11 +104,6 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
     _EXECUTION_STORE = (BinanceExecutionStore, "order")
     _POSITION_STORE = (BinancePositionStore, "position")
 
-    _WRAP_CLS = None
-
-    def __init__(self, store: BinanceDataStoreBase = None):
-        super(_BinanceDataStoreWrapper, self).__init__(store or self._WRAP_CLS())
-
     def _subscribe_one(self, channel: str, **kwargs):
         if channel in (
             "order",
@@ -157,13 +152,14 @@ class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]
         "orderbook": ("GET", "/api/v3/depth"),
         "order": ("GET", "/api/v3/openOrderList")
     }
+    _WRAP_STORE = BinanceSpotDataStore
 
 
 class BinanceUSDSMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceUSDSMDataStore]):
     _WEBSOCKET_CHANNELS = BinanceUSDSMWebsocketChannels
-    _WRAP_CLS = BinanceUSDSMDataStore
+    _WRAP_STORE = BinanceUSDSMDataStore
 
 
 class BinanceCOINMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceCOINMDataStore]):
     _WEBSOCKET_CHANNELS = BinanceCOINMWebsocketChannels
-    _WRAP_CLS = BinanceCOINMDataStore
+    _WRAP_STORE = BinanceCOINMDataStore
