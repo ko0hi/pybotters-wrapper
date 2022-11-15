@@ -21,7 +21,7 @@ TWebsocketChannels = TypeVar("TWebsocketChannels", bound=WebsocketChannels)
 EXCHANGE2STORE = {
     "binancespot": pbw.binance.BinanceSpotDataStoreWrapper,
     "binanceusdsm": pbw.binance.BinanceUSDSMDataStoreWrapper,
-    "bianancecoinm": pbw.binance.BinanceCOINMDataStoreWrapper,
+    "binancecoinm": pbw.binance.BinanceCOINMDataStoreWrapper,
     "bitbank": pbw.bitbank.BitbankDataStoreWrapper,
     "bitflyer": pbw.bitflyer.bitFlyerDataStoreWrapper,
     "bitget": pbw.bitget.BitgetDataStoreWrapper,
@@ -38,6 +38,8 @@ EXCHANGE2STORE = {
 
 EXCHANGE2API: dict[str, Type[API]] = {
     "binancespot": pbw.binance.BinanceSpotAPI,
+    "binanceusdsm": pbw.binance.BinanceUSDSMAPI,
+    "binancecoinm": pbw.binance.BinanceCOINMAPI,
     "bitflyer": pbw.bitflyer.bitFlyerAPI,
     "ftx": pbw.ftx.FTXAPI,
 }
