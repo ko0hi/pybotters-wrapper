@@ -15,20 +15,24 @@ class DataStorePlugin:
     async def _run_wait_task(self):
         while True:
             await self._store.wait()
+            await self.on_wait()
 
     async def _run_watch_task(self):
         with self._store.watch() as stream:
             async for change in stream:
-                self._on_watch(change)
+                await self._on_watch(change)
 
-    def on_wait(self):
+    async def _on_wait(self):
+        await self.on_wait()
+
+    async def on_wait(self):
         ...
 
-    def _on_watch(self, change: StoreChange):
+    async def _on_watch(self, change: StoreChange):
         transformed_data = self.on_watch_transform({**change.data}, change.operation)
-        self.on_watch(transformed_data, change.operation)
+        await self.on_watch(transformed_data, change.operation)
 
-    def on_watch(self, d: dict, op: str):
+    async def on_watch(self, d: dict, op: str):
         ...
 
     def on_watch_transform(self, d: dict, op: str) -> dict:

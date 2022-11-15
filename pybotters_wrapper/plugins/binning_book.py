@@ -37,7 +37,7 @@ class BinningBook(DataStorePlugin):
         }
         self._mid = None
 
-    def on_watch(self, d: dict, op: str):
+    async def on_watch(self, d: dict, op: str):
         self.set_mid(self.store.mid)
         if op == "insert":
             self._insert(d["side"], d["price"], d["size"])
