@@ -1,19 +1,16 @@
-import asyncio
+import traceback
 from typing import Callable, Type, TypeVar
 
 import pybotters
-from pybotters.store import DataStoreManager
-
 import pybotters_wrapper as pbw
-
+from pybotters.store import DataStoreManager
+from pybotters_wrapper import plugins
 from pybotters_wrapper.common import DataStoreWrapper, API
 from pybotters_wrapper.common.socket import (
     WsHandler,
     WebsocketChannels,
     WebsocketConnection,
 )
-from pybotters_wrapper import plugins
-
 
 TWebsocketChannels = TypeVar("TWebsocketChannels", bound=WebsocketChannels)
 
