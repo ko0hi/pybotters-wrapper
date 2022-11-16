@@ -67,14 +67,14 @@ class API(LoggingMixin):
     ) -> "OrderResponse":
         request_params = request_params or {}
         endpoint = self._make_market_endpoint(symbol, side, size, **kwargs)
-        data = self._make_market_order_data(endpoint, symbol, side, size)
-        data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
-        self.log(f"market order request: {data_w_kwargs}", verbose=self._verbose)
+        p = self._make_market_order_parameter(endpoint, symbol, side, size)
+        p_w_kwargs = self._add_kwargs_to_data(p, **kwargs)
+        self.log(f"market order request: {p_w_kwargs}", verbose=self._verbose)
         resp, resp_data = await self._make_market_request(
-            endpoint, data_w_kwargs, **request_params
+            endpoint, p_w_kwargs, **request_params
         )
         self.log(f"market order response: {resp} {resp_data}", verbose=self._verbose)
-        order_id = self._make_market_order_id(resp, resp_data, data, order_id_key)
+        order_id = self._make_market_order_id(resp, resp_data, p, order_id_key)
         wrapped_resp = self._make_market_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
@@ -91,14 +91,14 @@ class API(LoggingMixin):
     ) -> "OrderResponse":
         request_params = request_params or {}
         endpoint = self._make_limit_endpoint(symbol, side, price, size, **kwargs)
-        data = self._make_limit_order_data(endpoint, symbol, side, price, size)
-        data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
-        self.log(f"limit order request: {data_w_kwargs}", verbose=self._verbose)
+        p = self._make_limit_order_parameter(endpoint, symbol, side, price, size)
+        p_w_kwargs = self._add_kwargs_to_data(p, **kwargs)
+        self.log(f"limit order request: {p_w_kwargs}", verbose=self._verbose)
         resp, resp_data = await self._make_limit_request(
-            endpoint, data_w_kwargs, **request_params
+            endpoint, p_w_kwargs, **request_params
         )
         self.log(f"limit order response: {resp} {resp_data}", verbose=self._verbose)
-        order_id = self._make_limit_order_id(resp, resp_data, data, order_id_key)
+        order_id = self._make_limit_order_id(resp, resp_data, p, order_id_key)
         wrapped_resp = self._make_limit_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
@@ -112,11 +112,11 @@ class API(LoggingMixin):
     ) -> "CancelResponse":
         request_params = request_params or {}
         endpoint = self._make_cancel_endpoint(symbol, order_id, **kwargs)
-        data = self._make_cancel_order_data(endpoint, symbol, order_id)
-        data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
-        self.log(f"cancel order request: {data_w_kwargs}", verbose=self._verbose)
+        p = self._make_cancel_order_parameter(endpoint, symbol, order_id)
+        p_w_kwargs = self._add_kwargs_to_data(p, **kwargs)
+        self.log(f"cancel order request: {p_w_kwargs}", verbose=self._verbose)
         resp, resp_data = await self._make_cancel_request(
-            endpoint, data_w_kwargs, **request_params
+            endpoint, p_w_kwargs, **request_params
         )
         self.log(f"cancel order response: {resp} {resp_data}", verbose=self._verbose)
         wrapped_resp = self._make_cancel_order_response(resp, resp_data, order_id)
@@ -138,12 +138,12 @@ class API(LoggingMixin):
     def _make_cancel_endpoint(self, symbol: str, order_id: str, **kwargs) -> str:
         return self._CANCEL_ENDPOINT or self._ORDER_ENDPOINT
 
-    def _make_market_order_data(
+    def _make_market_order_parameter(
         self, endpoint: str, symbol: str, side: str, size: float
     ) -> dict | None:
         raise NotImplementedError
 
-    def _make_limit_order_data(
+    def _make_limit_order_parameter(
         self,
         endpoint: str,
         symbol: str,
@@ -153,7 +153,7 @@ class API(LoggingMixin):
     ) -> dict | None:
         raise NotImplementedError
 
-    def _make_cancel_order_data(
+    def _make_cancel_order_parameter(
         self, endpoint: str, symbol: str, order_id: str
     ) -> dict | None:
         raise NotImplementedError

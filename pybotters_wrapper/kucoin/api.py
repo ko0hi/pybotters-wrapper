@@ -11,7 +11,7 @@ class KuCoinAPIBase(API):
     def _make_cancel_endpoint(self, symbol: str, order_id: str, **kwargs):
         return super()._make_cancel_endpoint(symbol, order_id, **kwargs) + f"/{order_id}"
 
-    def _make_cancel_order_data(
+    def _make_cancel_order_parameter(
         self, endpoint: str, symbol: str, order_id: str
     ) -> None:
         return None
@@ -20,7 +20,7 @@ class KuCoinAPIBase(API):
 class KuCoinSpotAPI(KuCoinAPIBase):
     BASE_URL = "https://api.kucoin.com"
 
-    def _make_market_order_data(
+    def _make_market_order_parameter(
         self, endpoint: str, symbol: str, side: str, size: float
     ) -> dict:
         return {
@@ -30,7 +30,7 @@ class KuCoinSpotAPI(KuCoinAPIBase):
             "clientOid": str(uuid.uuid4()),
         }
 
-    def _make_limit_order_data(
+    def _make_limit_order_parameter(
         self,
         endpoint: str,
         symbol: str,
@@ -55,7 +55,7 @@ class KuCoinFuturesAPI(KuCoinAPIBase):
         super(KuCoinFuturesAPI, self).__init__(client, **kwargs)
         self._leverage = leverage
 
-    def _make_market_order_data(
+    def _make_market_order_parameter(
         self, endpoint: str, symbol: str, side: str, size: float
     ) -> dict:
         return {
@@ -66,7 +66,7 @@ class KuCoinFuturesAPI(KuCoinAPIBase):
             "leverage": self._leverage,
         }
 
-    def _make_limit_order_data(
+    def _make_limit_order_parameter(
         self,
         endpoint: str,
         symbol: str,

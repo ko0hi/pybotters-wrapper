@@ -5,7 +5,7 @@ class BinanceAPIBase(API):
     _ORDER_ENDPOINT = None
     _ORDER_ID_KEY = "orderId"
 
-    def _make_market_order_data(
+    def _make_market_order_parameter(
         self, endpoint: str, symbol: str, side: str, size: float
     ) -> dict:
         return {
@@ -15,7 +15,7 @@ class BinanceAPIBase(API):
             "quantity": f"{size:.8f}",
         }
 
-    def _make_limit_order_data(
+    def _make_limit_order_parameter(
         self,
         endpoint: str,
         symbol: str,
@@ -33,7 +33,7 @@ class BinanceAPIBase(API):
             "timeInForce": "GTC",
         }
 
-    def _make_cancel_order_data(
+    def _make_cancel_order_parameter(
         self, endpoint: str, symbol: str, order_id: str
     ) -> dict:
         return {"symbol": symbol.upper(), "orderId": order_id}
