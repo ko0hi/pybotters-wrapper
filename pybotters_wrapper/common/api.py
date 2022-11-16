@@ -1,9 +1,9 @@
 from typing import NamedTuple
 
 import aiohttp
-import pybotters
 from loguru import logger
 
+import pybotters
 from pybotters_wrapper.utils import LoggingMixin
 
 
@@ -15,7 +15,6 @@ class OrderResponse(NamedTuple):
     @property
     def status(self):
         return self.resp.status
-
 
 
 class API(LoggingMixin):
@@ -116,7 +115,9 @@ class API(LoggingMixin):
         data = self._make_cancel_order_data(endpoint, symbol, order_id)
         data_w_kwargs = self._add_kwargs_to_data(data, **kwargs)
         self.log(f"cancel order request: {data_w_kwargs}", verbose=self._verbose)
-        resp, resp_data = await self._make_cancel_request(endpoint, data_w_kwargs, **request_params)
+        resp, resp_data = await self._make_cancel_request(
+            endpoint, data_w_kwargs, **request_params
+        )
         self.log(f"cancel order response: {resp} {resp_data}", verbose=self._verbose)
         wrapped_resp = self._make_cancel_order_response(resp, resp_data, order_id)
         return wrapped_resp
@@ -193,7 +194,9 @@ class API(LoggingMixin):
     ) -> str:
         return self._make_order_id(resp, resp_data, data, order_id_key)
 
-    async def _make_request(self, method: str, endpoint: str, params_or_data: dict | None, **kwargs):
+    async def _make_request(
+        self, method: str, endpoint: str, params_or_data: dict | None, **kwargs
+    ):
         params = {"method": method, "url": endpoint}
         if method == "GET":
             params["params"] = params_or_data
@@ -206,17 +209,23 @@ class API(LoggingMixin):
         resp_data = await resp.json()
         return resp, resp_data
 
-    async def _make_market_request(self, endpoint: str, params_or_data=dict | None, **kwargs):
+    async def _make_market_request(
+        self, endpoint: str, params_or_data=dict | None, **kwargs
+    ):
         return await self._make_request(
             self._MARKET_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
-    async def _make_limit_request(self, endpoint: str, params_or_data=dict | None, **kwargs):
+    async def _make_limit_request(
+        self, endpoint: str, params_or_data=dict | None, **kwargs
+    ):
         return await self._make_request(
             self._LIMIT_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
-    async def _make_cancel_request(self, endpoint: str, params_or_data=dict | None, **kwargs):
+    async def _make_cancel_request(
+        self, endpoint: str, params_or_data=dict | None, **kwargs
+    ):
         return await self._make_request(
             self._CANCEL_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
