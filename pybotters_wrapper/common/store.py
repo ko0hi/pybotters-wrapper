@@ -16,7 +16,7 @@ import aiohttp
 import pandas as pd
 import pybotters
 from pybotters.store import DataStore, DataStoreManager
-
+from loguru import logger
 from pybotters_wrapper.utils import LoggingMixin
 from pybotters_wrapper.common import WebsocketConnection
 
@@ -374,11 +374,13 @@ class NormalizedDataStore(DataStore):
             f"({self._store.__class__.__module__}.{self._store.__class__.__name__})"
         )
 
+    @logger.catch
     async def _wait_store(self):
         while True:
             await self._store.wait()
             self._on_wait()
 
+    @logger.catch
     async def _watch_store(self):
         with self._store.watch() as stream:
             async for change in stream:
