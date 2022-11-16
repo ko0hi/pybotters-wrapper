@@ -41,9 +41,15 @@ class KuCoinTradesStore(TradesStore):
 
 
 class KuCoinOrderbookStore(OrderbookStore):
+    _KEYS = ["symbol", "k", "side"]
+
     def _normalize(self, d: dict, op: str) -> "OrderbookItem":
         return self._itemize(
-            d["symbol"], "SELL" if d["side"] == "ask" else "BUY", d["price"], d["size"]
+            d["symbol"],
+            "SELL" if d["side"] == "ask" else "BUY",
+            d["price"],
+            d["size"],
+            k=d["k"],
         )
 
 
