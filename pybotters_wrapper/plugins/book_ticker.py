@@ -38,12 +38,12 @@ class BookTicker(MultipleDataStoresPlugin):
         super(BookTicker, self).__init__(store.trades, store.orderbook)
         self._tick = self.Item(None, None, None)
 
-    async def on_wait(self, store: "DataStore"):
+    def on_wait(self, store: "DataStore"):
         if isinstance(store, OrderbookStore):
             asks, bids = store.sorted().values()
             self._update(asks=asks, bids=bids)
 
-    async def on_watch(self, store: "DataStore", d: dict, op: str):
+    def on_watch(self, d: dict, op: str, store: "DataStore"):
         if isinstance(store, TradesStore) and op == "insert":
             self._update(price=d["price"])
 

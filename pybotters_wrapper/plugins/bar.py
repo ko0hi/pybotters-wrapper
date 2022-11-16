@@ -49,7 +49,7 @@ class BarStreamDataFrame(DataStorePlugin):
 
         self._init_bar()
 
-    async def on_watch(self, d: dict, op: str):
+    def on_watch(self, d: dict, op: str):
         if op == "insert":
             if self._is_new_bar(d, op):
                 self._next_bar(d)
