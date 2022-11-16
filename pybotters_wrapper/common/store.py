@@ -426,8 +426,10 @@ class TickerStore(NormalizedDataStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
         raise NotImplementedError
 
-    def _itemize(self, symbol: str, price: float):
-        return TickerItem(symbol=symbol, price=price)
+    def _itemize(self, symbol: str, price: float, **kwargs):
+        # キーワード引数で任意の要素をアイテムに追加できる
+        # 取引所ごとに_KEYSを変更したい場合などに使用（例：KucoinOrderbookStore）
+        return TickerItem(symbol=symbol, price=price, **kwargs)  # noqa
 
 
 class TradesItem(TypedDict):
@@ -453,9 +455,16 @@ class TradesStore(NormalizedDataStore):
         price: float,
         size: float,
         timestamp: pd.Timestamp,
+        **kwargs,
     ) -> "TradesItem":
         return TradesItem(
-            id=id, symbol=symbol, side=side, price=price, size=size, timestamp=timestamp
+            id=id,
+            symbol=symbol,
+            side=side,
+            price=price,
+            size=size,
+            timestamp=timestamp,
+            **kwargs,  # noqa
         )
 
 
@@ -494,8 +503,10 @@ class OrderbookStore(NormalizedDataStore):
         result["BUY"].sort(key=lambda x: x["price"], reverse=True)
         return result
 
-    def _itemize(self, symbol: str, side: str, price: float, size: float):
-        return OrderbookItem(symbol=symbol, side=side, price=price, size=size)
+    def _itemize(self, symbol: str, side: str, price: float, size: float, **kwargs):
+        return OrderbookItem(
+            symbol=symbol, side=side, price=price, size=size, **kwargs  # noqa
+        )
 
     @property
     def mid(self):
@@ -518,10 +529,23 @@ class OrderStore(NormalizedDataStore):
         raise NotImplementedError
 
     def _itemize(
-        self, id: str, symbol: str, side: str, price: float, size: float, type: str
+        self,
+        id: str,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        type: str,
+        **kwargs,
     ):
         return OrderItem(
-            id=id, symbol=symbol, side=side, price=price, size=size, type=type
+            id=id,
+            symbol=symbol,
+            side=side,
+            price=price,
+            size=size,
+            type=type,
+            **kwargs,  # noqa
         )
 
 
@@ -549,9 +573,16 @@ class ExecutionStore(NormalizedDataStore):
         price: float,
         size: float,
         timestamp: pd.Timestamp,
+        **kwargs,
     ):
         return ExecutionItem(
-            id=id, symbol=symbol, side=side, price=price, size=size, timestamp=timestamp
+            id=id,
+            symbol=symbol,
+            side=side,
+            price=price,
+            size=size,
+            timestamp=timestamp,
+            **kwargs,  # noqa
         )
 
 
@@ -568,5 +599,7 @@ class PositionStore(NormalizedDataStore):
     def _normalize(self, d: dict, op: str) -> "PositionItem":
         raise NotImplementedError
 
-    def _itemize(self, symbol: str, side: str, price: float, size: float):
-        return PositionItem(symbol=symbol, side=side, price=price, size=size)
+    def _itemize(self, symbol: str, side: str, price: float, size: float, **kwargs):
+        return PositionItem(
+            symbol=symbol, side=side, price=price, size=size, **kwargs  # noqa
+        )
