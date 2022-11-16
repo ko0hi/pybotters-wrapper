@@ -193,24 +193,32 @@ class API(LoggingMixin):
     ) -> str:
         return self._make_order_id(resp, resp_data, data, order_id_key)
 
-    async def _make_request(self, method: str, endpoint: str, **kwargs):
-        resp = await self.request(method, endpoint, **kwargs)
+    async def _make_request(self, method: str, endpoint: str, params_or_data: dict | None, **kwargs):
+        params = {"method": method, "url": endpoint}
+        if method == "GET":
+            params["params"] = params_or_data
+        else:
+            params["data"] = params_or_data
+
+        params.update(kwargs)
+
+        resp = await self.request(**params)
         resp_data = await resp.json()
         return resp, resp_data
 
-    async def _make_market_request(self, endpoint: str, data=dict | None, **kwargs):
+    async def _make_market_request(self, endpoint: str, params_or_data=dict | None, **kwargs):
         return await self._make_request(
-            self._MARKET_REQUEST_METHOD, endpoint, data=data, **kwargs
+            self._MARKET_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
-    async def _make_limit_request(self, endpoint: str, data=dict | None, **kwargs):
+    async def _make_limit_request(self, endpoint: str, params_or_data=dict | None, **kwargs):
         return await self._make_request(
-            self._LIMIT_REQUEST_METHOD, endpoint, data=data, **kwargs
+            self._LIMIT_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
-    async def _make_cancel_request(self, endpoint: str, data=dict | None, **kwargs):
+    async def _make_cancel_request(self, endpoint: str, params_or_data=dict | None, **kwargs):
         return await self._make_request(
-            self._CANCEL_REQUEST_METHOD, endpoint, data=data, **kwargs
+            self._CANCEL_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     def _make_order_response(
