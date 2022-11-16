@@ -43,7 +43,7 @@ class BinanceTradesStore(TradesStore):
             "side": "SELL" if d["m"] else "BUY",
             "price": float(d["p"]),
             "size": float(d["q"]),
-            "timestamp": pd.to_datetime(d["T"], unit="ms"),
+            "timestamp": pd.to_datetime(d["T"], unit="ms", utc=True),
         }
 
 
@@ -81,7 +81,7 @@ class BinanceExecutionStore(ExecutionStore):
             "side": d["S"],
             "price": float(d["p"]),
             "size": float(d["l"]),
-            "timestamp": pd.to_datetime(d["T"], unit="ms"),
+            "timestamp": pd.to_datetime(d["T"], unit="ms", utc=True),
         }
 
 
