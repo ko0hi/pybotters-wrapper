@@ -12,6 +12,9 @@ class DataStorePlugin:
         self._wait_task = asyncio.create_task(self._run_wait_task())
         self._watch_task = asyncio.create_task(self._run_watch_task())
 
+    def __del__(self):
+        self.stop()
+
     async def _run_wait_task(self):
         while True:
             await self._store.wait()
