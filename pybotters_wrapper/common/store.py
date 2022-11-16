@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from typing import (
     TYPE_CHECKING,
     Awaitable,
@@ -7,19 +8,17 @@ from typing import (
     Generic,
     TypeVar,
     Type,
-    NamedTuple,
     TypedDict,
 )
 
-import asyncio
 import aiohttp
 import pandas as pd
+from loguru import logger
+
 import pybotters
 from pybotters.store import DataStore, DataStoreManager
-from loguru import logger
-from pybotters_wrapper.utils import LoggingMixin
 from pybotters_wrapper.common import WebsocketConnection
-
+from pybotters_wrapper.utils import LoggingMixin
 
 if TYPE_CHECKING:
     from pybotters import Item
