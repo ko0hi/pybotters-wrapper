@@ -118,7 +118,6 @@ class MultipleDataStoresPlugin:
 
     def __del__(self):
         self.stop()
-        print("CANCELED", self._wait_task, self._watch_task, self._wait_tasks, self._watch_tasks)
 
     async def _run_wait_task_one(self, store: "DataStore"):
         while True:
