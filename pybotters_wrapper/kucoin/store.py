@@ -1,7 +1,6 @@
 import pandas as pd
 
 import pybotters
-
 from pybotters_wrapper.common import DataStoreWrapper
 from pybotters_wrapper.common.store import (
     TickerStore,
@@ -36,7 +35,9 @@ class KuCoinTradesStore(TradesStore):
             d["side"].upper(),
             float(d["price"]),
             float(d["size"]),
-            pd.to_datetime(int(d.get("time", d["ts"])), unit="ns", utc=True),  # spot / futures
+            pd.to_datetime(
+                int(d.get("time", d["ts"])), unit="ns", utc=True
+            ),  # spot / futures
         )
 
 
@@ -99,7 +100,7 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
         "token": ("POST", "/api/v1/bullet-public"),
         "token_public": ("POST", "/api/v1/bullet-public"),
         "token_private": ("POST", "/api/v1/bullet-private"),
-        "position": ("GET", "/api/v1/positions")
+        "position": ("GET", "/api/v1/positions"),
     }
     _TICKER_STORE = (KuCoinTickerStore, "ticker")
     _TRADES_STORE = (KuCoinTradesStore, "execution")
