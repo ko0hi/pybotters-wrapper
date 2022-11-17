@@ -233,11 +233,14 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
             return None
         elif isinstance(cls_name_tuple[1], str):
             store_cls, store_name = cls_name_tuple
-            assert issubclass(store_cls, NormalizedDataStore)
-            try:
-                return store_cls(getattr(self.store, store_name))
-            except AttributeError:
-                return None
+            if store_name is None:
+                return store_cls()
+            else:
+                assert issubclass(store_cls, NormalizedDataStore)
+                try:
+                    return store_cls(getattr(self.store, store_name))
+                except AttributeError:
+                    return None
         else:
             raise RuntimeError(f"Unsupported: {cls_name_tuple}")
 
@@ -379,11 +382,17 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 class NormalizedDataStore(DataStore):
     _AVAILABLE_OPERATIONS = ("_insert", "_update", "_delete")
 
-    def __init__(self, store: DataStore, auto_cast=False):
+    def __init__(
+        self, store: DataStore = None, auto_cast=False
+    ):
         super(NormalizedDataStore, self).__init__(auto_cast=auto_cast)
         self._store = store
-        self._wait_task = asyncio.create_task(self._wait_store())
-        self._watch_task = asyncio.create_task(self._watch_store())
+        if self._store:
+            self._wait_task = asyncio.create_task(self._wait_store())
+            self._watch_task = asyncio.create_task(self._watch_store())
+        else:
+            self._wait_task = None
+            self._watch_task = None
 
     def __repr__(self):
         return (
