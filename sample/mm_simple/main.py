@@ -243,7 +243,7 @@ async def main(args):
     initialize_configs = {
         "bitflyer": [],
         "kucoinfutures": ["token_private", "position"],
-        "binanceusdsm": ["token_private"],
+        "binanceusdsm": ["token_private", ("orderbook", {"symbol": "BTCUSDT"})],
     }
 
     async with pbw.create_client(args.exchange, apis=args.apis) as client:
@@ -264,6 +264,7 @@ async def main(args):
         )
 
         asyncio.create_task(watch_position(store.position))
+        asyncio.create_task(watch_position(store.execution))
 
         while True:
             if not status.is_ready():

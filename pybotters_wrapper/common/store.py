@@ -388,7 +388,7 @@ class NormalizedDataStore(DataStore):
     ):
         super(NormalizedDataStore, self).__init__(auto_cast=auto_cast)
         self._store = store
-        if self._store:
+        if self._store is not None:
             self._wait_task = asyncio.create_task(self._wait_store())
             self._watch_task = asyncio.create_task(self._watch_store())
         else:
