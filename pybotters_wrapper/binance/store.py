@@ -71,19 +71,28 @@ class BinanceOrderStore(OrderStore):
 
 
 class BinanceExecutionStore(ExecutionStore):
-    def _get_operation(self, change: "StoreChange") -> "Callable":
-        if change.data["X"] in ("FILLED", "PARTIALLY_FILLED"):
-            return self._insert
+    """ 対応ストアなし
 
-    def _normalize(self, d: dict, op: str) -> "ExecutionItem":
-        return {
-            "id": str(d["i"]),
-            "symbol": d["s"],
-            "side": d["S"],
-            "price": float(d["p"]),
-            "size": float(d["l"]),
-            "timestamp": pd.to_datetime(d["T"], unit="ms", utc=True),
-        }
+    """
+    def _onmessage(self, msg: "Item", ws: "ClientWebSocketResponse"):
+        if "e" in msg:
+            item = None
+            if msg["e"] == "ORDER_TRADE_UPDATE":
+                # futures
+                item = msg["o"]
+            elif msg["e"] == "executionReport":
+                item = msg
+            if item and item["X"] in ("TRADE", "PARTIALLY_FILLED", "FILLED"):
+                item = self._itemize(
+                    str(item["i"]),
+                    item["s"],
+                    item["S"],
+                    float(item["L"]),
+                    float(item["l"]),
+                    pd.to_datetime(item["T"], unit="ms", utc=True)
+                )
+                self._insert([{**item, "info": msg}])
+
 
 
 class BinancePositionStore(PositionStore):
@@ -103,7 +112,7 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
     _TRADES_STORE = (BinanceTradesStore, "trade")
     _ORDERBOOK_STORE = (BinanceOrderbookStore, "orderbook")
     _ORDER_STORE = (BinanceOrderStore, "order")
-    _EXECUTION_STORE = (BinanceExecutionStore, "order")
+    _EXECUTION_STORE = (BinanceExecutionStore, None)
     _POSITION_STORE = (BinancePositionStore, "position")
 
     def _subscribe_one(self, channel: str, **kwargs):
@@ -166,6 +175,7 @@ class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]
         **kwargs,
     ):
         from .api import BinanceSpotAPI
+
         kwargs = kwargs or {}
         if URL(endpoint).path in BinanceSpotAPI._PUBLIC_ENDPOINTS:
             kwargs["auth"] = None
