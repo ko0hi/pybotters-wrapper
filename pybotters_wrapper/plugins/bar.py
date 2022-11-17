@@ -1,34 +1,36 @@
+from typing import Callable
+
 import asyncio
 import numpy as np
 import pandas as pd
 
 from pybotters.store import DataStore
 
-from pybotters_wrapper.plugins import WatchPlugin
+from pybotters_wrapper.plugins import DataStorePlugin
 from pybotters_wrapper.utils import StreamDataFrame
 
 
-
-class BarStreamDataFrame(WatchPlugin):
+class BarStreamDataFrame(DataStorePlugin):
     COLUMNS = [
         "timestamp",
         "open",
         "high",
         "low",
         "close",
-        "volume",
-        "buy_volume",
-        "sell_volume",
+        "size",
+        "buy_size",
+        "sell_size",
     ]
 
     def __init__(
         self,
-        store: DataStore,
-        maxlen: int,
-        df=None,
-        callback=None,
+        store: 'DataStoreManagerWrapper',
+        *,
+        maxlen: int = 9999,
+        df: pd.DataFrame = None,
+        callback: Callable[[pd.DataFrame], any] = None,
     ):
-        super(BarStreamDataFrame, self).__init__(store)
+        super(BarStreamDataFrame, self).__init__(store.trades)
 
         if df is not None:
             if len(df.columns) == 7 and df.index.name == "timestamp":
@@ -47,12 +49,13 @@ class BarStreamDataFrame(WatchPlugin):
 
         self._init_bar()
 
+    def on_watch(self, d: dict, op: str):
+        if op == "insert":
+            if self._is_new_bar(d, op):
+                self._next_bar(d)
+            else:
+                self._current_bar(d)
 
-    def update(self, d: dict, op: str, **kwargs):
-        if self._is_new_bar(d, op, **kwargs):
-            self._next_bar(d)
-        else:
-            self._current_bar(d)
 
     def _is_new_bar(self, d: dict, op: str, **kwargs) -> bool:
         raise NotImplementedError
@@ -68,11 +71,11 @@ class BarStreamDataFrame(WatchPlugin):
         self._cur_bar["high"] = max(d["price"], self._cur_bar["high"])
         self._cur_bar["low"] = min(d["price"], self._cur_bar["low"])
         self._cur_bar["close"] = d["price"]
-        self._cur_bar["volume"] += d["volume"]
+        self._cur_bar["size"] += d["size"]
         if d["side"] == "BUY":
-            self._cur_bar["buy_volume"] += d["volume"]
+            self._cur_bar["buy_size"] += d["size"]
         elif d["side"] == "SELL":
-            self._cur_bar["sell_volume"] += d["volume"]
+            self._cur_bar["sell_size"] += d["size"]
 
     def _init_bar(self, d=None) -> None:
         if d is None:
@@ -82,9 +85,9 @@ class BarStreamDataFrame(WatchPlugin):
                 "high": -np.inf,
                 "low": np.inf,
                 "close": None,
-                "volume": 0,
-                "buy_volume": 0,
-                "sell_volume": 0,
+                "size": 0,
+                "buy_size": 0,
+                "sell_size": 0,
             }
         else:
             self._cur_bar = {
@@ -93,9 +96,9 @@ class BarStreamDataFrame(WatchPlugin):
                 "high": d["price"],
                 "low": d["price"],
                 "close": d["price"],
-                "volume": d["volume"],
-                "buy_volume": d["volume"] if d["side"] == "BUY" else 0,
-                "sell_volume": d["volume"] if d["side"] == "SELL" else 0,
+                "size": d["size"],
+                "buy_size": d["size"] if d["side"] == "BUY" else 0,
+                "sell_size": d["size"] if d["side"] == "SELL" else 0,
             }
 
     def get_full_df(self) -> pd.DataFrame:
@@ -118,32 +121,32 @@ class BarStreamDataFrame(WatchPlugin):
         raise NotImplementedError
 
     @property
-    def open(self):
-        return self.df.open.values
+    def open(self) -> np.ndarray:
+        return self.df["open"].values
 
     @property
-    def high(self):
-        return self.df.high.values
+    def high(self) -> np.ndarray:
+        return self.df["high"].values
 
     @property
-    def low(self):
-        return self.df.low.values
+    def low(self) -> np.ndarray:
+        return self.df["low"].values
 
     @property
-    def close(self):
-        return self.df.close.values
+    def close(self) -> np.ndarray:
+        return self.df["close"].values
 
     @property
-    def volume(self):
-        return self.df.volume.values
+    def size(self) -> np.ndarray:
+        return self.df["size"].values
 
     @property
-    def buy_volume(self):
-        return self.df.buy_volume.values
+    def buy_size(self) -> np.ndarray:
+        return self.df["buy_size"].values
 
     @property
-    def sell_volume(self):
-        return self.df.sell_volume.values
+    def sell_size(self) -> np.ndarray:
+        return self.df["sell_size"].values
 
     @property
     def cur_bar(self):
@@ -161,15 +164,19 @@ class BarStreamDataFrame(WatchPlugin):
 class TimeBarStreamDataFrame(BarStreamDataFrame):
     def __init__(
         self,
-        store,
-        seconds,
-        maxlen=9999,
-        df=None,
-        callback=None,
-        message_delay=2,
+        store: 'DataStoreManagerWrapper',
+        *,
+        seconds: int,
+        maxlen: int = 9999,
+        df: pd.DataFrame = None,
+        callback: Callable[[pd.DataFrame], any] = None,
+        message_delay: int = 2,
     ):
         super(TimeBarStreamDataFrame, self).__init__(
-            store, maxlen, df, callback
+            store,
+            maxlen=maxlen,
+            df=df,
+            callback=callback,
         )
         self._seconds = seconds
         self._rule = f"{self._seconds}S"
@@ -212,3 +219,24 @@ class TimeBarStreamDataFrame(BarStreamDataFrame):
     def remaining_time(self):
         return 1 - (self.remain_seconds / self._seconds)
 
+
+class VolumeBarStreamDataFrame(BarStreamDataFrame):
+    def __init__(
+        self,
+        store: 'DataStoreManagerWrapper',
+        *,
+        volume_unit: float,
+        maxlen: int = 9999,
+        df: pd.DataFrame = None,
+        callback: Callable[[pd.DataFrame], any] = None,
+    ):
+        super(VolumeBarStreamDataFrame, self).__init__(
+            store,
+            maxlen=maxlen,
+            df=df,
+            callback=callback,
+        )
+        self._volume_unit = volume_unit
+
+    def _is_new_bar(self, d: dict, op: str, **kwargs) -> bool:
+        return self._cur_bar["size"] > self._volume_unit

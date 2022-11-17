@@ -1,2 +1,2 @@
-from .socket import CoinCheckSocket
+from .socket import CoinCheckWebsocketChannels
 from .store import CoincheckDataStoreWrapper

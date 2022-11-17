@@ -1,7 +1,7 @@
-from pybotters_wrapper.common import SocketBase
+from pybotters_wrapper.common import WebsocketChannels
 
 
-class PhemexSocket(SocketBase):
+class PhemexWebsocketChannels(WebsocketChannels):
     ENDPOINT = "wss://phemex.com/ws"
     ID = 0
 
