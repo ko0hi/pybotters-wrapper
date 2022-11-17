@@ -389,6 +389,9 @@ class NormalizedDataStore(DataStore):
             f"({self._store.__class__.__module__}.{self._store.__class__.__name__})"
         )
 
+    def _onmessage(self):
+        ...
+
     @logger.catch
     async def _wait_store(self):
         while True:
