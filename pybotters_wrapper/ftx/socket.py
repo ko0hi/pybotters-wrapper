@@ -1,17 +1,34 @@
-from pybotters_wrapper.common import SocketChannels
+from pybotters_wrapper.common import WebsocketChannels
 
 
-class FTXSocketChannels(SocketChannels):
+class FTXWebsocketChannels(WebsocketChannels):
     ENDPOINT = "wss://ftx.com/ws"
 
-    @classmethod
-    def _subscribe(cls, channel, **kwargs):
+    def _make_endpoint_and_request_pair(self, channel, **kwargs):
         params = {"op": "subscribe", "channel": channel}
         params.update(kwargs)
-        return params
+        return self.ENDPOINT, params
 
-    @classmethod
-    def trades(cls, symbol, **kwargs):
-        return cls._subscribe("trades", market=symbol)
+    def ticker(self, symbol: str, **kwargs):
+        return self._subscribe("ticker", market=symbol)
 
-    
+    def trades(self, symbol, **kwargs):
+        return self._subscribe("trades", market=symbol)
+
+    def orderbook(self, symbol: str, **kwargs):
+        return self._subscribe("orderbook", market=symbol)
+
+    def order(self, **kwargs):
+        return self._subscribe("orders")
+
+    def execution(self, **kwargs):
+        return self.fills()
+
+    def position(self, **kwargs):
+        return self.fills()
+
+    def fills(self, **kwargs):
+        return self._subscribe("fills")
+
+    def orders(self, **kwargs):
+        return self._subscribe("orders")

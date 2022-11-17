@@ -1,96 +1,98 @@
-from pybotters_wrapper.common import SocketChannels
+from __future__ import annotations
 
 
-class BinanceSocketChannels(SocketChannels):
-    ID = 0
-    ENDPOINT = "wss://fstream.binance.com/ws"
+import time
+from pybotters_wrapper.common import WebsocketChannels
 
-    @classmethod
-    def _subscribe(cls, params):
+
+class BinanceWebsocketChannels(WebsocketChannels):
+    def _make_endpoint_and_request_pair(self, params, **kwargs):
         if isinstance(params, str):
             params = [params]
 
-        send_json = {"method": "SUBSCRIBE", "params": params, "id": cls.ID}
-        cls.ID += 1
+        send_json = {
+            "method": "SUBSCRIBE",
+            "params": params,
+            "id": int(time.monotonic() * 10**9),
+        }
 
-        return send_json
+        return self.ENDPOINT, send_json
 
-    @classmethod
-    def trades(cls, symbol, **kwargs):
-        return cls.agg_trades(symbol)
+    # channels for normalized stores
+    def ticker(self, symbol: str, **kwargs) -> BinanceWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@ticker")
 
-    @classmethod
-    def agg_trades(cls, symbol):
-        name = f"{symbol}@aggTrade"
-        return cls._subscribe(name)
+    def trades(self, symbol: str, **kwargs) -> BinanceWebsocketChannels:
+        return self.agg_trades(symbol)
 
-    @classmethod
-    def mark_price(cls, symbol, every_seconds=False):
-        name = f"{symbol}@markPrice"
-        if every_seconds:
-            name += "@1s"
-        return cls._subscribe(name)
+    def orderbook(self, symbol: str, **kwargs) -> BinanceWebsocketChannels:
+        return self.depth(symbol)
 
-    @classmethod
-    def kline(cls, symbol, interval="1m"):
-        cls._check_interval(interval)
-        name = f"{symbol}@kline_{interval}"
-        return cls._subscribe(name)
+    def order(self, listen_key: str = "LISTEN_KEY", **kwargs) -> "TWebsocketChannels":
+        return self.listenkey(listen_key)
 
-    @classmethod
-    def continuous_kline(cls, pair, contract, interval):
-        cls._check_interval(interval)
-        name = f"{pair}_{contract}@continuousKline_{interval}"
-        return cls._subscribe(name)
+    def execution(
+        self, listen_key: str = "LISTEN_KEY", **kwargs
+    ) -> BinanceWebsocketChannels:
+        return self.listenkey(listen_key)
 
-    @classmethod
-    def ticker(cls, symbol):
-        name = f"{symbol}@ticker"
-        return cls._subscribe(name)
+    def position(
+        self, listen_key: str = "LISTEN_KEY", **kwargs
+    ) -> BinanceWebsocketChannels:
+        return self.listenkey(listen_key)
 
-    @classmethod
-    def book_ticker(cls, symbol):
-        name = f"{symbol}@bookTicker"
-        return cls._subscribe(name)
+    # other channels
+    def agg_trades(self, symbol: str) -> BinanceWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@aggTrade")
 
-    @classmethod
-    def liquidation(cls, symbol):
-        name = f"{symbol}@forceOrder"
-        return cls._subscribe(name)
+    def book_ticker(self, symbol: str) -> BinanceWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@bookTicker")
 
-    @classmethod
-    def depth_partial(cls, symbol, levels=20, update_speed=None):
-        assert levels in [5, 10, 20]
-        name = f"{symbol}@depth{levels}"
-        if update_speed is not None:
-            assert update_speed in [100, 500]
-            name += f"@{update_speed}"
-        return cls._subscribe(name)
+    def depth(self, symbol: str) -> BinanceWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@depth")
 
-    @classmethod
-    def depth_diff(cls, symbol, update_speed=None):
-        name = f"{symbol}@depth"
-        if update_speed is not None:
-            assert update_speed in [100, 500]
-            name += f"@{update_speed}"
-        return cls._subscribe(name)
+    def kline(self, symbol: str, interval: str) -> BinanceWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@kline_{interval}")
 
-    @classmethod
-    def _check_interval(cls, interval):
-        assert interval in [
-            "1m",
-            "3m",
-            "5m",
-            "15m",
-            "30m",
-            "1h",
-            "2h",
-            "4h",
-            "6h",
-            "8h",
-            "12h",
-            "1d",
-            "3d",
-            "1w",
-            "1M",
-        ]
+    def listenkey(self, listen_key: str) -> BinanceWebsocketChannels:
+        return self._subscribe(listen_key)
+
+
+class BinanceSpotWebsocketChannels(BinanceWebsocketChannels):
+    ENDPOINT = "wss://stream.binance.com/ws"
+
+
+class BinanceFuturesWebsocketChannels(BinanceWebsocketChannels):
+    def continuous_kline(
+        self, pair: str, contract: str, interval: str
+    ) -> WebsocketChannels:
+        return self._subscribe(
+            f"{pair.lower()}_{contract.lower()}@continuousKline_{interval}"
+        )
+
+    def liquidation(self, symbol: str) -> BinanceFuturesWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@forceOrder")
+
+    def mark_price(self, symbol: str) -> BinanceFuturesWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@markPrice")
+
+
+class BinanceUSDSMWebsocketChannels(BinanceWebsocketChannels):
+    ENDPOINT = "wss://fstream.binance.com/ws"
+
+    def composite_index(self, symbol: str) -> BinanceUSDSMWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@compositeIndex")
+
+
+class BinanceCOINMWebsocketChannels(BinanceWebsocketChannels):
+    ENDPOINT = "wss://dstream.binance.com/ws"
+
+    def index_price(
+        self, symbol: str, interval: str = "1s"
+    ) -> BinanceCOINMWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@indexPrice{interval}")
+
+    def index_price_kline(
+        self, symbol: str, interval: str
+    ) -> BinanceCOINMWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@indexPriceKline_{interval}")

@@ -1,44 +1,97 @@
-from pybotters.models.bitflyer import bitFlyerDataStore, Board
-from pybotters_wrapper.common import DataStoreWrapper
-from pybotters_wrapper.bitflyer import BitflyerSocketChannels
+import pandas as pd
+from pybotters.models.bitflyer import bitFlyerDataStore
+from pybotters_wrapper.common import (
+    DataStoreWrapper,
+    TickerStore,
+    TradesStore,
+    OrderbookStore,
+    OrderStore,
+    ExecutionStore,
+    PositionStore,
+)
+from pybotters_wrapper.bitflyer import bitFlyerWebsocketChannels
 
 
-class BitflyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
-    _SOCKET = BitflyerSocketChannels
+class bitFlyerTickerStore(TickerStore):
+    def _normalize(self, d: dict, op: str) -> "TickerItem":
+        return self._itemize(d["product_code"], d["ltp"])
 
-    def __init__(self, store: bitFlyerDataStore = None, *args, **kwargs):
-        super(BitflyerDataStoreWrapper, self).__init__(
-            store or bitFlyerDataStore(), *args, **kwargs
+
+class bitFlyerTradesStore(TradesStore):
+    def _normalize(self, d: dict, op: str) -> "TickerItem":
+        side = d["side"]
+        if side:
+            order_id = side.lower() + "_child_order_acceptance_id"
+        else:
+            order_id = d["buy_child_order_acceptance_id"]
+        return self._itemize(
+            order_id,
+            d["product_code"],
+            side,
+            float(d["price"]),
+            float(d["size"]),
+            pd.to_datetime(d["exec_date"]),
         )
 
-    @property
-    def board(self) -> Board:
-        return self._store.board
 
-    @property
-    def executions(self):
-        return self._store.executions
+class bitFlyerOrderbookStore(OrderbookStore):
+    def _normalize(self, d: dict, op: str) -> "TickerItem":
+        return self._itemize(
+            d["product_code"], d["side"], float(d["price"]), float(d["size"])
+        )
 
-    @property
-    def trades(self):
-        return self.executions
 
-    @property
-    def childorderevents(self):
-        return self._store.childorderevents
+class bitFlyerOrderStore(OrderStore):
+    def _normalize(self, d: dict, op: str) -> "OrderItem":
+        return self._itemize(
+            d["child_order_acceptance_id"],
+            d["product_code"],
+            d["side"],
+            float(d["price"]),
+            float(d["size"]),
+            d["child_order_type"],
+        )
 
-    @property
-    def events(self):
-        return self.childorderevents
 
-    @property
-    def childorders(self):
-        return self._store.childorders
+class bitFlyerExecutionStore(ExecutionStore):
+    def _get_operation(self, change: "StoreChange") -> str | None:
+        if change.data["event_type"] == "EXECUTION":
+            return "_insert"
 
-    @property
-    def position(self):
-        return self._store.positions
+    def _normalize(self, d: dict, op: str) -> "ExecutionItem":
+        return self._itemize(
+            d["child_order_acceptance_id"],
+            d["product_code"],
+            d["side"],
+            float(d["price"]),
+            float(d["size"]),
+            pd.to_datetime(d["event_date"]),
+        )
 
-    @property
-    def orders(self):
-        return self.childorders
+
+class bitFlyerPositionStore(PositionStore):
+    def _normalize(self, d: dict, op: str) -> "PositionItem":
+        return self._itemize(
+            d["product_code"],
+            d["side"],
+            float(d["price"]),
+            float(d["size"]),
+        )
+
+
+class bitFlyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
+    _WRAP_STORE = bitFlyerDataStore
+
+    _WEBSOCKET_CHANNELS = bitFlyerWebsocketChannels
+
+    _TICKER_STORE = (bitFlyerTickerStore, "ticker")
+    _TRADES_STORE = (bitFlyerTradesStore, "executions")
+    _ORDERBOOK_STORE = (bitFlyerOrderbookStore, "board")
+    _ORDER_STORE = (bitFlyerOrderStore, "childorders")
+    _EXECUTION_STORE = (bitFlyerExecutionStore, "childorderevents")
+    _POSITION_STORE = (bitFlyerPositionStore, "positions")
+
+    _INITIALIZE_ENDPOINTS = {
+        "order": ("GET", "/v1/me/getchildorders"),
+        "position": ("GET", "/v1/me/getpositions")
+    }

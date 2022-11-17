@@ -1,3 +1,3 @@
-from .socket import PhemexSocketChannels
+from .socket import PhemexWebsocketChannels
 from .store import PhemexDataStoreWrapper
 from . import plugins
