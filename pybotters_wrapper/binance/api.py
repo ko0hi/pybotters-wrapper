@@ -43,6 +43,27 @@ class BinanceSpotAPI(BinanceAPIBase):
     BASE_URL = "https://api.binance.com"
     _ORDER_ENDPOINT = "/api/v3/order"
 
+    # binance spotのpublic endpointはauthを付与するとエラーとなる問題の対応
+    # https://binance-docs.github.io/apidocs/spot/en/#market-data-endpoints を列挙
+    _PUBLIC_ENDPOINTS = {
+        f"/api/v3/{e}"
+        for e in [
+            "ping",
+            "time",
+            "exchangeInfo",
+            "depth",
+            "trades",
+            "historicalTrades",
+            "aggTrades",
+            "klines",
+            "uiKlines",
+            "ticker/24hr",
+            "ticker/price",
+            "ticker/bookTicker",
+            "ticker",
+        ]
+    }
+
 
 class BinanceUSDSMAPI(BinanceAPIBase):
     BASE_URL = "https://fapi.binance.com"

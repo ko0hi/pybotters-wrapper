@@ -9,6 +9,17 @@ import loguru
 import numpy as np
 import pybotters
 
+from pybotters.ws import Auth
+
+
+async def kucoin(ws: aiohttp.ClientWebSocketResponse):
+    while not ws.closed:
+        print("H")
+        await ws.send_str(f'{{"id": "{uuid.uuid4()}", "type": "ping"}}')
+        await asyncio.sleep(5)
+
+Auth.kucoin = kucoin
+
 from argparse import ArgumentParser
 from loguru import logger
 from functools import partial
@@ -23,13 +34,15 @@ class Status:
         bar: pbw.plugins.bar.BarStreamDataFrame,
         bar_period: int = 5,
         position_adjust: float = 1.5,
-        default_t: float = 1.0,
+        default_market_amount: float = 1.0,
+        market_amount_weight: float = 1,
     ):
         self._store = store
         self._bar = bar
         self._bar_context = bar_period
         self._position_adjust = position_adjust
-        self._default_t = default_t
+        self._default_market_amount = default_market_amount
+        self._market_amount_weight = market_amount_weight
         self._asks = None
         self._bids = None
 
@@ -48,10 +61,10 @@ class Status:
         :return: 指値
         """
         items = self._get_items(side)
-        t = self._get_t(side)
+        market_amount = self._get_market_amount(side)
         cum_size, price = items[0]["size"], items[0]["price"]
         for i in items:
-            if cum_size >= t:
+            if cum_size >= market_amount:
                 return int(price + d if side == "SELL" else price - d)
             price = i["price"]
             cum_size += i["size"]
@@ -84,22 +97,27 @@ class Status:
     def _get_items(self, side):
         return self._asks if side == "SELL" else self._bids
 
-    def _get_t(self, side):
+    def _get_market_amount(self, side):
         if side == "SELL":
-            t = self._bar.buy_size[-self._bar_context :].mean()
+            market_amount = self._bar.buy_size[-self._bar_context :].mean()
         else:
-            t = self._bar.sell_size[-self._bar_context :].mean()
+            market_amount = self._bar.sell_size[-self._bar_context :].mean()
 
-        if np.isnan(t):
-            t = self._default_t
+        if np.isnan(market_amount):
+            market_amount = self._default_market_amount
+
+        market_amount *= self._get_weight()
 
         position = self._store.position.find()
         if len(position):
             if position[0]["side"] != side:
-                t /= self._position_adjust
+                market_amount /= self._position_adjust
             else:
-                t *= self._position_adjust
-        return t
+                market_amount *= self._position_adjust
+        return market_amount
+
+    def _get_weight(self):
+        return self._market_amount_weight
 
     @property
     def best_ask(self):
@@ -116,13 +134,23 @@ class Status:
     def is_ready(self):
         return self._asks is not None and self._bids is not None
 
+    def summary(self):
+        return {
+            "sell_price": self.get_limit_price("SELL"),
+            "buy_price": self.get_limit_price("BUY"),
+            "best_ask": self.best_ask,
+            "best_bid": self.best_bid,
+            "sell_t": self._get_market_amount("SELL"),
+            "buy_t": self._get_market_amount("BUY"),
+        }
+
 
 async def market_making(
     api: pbw.common.API,
     store: pbw.common.DataStoreWrapper,
     status: Status,
     symbol: str,
-    m: float,
+    margin: float,
     size: float,
 ):
     async def _oneside_loop(side: str, size: float):
@@ -132,30 +160,28 @@ async def market_making(
         # 最初のエントリー
         price = status.get_limit_price(side)
         resp_order = await api.limit_order(symbol, side, price, size)
-        logger.info(f"[{side} ENTRY] {resp_order}")
 
         # 注文IDを約定監視にセット
-        execution_watcher.set_order_id(resp_order.id)
+        execution_watcher.set(resp_order.id)
 
         while not execution_watcher.done():
+            # 1秒間隔で指値更新チェック
             await asyncio.sleep(5)
 
             new_price = status.get_limit_price(side)
 
             # 指値位置が`m`以上離れていたら更新
-            if abs(new_price - price) > m:
+            if abs(new_price - price) > margin:
                 resp_cancel = await api.cancel_order(symbol, execution_watcher.order_id)
                 if resp_cancel.status == 200:
-                    logger.info(f"[{side} CANCELED] {execution_watcher.order_id}")
+                    # 約定監視をリスケジューリング
+                    # 古いやつを
                     execution_watcher = pbw.plugins.execution_watcher(store)
                     resp_order = await api.limit_order(symbol, side, new_price, size)
-                    execution_watcher.set_order_id(resp_order.id)
+                    execution_watcher.set(resp_order.id)
                     price = new_price
-                    logger.info(f"[{side} UPDATE] {resp_order}")
                 else:
-                    logger.info(
-                        f"[{side} CANCEL FAILED] {resp_cancel} (should be executed)"
-                    )
+
                     continue
 
         # 約定
@@ -170,10 +196,10 @@ async def market_making(
             sell_size = status.position_size("SELL")
 
             logger.info(
-                f"[START]\n"
-                f"\tsymbol: {symbol}\n"
-                f"\tbuy_size: {size + sell_size}\n"
-                f"\tsell_size: {size + buy_size}"
+                f"[START] "
+                f"symbol: {symbol} "
+                f"buy_size: {size + sell_size} "
+                f"sell_size: {size + buy_size} "
             )
 
             buy_result, sell_result = await asyncio.gather(
@@ -187,6 +213,9 @@ async def market_making(
                 ),
             )
 
+            import sys
+            sys.exit(1)
+
             logger.info(f"[FINISH] {sell_result['price'] - buy_result['price']}")
             break
         else:
@@ -197,21 +226,30 @@ async def market_making(
             await asyncio.sleep(0.1)
 
 
+import rich
+
+
 async def watch_position(position):
     with position.watch() as stream:
         async for msg in stream:
-            print(msg)
-            print(position.find())
+            rich.print(msg)
+            logger.info(f"[POSITION] {position.find()}")
 
 
 async def main(args):
     # log設定を初期化
     pbw.utils.init_logger("log.txt", rotation="10MB", retention=3)
 
+    initialize_configs = {
+        "bitflyer": [],
+        "kucoinfutures": ["token_private", "position"],
+        "binanceusdsm": ["token_private"],
+    }
+
     async with pbw.create_client(args.exchange, apis=args.apis) as client:
-        api = pbw.create_api(args.exchange, client)
+        api = pbw.create_api(args.exchange, client, verbose=True)
         store = pbw.create_store(args.exchange)
-        await store.initialize(["token_private", "position"], client=client)
+        await store.initialize(initialize_configs[args.exchange], client=client)
         await store.subscribe("default", symbol=args.symbol).connect(client)
 
         tbar = pbw.plugins.timebar(store, seconds=10)
@@ -221,7 +259,8 @@ async def main(args):
             tbar,
             bar_period=args.bar_period,
             position_adjust=args.position_adjust,
-            default_t=args.default_t,
+            default_market_amount=args.default_market_amount,
+            market_amount_weight=args.market_amount_weight,
         )
 
         asyncio.create_task(watch_position(store.position))
@@ -231,47 +270,54 @@ async def main(args):
                 await asyncio.sleep(1)
                 continue
 
-            asks_o, bids_o = store.store.orderbook50.sorted().values()
-            asks, bids = store.orderbook.sorted().values()
-            print(
-                status.get_limit_price("SELL"),
-                asks[0]["price"],
-                asks_o[0]["price"],
-                bids[0]["price"],
-                bids_o[0]["price"],
-                status.get_limit_price("BUY"),
-            )
+            if args.dry_run:
+                logger.info(status.summary())
 
-            # await market_making(
-            #     api,
-            #     store,
-            #     status,
-            #     args.symbol,
-            #     args.m,
-            #     args.lot,
-            # )
+            else:
+                await market_making(
+                    api,
+                    store,
+                    status,
+                    args.symbol,
+                    args.update_margin,
+                    args.lot,
+                )
 
             await asyncio.sleep(args.interval)
 
 
 if __name__ == "__main__":
 
-    parser = ArgumentParser(description="pybotters x asyncio x magito MM")
+    parser = ArgumentParser(description="Simple Market Making Bot")
     parser.add_argument(
         "--apis",
         help="apiキーが入ったJSONファイル",
         default="apis.json",
     )
-    parser.add_argument("--exchange", default="bitflyer")
-    parser.add_argument("--symbol", default="FX_BTC_JPY", help="取引通貨")
-    parser.add_argument("--lot", default=0.01, type=float, help="注文サイズ")
-    parser.add_argument("--m", default=1000, type=float, help="指値更新幅")
-    parser.add_argument("--bar_period", default=10, type=int, help="成行量推定に使うバーの本数")
     parser.add_argument(
-        "--position_adjust", default=1.5, type=float, help="ポジションを持っている場合、反対方向の成行をk倍する"
+        "--exchange",
+        help="取引所",
+        choices=["bitflyer", "binanceusdsm", "kucoinfutures"],
+        required=True,
     )
-    parser.add_argument("--default_t", default=10, type=float, help="デフォルトの成行推定量")
-    parser.add_argument("--interval", default=5, type=int, help="マーケットメイキングサイクルの間隔")
+    parser.add_argument("--symbol", help="取引通貨", required=True)
+    parser.add_argument("--lot", help="注文ロット", default=0.01, type=float)
+    parser.add_argument("--update_margin", help="指値更新幅", default=1000, type=float)
+    parser.add_argument("--bar_period", help="成行量推定に使うバーの本数", default=5, type=int)
+    parser.add_argument(
+        "--position_adjust", help="ポジションを持っている場合、反対方向の成行をk倍する", default=1.5, type=float
+    )
+    parser.add_argument(
+        "--default_market_amount",
+        help="デフォルトの成行推定量（Barが貯まるまでこちらを使う）",
+        default=10,
+        type=float,
+    )
+    parser.add_argument(
+        "--market_amount_weight", help="成行推定量にかけるウェイト", default=1, type=float
+    )
+    parser.add_argument("--interval", help="マーケットメイキングサイクルの間隔", default=5, type=int)
+    parser.add_argument("--dry_run", help="発注しない", action="store_true")
 
     args = parser.parse_args()
 

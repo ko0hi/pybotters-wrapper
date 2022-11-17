@@ -2,6 +2,7 @@ from typing import Generic, TypeVar
 
 import copy
 import pandas as pd
+from yarl import URL
 
 from pybotters.models.binance import (
     BinanceDataStoreBase,
@@ -155,6 +156,22 @@ class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]
         "order": ("GET", "/api/v3/openOrders"),
     }
     _WRAP_STORE = BinanceSpotDataStore
+
+    async def _initialize_request(
+        self,
+        client: "pybotters.Client",
+        method: str,
+        endpoint: str,
+        params_or_data: dict | None = None,
+        **kwargs,
+    ):
+        from .api import BinanceSpotAPI
+        kwargs = kwargs or {}
+        if URL(endpoint).path in BinanceSpotAPI._PUBLIC_ENDPOINTS:
+            kwargs["auth"] = None
+        return await super()._initialize_request(
+            client, method, endpoint, params_or_data, **kwargs
+        )
 
 
 class BinanceUSDSMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceUSDSMDataStore]):
