@@ -69,7 +69,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     def __init__(self, store: T = None):
         self._store = store or self._WRAP_STORE()
 
-        self._normalized_stores = {}
+        self._normalized_stores: dict[str, NormalizedDataStore] = {}
         self._init_normalized_stores()
 
         self._ws_channels = self._WEBSOCKET_CHANNELS()
@@ -199,6 +199,8 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
     def onmessage(self, msg: "Item", ws: "ClientWebSocketResponse") -> None:
         self._store.onmessage(msg, ws)
+        for k, store in self._normalized_stores.items():
+            store._onmessage(msg, ws)
 
     def _get_initialize_endpoint(self, key: str) -> tuple[str, str]:
         if key not in self._INITIALIZE_ENDPOINTS:
@@ -389,7 +391,7 @@ class NormalizedDataStore(DataStore):
             f"({self._store.__class__.__module__}.{self._store.__class__.__name__})"
         )
 
-    def _onmessage(self):
+    def _onmessage(self, msg: "Item", ws: "ClientWebSocketResponse"):
         ...
 
     @logger.catch
