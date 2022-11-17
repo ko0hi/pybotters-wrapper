@@ -100,7 +100,9 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 if a_or_n in self._INITIALIZE_ENDPOINTS:
                     method, endpoint = self._get_initialize_endpoint(a_or_n)
                     if endpoint:
-                        aws.append(client.request(method, endpoint))
+                        aws.append(
+                            await self._initialize_request(client, method, endpoint)
+                        )
                 else:
                     self.log(
                         f"Unknown endpoint name: {a_or_n}, "
@@ -115,9 +117,11 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 ):
                     method, endpoint = self._get_initialize_endpoint(a_or_n[0])
                     if endpoint:
-                        params = dict(method=method, url=endpoint)
-                        params["params" if method == "GET" else "data"] = a_or_n[1]
-                        aws.append(client.request(**params))
+                        aws.append(
+                            await self._initialize_request(
+                                client, method, endpoint, a_or_n[1]
+                            )
+                        )
                 else:
                     raise RuntimeError(f"Unsupported type: {a_or_n}")
         try:
@@ -315,6 +319,18 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 f"Unsupported normalized store: {name} ({self.exchange})"
             )
         return store
+
+    async def _initialize_request(
+        self,
+        client: "pybotters.Client",
+        method: str,
+        endpoint: str,
+        params_or_data: dict | None = None,
+        **kwargs,
+    ):
+        params = dict(method=method, url=endpoint)
+        params["params" if method == "GET" else "data"] = params_or_data
+        return client.request(**params, **kwargs)
 
     @property
     def store(self) -> T:
