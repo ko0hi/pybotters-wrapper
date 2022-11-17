@@ -34,7 +34,7 @@ class DataStorePlugin:
             await _run_hook(is_aw_on_before, self.on_wait_before)
             await self._store.wait()
             await _run_hook(is_aw_on_wait, self.on_wait)
-            await _runhook(is_aw_on_after, self.on_wait_after)
+            await _run_hook(is_aw_on_after, self.on_wait_after)
             is_stop = await _run_hook(is_aw_on_is_stop, self.on_wait_is_stop)
             if is_stop:
                 break
