@@ -200,7 +200,8 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     def onmessage(self, msg: "Item", ws: "ClientWebSocketResponse") -> None:
         self._store.onmessage(msg, ws)
         for k, store in self._normalized_stores.items():
-            store._onmessage(msg, ws)
+            if store is not None:
+                store._onmessage(msg, ws)
 
     def _get_initialize_endpoint(self, key: str) -> tuple[str, str]:
         if key not in self._INITIALIZE_ENDPOINTS:
@@ -231,12 +232,12 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     ) -> NormalizedDataStore | None:
         if cls_name_tuple is None:
             return None
-        elif isinstance(cls_name_tuple[1], str):
+        elif isinstance(cls_name_tuple, tuple) and len(cls_name_tuple) == 2:
             store_cls, store_name = cls_name_tuple
+            assert issubclass(store_cls, NormalizedDataStore)
             if store_name is None:
                 return store_cls()
-            else:
-                assert issubclass(store_cls, NormalizedDataStore)
+            elif isinstance(store_name, str):
                 try:
                     return store_cls(getattr(self.store, store_name))
                 except AttributeError:
