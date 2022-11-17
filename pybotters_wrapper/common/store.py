@@ -591,7 +591,7 @@ class ExecutionItem(TypedDict):
 
 
 class ExecutionStore(NormalizedDataStore):
-    _KEYS = ["id", "symbol"]
+    _KEYS = []
     _AVAILABLE_OPERATIONS = ("_insert",)
 
     def _normalize(self, d: dict, op: str) -> "ExecutionItem":
