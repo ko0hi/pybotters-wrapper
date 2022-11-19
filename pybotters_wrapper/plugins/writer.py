@@ -70,7 +70,7 @@ class DataStoreWatchCSVWriter(DataStoreWatchWriter):
 
     def _get_filepath(self):
         if self._per_day:
-            day = datetime.utcnow().strftime("%Y-%m-%d-%M")
+            day = datetime.utcnow().strftime("%Y-%m-%d")
             return os.path.join(self._filepath, f"{day}-{self._filename}")
         else:
             return self._path
