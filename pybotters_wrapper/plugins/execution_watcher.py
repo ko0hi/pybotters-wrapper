@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
-from pybotters_wrapper.plugins import DataStorePlugin
+from ._base import DataStorePlugin
 
 
 class ExecutionWatcher(DataStorePlugin):

@@ -5,7 +5,7 @@ from pybotters_wrapper.common import (
     OrderbookStore,
     TradesStore,
 )
-from pybotters_wrapper.plugins import MultipleDataStoresPlugin
+from ._base import MultipleDataStoresPlugin
 
 
 class BookTicker(MultipleDataStoresPlugin):
