@@ -35,7 +35,7 @@ class DataStoreWatchWriter(DataStorePlugin, WriterMixin):
     def on_watch_transform(self, d: dict, op: str) -> dict:
         return {k: d[k] for k in self._columns}
 
-    def on_watch(self, d: dict, op: str):
+    async def on_watch(self, d: dict, op: str):
         if op in self._operations:
             self._write(d)
 
