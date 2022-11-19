@@ -14,6 +14,10 @@ class ExecutionWatcher(DataStorePlugin):
         self._event = asyncio.Event()
 
     def set(self, order_id: str) -> ExecutionWatcher:
+        if self._order_id is not None:
+            raise RuntimeError(
+                f"ExecutionWatcher must not be 'reused', create a new instance instead."
+            )
         self._order_id = order_id
         self._event.set()
         return self
@@ -28,7 +32,9 @@ class ExecutionWatcher(DataStorePlugin):
         if d["id"] == self._order_id:
             self._done = True
             self._item = d
-            self.stop()
+
+    def on_watch_is_stop(self, d: dict, op: str) -> bool:
+        return self._done
 
     def done(self):
         return self._done
