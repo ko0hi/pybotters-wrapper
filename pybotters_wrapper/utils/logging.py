@@ -1,4 +1,7 @@
+import os
 import sys
+from datetime import datetime
+
 from loguru import logger
 
 LOG_FORMAT = (
@@ -12,6 +15,19 @@ LOG_FORMAT_WITH_ICON = (
     "<level>{level.icon:<1}{level:<8}</level> | "
     "<level>{message}</level>"
 )
+
+
+def init_logdir():
+    import __main__
+
+    logdir = os.path.join(
+        os.getcwd(),
+        "logs",
+        os.path.basename(__main__.__file__).replace(".py", ""),
+        datetime.utcnow().strftime("%Y-%m-%d_%H:%M:%S"),
+    )
+    os.makedirs(logdir, exist_ok=True)
+    return logdir
 
 
 def init_logger(
@@ -37,4 +53,3 @@ class LoggingMixin:
     def log(self, msg, level="debug", verbose=True):
         if verbose:
             getattr(logger, level)(f"[{self.__class__.__name__}] {msg}")
-
