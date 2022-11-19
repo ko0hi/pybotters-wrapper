@@ -97,13 +97,27 @@ class BinanceExecutionStore(ExecutionStore):
 
 class BinancePositionStore(PositionStore):
     _AVAILABLE_OPERATIONS = ("_update",)
+    _KEYS = ["symbol", "ps"]
 
     def _normalize(self, d: dict, op: str) -> "PositionItem":
+        size = float(d["pa"])
+
+        if d["ps"] == "BOTH":
+            if size == 0:
+                side = None
+            elif size > 0:
+                side = "BUY"
+            else:
+                side = "SELL"
+        else:
+            side = "BUY" if d["ps"] == "LONG" else "SELL"
+
         return {
             "symbol": d["s"],
-            "side": "BUY" if d["ps"] == "LONG" else "SELL",
+            "side": side,
             "price": float(d["ep"]),
-            "size": float(d["pa"]),
+            "size": abs(size),
+            "ps": d["ps"]
         }
 
 
