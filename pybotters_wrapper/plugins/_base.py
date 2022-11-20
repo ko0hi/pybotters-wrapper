@@ -31,8 +31,8 @@ class DataStorePlugin:
         is_aw_on_after = _is_aw(self.on_wait_after)
         is_aw_on_is_stop = _is_aw(self.on_wait_is_stop)
         while True:
-            await _run_hook(is_aw_on_before, self.on_wait_before)
             await self._store.wait()
+            await _run_hook(is_aw_on_before, self.on_wait_before)
             await _run_hook(is_aw_on_wait, self.on_wait)
             await _run_hook(is_aw_on_after, self.on_wait_after)
             is_stop = await _run_hook(is_aw_on_is_stop, self.on_wait_is_stop)
