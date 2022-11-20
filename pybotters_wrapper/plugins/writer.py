@@ -99,17 +99,20 @@ class DataStoreWaitWriter(DataStorePlugin, WriterMixin):
         raise NotImplementedError
 
     def _transform_item(self, d: dict):
-        return {k: d[k] for k in self._columns}
+        return {k: d[k] for k in self._columns if k != "wrote_at"}
 
     def on_wait_before(self):
         if self._columns is None:
             items = self._store.find()
             if len(items):
                 self._columns = list(items[0].keys())
+                self._columns = ["wrote_at"] + self._columns
 
     async def on_wait(self):
+        wrote_at = datetime.utcnow()
         for d in self._store.find():
             transformed = self._transform_item({**d})
+            transformed = {"wrote_at": wrote_at, **transformed}
             self._write(transformed)
 
 
