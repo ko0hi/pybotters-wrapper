@@ -96,8 +96,16 @@ class BinanceExecutionStore(ExecutionStore):
 
 
 class BinancePositionStore(PositionStore):
-    _AVAILABLE_OPERATIONS = ("_update",)
     _KEYS = ["symbol", "ps"]
+
+    def _get_operation(self, change: "StoreChange") -> str | None:
+        if change.data["ps"] == "BOTH":
+            if float(change.data["pa"]) == 0:
+                return "_delete"
+            else:
+                return f"_{change.operation}"
+        else:
+            return f"_{change.operation}"
 
     def _normalize(self, d: dict, op: str) -> "PositionItem":
         size = float(d["pa"])
