@@ -74,12 +74,15 @@ class DataStoreWatchWriter(DataStorePlugin, WriterMixin):
     def _write(self, d: dict):
         raise NotImplementedError
 
+    def _transform_item(self, d: dict):
+        return {k: d[k] for k in self._columns}
+
     def on_watch_before(self, change: "StoreChange"):
         if self._columns is None:
             self._columns = list(change.data.keys())
 
     def on_watch_transform(self, d: dict, op: str) -> dict:
-        return {k: d[k] for k in self._columns}
+        return self._transform_item(d)
 
     async def on_watch(self, d: dict, op: str):
         if op in self._operations:
