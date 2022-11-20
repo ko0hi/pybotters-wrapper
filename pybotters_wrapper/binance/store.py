@@ -66,7 +66,7 @@ class BinanceOrderStore(OrderStore):
             "side": d["S"],
             "price": float(d["p"]),
             "size": float(d["q"]) - float(d["z"]),
-            "type": d["f"],
+            "type": d["o"],
         }
 
 
