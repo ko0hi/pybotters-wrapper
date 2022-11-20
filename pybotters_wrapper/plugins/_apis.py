@@ -8,7 +8,7 @@ from .bar import TimeBarStreamDataFrame, VolumeBarStreamDataFrame
 from .binning_book import BinningBook
 from .book_ticker import BookTicker
 from .execution_watcher import ExecutionWatcher
-from .writer import DataStoreWatchCSVWriter
+from .writer import DataStoreWatchCSVWriter, DataStoreWaitCSVWriter
 
 import_cache = {}
 
@@ -131,4 +131,23 @@ def datastorewatch_csvwriter(
         per_day=per_day,
         columns=columns,
         operations=operations,
+    )
+
+
+def datastorewait_csvwriter(
+    store: DataStoreWrapper,
+    store_name: str,
+    path: str,
+    *,
+    per_day: bool = False,
+    columns: list[str] = None,
+):
+    return _import_and_build_plugin(
+        store,
+        "datastorewait_csvwriter",
+        default_cls=DataStoreWaitCSVWriter,
+        store_name=store_name,
+        path=path,
+        per_day=per_day,
+        columns=columns,
     )

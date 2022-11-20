@@ -5,4 +5,5 @@ from ._apis import (
     bookticker,
     execution_watcher,
     datastorewatch_csvwriter,
+    datastorewait_csvwriter,
 )
