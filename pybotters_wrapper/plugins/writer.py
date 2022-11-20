@@ -2,7 +2,7 @@ import csv
 import io
 import os
 from datetime import datetime
-from pybotters.store import DataStore, Item
+
 from pybotters_wrapper.common import DataStoreWrapper
 from ._base import DataStorePlugin
 
@@ -13,12 +13,7 @@ class WriterMixin:
 
 
 class _CSVWriter:
-    def __init__(
-        self,
-        path: str,
-        per_day: bool,
-        columns: list[str] = None
-    ):
+    def __init__(self, path: str, per_day: bool, columns: list[str] = None):
         self._path = path
         self._columns = columns
         self._filename = os.path.basename(self._path)
