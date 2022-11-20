@@ -142,3 +142,26 @@ class DataStoreWatchCSVWriter(DataStoreWatchWriter):
 
     def _write(self, d: dict):
         self._writer._write(d)
+
+
+class DataStoreWaitCSVWriter(DataStoreWaitWriter):
+    def __init__(
+        self,
+        store: DataStoreWrapper,
+        store_name: str,
+        path: str,
+        *,
+        per_day: bool = False,
+        columns: list[str] = None,
+    ):
+        super(DataStoreWaitCSVWriter, self).__init__(store, store_name, columns=columns)
+        self._writer: _CSVWriter = _CSVWriter(path, per_day)
+
+    def on_wait_before(self):
+        super().on_wait_before()
+        if self._writer._columns is None:
+            self._writer.set_columns(self._columns)
+        self._writer._init_or_update_writer()
+
+    def _write(self, d: dict):
+        self._writer.write(d)
