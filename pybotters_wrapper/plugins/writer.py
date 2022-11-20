@@ -61,7 +61,7 @@ class _CSVWriter:
 class DataStoreWatchWriter(DataStorePlugin, WriterMixin):
     def __init__(
         self,
-        store: "DataStore",
+        store: "DataStoreWrapper",
         store_name: str,
         *,
         columns: list[str] = None,
