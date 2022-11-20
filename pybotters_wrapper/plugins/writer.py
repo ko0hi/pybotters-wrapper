@@ -89,6 +89,35 @@ class DataStoreWatchWriter(DataStorePlugin, WriterMixin):
             self._write(d)
 
 
+class DataStoreWaitWriter(DataStorePlugin, WriterMixin):
+    def __init__(
+        self,
+        store: "DataStoreWrapper",
+        store_name: str,
+        *,
+        columns: list[str] = None,
+    ):
+        super(DataStoreWaitWriter, self).__init__(getattr(store, store_name))
+        self._columns = columns
+
+    def _write(self, d: dict):
+        raise NotImplementedError
+
+    def _transform_item(self, d: dict):
+        return [d[c] for c in self._columns]
+
+    def on_wait_before(self):
+        if self._columns is None:
+            items = self.find()
+            if len(items):
+                self._columns = list(items[0].keys())
+
+    async def on_wait(self):
+        for d in self._store.find():
+            transformed = self._transform_item({**d})
+            self._write(transformed)
+
+
 class DataStoreWatchCSVWriter(DataStoreWatchWriter):
     def __init__(
         self,
