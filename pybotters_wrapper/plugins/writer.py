@@ -99,11 +99,11 @@ class DataStoreWaitWriter(DataStorePlugin, WriterMixin):
         raise NotImplementedError
 
     def _transform_item(self, d: dict):
-        return [d[c] for c in self._columns]
+        return {k: d[k] for k in self._columns}
 
     def on_wait_before(self):
         if self._columns is None:
-            items = self.find()
+            items = self._store.find()
             if len(items):
                 self._columns = list(items[0].keys())
 
@@ -159,4 +159,4 @@ class DataStoreWaitCSVWriter(DataStoreWaitWriter):
         self._writer._init_or_update_writer()
 
     def _write(self, d: dict):
-        self._writer.write(d)
+        self._writer._write(d)
