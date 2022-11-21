@@ -5,7 +5,7 @@ from pybotters_wrapper.common import (
     OrderbookStore,
     TradesStore,
 )
-from ._base import MultipleDataStoresPlugin
+from .._base import MultipleDataStoresPlugin
 
 
 class BookTicker(MultipleDataStoresPlugin):
@@ -16,19 +16,19 @@ class BookTicker(MultipleDataStoresPlugin):
 
         @property
         def best_ask(self):
-            return self.asks[0]['price']
+            return self.asks[0]["price"]
 
         @property
         def best_bid(self):
-            return self.bids[0]['price']
+            return self.bids[0]["price"]
 
         @property
         def best_ask_size(self):
-            return self.asks[0]['size']
+            return self.asks[0]["size"]
 
         @property
         def best_bid_size(self):
-            return self.bids[0]['size']
+            return self.bids[0]["size"]
 
         @property
         def mid(self):

@@ -4,8 +4,8 @@ from typing import Callable
 import numpy as np
 import pandas as pd
 
-from pybotters_wrapper.utils import StreamDataFrame
-from ._base import DataStorePlugin
+from .._base import DataStorePlugin
+from ...utils import StreamDataFrame
 
 
 class BarStreamDataFrame(DataStorePlugin):

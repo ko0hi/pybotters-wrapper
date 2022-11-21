@@ -5,9 +5,9 @@ import numpy as np
 import pybotters
 from pybotters.store import DataStore
 
-from pybotters_wrapper.utils import Bucket
 
-from ._base import DataStorePlugin
+from .._base import DataStorePlugin
+from ...utils import Bucket
 
 
 T = TypeVar("T", bound=DataStore)
