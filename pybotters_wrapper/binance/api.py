@@ -1,9 +1,9 @@
 from pybotters_wrapper.common import API
-from .resources import (
+from .resource import (
     SPOT_PRICE_PRECISIONS,
     SPOT_SIZE_PRECISIONS,
     USDSM_PRICE_PRECISIONS,
-    USDSM_SIZE_PRECISION,
+    USDSM_SIZE_PRECISIONS,
     COINM_PRICE_PRECISIONS,
     COINM_SIZE_PRECISIONS,
 )
