@@ -34,14 +34,14 @@ class Status:
         bar: pbw.plugins.bar.BarStreamDataFrame,
         bar_period: int = 5,
         position_adjust: float = 1.5,
-        default_market_amount: float = 1.0,
+        market_amount_default: float = 1.0,
         market_amount_weight: float = 1,
     ):
         self._store = store
         self._bar = bar
         self._bar_context = bar_period
         self._position_adjust = position_adjust
-        self._default_market_amount = default_market_amount
+        self._market_amount_default = market_amount_default
         self._market_amount_weight = market_amount_weight
         self._asks = None
         self._bids = None
@@ -104,7 +104,7 @@ class Status:
             market_amount = self._bar.sell_size[-self._bar_context :].mean()
 
         if np.isnan(market_amount):
-            market_amount = self._default_market_amount
+            market_amount = self._market_amount_default
 
         market_amount *= self._get_weight()
 
@@ -259,7 +259,7 @@ async def main(args):
             tbar,
             bar_period=args.bar_period,
             position_adjust=args.position_adjust,
-            default_market_amount=args.default_market_amount,
+            market_amount_default=args.market_amount_default,
             market_amount_weight=args.market_amount_weight,
         )
 
@@ -309,7 +309,7 @@ if __name__ == "__main__":
         "--position_adjust", help="ポジションを持っている場合、反対方向の成行をk倍する", default=1.5, type=float
     )
     parser.add_argument(
-        "--default_market_amount",
+        "--market_amount_default",
         help="デフォルトの成行推定量（Barが貯まるまでこちらを使う）",
         default=10,
         type=float,
