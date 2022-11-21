@@ -59,7 +59,8 @@ class LoggingMixin:
             getattr(logger, level)(f"[{self.__class__.__name__}] {msg}")
 
 
-def log_command_args(logdir: str, args: 'argparse.Namespace'):
-    with open(os.path.join(logdir, "args.json"), "w") as f:
+def log_command_args(
+    logdir: str, args: "argparse.Namespace", filename: str = "args.json"
+):
+    with open(os.path.join(logdir, filename), "w") as f:
         json.dump(vars(args), f, indent=4)
-
