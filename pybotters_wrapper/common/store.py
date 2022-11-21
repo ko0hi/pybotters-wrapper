@@ -144,8 +144,14 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         >>> store.subscribe([("ticker", {"symbol": "BTC_USDT"}), ("ticker", {"symbol": "ETHUSDT"})])
 
         """
-        if channel == "default":
+        if channel == "all":
             channel = self._NORMALIZED_CHANNELS
+
+        elif channel == "public":
+            channel = ["ticker", "trades", "orderbook"]
+
+        elif channel == "private":
+            channel = ["order", "execution", "position"]
 
         if isinstance(channel, str):
             self._ws_channels.add(channel, **kwargs)
