@@ -116,7 +116,7 @@ def execution_watcher(store: DataStoreWrapper) -> ExecutionWatcher:
     return _import_and_build_plugin(store, "execution", default_cls=ExecutionWatcher)
 
 
-def datastorewatch_csvwriter(
+def watch_csvwriter(
     store: DataStoreWrapper,
     store_name: str,
     path: str,
@@ -137,7 +137,7 @@ def datastorewatch_csvwriter(
     )
 
 
-def datastorewait_csvwriter(
+def wait_csvwriter(
     store: DataStoreWrapper,
     store_name: str,
     path: str,
