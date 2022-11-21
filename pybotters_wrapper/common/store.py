@@ -525,7 +525,7 @@ class OrderbookStore(NormalizedDataStore):
 
     def _on_wait(self):
         sells, buys = self.sorted().values()
-        if len(sells) != 0 or len(buys) != 0:
+        if len(sells) != 0 and len(buys) != 0:
             ba = sells[0]["price"]
             bb = buys[0]["price"]
             self._mid = (ba + bb) / 2
