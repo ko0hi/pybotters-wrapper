@@ -186,7 +186,7 @@ USDSM_PRECISIONS = {
     "1000LUNCUSDT": 7,
     "LUNA2USDT": 7,
     "AMBBUSD": 7,
-    "PHBBUSD": 7,
+    "PHBBUSD": 3,  # 7
     "LDOUSDT": 6,
     "CVXUSDT": 6,
     "BTCUSDT_221230": 1,
