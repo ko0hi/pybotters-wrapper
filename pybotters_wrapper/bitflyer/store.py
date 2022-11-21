@@ -21,7 +21,7 @@ class bitFlyerTradesStore(TradesStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
         side = d["side"]
         if side:
-            order_id = side.lower() + "_child_order_acceptance_id"
+            order_id = d[side.lower() + "_child_order_acceptance_id"]
         else:
             order_id = d["buy_child_order_acceptance_id"]
         return self._itemize(
