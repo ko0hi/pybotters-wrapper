@@ -29,15 +29,20 @@ class KuCoinTickerStore(TickerStore):
 
 class KuCoinTradesStore(TradesStore):
     def _normalize(self, d: dict, op: str) -> "TradesItem":
+        if "time" in d:
+            ts = d["time"]
+        elif "ts" in d:
+            ts = d["ts"]
+        else:
+            raise RuntimeError(f"Unexpected input: {d}")
+
         return self._itemize(
             d["tradeId"],
             d["symbol"],
             d["side"].upper(),
             float(d["price"]),
             float(d["size"]),
-            pd.to_datetime(
-                int(d.get("time", d["ts"])), unit="ns", utc=True
-            ),  # spot / futures
+            pd.to_datetime(int(ts), unit="ns", utc=True),  # spot / futures
         )
 
 
