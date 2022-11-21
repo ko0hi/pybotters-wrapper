@@ -12,11 +12,16 @@ class BybitUSDTWebsocketChannels(WebsocketChannels):
         return self.instrument(symbol, **kwargs)
 
     def trades(self, symbol: str, **kwargs):
-        return self._subscribe(f"trade.{symbol}")
+        return self.trade(symbol)
 
     def orderbook(self, symbol: str, **kwargs):
-        return self._subscribe(f"orderBook_200.100ms.{symbol}")
+        return self.orderbook_l2_200(symbok, 100)
 
-
-    def instrument(self, symbol: str, **kwargs):
+    def instrument(self, symbol: str):
         return self._subscribe(f"instrument_info.100ms.{symbol}")
+
+    def trade(self, symbol: str):
+        return self._subscribe(f"trade.{symbol}")
+
+    def orderbook_l2_200(self, symbol: str, n: int):
+        return self._subscribe(f"orderBook_200_{n}ms.{symbol}")
