@@ -47,7 +47,7 @@ class BinanceAPIBase(API):
         return {"symbol": symbol.upper(), "orderId": order_id}
 
     def format_precision(self, value: float, precision: int):
-        str_value = f"{price:.10f}"
+        str_value = f"{value:.10f}"
         return str_value[: -(10 - precision)]
 
     def format_price(self, symbol: str, price: float):
