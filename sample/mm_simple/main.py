@@ -18,6 +18,7 @@ async def kucoin(ws: aiohttp.ClientWebSocketResponse):
         await ws.send_str(f'{{"id": "{uuid.uuid4()}", "type": "ping"}}')
         await asyncio.sleep(5)
 
+
 Auth.kucoin = kucoin
 
 from argparse import ArgumentParser
@@ -78,14 +79,6 @@ class Status:
         """
         positions = self._store.position.find({"side": side})
         return positions
-
-    def position_size(self, side):
-        """保有ポジションサイズ。
-        :param str side: BUY or SELL
-        :return: ポジションサイズ
-        """
-        positions = self.positions(side)
-        return positions[0]["size"] if len(positions) else 0
 
     def ok_entry(self):
         """エントリー条件ロジック。何かエントリー条件を定めたい場合はここを書く。
@@ -162,26 +155,28 @@ async def market_making(
         resp_order = await api.limit_order(symbol, side, price, size)
 
         # 注文IDを約定監視にセット
-        execution_watcher.set(resp_order.id)
+        # ExecutionWatcherはsetが呼ばれるまで約定受信メッセージを待機させるので、api response
+        # よりも先に約定メッセージが届いても問題ない
+        execution_watcher.set(resp_order.order_id)
 
         while not execution_watcher.done():
             # 1秒間隔で指値更新チェック
-            await asyncio.sleep(5)
+            await asyncio.sleep(1)
 
             new_price = status.get_limit_price(side)
 
             # 指値位置が`m`以上離れていたら更新
             if abs(new_price - price) > margin:
                 resp_cancel = await api.cancel_order(symbol, execution_watcher.order_id)
-                if resp_cancel.status == 200:
+                if resp_cancel.is_success():
                     # 約定監視をリスケジューリング
-                    # 古いやつを
+                    # ExecutionWatcherは使い回し不可の使用になっているので新しいものを作る
                     execution_watcher = pbw.plugins.execution_watcher(store)
                     resp_order = await api.limit_order(symbol, side, new_price, size)
-                    execution_watcher.set(resp_order.id)
+                    execution_watcher.set(resp_order.order_id)
                     price = new_price
                 else:
-
+                    # キャンセル失敗＝約定
                     continue
 
         # 約定
@@ -189,73 +184,90 @@ async def market_making(
         logger.info(f"[{side} FINISH] {execution_item}")
         return execution_item
 
-    while True:
-        if status.ok_entry():
-            # 現在のポジションから端数を取得
-            buy_size = status.position_size("BUY")
-            sell_size = status.position_size("SELL")
+    # 現在のポジションから端数を取得
+    buy_size = store.position.size("BUY")
+    sell_size = store.position.size("SELL")
 
-            logger.info(
-                f"[START] "
-                f"symbol: {symbol} "
-                f"buy_size: {size + sell_size} "
-                f"sell_size: {size + buy_size} "
-            )
+    logger.info(
+        f"[START] symbol: {symbol} "
+        f"buy_size: {size + sell_size} "
+        f"sell_size: {size + buy_size} "
+    )
 
-            buy_result, sell_result = await asyncio.gather(
-                _oneside_loop(
-                    "BUY",
-                    size + sell_size,
-                ),
-                _oneside_loop(
-                    "SELL",
-                    size + buy_size,
-                ),
-            )
+    buy_result, sell_result = await asyncio.gather(
+        _oneside_loop(
+            "BUY",
+            size + sell_size,
+        ),
+        _oneside_loop(
+            "SELL",
+            size + buy_size,
+        ),
+    )
 
-            import sys
-            sys.exit(1)
-
-            logger.info(f"[FINISH] {sell_result['price'] - buy_result['price']}")
-            break
-        else:
-            logger.info(
-                f"[WAITING CHANCE] {status.best_ask} - ({status.spread:.4f}) - {status.best_bid}"
-            )
-
-            await asyncio.sleep(0.1)
-
-
-import rich
-
-
-async def watch_position(position):
-    with position.watch() as stream:
-        async for msg in stream:
-            rich.print(msg)
-            logger.info(f"[POSITION] {position.find()}")
+    # ざっくり損益計算
+    pnl = (sell_result["price"] - buy_result["price"]) * size
+    logger.info(f"[FINISH] {pnl}")
 
 
 async def main(args):
-    # log設定を初期化
+    # logdir=`/logs/${args.exchange}/${args.symbol}/${datetime.utcnow()}`
     logdir = pbw.utils.init_logdir(args.exchange, args.symbol)
-    pbw.utils.init_logger("log.txt", rotation="10MB", retention=3)
+    # logファイルの設定
+    pbw.utils.init_logger(f"{logdir}/log.txt", rotation="10MB", retention=3)
+    # commandを保存
     pbw.utils.log_command_args(logdir, args)
 
+    # 取引所別の`initialize`メソッドの引数
+    # Note: 現状以下の理由からinitialize用の共通インターフェースは用意していない
+    #
+    #  1. 取引所ごとに叩くエンドポイントが異なり、また、エンドポイントが必要とするパラメーターも一致していない
+    #  2. pybottersもinitializeは取引所別の実装であり、DataStoreManagerもインターフェースを持っていない
+    #  3. サポートされているストアも多くはない
+    #
     initialize_configs = {
         "bitflyer": [],
         "kucoinfutures": ["token_private", "position"],
         "binanceusdsm": ["token_private", ("orderbook", {"symbol": "BTCUSDT"})],
     }
 
+    # clientの初期化：exchangeにあったbase_urlを埋めてくれる。ただし複数のエンドポイントがある場合は
+    # base_urlはNoneのまま（例：GMOCoinのpublic/private endpoints）
     async with pbw.create_client(args.exchange, apis=args.apis) as client:
+        # 注文用apiの初期化
         api = pbw.create_api(args.exchange, client, verbose=True)
+        # DataStore（ラッパー）の初期化
         store = pbw.create_store(args.exchange)
-        await store.initialize(initialize_configs[args.exchange], client=client)
-        await store.subscribe("default", symbol=args.symbol).connect(client)
 
+        await store.initialize(initialize_configs[args.exchange], client=client)
+
+        # websocket接続
+        # "default"とするとNormalizedStore（"ticker",  "trades", "orderbook", "order",
+        # "execution", "position"）に対応するチャンネルを全て購読する
+        # `auto_reconnect=True`で切断された場合に再度同じチャンネルを購読し直す
+        await store.subscribe("default", symbol=args.symbol).connect(
+            client, auto_reconnect=True
+        )
+
+        # pluginの設定
+        # watch_csvwriterは,watchメソッドでストアの更新を監視し、挿入（i.e., _insert メソッド
+        # が呼ばれる）があるたびに指定カラムの値（デフォルトは全カラム）を書き出す。約定履歴などデータを
+        # 順次書き出していきたい時に使う。
+        execution_writer = pbw.plugins.watch_csvwriter(
+            store, "execution", f"{logdir}/execution.csv"
+        )
+        # wait_csvwriterはwaitメソッドでストアの更新を監視し、更新があるたびに指定カラムの値（デフォ
+        # ルトは全カラム）を１アイテム１行で書き出す。注文やポジションなど定期的なスナップショットを保存
+        # したい時に使う。
+        order_writer = pbw.plugins.wait_csvwriter(
+            store,
+            "order",
+            f"{logdir}/order.csv",
+        )
+        # 約定履歴からtimebarを作成するプラグイン
         tbar = pbw.plugins.timebar(store, seconds=10)
 
+        # 状態管理クラスの初期化
         status = Status(
             store,
             tbar,
@@ -265,11 +277,10 @@ async def main(args):
             market_amount_weight=args.market_amount_weight,
         )
 
-        asyncio.create_task(watch_position(store.position))
-        asyncio.create_task(watch_position(store.execution))
-
+        # メインループ
         while True:
             if not status.is_ready():
+                logger.info("status has not been ready ...")
                 await asyncio.sleep(1)
                 continue
 
@@ -277,14 +288,15 @@ async def main(args):
                 logger.info(status.summary())
 
             else:
-                await market_making(
-                    api,
-                    store,
-                    status,
-                    args.symbol,
-                    args.update_margin,
-                    args.lot,
-                )
+                if status.ok_entry():
+                    await market_making(
+                        api,
+                        store,
+                        status,
+                        args.symbol,
+                        args.update_margin,
+                        args.lot,
+                    )
 
             await asyncio.sleep(args.interval)
 
