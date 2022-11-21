@@ -5,8 +5,8 @@ class BybitUSDTWebsocketChannels(WebsocketChannels):
     ENDPOINT = "wss://stream.bybit.com/realtime_public"
 
     def _make_endpoint_and_request_pair(self, *args):
-        reequest = {"op": "subscribe", "args": list(args)}
-        return self.ENDPOINT, reequest
+        request = {"op": "subscribe", "args": list(args)}
+        return self.ENDPOINT, request
 
     def ticker(self, symbol: str, **kwargs):
         return self.instrument(symbol, **kwargs)
