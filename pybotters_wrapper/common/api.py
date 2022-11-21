@@ -125,6 +125,13 @@ class API(LoggingMixin):
         wrapped_resp = self._make_cancel_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
+
+    def format_price(self, symbol: str, price: float):
+        return str(price)
+
+    def format_size(self, symbol: str, size: float):
+        return str(size)
+
     def _attach_base_url(self, url) -> str:
         return url if self._client._base_url else self.BASE_URL + url
 
