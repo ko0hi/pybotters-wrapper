@@ -1,18 +1,27 @@
+from __future__ import annotations
+
 from pybotters_wrapper.common import WebsocketChannels
 
 
 class BitgetWebsocketChannels(WebsocketChannels):
     ENDPOINT = "wss://ws.bitget.com/mix/v1/stream"
 
-    @classmethod
-    def _subscribe(cls, channel, **kwargs):
-        d = {"channel": channel}
-        d.update(**kwargs)
-        params = {"op": "subscribe", "args": [d]}
-        print(params)
-        return params
+    def _make_endpoint_and_request_pair(
+        self, channel: str, params: dict, **kwargs
+    ) -> [str, dict]:
+        return self.ENDPOINT, {
+            "op": "subscribe",
+            "args": [{"channel": channel, "instType": "mc", **params}],
+        }
 
-    @classmethod
-    def trades(cls, symbol, inst_type="mc", **kwargs):
-        return cls._subscribe(channel="trade", instType=inst_type, instId=symbol)
+    def ticker(self, symbol: str, **kwargs) -> BitgetWebsocketChannels:
+        return self._subscribe("ticker", {"instId": symbol})
 
+    def trades(self, symbol, **kwargs) -> BitgetWebsocketChannels:
+        return self._subscribe("trade", {"instId": symbol})
+
+    def orderbook(self, symbol: str, **kwargs) -> BitgetWebsocketChannels:
+        return self.books(symbol)
+
+    def books(self, symbol):
+        return self._subscribe("books", {"instId": symbol})
