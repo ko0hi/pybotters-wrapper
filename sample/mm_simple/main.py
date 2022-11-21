@@ -238,7 +238,9 @@ async def watch_position(position):
 
 async def main(args):
     # log設定を初期化
+    logdir = pbw.utils.init_logdir(args.exchange, args.symbol)
     pbw.utils.init_logger("log.txt", rotation="10MB", retention=3)
+    pbw.utils.log_command_args(logdir, args)
 
     initialize_configs = {
         "bitflyer": [],
