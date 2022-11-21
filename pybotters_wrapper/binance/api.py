@@ -20,7 +20,7 @@ class BinanceAPIBase(API):
             "symbol": symbol.upper(),
             "side": side.upper(),
             "type": "MARKET",
-            "quantity": f"{size:.8f}",
+            "quantity": self.format_size(symbol, size),
         }
 
     def _make_limit_order_parameter(
@@ -36,8 +36,8 @@ class BinanceAPIBase(API):
             "symbol": symbol.upper(),
             "side": side.upper(),
             "type": "LIMIT",
-            "quantity": f"{size:.8f}",
-            "price": self._format_price(symbol, price),
+            "quantity": self.format_size(symbol, size),
+            "price": self.format_price(symbol, price),
             "timeInForce": "GTC",
         }
 
