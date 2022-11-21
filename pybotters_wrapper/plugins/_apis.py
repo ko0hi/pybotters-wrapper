@@ -10,7 +10,7 @@ from .market import (
     BinningBook,
     BookTicker,
 )
-from .execution_watcher import ExecutionWatcher
+from .watcher import ExecutionWatcher
 from .writer import DataStoreWatchCSVWriter, DataStoreWaitCSVWriter
 
 import_cache = {}

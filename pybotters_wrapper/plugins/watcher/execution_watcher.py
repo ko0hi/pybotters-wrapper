@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
-from ._base import DataStorePlugin
+from .._base import DataStorePlugin
 
 
 class ExecutionWatcher(DataStorePlugin):
