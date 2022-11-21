@@ -8,13 +8,16 @@ from pybotters_wrapper.utils import LoggingMixin
 
 
 class OrderResponse(NamedTuple):
-    id: str
+    order_id: str
     resp: aiohttp.ClientResponse
     resp_data: any = None
 
     @property
     def status(self):
         return self.resp.status
+
+    def is_success(self):
+        return self.resp.status == 200
 
 
 class API(LoggingMixin):
