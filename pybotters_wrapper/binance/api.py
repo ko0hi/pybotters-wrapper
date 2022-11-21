@@ -1,5 +1,5 @@
 from pybotters_wrapper.common import API
-from .resources import SPOT_PRECISIONS, USDSM_PRECISIONS, COINM_PRECISIONS
+from .resources import SPOT_PRICE_PRECISIONS, USDSM_PRICE_PRECISIONS, COINM_PRICE_PRECISIONS
 
 
 class BinanceAPIBase(API):
@@ -46,11 +46,11 @@ class BinanceAPIBase(API):
 
     def _get_price_precision(self, symbol):
         if isinstance(self, BinanceSpotAPI):
-            return SPOT_PRECISIONS[symbol]
+            return SPOT_PRICE_PRECISIONS[symbol]
         elif isinstance(self, BinanceUSDSMAPI):
-            return USDSM_PRECISIONS[symbol]
-        elif isinstance(self, COINM_PRECISIONS):
-            return COINM_PRECISIONS[symbol]
+            return USDSM_PRICE_PRECISIONS[symbol]
+        elif isinstance(self, COINM_PRICE_PRECISIONS):
+            return COINM_PRICE_PRECISIONS[symbol]
 
 
 class BinanceSpotAPI(BinanceAPIBase):
