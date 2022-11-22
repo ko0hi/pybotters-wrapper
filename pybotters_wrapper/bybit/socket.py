@@ -1,9 +1,7 @@
 from pybotters_wrapper.common import WebsocketChannels
 
 
-class BybitUSDTWebsocketChannels(WebsocketChannels):
-    ENDPOINT = "wss://stream.bybit.com/realtime_public"
-
+class BybitWebsocketChannels(WebsocketChannels):
     def _make_endpoint_and_request_pair(self, *args):
         request = {"op": "subscribe", "args": list(args)}
         return self.ENDPOINT, request
@@ -15,7 +13,7 @@ class BybitUSDTWebsocketChannels(WebsocketChannels):
         return self.trade(symbol)
 
     def orderbook(self, symbol: str, **kwargs):
-        return self.orderbook_l2_200(symbok, 100)
+        return self.orderbook_l2_200(symbol, 100)
 
     def instrument(self, symbol: str):
         return self._subscribe(f"instrument_info.100ms.{symbol}")
@@ -24,4 +22,14 @@ class BybitUSDTWebsocketChannels(WebsocketChannels):
         return self._subscribe(f"trade.{symbol}")
 
     def orderbook_l2_200(self, symbol: str, n: int):
-        return self._subscribe(f"orderBook_200_{n}ms.{symbol}")
+        return self._subscribe(f"orderBook_200.{n}ms.{symbol}")
+
+
+class BybitUSDTWebsocketChannels(BybitWebsocketChannels):
+    ENDPOINT = "wss://stream.bybit.com/realtime_public"
+    PUBLIC_ENDPOINT = ENDPOINT
+    PRIVATE_ENDPOINT = "wss://stream.bybit.com/realtime_private"
+
+
+class BybitInverseWebsocketChannels(BybitWebsocketChannels):
+    ENDPOINT = "wss://stream.bybit.com/realtime"
