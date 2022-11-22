@@ -20,6 +20,7 @@ EXCHANGE2BASEURL = {
     "binancecoinm": "https://dapi.binance.com",
     "bitbank": "",
     "bitflyer": "https://api.bitflyer.com",
+    "bitget": "https://api.bitget.com",
     "coincheck": "https://coincheck.com",
     "gmocoin": "",  # gmoはpublic/privateで別エンドポイントになるので設定なし
     "kucoinspot": "https://api.kucoin.com",
