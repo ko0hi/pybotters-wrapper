@@ -27,6 +27,7 @@ EXCHANGE2BASEURL = {
     "gmocoin": "",  # gmoはpublic/privateで別エンドポイントになるので設定なし
     "kucoinspot": "https://api.kucoin.com",
     "kucoinfutures": "https://api-futures.kucoin.com",
+    "okx": "https://www.okx.com/"
 }
 
 EXCHANGE2STORE = {
