@@ -21,6 +21,8 @@ EXCHANGE2BASEURL = {
     "bitbank": "",
     "bitflyer": "https://api.bitflyer.com",
     "bitget": "https://api.bitget.com",
+    "bybitusdt": "https://api.bybit.com",
+    "bybitinverse": "https://api.bybit.com",
     "coincheck": "https://coincheck.com",
     "gmocoin": "",  # gmoはpublic/privateで別エンドポイントになるので設定なし
     "kucoinspot": "https://api.kucoin.com",
