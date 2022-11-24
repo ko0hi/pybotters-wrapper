@@ -31,7 +31,7 @@ class CoincheckOrderbookStore(OrderbookStore):
     def _normalize(self, d: dict, op: str) -> "OrderbookItem":
         return self._itemize(
             symbol=None,
-            side="BUY" if d["side"] == "BIDS" else "SELL",
+            side="BUY" if d["side"] == "bids" else "SELL",
             price=float(d["rate"]),
             size=float(d["amount"])
         )
