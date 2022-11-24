@@ -245,7 +245,7 @@ async def main(args):
         # "default"とするとNormalizedStore（"ticker",  "trades", "orderbook", "order",
         # "execution", "position"）に対応するチャンネルを全て購読する
         # `auto_reconnect=True`で切断された場合に再度同じチャンネルを購読し直す
-        await store.subscribe("default", symbol=args.symbol).connect(
+        await store.subscribe("all", symbol=args.symbol).connect(
             client, auto_reconnect=True
         )
 
