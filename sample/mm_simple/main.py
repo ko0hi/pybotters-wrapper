@@ -1,29 +1,15 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Callable
+
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pybotters.store import DataStore, Item
+    pass
 
 import asyncio
-import loguru
 import numpy as np
-import pybotters
-
-from pybotters.ws import Auth
-
-
-async def kucoin(ws: aiohttp.ClientWebSocketResponse):
-    while not ws.closed:
-        print("H")
-        await ws.send_str(f'{{"id": "{uuid.uuid4()}", "type": "ping"}}')
-        await asyncio.sleep(5)
-
-
-Auth.kucoin = kucoin
 
 from argparse import ArgumentParser
 from loguru import logger
-from functools import partial
 
 import pybotters_wrapper as pbw
 
