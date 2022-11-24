@@ -5,7 +5,7 @@ description = ""
 authors = ["ko0hi <ko0hi.0304@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.10.0"
+python = ">=3.10.0,<4.0"
 pybotters = ">=0.13.1"
 numpy = "^1.23.3"
 pandas = "^1.5.0"
