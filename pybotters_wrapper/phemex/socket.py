@@ -17,6 +17,10 @@ class PhemexWebsocketChannels(WebsocketChannels):
         return self.ENDPOINT, params
 
     def ticker(self, symbol: str, **kwargs) -> PhemexWebsocketChannels:
+        if symbol.endswith("USD") and not symbol.startswith("."):
+            # https://github.com/phemex/phemex-api-docs/blob/master/Public-Contract-API-en.md#subscribe-tick-event-for-symbol-price
+            symbol = "." + symbol.replace("USD", "")
+
         return self.tick(symbol)
 
     def trades(self, symbol, **kwargs) -> PhemexWebsocketChannels:
