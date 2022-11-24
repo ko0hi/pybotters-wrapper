@@ -36,9 +36,6 @@ class API(LoggingMixin):
         self._verbose = verbose
 
     async def request(self, method, url, *, params=None, data=None, **kwargs):
-        if url is None:
-            raise RuntimeError(f"null endpoint")
-
         url = self._attach_base_url(url)
         return await self._client.request(
             method, url, params=params, data=data, **kwargs
@@ -132,8 +129,9 @@ class API(LoggingMixin):
     def format_size(self, symbol: str, size: float):
         return str(size)
 
-    def _attach_base_url(self, url) -> str:
-        return url if self._client._base_url else self.BASE_URL + url
+    def _attach_base_url(self, url, base_url: str = None) -> str:
+        base_url = base_url or self.BASE_URL
+        return url if self._client._base_url else base_url + url
 
     def _make_market_endpoint(
         self, symbol: str, side: str, size: float, **kwargs
