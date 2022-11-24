@@ -85,14 +85,14 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     async def initialize(
         self,
         aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
-        client: pybotters.Client = None,
+        client: "pybotters.Client" = None
     ) -> "DataStoreWrapper":
         self.log(f"Initialize requests {aws_or_names}")
 
         def _check_client():
             assert (
                 client is not None
-            ), "need to specify `client` as store.initialize(..., client=client)"
+            ), "need to pass `client` as store.initialize(..., client=client)"
 
         def _raise_invalid_params(name, params):
             raise RuntimeError(
@@ -102,60 +102,70 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 f"{str({p: '...' for p in params})}), ...))"
             )
 
+        def _check_name(name):
+            if name not in self._INITIALIZE_CONFIG:
+                raise RuntimeError(
+                    f"Unsupported endpoint: {name}, "
+                    f"available endpoints are {list(self._INITIALIZE_CONFIG.keys())}",
+                )
+
         request_tasks = []
         for a_or_n in aws_or_names:
             if isinstance(a_or_n, Awaitable):
                 # validateの用にレスポンスにアクセスしたいのでTaskとしてスケジューリング
                 request_tasks.append(asyncio.create_task(a_or_n))
+
             elif isinstance(a_or_n, str):
                 _check_client()
+
                 name = a_or_n
-                if name in self._INITIALIZE_CONFIG:
-                    (
-                        method,
-                        endpoint,
-                        required_params,
-                    ) = self._get_initialize_request_config(name)
+                _check_name(name)
 
-                    if endpoint:
-                        if required_params is not None:
-                            _raise_invalid_params(name, required_params)
-                        request_tasks.append(
-                            asyncio.create_task(
-                                self._initialize_request(client, method, endpoint)
-                            )
+                (
+                    method,
+                    endpoint,
+                    required_params,
+                ) = self._get_initialize_request_config(name)
+
+                if endpoint:
+                    if required_params is not None:
+                        _raise_invalid_params(name, required_params)
+                    request_tasks.append(
+                        asyncio.create_task(
+                            self._initialize_request(client, method, endpoint)
                         )
-                else:
-                    self.log(
-                        f"Unknown endpoint name: {name}, "
-                        f"available endpoints are {self._INITIALIZE_CONFIG}",
                     )
-            elif isinstance(a_or_n, tuple):
+
+            elif (
+                isinstance(a_or_n, tuple)
+                and len(a_or_n) == 2
+                and isinstance(a_or_n[0], str)
+                and isinstance(a_or_n[1], dict)
+            ):
                 _check_client()
-                if (
-                    len(a_or_n) == 2
-                    and isinstance(a_or_n[0], str)
-                    and isinstance(a_or_n[1], dict)
-                ):
-                    name, params = a_or_n
-                    (
-                        method,
-                        endpoint,
-                        required_params,
-                    ) = self._get_initialize_request_config(name)
 
-                    if endpoint is not None:
-                        missing_params = set(required_params).difference(params.keys())
-                        if len(missing_params) > 0:
-                            _raise_invalid_params(name, required_params)
+                name, params = a_or_n
+                _check_name(name)
 
-                        request_tasks.append(
-                            asyncio.create_task(
-                                self._initialize_request(
-                                    client, method, endpoint, params
-                                )
+                (
+                    method,
+                    endpoint,
+                    required_params,
+                ) = self._get_initialize_request_config(name)
+
+                if endpoint:
+                    missing_params = set(required_params).difference(params.keys())
+                    if len(missing_params) > 0:
+                        _raise_invalid_params(name, required_params)
+
+                    request_tasks.append(
+                        asyncio.create_task(
+                            self._initialize_request(
+                                client, method, endpoint, params
                             )
                         )
+                    )
+
                 else:
                     raise RuntimeError(f"Unsupported type: {a_or_n}")
         try:
@@ -167,6 +177,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         finally:
             for aw in request_tasks:
                 await self._validate_initialize_response(aw)
+
         return self
 
     def subscribe(
@@ -380,9 +391,12 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         params_or_data: dict | None = None,
         **kwargs,
     ):
+        # exchange用のapiを使ってBASE_URLを足す
+        import pybotters_wrapper as pbw
+        api = pbw.create_api(self.exchange, client)
         params = dict(method=method, url=endpoint)
         params["params" if method == "GET" else "data"] = params_or_data
-        return client.request(**params, **kwargs)
+        return api.request(**params, **kwargs)
 
     async def _validate_initialize_response(self, task: asyncio.Task):
         result: ClientResponse = task.result()
