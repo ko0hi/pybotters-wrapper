@@ -71,9 +71,8 @@ class BinanceOrderStore(OrderStore):
 
 
 class BinanceExecutionStore(ExecutionStore):
-    """ 対応ストアなし
+    """対応ストアなし"""
 
-    """
     def _onmessage(self, msg: "Item", ws: "ClientWebSocketResponse"):
         if "e" in msg:
             item = None
@@ -89,10 +88,9 @@ class BinanceExecutionStore(ExecutionStore):
                     item["S"],
                     float(item["L"]),
                     float(item["l"]),
-                    pd.to_datetime(item["T"], unit="ms", utc=True)
+                    pd.to_datetime(item["T"], unit="ms", utc=True),
                 )
                 self._insert([{**item, "info": msg}])
-
 
 
 class BinancePositionStore(PositionStore):
@@ -125,7 +123,7 @@ class BinancePositionStore(PositionStore):
             "side": side,
             "price": float(d["ep"]),
             "size": abs(size),
-            "ps": d["ps"]
+            "ps": d["ps"],
         }
 
 
@@ -137,33 +135,13 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
     _EXECUTION_STORE = (BinanceExecutionStore, None)
     _POSITION_STORE = (BinancePositionStore, "position")
 
-    def _subscribe_one(self, channel: str, **kwargs):
-        if channel in (
-            "order",
-            "execution",
-            "position",
-        ):
-            self._ws_channels.add(channel, listen_key=self.store.listenkey)
-        else:
-            self._ws_channels.add(channel, **kwargs)
-
     def _parse_send(
         self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
         subscribe_list = super()._parse_send(endpoint, send, client)
 
-        # エンドポイントごとにparamsを一つにまとめる（バラバラだと量によっては接続できない場合がある）
-        compressed = {}
-        for endpoint, sends in subscribe_list.items():
-            compressed[endpoint] = {
-                "method": "SUBSCRIBE",
-                "params": [s["params"][0] for s in sends],
-                "id": sends[0]["id"],
-            }
-
-        rtn = copy.deepcopy(compressed)
-        for endpoint, send in compressed.items():
-            rtn[endpoint]["params"] = []
+        rtn = copy.deepcopy(subscribe_list)
+        for endpoint, send in subscribe_list.items():
             for p in send["params"]:
                 if p == "LISTEN_KEY":
                     if self.store.listenkey is None:
@@ -172,19 +150,20 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
                             f"HINT: "
                             f"`store.initialize(..., 'token_private', client=client)`"
                         )
-                    rtn[endpoint]["params"].append(self.store.listenkey)
-                else:
-                    rtn[endpoint]["params"].append(p)
+
+                    if self.store.listenkey not in rtn[endpoint]["params"]:
+                        rtn[endpoint]["params"].append(self.store.listenkey)
         return rtn
 
 
 class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]):
+    _NAME = "binancespot"
     _WEBSOCKET_CHANNELS = BinanceSpotWebsocketChannels
-    _INITIALIZE_ENDPOINTS = {
-        "token": ("POST", "/api/v3/userDataStream"),
-        "token_private": ("POST", "/api/v3/userDataStream"),
-        "orderbook": ("GET", "/api/v3/depth"),
-        "order": ("GET", "/api/v3/openOrders"),
+    _INITIALIZE_CONFIG = {
+        "token": ("POST", "/api/v3/userDataStream", None),
+        "token_private": ("POST", "/api/v3/userDataStream", None),
+        "orderbook": ("GET", "/api/v3/depth", ["symbol"]),
+        "order": ("GET", "/api/v3/openOrders", None),
     }
     _WRAP_STORE = BinanceSpotDataStore
 
@@ -207,22 +186,24 @@ class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]
 
 
 class BinanceUSDSMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceUSDSMDataStore]):
+    _NAME = "binanceusdsm"
     _WEBSOCKET_CHANNELS = BinanceUSDSMWebsocketChannels
-    _INITIALIZE_ENDPOINTS = {
-        "token": ("POST", "/fapi/v1/listenKey"),
-        "token_private": ("POST", "/fapi/v1/listenKey"),
-        "orderbook": ("GET", "/fapi/v1/depth"),
-        "order": ("GET", "/fapi/v1/openOrders"),
+    _INITIALIZE_CONFIG = {
+        "token": ("POST", "/fapi/v1/listenKey", None),
+        "token_private": ("POST", "/fapi/v1/listenKey", None),
+        "orderbook": ("GET", "/fapi/v1/depth", ["symbol"]),
+        "order": ("GET", "/fapi/v1/openOrders", None),
     }
     _WRAP_STORE = BinanceUSDSMDataStore
 
 
 class BinanceCOINMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceCOINMDataStore]):
+    _NAME = "binancecoinm"
     _WEBSOCKET_CHANNELS = BinanceCOINMWebsocketChannels
-    _INITIALIZE_ENDPOINTS = {
-        "token": ("POST", "/dapi/v1/listenKey"),
-        "token_private": ("POST", "/dapi/v1/listenKey"),
-        "orderbook": ("GET", "/dapi/v1/depth"),
-        "order": ("GET", "/dapi/v1/openOrders"),
+    _INITIALIZE_CONFIG = {
+        "token": ("POST", "/dapi/v1/listenKey", None),
+        "token_private": ("POST", "/dapi/v1/listenKey", None),
+        "orderbook": ("GET", "/dapi/v1/depth", ["symbol"]),
+        "order": ("GET", "/dapi/v1/openOrders", None),
     }
     _WRAP_STORE = BinanceCOINMDataStore

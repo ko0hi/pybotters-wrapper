@@ -1,15 +1,19 @@
+from __future__ import annotations
+
 from pybotters_wrapper.common import WebsocketChannels
 
 
 class CoinCheckWebsocketChannels(WebsocketChannels):
     ENDPOINT = "wss://ws-api.coincheck.com/"
 
-    @classmethod
-    def _subscribe(cls, **kwargs):
-        params = {"type": "subscribe"}
-        params.update(kwargs)
-        return params
+    def _make_endpoint_and_request_pair(self, channel: str, **kwargs) -> [str, dict]:
+        return self.ENDPOINT, {"type": "subscribe", "channel": channel}
 
-    @classmethod
-    def trades(cls, symbol):
-        return cls._subscribe(channel=f"{symbol}-trades")
+    def ticker(self, symbol: str, **kwargs) -> CoinCheckWebsocketChannels:
+        return self._subscribe(f"{symbol}-trades")
+
+    def trades(self, symbol: str, **kwargs) -> CoinCheckWebsocketChannels:
+        return self._subscribe(f"{symbol}-trades")
+
+    def orderbook(self, symbol: str, **kwargs) -> CoinCheckWebsocketChannels:
+        return self._subscribe(f"{symbol}-orderbook")

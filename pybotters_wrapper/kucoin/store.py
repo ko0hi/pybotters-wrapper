@@ -29,15 +29,20 @@ class KuCoinTickerStore(TickerStore):
 
 class KuCoinTradesStore(TradesStore):
     def _normalize(self, d: dict, op: str) -> "TradesItem":
+        if "time" in d:
+            ts = d["time"]
+        elif "ts" in d:
+            ts = d["ts"]
+        else:
+            raise RuntimeError(f"Unexpected input: {d}")
+
         return self._itemize(
             d["tradeId"],
             d["symbol"],
             d["side"].upper(),
             float(d["price"]),
             float(d["size"]),
-            pd.to_datetime(
-                int(d.get("time", d["ts"])), unit="ns", utc=True
-            ),  # spot / futures
+            pd.to_datetime(int(ts), unit="ns", utc=True),  # spot / futures
         )
 
 
@@ -96,11 +101,11 @@ class KuCoinPositionStore(PositionStore):
 
 class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
     _WRAP_STORE = pybotters.KuCoinDataStore
-    _INITIALIZE_ENDPOINTS = {
-        "token": ("POST", "/api/v1/bullet-public"),
-        "token_public": ("POST", "/api/v1/bullet-public"),
-        "token_private": ("POST", "/api/v1/bullet-private"),
-        "position": ("GET", "/api/v1/positions"),
+    _INITIALIZE_CONFIG = {
+        "token": ("POST", "/api/v1/bullet-public", None),
+        "token_public": ("POST", "/api/v1/bullet-public", None),
+        "token_private": ("POST", "/api/v1/bullet-private", None),
+        "position": ("GET", "/api/v1/positions", None),
     }
     _TICKER_STORE = (KuCoinTickerStore, "ticker")
     _TRADES_STORE = (KuCoinTradesStore, "execution")
@@ -139,8 +144,10 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
 
 
 class KuCoinSpotDataStoreWrapper(_KuCoinDataStoreWrapper):
+    _NAME = "kucoinspot"
     _WEBSOCKET_CHANNELS = KuCoinSpotWebsocketChannels
 
 
 class KuCoinFuturesDataStoreWrapper(_KuCoinDataStoreWrapper):
+    _NAME = "kucoinfutures"
     _WEBSOCKET_CHANNELS = KuCoinFuturesWebsocketChannels

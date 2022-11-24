@@ -4,6 +4,6 @@ from ._apis import (
     binningbook,
     bookticker,
     execution_watcher,
-    datastorewatch_csvwriter,
-    datastorewait_csvwriter,
+    watch_csvwriter,
+    wait_csvwriter,
 )

@@ -13,6 +13,7 @@ from typing import (
 
 import aiohttp
 import pandas as pd
+from aiohttp.client_reqrep import ClientResponse
 from loguru import logger
 
 import pybotters
@@ -29,9 +30,12 @@ if TYPE_CHECKING:
 
 
 T = TypeVar("T", bound=DataStoreManager)
+InitializeRequestConfig = tuple[str, str, list[str] | tuple[str] | None]
 
 
 class DataStoreWrapper(Generic[T], LoggingMixin):
+    _NAME = None
+
     _WRAP_STORE: Type[T] = None
 
     _WEBSOCKET_CHANNELS: Type[WebsocketChannels] = None
@@ -43,7 +47,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     _EXECUTION_STORE: tuple[Type[ExecutionStore], str] = None
     _POSITION_STORE: tuple[Type[PositionStore], str] = None
 
-    _INITIALIZE_ENDPOINTS: dict[str, tuple[str, str]] = {
+    _INITIALIZE_CONFIG: dict[str, InitializeRequestConfig | None] = {
         # for binance, gmo, kucoin
         "token": None,
         # for kucoin
@@ -57,7 +61,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         "position": None,
     }
 
-    _NORMALIZED_CHANNELS = [
+    _NORMALIZED_STORE_CHANNELS = [
         "ticker",
         "trades",
         "orderbook",
@@ -81,55 +85,99 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     async def initialize(
         self,
         aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
-        client: pybotters.Client = None,
+        client: "pybotters.Client" = None
     ) -> "DataStoreWrapper":
+        self.log(f"Initialize requests {aws_or_names}")
+
         def _check_client():
             assert (
                 client is not None
-            ), "need to specify `client` as store.initialize(..., client=client)"
+            ), "need to pass `client` as store.initialize(..., client=client)"
 
-        # if isinstance(aws_or_names[0], str) and aws_or_names[0] == "default":
-        #     aws_or_names = self._INITIALIZE_ENDPOINTS.keys()
+        def _raise_invalid_params(name, params):
+            raise RuntimeError(
+                f"Missing required parameters for initializing "
+                f"'{name}' of {self.__class__.__name__}: "
+                f"{params} (HINT: store.initialize([('{name}', "
+                f"{str({p: '...' for p in params})}), ...))"
+            )
 
-        aws = []
+        def _check_name(name):
+            if name not in self._INITIALIZE_CONFIG:
+                raise RuntimeError(
+                    f"Unsupported endpoint: {name}, "
+                    f"available endpoints are {list(self._INITIALIZE_CONFIG.keys())}",
+                )
+
+        request_tasks = []
         for a_or_n in aws_or_names:
             if isinstance(a_or_n, Awaitable):
-                aws.append(a_or_n)
+                # validateの用にレスポンスにアクセスしたいのでTaskとしてスケジューリング
+                request_tasks.append(asyncio.create_task(a_or_n))
+
             elif isinstance(a_or_n, str):
                 _check_client()
-                if a_or_n in self._INITIALIZE_ENDPOINTS:
-                    method, endpoint = self._get_initialize_endpoint(a_or_n)
-                    if endpoint:
-                        aws.append(
-                            await self._initialize_request(client, method, endpoint)
+
+                name = a_or_n
+                _check_name(name)
+
+                (
+                    method,
+                    endpoint,
+                    required_params,
+                ) = self._get_initialize_request_config(name)
+
+                if endpoint:
+                    if required_params is not None:
+                        _raise_invalid_params(name, required_params)
+                    request_tasks.append(
+                        asyncio.create_task(
+                            self._initialize_request(client, method, endpoint)
                         )
-                else:
-                    self.log(
-                        f"Unknown endpoint name: {a_or_n}, "
-                        f"available endpoints are {self._INITIALIZE_ENDPOINTS}",
                     )
-            elif isinstance(a_or_n, tuple):
+
+            elif (
+                isinstance(a_or_n, tuple)
+                and len(a_or_n) == 2
+                and isinstance(a_or_n[0], str)
+                and isinstance(a_or_n[1], dict)
+            ):
                 _check_client()
-                if (
-                    len(a_or_n) == 2
-                    and isinstance(a_or_n[0], str)
-                    and isinstance(a_or_n[1], dict)
-                ):
-                    method, endpoint = self._get_initialize_endpoint(a_or_n[0])
-                    if endpoint:
-                        aws.append(
-                            await self._initialize_request(
-                                client, method, endpoint, a_or_n[1]
+
+                name, params = a_or_n
+                _check_name(name)
+
+                (
+                    method,
+                    endpoint,
+                    required_params,
+                ) = self._get_initialize_request_config(name)
+
+                if endpoint:
+                    missing_params = set(required_params).difference(params.keys())
+                    if len(missing_params) > 0:
+                        _raise_invalid_params(name, required_params)
+
+                    request_tasks.append(
+                        asyncio.create_task(
+                            self._initialize_request(
+                                client, method, endpoint, params
                             )
                         )
+                    )
+
                 else:
                     raise RuntimeError(f"Unsupported type: {a_or_n}")
         try:
-            await self._store.initialize(*aws)
+            await self._store.initialize(*request_tasks)
         except AttributeError:
             # initializeはDataStoreManagerのメソッドではなく、各実装クラスレベルでのメソッド
             # bitbankDataStoreなど実装がない
             pass
+        finally:
+            for aw in request_tasks:
+                await self._validate_initialize_response(aw)
+
         return self
 
     def subscribe(
@@ -144,8 +192,14 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         >>> store.subscribe([("ticker", {"symbol": "BTC_USDT"}), ("ticker", {"symbol": "ETHUSDT"})])
 
         """
-        if channel == "default":
-            channel = self._NORMALIZED_CHANNELS
+        if channel == "all":
+            channel = self._NORMALIZED_STORE_CHANNELS
+
+        elif channel == "public":
+            channel = ["ticker", "trades", "orderbook"]
+
+        elif channel == "private":
+            channel = ["order", "execution", "position"]
 
         if isinstance(channel, str):
             self._ws_channels.add(channel, **kwargs)
@@ -203,21 +257,24 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
             if store is not None:
                 store._onmessage(msg, ws)
 
-    def _get_initialize_endpoint(self, key: str) -> tuple[str, str]:
-        if key not in self._INITIALIZE_ENDPOINTS:
+    def _get_initialize_request_config(self, key: str) -> InitializeRequestConfig:
+        if key not in self._INITIALIZE_CONFIG:
             raise RuntimeError(f"Unsupported initialize endpoint key: `{key}`")
 
-        method_and_endpoint = self._INITIALIZE_ENDPOINTS[key]
+        method_endpoint_params = self._INITIALIZE_CONFIG[key]
 
-        if method_and_endpoint is None:
-            return None, None
+        if method_endpoint_params is None:
+            return None, None, None
 
-        if len(method_and_endpoint) != 2 or not (
-            isinstance(method_and_endpoint[0], str)
-            and isinstance(method_and_endpoint[1], str)
+        method, endpoint, params = method_endpoint_params
+
+        if len(method_endpoint_params) != 3 or not (
+            isinstance(method, str)
+            and isinstance(endpoint, str)
+            and (isinstance(params, (list, tuple)) or params is None)
         ):
-            raise RuntimeError(f"INITIALIZE_ENDPOINT must be tuple[str, str]")
-        return method_and_endpoint
+            raise RuntimeError(f"Invalid initialize endpoint: {method_endpoint_params}")
+        return method, endpoint, params
 
     def _init_normalized_stores(self):
         self._normalized_stores["ticker"] = self._init_ticker_store()
@@ -326,7 +383,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
             )
         return store
 
-    async def _initialize_request(
+    def _initialize_request(
         self,
         client: "pybotters.Client",
         method: str,
@@ -334,9 +391,21 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         params_or_data: dict | None = None,
         **kwargs,
     ):
+        # exchange用のapiを使ってBASE_URLを足す
+        import pybotters_wrapper as pbw
+        api = pbw.create_api(self.exchange, client)
         params = dict(method=method, url=endpoint)
         params["params" if method == "GET" else "data"] = params_or_data
-        return client.request(**params, **kwargs)
+        return api.request(**params, **kwargs)
+
+    async def _validate_initialize_response(self, task: asyncio.Task):
+        result: ClientResponse = task.result()
+        if result.status != 200:
+            try:
+                data = await result.json()
+            except Exception:
+                data = None
+            raise RuntimeError(f"Initialization failed: {result.url} {data}")
 
     @property
     def store(self) -> T:
@@ -369,7 +438,8 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
     @property
     def exchange(self) -> str:
-        return self.__module__.split(".")[-2]
+        assert self._NAME is not None
+        return self._NAME
 
     @property
     def ws_connections(self) -> list[WebsocketConnection]:
@@ -383,9 +453,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 class NormalizedDataStore(DataStore):
     _AVAILABLE_OPERATIONS = ("_insert", "_update", "_delete")
 
-    def __init__(
-        self, store: DataStore = None, auto_cast=False
-    ):
+    def __init__(self, store: DataStore = None, auto_cast=False):
         super(NormalizedDataStore, self).__init__(auto_cast=auto_cast)
         self._store = store
         if self._store is not None:
@@ -519,7 +587,7 @@ class OrderbookStore(NormalizedDataStore):
 
     def _on_wait(self):
         sells, buys = self.sorted().values()
-        if len(sells) != 0 or len(buys) != 0:
+        if len(sells) != 0 and len(buys) != 0:
             ba = sells[0]["price"]
             bb = buys[0]["price"]
             self._mid = (ba + bb) / 2

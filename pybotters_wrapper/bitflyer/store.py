@@ -80,6 +80,7 @@ class bitFlyerPositionStore(PositionStore):
 
 
 class bitFlyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
+    _NAME = "bitflyer"
     _WRAP_STORE = bitFlyerDataStore
 
     _WEBSOCKET_CHANNELS = bitFlyerWebsocketChannels
@@ -91,7 +92,7 @@ class bitFlyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
     _EXECUTION_STORE = (bitFlyerExecutionStore, "childorderevents")
     _POSITION_STORE = (bitFlyerPositionStore, "positions")
 
-    _INITIALIZE_ENDPOINTS = {
-        "order": ("GET", "/v1/me/getchildorders"),
-        "position": ("GET", "/v1/me/getpositions")
+    _INITIALIZE_CONFIG = {
+        "order": ("GET", "/v1/me/getchildorders", ["product_code"]),
+        "position": ("GET", "/v1/me/getpositions", ["product_code"])
     }

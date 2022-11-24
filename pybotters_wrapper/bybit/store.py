@@ -1,16 +1,15 @@
 import pandas as pd
-from pybotters.models.bybit import BybitUSDTDataStore
+from pybotters.models.bybit import BybitUSDTDataStore, BybitInverseDataStore
 from pybotters_wrapper.common import DataStoreWrapper
 from pybotters_wrapper.common.store import TickerStore, TradesStore, OrderbookStore
-from pybotters_wrapper.bybit import BybitUSDTWebsocketChannels
+from pybotters_wrapper.bybit import BybitUSDTWebsocketChannels, BybitInverseWebsocketChannels
 
-
-class BybitUSDTTickerStore(TickerStore):
+class BybitTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
         return {"symbol": d["symbol"], "price": d["last_price"]}
 
 
-class BybitUSDTTradesStore(TradesStore):
+class BybitTradesStore(TradesStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
         return {
             "id": d["trade_id"],
@@ -22,7 +21,7 @@ class BybitUSDTTradesStore(TradesStore):
         }
 
 
-class BybitUSDTOrderbookStore(OrderbookStore):
+class BybitOrderbookStore(OrderbookStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
         return {
             "symbol": d["symbol"],
@@ -32,13 +31,27 @@ class BybitUSDTOrderbookStore(OrderbookStore):
         }
 
 
-class BybitUSDTDataStoreWrapper(DataStoreWrapper[BybitUSDTDataStore]):
-    _WEBSOCKET_CHANNELS = BybitUSDTWebsocketChannels
-    _TICKER_STORE = (BybitUSDTTickerStore, "instrument")
-    _TRADES_STORE = (BybitUSDTTradesStore, "trade")
-    _ORDERBOOK_STORE = (BybitUSDTOrderbookStore, "orderbook")
 
-    def __init__(self, store: BybitUSDTDataStore = None):
-        super(BybitUSDTDataStoreWrapper, self).__init__(
-            store or BybitUSDTDataStore()
-        )
+
+class BybitDataStoreMixin:
+    _TICKER_STORE = (BybitTickerStore, "instrument")
+    _TRADES_STORE = (BybitTradesStore, "trade")
+    _ORDERBOOK_STORE = (BybitOrderbookStore, "orderbook")
+
+
+class BybitUSDTDataStoreWrapper(
+    BybitDataStoreMixin,
+    DataStoreWrapper[BybitUSDTDataStore]
+):
+    _NAME = "bybitusdt"
+    _WRAP_STORE = BybitUSDTDataStore
+    _WEBSOCKET_CHANNELS = BybitUSDTWebsocketChannels
+
+
+class BybitInverseDataStoreWrapper(
+    BybitDataStoreMixin,
+    DataStoreWrapper[BybitInverseDataStore]
+):
+    _NAME = "bybitinverse"
+    _WRAP_STORE = BybitInverseDataStore
+    _WEBSOCKET_CHANNELS = BybitInverseWebsocketChannels

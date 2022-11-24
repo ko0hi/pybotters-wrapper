@@ -15,14 +15,20 @@ from pybotters_wrapper.common.socket import (
 TWebsocketChannels = TypeVar("TWebsocketChannels", bound=WebsocketChannels)
 
 EXCHANGE2BASEURL = {
-    "binancespot": "https://api.binance.com",
-    "binanceusdsm": "https://fapi.binance.com",
-    "binancecoinm": "https://dapi.binance.com",
-    "bitbank": "",
-    "bitflyer": "https://api.bitflyer.com",
-    "gmocoin": "",  # gmoはpublic/privateで別エンドポイントになるので設定なし
-    "kucoinspot": "https://api.kucoin.com",
-    "kucoinfutures": "https://api-futures.kucoin.com",
+    "binancespot": pbw.binance.BinanceSpotAPI.BASE_URL,
+    "binanceusdsm": pbw.binance.BinanceUSDSMAPI.BASE_URL,
+    "binancecoinm": pbw.binance.BinanceCOINMAPI.BASE_URL,
+    "bitbank": pbw.bitbank.bitbankAPI.BASE_URL,
+    "bitflyer": pbw.bitflyer.bitFlyerAPI.BASE_URL,
+    "bitget": pbw.bitget.BitgetAPI.BASE_URL,
+    "bybitusdt": pbw.bybit.BybitUSDTAPI.BASE_URL,
+    "bybitinverse": pbw.bybit.BybitInverseAPI.BASE_URL,
+    "coincheck": pbw.coincheck.CoincheckAPI.BASE_URL,
+    "gmocoin": pbw.gmocoin.GMOCoinAPI.BASE_URL,
+    "kucoinspot": pbw.kucoin.KuCoinSpotAPI.BASE_URL,
+    "kucoinfutures": pbw.kucoin.KuCoinFuturesAPI.BASE_URL,
+    "okx": pbw.okx.OKXAPI.BASE_URL,
+    "phemex": pbw.phemex.PhemexAPI.BASE_URL,
 }
 
 EXCHANGE2STORE = {
@@ -32,7 +38,8 @@ EXCHANGE2STORE = {
     "bitbank": pbw.bitbank.bitbankDataStoreWrapper,
     "bitflyer": pbw.bitflyer.bitFlyerDataStoreWrapper,
     "bitget": pbw.bitget.BitgetDataStoreWrapper,
-    "bybit": pbw.bybit.BybitUSDTDataStoreWrapper,
+    "bybitusdt": pbw.bybit.BybitUSDTDataStoreWrapper,
+    "bybitinverse": pbw.bybit.BybitInverseDataStoreWrapper,
     "coincheck": pbw.coincheck.CoincheckDataStoreWrapper,
     "ftx": pbw.ftx.FTXDataStoreWrapper,
     "gmocoin": pbw.gmocoin.GMOCoinDataStoreWrapper,
@@ -47,10 +54,18 @@ EXCHANGE2API: dict[str, Type[API]] = {
     "binancespot": pbw.binance.BinanceSpotAPI,
     "binanceusdsm": pbw.binance.BinanceUSDSMAPI,
     "binancecoinm": pbw.binance.BinanceCOINMAPI,
+    "bitbank": pbw.bitbank.bitbankAPI,
+    "bitget": pbw.bitget.BitgetAPI,
     "bitflyer": pbw.bitflyer.bitFlyerAPI,
+    "bybitusdt": pbw.bybit.BybitUSDTAPI,
+    "bybitinverse": pbw.bybit.BybitInverseAPI,
+    "coincheck": pbw.coincheck.CoincheckAPI,
+    "ftx": pbw.ftx.FTXAPI,
+    "gmocoin": pbw.gmocoin.GMOCoinAPI,
     "kucoinspot": pbw.kucoin.KuCoinSpotAPI,
     "kucoinfutures": pbw.kucoin.KuCoinFuturesAPI,
-    "ftx": pbw.ftx.FTXAPI,
+    "okx": pbw.okx.OKXAPI,
+    "phemex": pbw.phemex.PhemexAPI,
 }
 
 
@@ -59,12 +74,6 @@ def _get_value(exchange, dic):
         f = [t for t in traceback.extract_stack() if t.filename.endswith("_apis.py")][0]
         raise RuntimeError(f"Unsupported exchange: {exchange} (`{f.name}()`)")
     return dic[exchange]
-
-
-def create_client(exchange: str, **kwargs) -> pybotters.Client:
-    return pybotters.Client(
-        base_url=_get_value(exchange, EXCHANGE2BASEURL), **kwargs
-    )
 
 
 def create_store(

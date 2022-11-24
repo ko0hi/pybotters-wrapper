@@ -1,5 +1,12 @@
 from pybotters_wrapper.common import API
-from .resources import SPOT_PRECISIONS, USDSM_PRECISIONS, COINM_PRECISIONS
+from .resources import (
+    SPOT_PRICE_PRECISIONS,
+    SPOT_SIZE_PRECISIONS,
+    USDSM_PRICE_PRECISIONS,
+    USDSM_SIZE_PRECISIONS,
+    COINM_PRICE_PRECISIONS,
+    COINM_SIZE_PRECISIONS,
+)
 
 
 class BinanceAPIBase(API):
@@ -13,7 +20,7 @@ class BinanceAPIBase(API):
             "symbol": symbol.upper(),
             "side": side.upper(),
             "type": "MARKET",
-            "quantity": f"{size:.8f}",
+            "quantity": self.format_size(symbol, size),
         }
 
     def _make_limit_order_parameter(
@@ -29,8 +36,8 @@ class BinanceAPIBase(API):
             "symbol": symbol.upper(),
             "side": side.upper(),
             "type": "LIMIT",
-            "quantity": f"{size:.8f}",
-            "price": self._format_price(symbol, price),
+            "quantity": self.format_size(symbol, size),
+            "price": self.format_price(symbol, price),
             "timeInForce": "GTC",
         }
 
@@ -39,18 +46,31 @@ class BinanceAPIBase(API):
     ) -> dict:
         return {"symbol": symbol.upper(), "orderId": order_id}
 
-    def _format_price(self, symbol, price):
-        str_price = f"{price:.10f}"
-        precision = self._get_price_precision(symbol)
-        return str_price[: -(10 - precision)]
+    def format_precision(self, value: float, precision: int):
+        str_value = f"{value:.10f}"
+        return str_value[: -(10 - precision)]
 
-    def _get_price_precision(self, symbol):
+    def format_price(self, symbol: str, price: float):
+        return self.format_precision(price, self._get_price_precision(symbol))
+
+    def format_size(self, symbol: str, size: float):
+        return self.format_precision(size, self._get_size_precision(symbol))
+
+    def _get_price_precision(self, symbol: str):
         if isinstance(self, BinanceSpotAPI):
-            return SPOT_PRECISIONS[symbol]
+            return SPOT_PRICE_PRECISIONS[symbol]
         elif isinstance(self, BinanceUSDSMAPI):
-            return USDSM_PRECISIONS[symbol]
-        elif isinstance(self, COINM_PRECISIONS):
-            return COINM_PRECISIONS[symbol]
+            return USDSM_PRICE_PRECISIONS[symbol]
+        elif isinstance(self, COINM_PRICE_PRECISIONS):
+            return COINM_PRICE_PRECISIONS[symbol]
+
+    def _get_size_precision(self, symbol: str):
+        if isinstance(self, BinanceSpotAPI):
+            return SPOT_SIZE_PRECISIONS[symbol]
+        elif isinstance(self, BinanceUSDSMAPI):
+            return USDSM_SIZE_PRECISIONS[symbol]
+        elif isinstance(self, COINM_PRICE_PRECISIONS):
+            return COINM_SIZE_PRECISIONS[symbol]
 
 
 class BinanceSpotAPI(BinanceAPIBase):
