@@ -71,9 +71,8 @@ class BinanceOrderStore(OrderStore):
 
 
 class BinanceExecutionStore(ExecutionStore):
-    """ 対応ストアなし
+    """対応ストアなし"""
 
-    """
     def _onmessage(self, msg: "Item", ws: "ClientWebSocketResponse"):
         if "e" in msg:
             item = None
@@ -89,10 +88,9 @@ class BinanceExecutionStore(ExecutionStore):
                     item["S"],
                     float(item["L"]),
                     float(item["l"]),
-                    pd.to_datetime(item["T"], unit="ms", utc=True)
+                    pd.to_datetime(item["T"], unit="ms", utc=True),
                 )
                 self._insert([{**item, "info": msg}])
-
 
 
 class BinancePositionStore(PositionStore):
@@ -125,7 +123,7 @@ class BinancePositionStore(PositionStore):
             "side": side,
             "price": float(d["ep"]),
             "size": abs(size),
-            "ps": d["ps"]
+            "ps": d["ps"],
         }
 
 
