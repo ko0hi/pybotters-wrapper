@@ -13,6 +13,7 @@ from typing import (
 
 import aiohttp
 import pandas as pd
+from aiohttp.client_reqrep import ClientResponse
 from loguru import logger
 
 import pybotters
@@ -29,6 +30,7 @@ if TYPE_CHECKING:
 
 
 T = TypeVar("T", bound=DataStoreManager)
+InitializeRequestConfig = tuple[str, str, list[str] | tuple[str] | None]
 
 
 class DataStoreWrapper(Generic[T], LoggingMixin):
@@ -43,7 +45,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     _EXECUTION_STORE: tuple[Type[ExecutionStore], str] = None
     _POSITION_STORE: tuple[Type[PositionStore], str] = None
 
-    _INITIALIZE_ENDPOINTS: dict[str, tuple[str, str]] = {
+    _INITIALIZE_ENDPOINTS: dict[str, InitializeRequestConfig | None] = {
         # for binance, gmo, kucoin
         "token": None,
         # for kucoin
@@ -88,24 +90,40 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 client is not None
             ), "need to specify `client` as store.initialize(..., client=client)"
 
-        # if isinstance(aws_or_names[0], str) and aws_or_names[0] == "default":
-        #     aws_or_names = self._INITIALIZE_ENDPOINTS.keys()
+        def _raise_invalid_params(name, params):
+            raise RuntimeError(
+                f"Missing required parameters for initializing "
+                f"'{name}' of {self.__class__.__name__}: "
+                f"{params} (HINT: store.initialize([('{name}', "
+                f"{str({p: '...' for p in params})}), ...))"
+            )
 
-        aws = []
+        request_tasks = []
         for a_or_n in aws_or_names:
             if isinstance(a_or_n, Awaitable):
-                aws.append(a_or_n)
+                # validateの用にレスポンスにアクセスしたいのでTaskとしてスケジューリング
+                request_tasks.append(asyncio.create_task(a_or_n))
             elif isinstance(a_or_n, str):
                 _check_client()
-                if a_or_n in self._INITIALIZE_ENDPOINTS:
-                    method, endpoint = self._get_initialize_endpoint(a_or_n)
+                name = a_or_n
+                if name in self._INITIALIZE_ENDPOINTS:
+                    (
+                        method,
+                        endpoint,
+                        required_params,
+                    ) = self._get_initialize_request_config(name)
+
                     if endpoint:
-                        aws.append(
-                            await self._initialize_request(client, method, endpoint)
+                        if required_params is not None:
+                            _raise_invalid_params(name, required_params)
+                        request_tasks.append(
+                            asyncio.create_task(
+                                self._initialize_request(client, method, endpoint)
+                            )
                         )
                 else:
                     self.log(
-                        f"Unknown endpoint name: {a_or_n}, "
+                        f"Unknown endpoint name: {name}, "
                         f"available endpoints are {self._INITIALIZE_ENDPOINTS}",
                     )
             elif isinstance(a_or_n, tuple):
@@ -115,21 +133,37 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                     and isinstance(a_or_n[0], str)
                     and isinstance(a_or_n[1], dict)
                 ):
-                    method, endpoint = self._get_initialize_endpoint(a_or_n[0])
-                    if endpoint:
-                        aws.append(
-                            await self._initialize_request(
-                                client, method, endpoint, a_or_n[1]
+                    name, params = a_or_n
+                    (
+                        method,
+                        endpoint,
+                        required_params,
+                    ) = self._get_initialize_request_config(name)
+
+                    if endpoint is not None:
+                        missing_params = set(required_params).difference(params.keys())
+                        if len(missing_params) > 0:
+                            _raise_invalid_params(name, required_params)
+
+                        request_tasks.append(
+                            asyncio.create_task(
+                                self._initialize_request(
+                                    client, method, endpoint, params
+                                )
                             )
                         )
                 else:
                     raise RuntimeError(f"Unsupported type: {a_or_n}")
         try:
-            await self._store.initialize(*aws)
+            await asyncio.sleep(5)
+            await self._store.initialize(*request_tasks)
         except AttributeError:
             # initializeはDataStoreManagerのメソッドではなく、各実装クラスレベルでのメソッド
             # bitbankDataStoreなど実装がない
             pass
+        finally:
+            for aw in request_tasks:
+                await self._validate_initialize_response(aw)
         return self
 
     def subscribe(
@@ -209,21 +243,26 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
             if store is not None:
                 store._onmessage(msg, ws)
 
-    def _get_initialize_endpoint(self, key: str) -> tuple[str, str]:
+    def _get_initialize_request_config(
+        self, key: str
+    ) -> InitializeRequestConfig:
         if key not in self._INITIALIZE_ENDPOINTS:
             raise RuntimeError(f"Unsupported initialize endpoint key: `{key}`")
 
-        method_and_endpoint = self._INITIALIZE_ENDPOINTS[key]
+        method_endpoint_params = self._INITIALIZE_ENDPOINTS[key]
 
-        if method_and_endpoint is None:
-            return None, None
+        if method_endpoint_params is None:
+            return None, None, None
 
-        if len(method_and_endpoint) != 2 or not (
-            isinstance(method_and_endpoint[0], str)
-            and isinstance(method_and_endpoint[1], str)
+        method, endpoint, params = method_endpoint_params
+
+        if len(method_endpoint_params) != 3 or not (
+            isinstance(method, str)
+            and isinstance(endpoint, str)
+            and (isinstance(params, (list, tuple)) or params is None)
         ):
-            raise RuntimeError(f"INITIALIZE_ENDPOINT must be tuple[str, str]")
-        return method_and_endpoint
+            raise RuntimeError(f"Invalid initialize endpoint: {method_endpoint_params}")
+        return method, endpoint, params
 
     def _init_normalized_stores(self):
         self._normalized_stores["ticker"] = self._init_ticker_store()
@@ -332,7 +371,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
             )
         return store
 
-    async def _initialize_request(
+    def _initialize_request(
         self,
         client: "pybotters.Client",
         method: str,
@@ -343,6 +382,16 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         params = dict(method=method, url=endpoint)
         params["params" if method == "GET" else "data"] = params_or_data
         return client.request(**params, **kwargs)
+
+    async def _validate_initialize_response(self, task: asyncio.Task):
+        result: ClientResponse = task.result()
+        data = await result.json()
+        if result.status != 200:
+            try:
+                data = await result.json()
+            except Exception:
+                data = None
+            raise RuntimeError(f"Initialization failed: {result.url} {data}")
 
     @property
     def store(self) -> T:
