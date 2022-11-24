@@ -135,16 +135,6 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
     _EXECUTION_STORE = (BinanceExecutionStore, None)
     _POSITION_STORE = (BinancePositionStore, "position")
 
-    def _subscribe_one(self, channel: str, **kwargs):
-        if channel in (
-            "order",
-            "execution",
-            "position",
-        ):
-            self._ws_channels.add(channel, listen_key=self.store.listenkey)
-        else:
-            self._ws_channels.add(channel, **kwargs)
-
     def _parse_send(
         self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
