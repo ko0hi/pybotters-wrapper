@@ -1,14 +1,22 @@
-from typing import Generic, TypeVar
+from __future__ import annotations
 
 import copy
-import pandas as pd
-from yarl import URL
+from typing import TypeVar
 
+import pandas as pd
+import pybotters
 from pybotters.models.binance import (
     BinanceDataStoreBase,
     BinanceSpotDataStore,
     BinanceUSDSMDataStore,
     BinanceCOINMDataStore,
+)
+from yarl import URL
+
+from pybotters_wrapper.binance.socket import (
+    BinanceSpotWebsocketChannels,
+    BinanceUSDSMWebsocketChannels,
+    BinanceCOINMWebsocketChannels,
 )
 from pybotters_wrapper.common import (
     DataStoreWrapper,
@@ -19,14 +27,6 @@ from pybotters_wrapper.common import (
     ExecutionStore,
     PositionStore,
 )
-from pybotters_wrapper.binance.socket import (
-    BinanceSpotWebsocketChannels,
-    BinanceUSDSMWebsocketChannels,
-    BinanceCOINMWebsocketChannels,
-)
-
-import pybotters
-
 
 T = TypeVar("T", bound=BinanceDataStoreBase)
 
@@ -136,7 +136,7 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
     _POSITION_STORE = (BinancePositionStore, "position")
 
     def _parse_send(
-        self, endpoint: str, send: any, client: pybotters.Client
+            self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
         subscribe_list = super()._parse_send(endpoint, send, client)
 
@@ -168,12 +168,12 @@ class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]
     _WRAP_STORE = BinanceSpotDataStore
 
     async def _initialize_request(
-        self,
-        client: "pybotters.Client",
-        method: str,
-        endpoint: str,
-        params_or_data: dict | None = None,
-        **kwargs,
+            self,
+            client: "pybotters.Client",
+            method: str,
+            endpoint: str,
+            params_or_data: dict | None = None,
+            **kwargs,
     ):
         from .api import BinanceSpotAPI
 

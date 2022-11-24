@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import uuid
 
 import pandas as pd
-
 from pybotters.models.phemex import PhemexDataStore
+
 from pybotters_wrapper.common import (
     DataStoreWrapper,
     TickerStore,

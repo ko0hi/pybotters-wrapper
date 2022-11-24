@@ -1,6 +1,5 @@
-import csv
-import io
-import os
+from __future__ import annotations
+
 from datetime import datetime
 
 from .._base import DataStorePlugin
@@ -14,12 +13,12 @@ class WriterMixin:
 
 class DataStoreWatchWriter(DataStorePlugin, WriterMixin):
     def __init__(
-        self,
-        store: "DataStoreWrapper",
-        store_name: str,
-        *,
-        columns: list[str] = None,
-        operations: list[str] = None,
+            self,
+            store: "DataStoreWrapper",
+            store_name: str,
+            *,
+            columns: list[str] = None,
+            operations: list[str] = None,
     ):
         super(DataStoreWatchWriter, self).__init__(getattr(store, store_name))
         self._columns = columns
@@ -45,11 +44,11 @@ class DataStoreWatchWriter(DataStorePlugin, WriterMixin):
 
 class DataStoreWaitWriter(DataStorePlugin, WriterMixin):
     def __init__(
-        self,
-        store: "DataStoreWrapper",
-        store_name: str,
-        *,
-        columns: list[str] = None,
+            self,
+            store: "DataStoreWrapper",
+            store_name: str,
+            *,
+            columns: list[str] = None,
     ):
         super(DataStoreWaitWriter, self).__init__(getattr(store, store_name))
         self._columns = columns

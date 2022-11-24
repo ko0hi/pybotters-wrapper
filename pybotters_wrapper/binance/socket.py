@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-
 import time
+
 from pybotters_wrapper.common import WebsocketChannels
 
 
@@ -13,7 +13,7 @@ class BinanceWebsocketChannels(WebsocketChannels):
         send_json = {
             "method": "SUBSCRIBE",
             "params": params,
-            "id": int(time.monotonic() * 10**9),
+            "id": int(time.monotonic() * 10 ** 9),
         }
 
         return self.ENDPOINT, send_json
@@ -42,12 +42,12 @@ class BinanceWebsocketChannels(WebsocketChannels):
         return self.listenkey(listen_key)
 
     def execution(
-        self, listen_key: str = "LISTEN_KEY", **kwargs
+            self, listen_key: str = "LISTEN_KEY", **kwargs
     ) -> BinanceWebsocketChannels:
         return self.listenkey(listen_key)
 
     def position(
-        self, listen_key: str = "LISTEN_KEY", **kwargs
+            self, listen_key: str = "LISTEN_KEY", **kwargs
     ) -> BinanceWebsocketChannels:
         return self.listenkey(listen_key)
 
@@ -74,7 +74,7 @@ class BinanceSpotWebsocketChannels(BinanceWebsocketChannels):
 
 class BinanceFuturesWebsocketChannels(BinanceWebsocketChannels):
     def continuous_kline(
-        self, pair: str, contract: str, interval: str
+            self, pair: str, contract: str, interval: str
     ) -> WebsocketChannels:
         return self._subscribe(
             f"{pair.lower()}_{contract.lower()}@continuousKline_{interval}"
@@ -98,11 +98,11 @@ class BinanceCOINMWebsocketChannels(BinanceWebsocketChannels):
     ENDPOINT = "wss://dstream.binance.com/ws"
 
     def index_price(
-        self, symbol: str, interval: str = "1s"
+            self, symbol: str, interval: str = "1s"
     ) -> BinanceCOINMWebsocketChannels:
         return self._subscribe(f"{symbol.lower()}@indexPrice{interval}")
 
     def index_price_kline(
-        self, symbol: str, interval: str
+            self, symbol: str, interval: str
     ) -> BinanceCOINMWebsocketChannels:
         return self._subscribe(f"{symbol.lower()}@indexPriceKline_{interval}")

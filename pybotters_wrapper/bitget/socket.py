@@ -7,7 +7,7 @@ class BitgetWebsocketChannels(WebsocketChannels):
     ENDPOINT = "wss://ws.bitget.com/mix/v1/stream"
 
     def _make_endpoint_and_request_pair(
-        self, channel: str, params: dict, **kwargs
+            self, channel: str, params: dict, **kwargs
     ) -> [str, dict]:
         return self.ENDPOINT, {
             "op": "subscribe",

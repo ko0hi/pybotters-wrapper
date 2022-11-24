@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pybotters_wrapper.common import WebsocketChannels
 
 
@@ -70,10 +72,10 @@ class GMOWebsocketChannels(WebsocketChannels):
             sj
             for sj in send_json
             if sj["channel"]
-            in (
-                "executionEvents",
-                "orderEvents",
-                "positionEvents",
-                "positionSummaryEvents",
-            )
+               in (
+                   "executionEvents",
+                   "orderEvents",
+                   "positionEvents",
+                   "positionSummaryEvents",
+               )
         ]

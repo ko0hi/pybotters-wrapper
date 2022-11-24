@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pybotters_wrapper.common import API
 
 
@@ -6,7 +8,7 @@ class FTXAPI(API):
     _ORDER_ENDPOINT = "/api/orders"
 
     async def market_order(
-        self, symbol: str, side: str, size: float, params: dict = None, **kwargs
+            self, symbol: str, side: str, size: float, params: dict = None, **kwargs
     ):
         params = params or {}
         data = {
@@ -16,16 +18,17 @@ class FTXAPI(API):
             "size": size,
             **params,
         }
-        return await self._create_order_impl(self._ORDER_ENDPOINT, data=data, id_key="result.id")
+        return await self._create_order_impl(self._ORDER_ENDPOINT, data=data,
+                                             id_key="result.id")
 
     async def limit_order(
-        self,
-        symbol: str,
-        side: str,
-        size: float,
-        price: float,
-        params: dict = None,
-        **kwargs,
+            self,
+            symbol: str,
+            side: str,
+            size: float,
+            price: float,
+            params: dict = None,
+            **kwargs,
     ):
         params = params or {}
         data = {
@@ -36,7 +39,8 @@ class FTXAPI(API):
             "price": price,
             **params,
         }
-        return await self._create_order_impl(self._ORDER_ENDPOINT, data=data, id_key="result.id")
+        return await self._create_order_impl(self._ORDER_ENDPOINT, data=data,
+                                             id_key="result.id")
 
     async def cancel_order(self, order_id: str, **kwargs):
         endpoint = self._ORDER_ENDPOINT + f"/{order_id}"

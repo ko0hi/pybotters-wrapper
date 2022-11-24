@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import pandas as pd
-
 from pybotters import bitbankDataStore
+
 from pybotters_wrapper.bitbank import bitbankWebsocketChannels
 from pybotters_wrapper.common import (
     DataStoreWrapper,
@@ -45,18 +45,18 @@ class bitbankDataStoreWrapper(DataStoreWrapper[bitbankDataStore]):
     _ORDERBOOK_STORE = (bitbankOrderbookStore, "depth")
 
     async def connect(
-        self,
-        client: "pybotters.Client",
-        *,
-        endpoint: str = None,
-        send: any = None,
-        hdlr: "WsStrHandler" | "WsBytesHandler" = None,
-        waits: list["DataStore" | str] = None,
-        send_type: str = "json",
-        hdlr_type: str = "json",
-        auto_reconnect: bool = False,
-        on_reconnection: "Callable" = None,
-        **kwargs,
+            self,
+            client: "pybotters.Client",
+            *,
+            endpoint: str = None,
+            send: any = None,
+            hdlr: "WsStrHandler" | "WsBytesHandler" = None,
+            waits: list["DataStore" | str] = None,
+            send_type: str = "json",
+            hdlr_type: str = "json",
+            auto_reconnect: bool = False,
+            on_reconnection: "Callable" = None,
+            **kwargs,
     ) -> dict[str, "WebSocketRunner"]:
         return await super().connect(
             client,

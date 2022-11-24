@@ -1,8 +1,8 @@
-from typing import Generic, NamedTuple, TypeVar
+from __future__ import annotations
 
 import asyncio
 
-from pybotters.store import Item, DataStore, StoreChange
+from pybotters.store import DataStore, StoreChange
 
 
 def _is_aw(fn):
@@ -206,9 +206,9 @@ class MultipleDataStoresPlugin:
         ...
 
     def on_watch_before(
-        self,
-        change: "StoreChange",
-        store: "DataStore",
+            self,
+            change: "StoreChange",
+            store: "DataStore",
     ):
         ...
 
