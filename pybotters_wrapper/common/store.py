@@ -155,7 +155,6 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 else:
                     raise RuntimeError(f"Unsupported type: {a_or_n}")
         try:
-            await asyncio.sleep(5)
             await self._store.initialize(*request_tasks)
         except AttributeError:
             # initializeはDataStoreManagerのメソッドではなく、各実装クラスレベルでのメソッド
