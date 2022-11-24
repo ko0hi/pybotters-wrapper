@@ -152,17 +152,8 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
     ) -> dict[str, list[any]]:
         subscribe_list = super()._parse_send(endpoint, send, client)
 
-        # エンドポイントごとにparamsを一つにまとめる（バラバラだと量によっては接続できない場合がある）
-        compressed = {}
-        for endpoint, sends in subscribe_list.items():
-            compressed[endpoint] = {
-                "method": "SUBSCRIBE",
-                "params": [s["params"][0] for s in sends],
-                "id": sends[0]["id"],
-            }
-
-        rtn = copy.deepcopy(compressed)
-        for endpoint, send in compressed.items():
+        rtn = copy.deepcopy(subscribe_list)
+        for endpoint, send in subscribe_list.items():
             rtn[endpoint]["params"] = []
             for p in send["params"]:
                 if p == "LISTEN_KEY":
@@ -172,9 +163,9 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
                             f"HINT: "
                             f"`store.initialize(..., 'token_private', client=client)`"
                         )
-                    rtn[endpoint]["params"].append(self.store.listenkey)
-                else:
-                    rtn[endpoint]["params"].append(p)
+
+                    if self.store.listenkey not in rtn[endpoint]["params"]:
+                        rtn[endpoint]["params"].append(self.store.listenkey)
         return rtn
 
 
