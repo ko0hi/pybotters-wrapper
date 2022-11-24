@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import importlib
 from typing import Callable
 
@@ -50,13 +52,13 @@ def _import_and_build_plugin(store, name, *, default_cls=None, **kwargs):
 
 
 def timebar(
-    store: DataStoreWrapper,
-    *,
-    seconds: int,
-    maxlen: int = 9999,
-    df: pd.DataFrame = None,
-    callback: Callable[[pd.DataFrame], dict] = None,
-    message_delay: int = 2,
+        store: DataStoreWrapper,
+        *,
+        seconds: int,
+        maxlen: int = 9999,
+        df: pd.DataFrame = None,
+        callback: Callable[[pd.DataFrame], dict] = None,
+        message_delay: int = 2,
 ) -> TimeBarStreamDataFrame:
     return _import_and_build_plugin(
         store,
@@ -71,12 +73,12 @@ def timebar(
 
 
 def volumebar(
-    store: DataStoreWrapper,
-    *,
-    volume_unit: float,
-    maxlen: int = 9999,
-    df: pd.DataFrame = None,
-    callback: Callable[[pd.DataFrame], dict] = None,
+        store: DataStoreWrapper,
+        *,
+        volume_unit: float,
+        maxlen: int = 9999,
+        df: pd.DataFrame = None,
+        callback: Callable[[pd.DataFrame], dict] = None,
 ):
     return _import_and_build_plugin(
         store,
@@ -90,12 +92,12 @@ def volumebar(
 
 
 def binningbook(
-    store: DataStoreWrapper,
-    *,
-    min_bin: int = 0,
-    max_bin: int = 10000000,
-    pips: int = 1,
-    precision: int = 10,
+        store: DataStoreWrapper,
+        *,
+        min_bin: int = 0,
+        max_bin: int = 10000000,
+        pips: int = 1,
+        precision: int = 10,
 ) -> BinningBook:
     return _import_and_build_plugin(
         store,
@@ -117,13 +119,13 @@ def execution_watcher(store: DataStoreWrapper) -> ExecutionWatcher:
 
 
 def watch_csvwriter(
-    store: DataStoreWrapper,
-    store_name: str,
-    path: str,
-    *,
-    per_day: bool = False,
-    columns: list[str] = None,
-    operations: list[str] = None,
+        store: DataStoreWrapper,
+        store_name: str,
+        path: str,
+        *,
+        per_day: bool = False,
+        columns: list[str] = None,
+        operations: list[str] = None,
 ):
     return _import_and_build_plugin(
         store,
@@ -138,12 +140,12 @@ def watch_csvwriter(
 
 
 def wait_csvwriter(
-    store: DataStoreWrapper,
-    store_name: str,
-    path: str,
-    *,
-    per_day: bool = False,
-    columns: list[str] = None,
+        store: DataStoreWrapper,
+        store_name: str,
+        path: str,
+        *,
+        per_day: bool = False,
+        columns: list[str] = None,
 ):
     return _import_and_build_plugin(
         store,

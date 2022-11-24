@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 import pandas as pd
 from pybotters.models.bitflyer import bitFlyerDataStore
+
+from pybotters_wrapper.bitflyer import bitFlyerWebsocketChannels
 from pybotters_wrapper.common import (
     DataStoreWrapper,
     TickerStore,
@@ -9,7 +13,6 @@ from pybotters_wrapper.common import (
     ExecutionStore,
     PositionStore,
 )
-from pybotters_wrapper.bitflyer import bitFlyerWebsocketChannels
 
 
 class bitFlyerTickerStore(TickerStore):

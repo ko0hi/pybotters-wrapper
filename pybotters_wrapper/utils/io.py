@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 
@@ -22,4 +24,3 @@ def read_resource(filename):
     else:
         with open(filepath) as f:
             return f.readlines()
-

@@ -1,18 +1,16 @@
-from typing import Callable, TypeVar
-from collections import defaultdict
+from __future__ import annotations
 
 import asyncio
+from collections import defaultdict
+from typing import Callable, TypeVar
 
 import pybotters
-from pybotters.ws import WebSocketRunner
 from pybotters.typedefs import WsStrHandler, WsBytesHandler, WsJsonHandler
-from pybotters.store import DataStore
+from pybotters.ws import WebSocketRunner
 
 from pybotters_wrapper.utils import LoggingMixin
 
-
 WsHandler = WsStrHandler | WsBytesHandler | WsJsonHandler
-
 
 TWebsocketChannels = TypeVar("TWebsocketChannels", bound="WebsocketChannels")
 
@@ -64,12 +62,12 @@ class WebsocketChannels(LoggingMixin):
 
 class WebsocketConnection(LoggingMixin):
     def __init__(
-        self,
-        endpoint: str,
-        send: any,
-        hdlr: WsHandler | list[WsHandler],
-        send_type: str = "json",
-        hdlr_type: str = "json",
+            self,
+            endpoint: str,
+            send: any,
+            hdlr: WsHandler | list[WsHandler],
+            send_type: str = "json",
+            hdlr_type: str = "json",
     ):
         self._ws: WebSocketRunner = None
         self._endpoint = endpoint
@@ -82,11 +80,11 @@ class WebsocketConnection(LoggingMixin):
         self._hdlr_type = hdlr_type
 
     async def connect(
-        self,
-        client: "pybotters.Client",
-        auto_reconnect: bool = False,
-        on_reconnection: Callable = None,
-        **kwargs,
+            self,
+            client: "pybotters.Client",
+            auto_reconnect: bool = False,
+            on_reconnection: Callable = None,
+            **kwargs,
     ) -> WebSocketRunner:
         params = {
             f"send_{self._send_type}": self._send,
@@ -100,7 +98,7 @@ class WebsocketConnection(LoggingMixin):
         return self
 
     async def _auto_reconnect(
-        self, client: "pybotters.Client", on_reconnection: Callable = None, **kwargs
+            self, client: "pybotters.Client", on_reconnection: Callable = None, **kwargs
     ):
         while True:
             if not self.connected:

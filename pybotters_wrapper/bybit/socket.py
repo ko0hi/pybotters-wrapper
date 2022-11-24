@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pybotters_wrapper.common import WebsocketChannels
 
 

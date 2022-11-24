@@ -1,6 +1,8 @@
-import pandas as pd
+from __future__ import annotations
 
+import pandas as pd
 from pybotters.models.okx import OKXDataStore
+
 from pybotters_wrapper.common import (
     DataStoreWrapper,
     TickerStore,
@@ -44,5 +46,3 @@ class OKXDataStoreWrapper(DataStoreWrapper[OKXDataStore]):
     _TICKER_STORE = (OKXTickerStore, "tickers")
     _TRADES_STORE = (OKXTradesStore, "trades")
     _ORDERBOOK_STORE = (OKXOrderbookStore, "books")
-
-

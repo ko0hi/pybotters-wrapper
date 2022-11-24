@@ -1,5 +1,8 @@
-import numpy as np
+from __future__ import annotations
+
 from collections import defaultdict
+
+import numpy as np
 
 
 class Bucket:

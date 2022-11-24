@@ -14,9 +14,6 @@ from . import (
     plugins,
     utils,
 )
-
-from pybotters_wrapper.utils.bucket import Bucket
-
 from ._apis import (
     create_store,
     create_api,

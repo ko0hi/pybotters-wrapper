@@ -1,3 +1,4 @@
+from . import plugins
 from .api import BinanceSpotAPI, BinanceUSDSMAPI, BinanceCOINMAPI
 from .socket import (
     BinanceSpotWebsocketChannels,
@@ -9,4 +10,3 @@ from .store import (
     BinanceUSDSMDataStoreWrapper,
     BinanceCOINMDataStoreWrapper,
 )
-from . import plugins

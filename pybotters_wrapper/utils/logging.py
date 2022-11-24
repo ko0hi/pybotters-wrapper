@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import sys
@@ -35,7 +37,7 @@ def init_logdir(*subdirs: str):
 
 
 def init_logger(
-    logfile=None, enable_icon=False, retention=3, rotation="10MB", **kwargs
+        logfile=None, enable_icon=False, retention=3, rotation="10MB", **kwargs
 ):
     [logger.remove(h) for h in logger._core.handlers]
 
@@ -60,7 +62,7 @@ class LoggingMixin:
 
 
 def log_command_args(
-    logdir: str, args: "argparse.Namespace", filename: str = "args.json"
+        logdir: str, args: "argparse.Namespace", filename: str = "args.json"
 ):
     with open(os.path.join(logdir, filename), "w") as f:
         json.dump(vars(args), f, indent=4)

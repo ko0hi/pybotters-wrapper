@@ -1,6 +1,8 @@
-import pandas as pd
+from __future__ import annotations
 
+import pandas as pd
 from pybotters.models.coincheck import CoincheckDataStore
+
 from pybotters_wrapper.common import (
     DataStoreWrapper,
     TickerStore,
@@ -44,4 +46,3 @@ class CoincheckDataStoreWrapper(DataStoreWrapper[CoincheckDataStore]):
     _TICKER_STORE = (CoincheckTickerStore, "trades")
     _TRADES_STORE = (CoincheckTradeStore, "trades")
     _ORDERBOOK_STORE = (CoincheckOrderbookStore, "orderbook")
-
