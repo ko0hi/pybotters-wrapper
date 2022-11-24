@@ -27,7 +27,7 @@ EXCHANGE2BASEURL = {
     "gmocoin": pbw.gmocoin.GMOCoinAPI.BASE_URL,
     "kucoinspot": pbw.kucoin.KuCoinSpotAPI.BASE_URL,
     "kucoinfutures": pbw.kucoin.KuCoinFuturesAPI.BASE_URL,
-    "okx": "https://www.okx.com/",
+    "okx": pbw.okx.OKXAPI.BASE_URL,
     "phemex": "https://api.phemex.com"
 }
 
@@ -60,10 +60,11 @@ EXCHANGE2API: dict[str, Type[API]] = {
     "bybitusdt": pbw.bybit.BybitUSDTAPI,
     "bybitinverse": pbw.bybit.BybitInverseAPI,
     "coincheck": pbw.coincheck.CoincheckAPI,
+    "ftx": pbw.ftx.FTXAPI,
     "gmocoin": pbw.gmocoin.GMOCoinAPI,
     "kucoinspot": pbw.kucoin.KuCoinSpotAPI,
     "kucoinfutures": pbw.kucoin.KuCoinFuturesAPI,
-    "ftx": pbw.ftx.FTXAPI,
+    "okx": pbw.okx.OKXAPI
 }
 
 
