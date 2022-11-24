@@ -19,14 +19,14 @@ class Status:
         self,
         store: pbw.common.DataStoreWrapper,
         bar: pbw.plugins.bar.BarStreamDataFrame,
-        bar_period: int = 5,
+        bar_num: int = 5,
         position_adjust: float = 1.5,
         market_amount_default: float = 1.0,
         market_amount_weight: float = 1,
     ):
         self._store = store
         self._bar = bar
-        self._bar_context = bar_period
+        self._bar_num = bar_num
         self._position_adjust = position_adjust
         self._market_amount_default = market_amount_default
         self._market_amount_weight = market_amount_weight
@@ -78,9 +78,9 @@ class Status:
 
     def _get_market_amount(self, side):
         if side == "SELL":
-            market_amount = self._bar.buy_size[-self._bar_context :].mean()
+            market_amount = self._bar.buy_size[-self._bar_num:].mean()
         else:
-            market_amount = self._bar.sell_size[-self._bar_context :].mean()
+            market_amount = self._bar.sell_size[-self._bar_num:].mean()
 
         if np.isnan(market_amount):
             market_amount = self._market_amount_default
@@ -251,13 +251,13 @@ async def main(args):
             f"{logdir}/order.csv",
         )
         # 約定履歴からtimebarを作成するプラグイン
-        tbar = pbw.plugins.timebar(store, seconds=10)
+        tbar = pbw.plugins.timebar(store, seconds=args.bar_seconds)
 
         # 状態管理クラスの初期化
         status = Status(
             store,
             tbar,
-            bar_period=args.bar_period,
+            bar_num=args.bar_num,
             position_adjust=args.position_adjust,
             market_amount_default=args.market_amount_default,
             market_amount_weight=args.market_amount_weight,
@@ -304,7 +304,8 @@ if __name__ == "__main__":
     parser.add_argument("--symbol", help="取引通貨", required=True)
     parser.add_argument("--lot", help="注文ロット", default=0.01, type=float)
     parser.add_argument("--update_margin", help="指値更新幅", default=1000, type=float)
-    parser.add_argument("--bar_period", help="成行量推定に使うバーの本数", default=5, type=int)
+    parser.add_argument("--bar_seconds", help="バーの秒足", default=10, type=int)
+    parser.add_argument("--bar_num", help="成行量推定に使うバーの本数", default=5, type=int)
     parser.add_argument(
         "--position_adjust", help="ポジションを持っている場合、反対方向の成行をk倍する", default=1.5, type=float
     )
