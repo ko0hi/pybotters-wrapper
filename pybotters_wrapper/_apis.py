@@ -24,7 +24,7 @@ EXCHANGE2BASEURL = {
     "bybitusdt": "https://api.bybit.com",
     "bybitinverse": "https://api.bybit.com",
     "coincheck": "https://coincheck.com",
-    "gmocoin": "",  # gmoはpublic/privateで別エンドポイントになるので設定なし
+    "gmocoin": "https://api.coin.z.com",
     "kucoinspot": "https://api.kucoin.com",
     "kucoinfutures": "https://api-futures.kucoin.com",
     "okx": "https://www.okx.com/",
@@ -55,6 +55,7 @@ EXCHANGE2API: dict[str, Type[API]] = {
     "binanceusdsm": pbw.binance.BinanceUSDSMAPI,
     "binancecoinm": pbw.binance.BinanceCOINMAPI,
     "bitflyer": pbw.bitflyer.bitFlyerAPI,
+    "gmocoin": pbw.gmocoin.GMOCoinAPI,
     "kucoinspot": pbw.kucoin.KuCoinSpotAPI,
     "kucoinfutures": pbw.kucoin.KuCoinFuturesAPI,
     "ftx": pbw.ftx.FTXAPI,
