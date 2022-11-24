@@ -152,7 +152,6 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
 
         rtn = copy.deepcopy(subscribe_list)
         for endpoint, send in subscribe_list.items():
-            rtn[endpoint]["params"] = []
             for p in send["params"]:
                 if p == "LISTEN_KEY":
                     if self.store.listenkey is None:
