@@ -243,9 +243,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
             if store is not None:
                 store._onmessage(msg, ws)
 
-    def _get_initialize_request_config(
-        self, key: str
-    ) -> InitializeRequestConfig:
+    def _get_initialize_request_config(self, key: str) -> InitializeRequestConfig:
         if key not in self._INITIALIZE_ENDPOINTS:
             raise RuntimeError(f"Unsupported initialize endpoint key: `{key}`")
 
@@ -438,9 +436,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 class NormalizedDataStore(DataStore):
     _AVAILABLE_OPERATIONS = ("_insert", "_update", "_delete")
 
-    def __init__(
-        self, store: DataStore = None, auto_cast=False
-    ):
+    def __init__(self, store: DataStore = None, auto_cast=False):
         super(NormalizedDataStore, self).__init__(auto_cast=auto_cast)
         self._store = store
         if self._store is not None:
