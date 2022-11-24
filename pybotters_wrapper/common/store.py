@@ -85,6 +85,8 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
         client: pybotters.Client = None,
     ) -> "DataStoreWrapper":
+        self.log(f"Initialize requests {aws_or_names}")
+
         def _check_client():
             assert (
                 client is not None
