@@ -34,6 +34,8 @@ InitializeRequestConfig = tuple[str, str, list[str] | tuple[str] | None]
 
 
 class DataStoreWrapper(Generic[T], LoggingMixin):
+    _NAME = None
+
     _WRAP_STORE: Type[T] = None
 
     _WEBSOCKET_CHANNELS: Type[WebsocketChannels] = None
@@ -422,7 +424,8 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
     @property
     def exchange(self) -> str:
-        return self.__module__.split(".")[-2]
+        assert self._NAME is not None
+        return self._NAME
 
     @property
     def ws_connections(self) -> list[WebsocketConnection]:
