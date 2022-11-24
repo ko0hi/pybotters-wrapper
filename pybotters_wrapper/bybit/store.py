@@ -43,6 +43,7 @@ class BybitUSDTDataStoreWrapper(
     BybitDataStoreMixin,
     DataStoreWrapper[BybitUSDTDataStore]
 ):
+    _NAME = "bybitusdt"
     _WRAP_STORE = BybitUSDTDataStore
     _WEBSOCKET_CHANNELS = BybitUSDTWebsocketChannels
 
@@ -51,5 +52,6 @@ class BybitInverseDataStoreWrapper(
     BybitDataStoreMixin,
     DataStoreWrapper[BybitInverseDataStore]
 ):
+    _NAME = "bybitinverse"
     _WRAP_STORE = BybitInverseDataStore
     _WEBSOCKET_CHANNELS = BybitInverseWebsocketChannels

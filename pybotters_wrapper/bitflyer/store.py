@@ -80,6 +80,7 @@ class bitFlyerPositionStore(PositionStore):
 
 
 class bitFlyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
+    _NAME = "bitflyer"
     _WRAP_STORE = bitFlyerDataStore
 
     _WEBSOCKET_CHANNELS = bitFlyerWebsocketChannels

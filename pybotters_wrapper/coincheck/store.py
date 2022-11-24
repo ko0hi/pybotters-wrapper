@@ -38,6 +38,7 @@ class CoincheckOrderbookStore(OrderbookStore):
 
 
 class CoincheckDataStoreWrapper(DataStoreWrapper[CoincheckDataStore]):
+    _NAME = "coincheck"
     _WRAP_STORE = CoincheckDataStore
     _WEBSOCKET_CHANNELS = CoinCheckWebsocketChannels
     _TICKER_STORE = (CoincheckTickerStore, "trades")

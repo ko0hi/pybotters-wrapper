@@ -37,6 +37,7 @@ class BitgetOrderbookStore(OrderbookStore):
 
 
 class BitgetDataStoreWrapper(DataStoreWrapper[BitgetDataStore]):
+    _NAME = "bitget"
     _WRAP_STORE = BitgetDataStore
     _WEBSOCKET_CHANNELS = BitgetWebsocketChannels
     _TICKER_STORE = (BitgetTickerStore, "ticker")

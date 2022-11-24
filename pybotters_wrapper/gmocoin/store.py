@@ -35,6 +35,7 @@ class GMOCoinOrderbookStore(OrderbookStore):
 
 
 class GMOCoinDataStoreWrapper(DataStoreWrapper[GMOCoinDataStore]):
+    _NAME = "gmocoin"
     _WRAP_STORE = GMOCoinDataStore
     _WEBSOCKET_CHANNELS = GMOWebsocketChannels
     _TICKER_STORE = (GMOCoinTickerStore, "ticker")

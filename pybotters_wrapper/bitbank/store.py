@@ -37,6 +37,7 @@ class bitbankOrderbookStore(OrderbookStore):
 
 
 class bitbankDataStoreWrapper(DataStoreWrapper[bitbankDataStore]):
+    _NAME = "bitbank"
     _WRAP_STORE = bitbankDataStore
     _WEBSOCKET_CHANNELS = bitbankWebsocketChannels
     _TICKER_STORE = (bitbankTickerStore, "ticker")

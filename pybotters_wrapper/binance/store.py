@@ -179,6 +179,7 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
 
 
 class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]):
+    _NAME = "binancespot"
     _WEBSOCKET_CHANNELS = BinanceSpotWebsocketChannels
     _INITIALIZE_CONFIG = {
         "token": ("POST", "/api/v3/userDataStream", None),
@@ -207,6 +208,7 @@ class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]
 
 
 class BinanceUSDSMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceUSDSMDataStore]):
+    _NAME = "binanceusdsm"
     _WEBSOCKET_CHANNELS = BinanceUSDSMWebsocketChannels
     _INITIALIZE_CONFIG = {
         "token": ("POST", "/fapi/v1/listenKey", None),
@@ -218,6 +220,7 @@ class BinanceUSDSMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceUSDSMDataStor
 
 
 class BinanceCOINMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceCOINMDataStore]):
+    _NAME = "binancecoinm"
     _WEBSOCKET_CHANNELS = BinanceCOINMWebsocketChannels
     _INITIALIZE_CONFIG = {
         "token": ("POST", "/dapi/v1/listenKey", None),

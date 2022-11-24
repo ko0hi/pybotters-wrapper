@@ -144,8 +144,10 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
 
 
 class KuCoinSpotDataStoreWrapper(_KuCoinDataStoreWrapper):
+    _NAME = "kucoinspot"
     _WEBSOCKET_CHANNELS = KuCoinSpotWebsocketChannels
 
 
 class KuCoinFuturesDataStoreWrapper(_KuCoinDataStoreWrapper):
+    _NAME = "kucoinfutures"
     _WEBSOCKET_CHANNELS = KuCoinFuturesWebsocketChannels

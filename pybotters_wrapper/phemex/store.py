@@ -35,6 +35,7 @@ class PhemexOrderbookStore(OrderbookStore):
 
 
 class PhemexDataStoreWrapper(DataStoreWrapper[PhemexDataStore]):
+    _NAME = "phemex"
     _WRAP_STORE = PhemexDataStore
     _WEBSOCKET_CHANNELS = PhemexWebsocketChannels
     _TICKER_STORE = (PhemexTickerStore, "ticker")

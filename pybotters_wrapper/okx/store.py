@@ -38,6 +38,7 @@ class OKXOrderbookStore(OrderbookStore):
 
 
 class OKXDataStoreWrapper(DataStoreWrapper[OKXDataStore]):
+    _NAME = "okx"
     _WRAP_STORE = OKXDataStore
     _WEBSOCKET_CHANNELS = OKXWebsocketChannels
     _TICKER_STORE = (OKXTickerStore, "tickers")
