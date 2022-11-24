@@ -61,7 +61,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         "position": None,
     }
 
-    _NORMALIZED_CHANNELS = [
+    _NORMALIZED_STORE_CHANNELS = [
         "ticker",
         "trades",
         "orderbook",
@@ -182,7 +182,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
         """
         if channel == "all":
-            channel = self._NORMALIZED_CHANNELS
+            channel = self._NORMALIZED_STORE_CHANNELS
 
         elif channel == "public":
             channel = ["ticker", "trades", "orderbook"]
