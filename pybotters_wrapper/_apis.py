@@ -24,7 +24,7 @@ EXCHANGE2BASEURL = {
     "bybitusdt": pbw.bybit.BybitUSDTAPI.BASE_URL,
     "bybitinverse": pbw.bybit.BybitInverseAPI.BASE_URL,
     "coincheck": pbw.coincheck.CoincheckAPI.BASE_URL,
-    "gmocoin": "https://api.coin.z.com",
+    "gmocoin": pbw.gmocoin.GMOCoinAPI.BASE_URL,
     "kucoinspot": pbw.kucoin.KuCoinSpotAPI.BASE_URL,
     "kucoinfutures": pbw.kucoin.KuCoinFuturesAPI.BASE_URL,
     "okx": "https://www.okx.com/",
