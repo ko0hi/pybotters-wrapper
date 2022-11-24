@@ -92,6 +92,6 @@ class bitFlyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
     _POSITION_STORE = (bitFlyerPositionStore, "positions")
 
     _INITIALIZE_CONFIG = {
-        "order": ("GET", "/v1/me/getchildorders"),
-        "position": ("GET", "/v1/me/getpositions")
+        "order": ("GET", "/v1/me/getchildorders", ["product_code"]),
+        "position": ("GET", "/v1/me/getpositions", ["product_code"])
     }
