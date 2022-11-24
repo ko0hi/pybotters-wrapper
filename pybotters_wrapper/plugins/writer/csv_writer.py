@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import csv
 import io
 import os
@@ -50,14 +52,14 @@ class _CSVWriter:
 
 class DataStoreWatchCSVWriter(DataStoreWatchWriter):
     def __init__(
-        self,
-        store: DataStoreWrapper,
-        store_name: str,
-        path: str,
-        *,
-        per_day: bool = False,
-        columns: list[str] = None,
-        operations: list[str] = None,
+            self,
+            store: DataStoreWrapper,
+            store_name: str,
+            path: str,
+            *,
+            per_day: bool = False,
+            columns: list[str] = None,
+            operations: list[str] = None,
     ):
         super(DataStoreWatchCSVWriter, self).__init__(
             store, store_name, columns=columns, operations=operations
@@ -76,13 +78,13 @@ class DataStoreWatchCSVWriter(DataStoreWatchWriter):
 
 class DataStoreWaitCSVWriter(DataStoreWaitWriter):
     def __init__(
-        self,
-        store: DataStoreWrapper,
-        store_name: str,
-        path: str,
-        *,
-        per_day: bool = False,
-        columns: list[str] = None,
+            self,
+            store: DataStoreWrapper,
+            store_name: str,
+            path: str,
+            *,
+            per_day: bool = False,
+            columns: list[str] = None,
     ):
         super(DataStoreWaitCSVWriter, self).__init__(store, store_name, columns=columns)
         self._writer: _CSVWriter = _CSVWriter(path, per_day)

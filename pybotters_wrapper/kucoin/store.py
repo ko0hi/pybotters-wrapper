@@ -1,6 +1,8 @@
-import pandas as pd
+from __future__ import annotations
 
+import pandas as pd
 import pybotters
+
 from pybotters_wrapper.common import DataStoreWrapper
 from pybotters_wrapper.common.store import (
     TickerStore,
@@ -126,7 +128,7 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
         return endpoint or self.endpoint
 
     def _parse_send(
-        self, endpoint: str, send: any, client: pybotters.Client
+            self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
         assert endpoint is not None
         rtn = {endpoint: send}

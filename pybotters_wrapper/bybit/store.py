@@ -1,8 +1,13 @@
+from __future__ import annotations
+
 import pandas as pd
 from pybotters.models.bybit import BybitUSDTDataStore, BybitInverseDataStore
+
+from pybotters_wrapper.bybit import BybitUSDTWebsocketChannels, \
+    BybitInverseWebsocketChannels
 from pybotters_wrapper.common import DataStoreWrapper
 from pybotters_wrapper.common.store import TickerStore, TradesStore, OrderbookStore
-from pybotters_wrapper.bybit import BybitUSDTWebsocketChannels, BybitInverseWebsocketChannels
+
 
 class BybitTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
@@ -29,8 +34,6 @@ class BybitOrderbookStore(OrderbookStore):
             "price": float(d["price"]),
             "size": float(d["size"]),
         }
-
-
 
 
 class BybitDataStoreMixin:

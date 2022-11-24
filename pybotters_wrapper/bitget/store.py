@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import uuid
 
 import pandas as pd
-
 from pybotters.models.bitget import BitgetDataStore
+
 from pybotters_wrapper.bitget import BitgetWebsocketChannels
 from pybotters_wrapper.common import (
     DataStoreWrapper,

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 from typing import Callable
 
@@ -21,12 +23,12 @@ class BarStreamDataFrame(DataStorePlugin):
     ]
 
     def __init__(
-        self,
-        store: 'DataStoreManagerWrapper',
-        *,
-        maxlen: int = 9999,
-        df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], any] = None,
+            self,
+            store: 'DataStoreManagerWrapper',
+            *,
+            maxlen: int = 9999,
+            df: pd.DataFrame = None,
+            callback: Callable[[pd.DataFrame], any] = None,
     ):
         super(BarStreamDataFrame, self).__init__(store.trades)
 
@@ -53,7 +55,6 @@ class BarStreamDataFrame(DataStorePlugin):
                 self._next_bar(d)
             else:
                 self._current_bar(d)
-
 
     def _is_new_bar(self, d: dict, op: str, **kwargs) -> bool:
         raise NotImplementedError
@@ -161,14 +162,14 @@ class BarStreamDataFrame(DataStorePlugin):
 
 class TimeBarStreamDataFrame(BarStreamDataFrame):
     def __init__(
-        self,
-        store: 'DataStoreManagerWrapper',
-        *,
-        seconds: int,
-        maxlen: int = 9999,
-        df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], any] = None,
-        message_delay: int = 2,
+            self,
+            store: 'DataStoreManagerWrapper',
+            *,
+            seconds: int,
+            maxlen: int = 9999,
+            df: pd.DataFrame = None,
+            callback: Callable[[pd.DataFrame], any] = None,
+            message_delay: int = 2,
     ):
         super(TimeBarStreamDataFrame, self).__init__(
             store,
@@ -220,13 +221,13 @@ class TimeBarStreamDataFrame(BarStreamDataFrame):
 
 class VolumeBarStreamDataFrame(BarStreamDataFrame):
     def __init__(
-        self,
-        store: 'DataStoreManagerWrapper',
-        *,
-        volume_unit: float,
-        maxlen: int = 9999,
-        df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], any] = None,
+            self,
+            store: 'DataStoreManagerWrapper',
+            *,
+            volume_unit: float,
+            maxlen: int = 9999,
+            df: pd.DataFrame = None,
+            callback: Callable[[pd.DataFrame], any] = None,
     ):
         super(VolumeBarStreamDataFrame, self).__init__(
             store,

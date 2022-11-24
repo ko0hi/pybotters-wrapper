@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import traceback
 from typing import Callable, Type, TypeVar
 
 import pybotters
-import pybotters_wrapper as pbw
 from pybotters.store import DataStoreManager
+
+import pybotters_wrapper as pbw
 from pybotters_wrapper import plugins
 from pybotters_wrapper.common import DataStoreWrapper, API
 from pybotters_wrapper.common.socket import (
@@ -49,7 +52,6 @@ EXCHANGE2STORE = {
     "phemex": pbw.phemex.PhemexDataStoreWrapper,
 }
 
-
 EXCHANGE2API: dict[str, Type[API]] = {
     "binancespot": pbw.binance.BinanceSpotAPI,
     "binanceusdsm": pbw.binance.BinanceUSDSMAPI,
@@ -77,7 +79,7 @@ def _get_value(exchange, dic):
 
 
 def create_store(
-    exchange: str, *, store: DataStoreManager = None, **kwargs
+        exchange: str, *, store: DataStoreManager = None, **kwargs
 ) -> DataStoreWrapper:
     return _get_value(exchange, EXCHANGE2STORE)(store)
 
@@ -99,16 +101,16 @@ def create_socket_channels(exchange: str) -> TWebsocketChannels:
 
 
 async def create_ws_connect(
-    client: pybotters.Client,
-    *,
-    endpoint: str = None,
-    send: any = None,
-    hdlr: WsHandler = None,
-    subscribe_list: dict[str, list[str]] = None,
-    send_type: str = "json",
-    hdlr_type: str = "json",
-    auto_reconnect: bool = False,
-    on_reconnection: Callable = None,
+        client: pybotters.Client,
+        *,
+        endpoint: str = None,
+        send: any = None,
+        hdlr: WsHandler = None,
+        subscribe_list: dict[str, list[str]] = None,
+        send_type: str = "json",
+        hdlr_type: str = "json",
+        auto_reconnect: bool = False,
+        on_reconnection: Callable = None,
 ) -> WebsocketConnection | list[WebsocketConnection]:
     if endpoint is not None and send is not None:
         return await WebsocketConnection(

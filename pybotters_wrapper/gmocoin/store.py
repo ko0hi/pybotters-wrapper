@@ -1,6 +1,8 @@
-import pandas as pd
+from __future__ import annotations
 
+import pandas as pd
 from pybotters.models.gmocoin import GMOCoinDataStore
+
 from pybotters_wrapper.common import (
     DataStoreWrapper,
     TickerStore,

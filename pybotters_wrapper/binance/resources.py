@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pybotters_wrapper.utils import read_resource
 
 SPOT_PRICE_PRECISIONS = read_resource("binancespot_price_precision.json")
