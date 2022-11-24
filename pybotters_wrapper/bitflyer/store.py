@@ -91,7 +91,7 @@ class bitFlyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
     _EXECUTION_STORE = (bitFlyerExecutionStore, "childorderevents")
     _POSITION_STORE = (bitFlyerPositionStore, "positions")
 
-    _INITIALIZE_ENDPOINTS = {
+    _INITIALIZE_CONFIG = {
         "order": ("GET", "/v1/me/getchildorders"),
         "position": ("GET", "/v1/me/getpositions")
     }

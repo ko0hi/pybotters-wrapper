@@ -101,7 +101,7 @@ class KuCoinPositionStore(PositionStore):
 
 class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
     _WRAP_STORE = pybotters.KuCoinDataStore
-    _INITIALIZE_ENDPOINTS = {
+    _INITIALIZE_CONFIG = {
         "token": ("POST", "/api/v1/bullet-public"),
         "token_public": ("POST", "/api/v1/bullet-public"),
         "token_private": ("POST", "/api/v1/bullet-private"),

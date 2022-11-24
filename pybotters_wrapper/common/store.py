@@ -45,7 +45,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     _EXECUTION_STORE: tuple[Type[ExecutionStore], str] = None
     _POSITION_STORE: tuple[Type[PositionStore], str] = None
 
-    _INITIALIZE_ENDPOINTS: dict[str, InitializeRequestConfig | None] = {
+    _INITIALIZE_CONFIG: dict[str, InitializeRequestConfig | None] = {
         # for binance, gmo, kucoin
         "token": None,
         # for kucoin
@@ -106,7 +106,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
             elif isinstance(a_or_n, str):
                 _check_client()
                 name = a_or_n
-                if name in self._INITIALIZE_ENDPOINTS:
+                if name in self._INITIALIZE_CONFIG:
                     (
                         method,
                         endpoint,
@@ -124,7 +124,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 else:
                     self.log(
                         f"Unknown endpoint name: {name}, "
-                        f"available endpoints are {self._INITIALIZE_ENDPOINTS}",
+                        f"available endpoints are {self._INITIALIZE_CONFIG}",
                     )
             elif isinstance(a_or_n, tuple):
                 _check_client()
@@ -244,10 +244,10 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 store._onmessage(msg, ws)
 
     def _get_initialize_request_config(self, key: str) -> InitializeRequestConfig:
-        if key not in self._INITIALIZE_ENDPOINTS:
+        if key not in self._INITIALIZE_CONFIG:
             raise RuntimeError(f"Unsupported initialize endpoint key: `{key}`")
 
-        method_endpoint_params = self._INITIALIZE_ENDPOINTS[key]
+        method_endpoint_params = self._INITIALIZE_CONFIG[key]
 
         if method_endpoint_params is None:
             return None, None, None
