@@ -65,7 +65,7 @@ EXCHANGE2API: dict[str, Type[API]] = {
     "kucoinspot": pbw.kucoin.KuCoinSpotAPI,
     "kucoinfutures": pbw.kucoin.KuCoinFuturesAPI,
     "okx": pbw.okx.OKXAPI,
-    "phemex": pbw.phemex.PhemexAPI
+    "phemex": pbw.phemex.PhemexAPI,
 }
 
 
@@ -74,12 +74,6 @@ def _get_value(exchange, dic):
         f = [t for t in traceback.extract_stack() if t.filename.endswith("_apis.py")][0]
         raise RuntimeError(f"Unsupported exchange: {exchange} (`{f.name}()`)")
     return dic[exchange]
-
-
-def create_client(exchange: str, **kwargs) -> pybotters.Client:
-    return pybotters.Client(
-        base_url=_get_value(exchange, EXCHANGE2BASEURL), **kwargs
-    )
 
 
 def create_store(
