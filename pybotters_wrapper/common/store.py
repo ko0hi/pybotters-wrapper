@@ -382,7 +382,6 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
     async def _validate_initialize_response(self, task: asyncio.Task):
         result: ClientResponse = task.result()
-        data = await result.json()
         if result.status != 200:
             try:
                 data = await result.json()
