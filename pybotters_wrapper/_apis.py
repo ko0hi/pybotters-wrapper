@@ -15,18 +15,18 @@ from pybotters_wrapper.common.socket import (
 TWebsocketChannels = TypeVar("TWebsocketChannels", bound=WebsocketChannels)
 
 EXCHANGE2BASEURL = {
-    "binancespot": "https://api.binance.com",
-    "binanceusdsm": "https://fapi.binance.com",
-    "binancecoinm": "https://dapi.binance.com",
+    "binancespot": pbw.binance.BinanceSpotAPI.BASE_URL,
+    "binanceusdsm": pbw.binance.BinanceUSDSMAPI.BASE_URL,
+    "binancecoinm": pbw.binance.BinanceCOINMAPI.BASE_URL,
     "bitbank": pbw.bitbank.bitbankAPI.BASE_URL,
-    "bitflyer": "https://api.bitflyer.com",
+    "bitflyer": pbw.bitflyer.bitFlyerAPI.BASE_URL,
     "bitget": "https://api.bitget.com",
     "bybitusdt": "https://api.bybit.com",
     "bybitinverse": "https://api.bybit.com",
     "coincheck": "https://coincheck.com",
     "gmocoin": "https://api.coin.z.com",
-    "kucoinspot": "https://api.kucoin.com",
-    "kucoinfutures": "https://api-futures.kucoin.com",
+    "kucoinspot": pbw.kucoin.KuCoinSpotAPI.BASE_URL,
+    "kucoinfutures": pbw.kucoin.KuCoinFuturesAPI.BASE_URL,
     "okx": "https://www.okx.com/",
     "phemex": "https://api.phemex.com"
 }
