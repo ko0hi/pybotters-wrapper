@@ -74,8 +74,8 @@ class DataStoreWatchCSVWriter(DataStoreWatchWriter):
         )
         self._writer: _CSVWriter = _CSVWriter(path, per_day, flush=flush)
 
-    def on_watch_before(self, change: "StoreChange"):
-        super().on_watch_before(change)
+    def _on_watch_before(self, change: "StoreChange"):
+        super()._on_watch_before(change)
         if self._writer._columns is None:
             self._writer.set_columns(self._columns)
         self._writer._init_or_update_writer()
@@ -98,8 +98,8 @@ class DataStoreWaitCSVWriter(DataStoreWaitWriter):
         super(DataStoreWaitCSVWriter, self).__init__(store, store_name, columns=columns)
         self._writer: _CSVWriter = _CSVWriter(path, per_day, flush=flush)
 
-    def on_wait_before(self):
-        super().on_wait_before()
+    def _on_wait_before(self):
+        super()._on_wait_before()
         if self._writer._columns is None:
             self._writer.set_columns(self._columns)
         self._writer._init_or_update_writer()
