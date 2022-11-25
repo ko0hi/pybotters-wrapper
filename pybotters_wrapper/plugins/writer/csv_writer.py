@@ -51,11 +51,10 @@ class _CSVWriter:
             self._init_writer(filepath)
 
     def _init_writer(self, filepath: str):
-        if self._columns is None:
-            raise RuntimeError(f"`_columns` has not been initialized yet.")
         self._f = open(filepath, "w")
         self._writer = csv.DictWriter(self._f, fieldnames=self._columns)
-        self._writer.writeheader()
+        if self._columns is not None:
+            self._writer.writeheader()
 
 
 class DataStoreWatchCSVWriter(DataStoreWatchWriter):
@@ -73,7 +72,7 @@ class DataStoreWatchCSVWriter(DataStoreWatchWriter):
         super(DataStoreWatchCSVWriter, self).__init__(
             store, store_name, columns=columns, operations=operations
         )
-        self._writer: _CSVWriter = _CSVWriter(path, per_day, flush)
+        self._writer: _CSVWriter = _CSVWriter(path, per_day, flush=flush)
 
     def on_watch_before(self, change: "StoreChange"):
         super().on_watch_before(change)
@@ -97,7 +96,7 @@ class DataStoreWaitCSVWriter(DataStoreWaitWriter):
         flush: bool = False,
     ):
         super(DataStoreWaitCSVWriter, self).__init__(store, store_name, columns=columns)
-        self._writer: _CSVWriter = _CSVWriter(path, per_day, flush)
+        self._writer: _CSVWriter = _CSVWriter(path, per_day, flush=flush)
 
     def on_wait_before(self):
         super().on_wait_before()

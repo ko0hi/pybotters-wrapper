@@ -11,29 +11,29 @@ from pybotters_wrapper.common.store import TickerStore, TradesStore, OrderbookSt
 
 class BybitTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return {"symbol": d["symbol"], "price": d["last_price"]}
+        return self._itemize(d["symbol"], d["last_price"])
 
 
 class BybitTradesStore(TradesStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return {
-            "id": d["trade_id"],
-            "symbol": d["symbol"],
-            "side": d["side"].upper(),
-            "price": float(d["price"]),
-            "size": d["size"],
-            "timestamp": pd.to_datetime(d["timestamp"]),
-        }
+        return self._itemize(
+            d["trade_id"],
+            d["symbol"],
+            d["side"].upper(),
+            float(d["price"]),
+            d["size"],
+            pd.to_datetime(d["timestamp"]),
+        )
 
 
 class BybitOrderbookStore(OrderbookStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return {
-            "symbol": d["symbol"],
-            "side": d["side"].upper(),
-            "price": float(d["price"]),
-            "size": float(d["size"]),
-        }
+        return self._itemize(
+            d["symbol"],
+            d["side"].upper(),
+            float(d["price"]),
+            float(d["size"]),
+        )
 
 
 class BybitDataStoreMixin:

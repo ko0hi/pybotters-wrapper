@@ -326,13 +326,26 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     def _parse_send(
             self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
-        if send is None:
-            # channels must be registered with `DatastoreWrapper.subscribe`
-            subscribe_lists = self._ws_channels.get()
-            assert len(subscribe_lists), "No channels have not been subscribed."
-            return subscribe_lists
-        else:
+        subscribe_lists = self._ws_channels.get()
+
+        if len(subscribe_lists) == 0:
+            if endpoint is None or send is None:
+                raise RuntimeError("No channels got subscribed")
             return {endpoint: send}
+
+        if endpoint is not None and send is not None:
+            if endpoint in subscribe_lists:
+                if isinstance(send, dict):
+                    subscribe_lists[endpoint].append(send)
+                elif isinstance(send, list):
+                    subscribe_lists[endpoint] += send
+                else:
+                    raise TypeError(f"Invalid `send`: {send}")
+            else:
+                subscribe_lists[endpoint] = send
+
+        return subscribe_lists
+
 
     def _parse_hdlr(self, hdlr_json: any, client: pybotters.Client):
         if hdlr_json is None:

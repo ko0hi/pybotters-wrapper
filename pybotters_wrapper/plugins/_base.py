@@ -4,11 +4,14 @@ import asyncio
 
 from pybotters.store import DataStore, StoreChange
 
+from loguru import logger
+
 
 def _is_aw(fn):
     return asyncio.iscoroutinefunction(fn)
 
 
+@logger.catch
 async def _run_hook(is_aw: bool, fn, *args):
     if is_aw:
         return await fn(*args)
