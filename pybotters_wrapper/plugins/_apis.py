@@ -12,9 +12,9 @@ from .market import (
     BinningBook,
     BookTicker,
 )
+from .market.bar import BarStreamDataFrame
 from .watcher import ExecutionWatcher
 from .writer import DataStoreWatchCSVWriter, DataStoreWaitCSVWriter, BarCSVWriter
-from .market.bar import BarStreamDataFrame
 
 import_cache = {}
 
@@ -40,7 +40,7 @@ def _build_plugin(store, module, name, **kwargs):
         )
 
 
-def _import_and_build_plugin(store, name, *, default_cls=None, **kwargs):
+def _maybe_override_by_exchange(store, name, *, default_cls=None, **kwargs):
     try:
         # 取引所別のfactory methodがあればそちらを呼び出す
         module = _import_module(store)
@@ -53,15 +53,15 @@ def _import_and_build_plugin(store, name, *, default_cls=None, **kwargs):
 
 
 def timebar(
-        store: DataStoreWrapper,
-        *,
-        seconds: int,
-        maxlen: int = 9999,
-        df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], dict] = None,
-        message_delay: int = 2,
+    store: DataStoreWrapper,
+    *,
+    seconds: int,
+    maxlen: int = 9999,
+    df: pd.DataFrame = None,
+    callback: Callable[[pd.DataFrame], dict] = None,
+    message_delay: int = 2,
 ) -> TimeBarStreamDataFrame:
-    return _import_and_build_plugin(
+    return _maybe_override_by_exchange(
         store,
         "timebar",
         default_cls=TimeBarStreamDataFrame,
@@ -74,14 +74,14 @@ def timebar(
 
 
 def volumebar(
-        store: DataStoreWrapper,
-        *,
-        volume_unit: float,
-        maxlen: int = 9999,
-        df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], dict] = None,
+    store: DataStoreWrapper,
+    *,
+    volume_unit: float,
+    maxlen: int = 9999,
+    df: pd.DataFrame = None,
+    callback: Callable[[pd.DataFrame], dict] = None,
 ):
-    return _import_and_build_plugin(
+    return _maybe_override_by_exchange(
         store,
         "volumebar",
         default_cls=VolumeBarStreamDataFrame,
@@ -93,14 +93,14 @@ def volumebar(
 
 
 def binningbook(
-        store: DataStoreWrapper,
-        *,
-        min_bin: int = 0,
-        max_bin: int = 10000000,
-        pips: int = 1,
-        precision: int = 10,
+    store: DataStoreWrapper,
+    *,
+    min_bin: int = 0,
+    max_bin: int = 10000000,
+    pips: int = 1,
+    precision: int = 10,
 ) -> BinningBook:
-    return _import_and_build_plugin(
+    return _maybe_override_by_exchange(
         store,
         "binningbook",
         default_cls=BinningBook,
@@ -112,57 +112,59 @@ def binningbook(
 
 
 def bookticker(store: DataStoreWrapper) -> BookTicker:
-    return _import_and_build_plugin(store, "bookticker", default_cls=BookTicker)
+    return _maybe_override_by_exchange(store, "bookticker", default_cls=BookTicker)
 
 
 def execution_watcher(store: DataStoreWrapper) -> ExecutionWatcher:
-    return _import_and_build_plugin(store, "execution", default_cls=ExecutionWatcher)
+    return _maybe_override_by_exchange(store, "execution", default_cls=ExecutionWatcher)
 
 
 def watch_csvwriter(
-        store: DataStoreWrapper,
-        store_name: str,
-        path: str,
-        *,
-        per_day: bool = False,
-        columns: list[str] = None,
-        operations: list[str] = None,
+    store: DataStoreWrapper,
+    store_name: str,
+    path: str,
+    *,
+    per_day: bool = False,
+    columns: list[str] = None,
+    flush: bool = False,
+    operations: list[str] = None,
 ):
-    return _import_and_build_plugin(
+    return _maybe_override_by_exchange(
         store,
-        "datastorewatch_csvwriter",
+        "watch_csvwriter",
         default_cls=DataStoreWatchCSVWriter,
         store_name=store_name,
         path=path,
         per_day=per_day,
         columns=columns,
+        flush=flush,
         operations=operations,
     )
 
 
 def wait_csvwriter(
-        store: DataStoreWrapper,
-        store_name: str,
-        path: str,
-        *,
-        per_day: bool = False,
-        columns: list[str] = None,
+    store: DataStoreWrapper,
+    store_name: str,
+    path: str,
+    *,
+    per_day: bool = False,
+    columns: list[str] = None,
+    flush: bool = False,
 ):
-    return _import_and_build_plugin(
+    return _maybe_override_by_exchange(
         store,
-        "datastorewait_csvwriter",
+        "wait_csvwriter",
         default_cls=DataStoreWaitCSVWriter,
         store_name=store_name,
         path=path,
         per_day=per_day,
         columns=columns,
+        flush=flush,
     )
 
 
 def bar_csvwriter(
-        bar: BarStreamDataFrame,
-        path: str,
-        per_day: bool = False,
+    bar: BarStreamDataFrame, path: str, per_day: bool = False, flush: bool = False
 ):
     # pluginの上のpluginなので取引所別のオーバーライド必要なし
-    return BarCSVWriter(bar, path=path, per_day=per_day)
+    return BarCSVWriter(bar, path=path, per_day=per_day, flush=flush)
