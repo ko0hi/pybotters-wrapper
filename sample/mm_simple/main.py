@@ -36,17 +36,12 @@ class Status:
         asyncio.create_task(self._auto_update_board())
 
     async def _auto_update_board(self):
-        """板情報の自動更新タスク"""
         while True:
             await self._store.orderbook.wait()
             self._asks, self._bids = self._store.orderbook.sorted().values()
 
     def get_limit_price(self, side: str, d: int = 1):
-        """注文サイズの累積量が``t``を超えたところに``d``だけ離して指値をだす。
-        :param str side: ask or bid
-        :param int d: 参照注文からのマージン
-        :return: 指値
-        """
+        """注文サイズの累積量が推定成行量を超えたところに``d``だけ離して指値をだす。"""
         items = self._get_items(side)
         market_amount = self._get_market_amount(side)
         cum_size, price = items[0]["size"], items[0]["price"]
@@ -58,41 +53,37 @@ class Status:
         # 最後までthresholdを満たさなかった場合、一番後ろの注文と同じ額
         return int(items[-1]["price"])
 
-    def positions(self, side: str):
-        """保有ポジションリスト。
-        :param str side: BUY or SELL
-        :return: ポジションのlist
-        """
-        positions = self._store.position.find({"side": side})
-        return positions
-
     def ok_entry(self):
-        """エントリー条件ロジック。何かエントリー条件を定めたい場合はここを書く。
-
-        :return:
-        """
+        """エントリー条件ロジック。何かエントリー条件を定めたい場合はここを書く。"""
         return True
 
     def _get_items(self, side):
         return self._asks if side == "SELL" else self._bids
 
     def _get_market_amount(self, side):
+        # 直近N本文のバーにおける平均ボリュームを基本成行量とする
         if side == "SELL":
-            market_amount = self._bar.buy_size[-self._bar_num:].mean()
+            market_amount = self._bar.buy_size[-self._bar_num :].mean()
         else:
-            market_amount = self._bar.sell_size[-self._bar_num:].mean()
+            market_amount = self._bar.sell_size[-self._bar_num :].mean()
 
+        # N本分のバーが埋まりきってない場合はデフォルト値
         if np.isnan(market_amount):
             market_amount = self._market_amount_default
 
+        # weightをかける
         market_amount *= self._get_weight()
 
+        # ポジション保有時に成行推定量を調整する
+        # 同サイドの注文（追玉）には多めに見積り、逆サイドの注文（決済）には少なめに見積ることで
+        # 簡易的な在庫調整
         position = self._store.position.find()
         if len(position):
             if position[0]["side"] != side:
                 market_amount /= self._position_adjust
             else:
                 market_amount *= self._position_adjust
+
         return market_amount
 
     def _get_weight(self):
@@ -105,10 +96,6 @@ class Status:
     @property
     def best_bid(self):
         return int(self._bids[0]["price"])
-
-    @property
-    def spread(self):
-        return (self.best_ask - self.best_bid) / self.best_bid
 
     def is_ready(self):
         return self._asks is not None and self._bids is not None
@@ -307,7 +294,10 @@ if __name__ == "__main__":
     parser.add_argument("--bar_seconds", help="バーの秒足", default=10, type=int)
     parser.add_argument("--bar_num", help="成行量推定に使うバーの本数", default=5, type=int)
     parser.add_argument(
-        "--position_adjust", help="ポジションを持っている場合、反対方向の成行をk倍する", default=1.5, type=float
+        "--position_adjust",
+        help="ポジション保有時、ポジションと同サイドの成行推定量をk倍・反対方向の成行を1/k倍する",
+        default=1.5,
+        type=float,
     )
     parser.add_argument(
         "--market_amount_default",
