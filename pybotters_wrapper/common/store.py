@@ -248,7 +248,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     def _get_initialize_request_config(self, key: str) -> InitializeRequestConfig:
         if key not in self._INITIALIZE_CONFIG:
             raise RuntimeError(
-                f"Unsupported endpoint: {name}, "
+                f"Unsupported endpoint: {key}, "
                 f"available endpoints are {list(self._INITIALIZE_CONFIG.keys())}",
             )
 

@@ -30,14 +30,14 @@ class DataStoreWatchWriter(DataStorePlugin, WriterMixin):
     def _transform_item(self, d: dict):
         return {k: d[k] for k in self._columns}
 
-    def on_watch_before(self, change: "StoreChange"):
+    def _on_watch_before(self, change: "StoreChange"):
         if self._columns is None:
             self._columns = list(change.data.keys())
 
-    def on_watch_transform(self, d: dict, op: str) -> dict:
+    def _on_watch_transform(self, d: dict, op: str) -> dict:
         return self._transform_item(d)
 
-    async def on_watch(self, d: dict, op: str):
+    async def _on_watch(self, d: dict, op: str):
         if op in self._operations:
             self._write(d)
 
@@ -59,14 +59,14 @@ class DataStoreWaitWriter(DataStorePlugin, WriterMixin):
     def _transform_item(self, d: dict):
         return {k: d[k] for k in self._columns if k != "wrote_at"}
 
-    def on_wait_before(self):
+    def _on_wait_before(self):
         if self._columns is None:
             items = self._store.find()
             if len(items):
                 self._columns = list(items[0].keys())
                 self._columns = ["wrote_at"] + self._columns
 
-    async def on_wait(self):
+    async def _on_wait(self):
         wrote_at = datetime.utcnow()
         for d in self._store.find():
             transformed = self._transform_item({**d})
