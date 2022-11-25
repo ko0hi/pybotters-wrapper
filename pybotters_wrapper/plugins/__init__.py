@@ -6,4 +6,5 @@ from ._apis import (
     execution_watcher,
     watch_csvwriter,
     wait_csvwriter,
+    bar_csvwriter
 )

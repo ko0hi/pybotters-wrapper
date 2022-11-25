@@ -13,7 +13,8 @@ from .market import (
     BookTicker,
 )
 from .watcher import ExecutionWatcher
-from .writer import DataStoreWatchCSVWriter, DataStoreWaitCSVWriter
+from .writer import DataStoreWatchCSVWriter, DataStoreWaitCSVWriter, BarCSVWriter
+from .market.bar import BarStreamDataFrame
 
 import_cache = {}
 
@@ -156,3 +157,12 @@ def wait_csvwriter(
         per_day=per_day,
         columns=columns,
     )
+
+
+def bar_csvwriter(
+        bar: BarStreamDataFrame,
+        path: str,
+        per_day: bool = False,
+):
+    # pluginの上のpluginなので取引所別のオーバーライド必要なし
+    return BarCSVWriter(bar, path=path, per_day=per_day)
