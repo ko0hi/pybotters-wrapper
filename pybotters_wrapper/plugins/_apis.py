@@ -53,13 +53,13 @@ def _maybe_override_by_exchange(store, name, *, default_cls=None, **kwargs):
 
 
 def timebar(
-        store: DataStoreWrapper,
-        *,
-        seconds: int,
-        maxlen: int = 9999,
-        df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], dict] = None,
-        message_delay: int = 2,
+    store: DataStoreWrapper,
+    *,
+    seconds: int,
+    maxlen: int = 9999,
+    df: pd.DataFrame = None,
+    callback: Callable[[pd.DataFrame], dict] = None,
+    message_delay: int = 2,
 ) -> TimeBarStreamDataFrame:
     return _maybe_override_by_exchange(
         store,
@@ -74,12 +74,12 @@ def timebar(
 
 
 def volumebar(
-        store: DataStoreWrapper,
-        *,
-        volume_unit: float,
-        maxlen: int = 9999,
-        df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], dict] = None,
+    store: DataStoreWrapper,
+    *,
+    volume_unit: float,
+    maxlen: int = 9999,
+    df: pd.DataFrame = None,
+    callback: Callable[[pd.DataFrame], dict] = None,
 ):
     return _maybe_override_by_exchange(
         store,
@@ -93,12 +93,12 @@ def volumebar(
 
 
 def binningbook(
-        store: DataStoreWrapper,
-        *,
-        min_bin: int = 0,
-        max_bin: int = 10000000,
-        pips: int = 1,
-        precision: int = 10,
+    store: DataStoreWrapper,
+    *,
+    min_bin: int = 0,
+    max_bin: int = 10000000,
+    pips: int = 1,
+    precision: int = 10,
 ) -> BinningBook:
     return _maybe_override_by_exchange(
         store,
@@ -120,13 +120,14 @@ def execution_watcher(store: DataStoreWrapper) -> ExecutionWatcher:
 
 
 def watch_csvwriter(
-        store: DataStoreWrapper,
-        store_name: str,
-        path: str,
-        *,
-        per_day: bool = False,
-        columns: list[str] = None,
-        operations: list[str] = None,
+    store: DataStoreWrapper,
+    store_name: str,
+    path: str,
+    *,
+    per_day: bool = False,
+    columns: list[str] = None,
+    flush: bool = False,
+    operations: list[str] = None,
 ):
     return _maybe_override_by_exchange(
         store,
@@ -136,17 +137,19 @@ def watch_csvwriter(
         path=path,
         per_day=per_day,
         columns=columns,
+        flush=flush,
         operations=operations,
     )
 
 
 def wait_csvwriter(
-        store: DataStoreWrapper,
-        store_name: str,
-        path: str,
-        *,
-        per_day: bool = False,
-        columns: list[str] = None,
+    store: DataStoreWrapper,
+    store_name: str,
+    path: str,
+    *,
+    per_day: bool = False,
+    columns: list[str] = None,
+    flush: bool = False,
 ):
     return _maybe_override_by_exchange(
         store,
@@ -156,13 +159,12 @@ def wait_csvwriter(
         path=path,
         per_day=per_day,
         columns=columns,
+        flush=flush,
     )
 
 
 def bar_csvwriter(
-        bar: BarStreamDataFrame,
-        path: str,
-        per_day: bool = False,
+    bar: BarStreamDataFrame, path: str, per_day: bool = False, flush: bool = False
 ):
     # pluginの上のpluginなので取引所別のオーバーライド必要なし
-    return BarCSVWriter(bar, path=path, per_day=per_day)
+    return BarCSVWriter(bar, path=path, per_day=per_day, flush=flush)

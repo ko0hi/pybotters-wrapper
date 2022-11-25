@@ -13,7 +13,9 @@ from ...common import DataStoreWrapper
 
 
 class _CSVWriter:
-    def __init__(self, path: str, per_day: bool, columns: list[str] = None):
+    def __init__(
+        self, path: str, per_day: bool, columns: list[str] = None, flush: bool = False
+    ):
         self._path = path
         self._columns = columns
         self._filename = os.path.basename(self._path)
@@ -21,9 +23,12 @@ class _CSVWriter:
         self._per_day = per_day
         self._f: io.TextIOWrapper = None
         self._writer: csv.DictWriter = None
+        self._flush = flush
 
     def _write(self, d: dict):
         self._writer.writerow(d)
+        if self._flush:
+            self._f.flush()
 
     def set_columns(self, columns: list[str]):
         self._columns = columns
@@ -62,12 +67,13 @@ class DataStoreWatchCSVWriter(DataStoreWatchWriter):
         *,
         per_day: bool = False,
         columns: list[str] = None,
+        flush: bool = False,
         operations: list[str] = None,
     ):
         super(DataStoreWatchCSVWriter, self).__init__(
             store, store_name, columns=columns, operations=operations
         )
-        self._writer: _CSVWriter = _CSVWriter(path, per_day)
+        self._writer: _CSVWriter = _CSVWriter(path, per_day, flush)
 
     def on_watch_before(self, change: "StoreChange"):
         super().on_watch_before(change)
@@ -88,9 +94,10 @@ class DataStoreWaitCSVWriter(DataStoreWaitWriter):
         *,
         per_day: bool = False,
         columns: list[str] = None,
+        flush: bool = False,
     ):
         super(DataStoreWaitCSVWriter, self).__init__(store, store_name, columns=columns)
-        self._writer: _CSVWriter = _CSVWriter(path, per_day)
+        self._writer: _CSVWriter = _CSVWriter(path, per_day, flush)
 
     def on_wait_before(self):
         super().on_wait_before()
@@ -109,10 +116,11 @@ class BarCSVWriter(Plugin, WriterMixin):
         path: str,
         *,
         per_day: bool = False,
+        flush: bool = False,
     ):
         super(BarCSVWriter)
         self._bar = bar
-        self._writer: _CSVWriter = _CSVWriter(path, per_day, self._bar.COLUMNS)
+        self._writer: _CSVWriter = _CSVWriter(path, per_day, self._bar.COLUMNS, flush)
         self._queue = self._bar.subscribe()
         self._task = asyncio.create_task(self._auto_write())
 
