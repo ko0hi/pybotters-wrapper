@@ -82,16 +82,15 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         return self._store.__class__.__name__
 
     async def initialize(
-            self,
-            aws_or_names: list[
-                Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
-            client: "pybotters.Client" = None
+        self,
+        aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
+        client: "pybotters.Client" = None,
     ) -> "DataStoreWrapper":
         self.log(f"Initialize requests {aws_or_names}")
 
         def _check_client():
             assert (
-                    client is not None
+                client is not None
             ), "need to pass `client` as store.initialize(..., client=client)"
 
         def _raise_invalid_params(name, params):
@@ -101,13 +100,6 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 f"{params} (HINT: store.initialize([('{name}', "
                 f"{str({p: '...' for p in params})}), ...))"
             )
-
-        def _check_name(name):
-            if name not in self._INITIALIZE_CONFIG:
-                raise RuntimeError(
-                    f"Unsupported endpoint: {name}, "
-                    f"available endpoints are {list(self._INITIALIZE_CONFIG.keys())}",
-                )
 
         request_tasks = []
         for a_or_n in aws_or_names:
@@ -119,7 +111,6 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 _check_client()
 
                 name = a_or_n
-                _check_name(name)
 
                 (
                     method,
@@ -137,15 +128,14 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                     )
 
             elif (
-                    isinstance(a_or_n, tuple)
-                    and len(a_or_n) == 2
-                    and isinstance(a_or_n[0], str)
-                    and isinstance(a_or_n[1], dict)
+                isinstance(a_or_n, tuple)
+                and len(a_or_n) == 2
+                and isinstance(a_or_n[0], str)
+                and isinstance(a_or_n[1], dict)
             ):
                 _check_client()
 
                 name, params = a_or_n
-                _check_name(name)
 
                 (
                     method,
@@ -160,9 +150,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
                     request_tasks.append(
                         asyncio.create_task(
-                            self._initialize_request(
-                                client, method, endpoint, params
-                            )
+                            self._initialize_request(client, method, endpoint, params)
                         )
                     )
 
@@ -181,7 +169,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         return self
 
     def subscribe(
-            self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
+        self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
     ) -> "DataStoreWrapper":
         """購読チャンネル追加用メソッド
 
@@ -213,18 +201,18 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         return self
 
     async def connect(
-            self,
-            client: "pybotters.Client",
-            *,
-            endpoint: str = None,
-            send: any = None,
-            hdlr: WsStrHandler | WsBytesHandler = None,
-            waits: list[DataStore | str] = None,
-            send_type: str = "json",
-            hdlr_type: str = "json",
-            auto_reconnect: bool = False,
-            on_reconnection: Callable = None,
-            **kwargs,
+        self,
+        client: "pybotters.Client",
+        *,
+        endpoint: str = None,
+        send: any = None,
+        hdlr: WsStrHandler | WsBytesHandler = None,
+        waits: list[DataStore | str] = None,
+        send_type: str = "json",
+        hdlr_type: str = "json",
+        auto_reconnect: bool = False,
+        on_reconnection: Callable = None,
+        **kwargs,
     ) -> dict[str, WebSocketRunner]:
         endpoint = self._parse_endpoint(endpoint, client)
         endpoint_to_sends = self._parse_send(endpoint, send, client)
@@ -259,22 +247,20 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
     def _get_initialize_request_config(self, key: str) -> InitializeRequestConfig:
         if key not in self._INITIALIZE_CONFIG:
-            raise RuntimeError(f"Unsupported initialize endpoint key: `{key}`")
+            raise RuntimeError(
+                f"Unsupported endpoint: {name}, "
+                f"available endpoints are {list(self._INITIALIZE_CONFIG.keys())}",
+            )
 
-        method_endpoint_params = self._INITIALIZE_CONFIG[key]
+        config = self._INITIALIZE_CONFIG[key]
 
-        if method_endpoint_params is None:
-            return None, None, None
-
-        method, endpoint, params = method_endpoint_params
-
-        if len(method_endpoint_params) != 3 or not (
-                isinstance(method, str)
-                and isinstance(endpoint, str)
-                and (isinstance(params, (list, tuple)) or params is None)
+        if len(config) != 3 or not (
+            isinstance(config[0], str)
+            and isinstance(config[1], str)
+            and (isinstance(config[2], (list, tuple)) or config[2] is None)
         ):
-            raise RuntimeError(f"Invalid initialize endpoint: {method_endpoint_params}")
-        return method, endpoint, params
+            raise RuntimeError(f"Invalid initialize endpoint: {config}")
+        return config
 
     def _init_normalized_stores(self):
         self._normalized_stores["ticker"] = self._init_ticker_store()
@@ -285,7 +271,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         self._normalized_stores["position"] = self._init_position_store()
 
     def _init_normalized_store(
-            self, cls_name_tuple: tuple[Type[NormalizedDataStore], str]
+        self, cls_name_tuple: tuple[Type[NormalizedDataStore], str]
     ) -> NormalizedDataStore | None:
         if cls_name_tuple is None:
             return None
@@ -324,7 +310,7 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         return endpoint or self._ws_channels.ENDPOINT
 
     def _parse_send(
-            self, endpoint: str, send: any, client: pybotters.Client
+        self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
         subscribe_lists = self._ws_channels.get()
 
@@ -358,16 +344,16 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         return hdlr_json
 
     async def _ws_connect(
-            self,
-            client,
-            endpoint,
-            send,
-            hdlr,
-            send_type: str = "json",
-            hdlr_type: str = "json",
-            auto_reconnect: bool = False,
-            on_reconnection: Callable = None,
-            **kwargs,
+        self,
+        client,
+        endpoint,
+        send,
+        hdlr,
+        send_type: str = "json",
+        hdlr_type: str = "json",
+        auto_reconnect: bool = False,
+        on_reconnection: Callable = None,
+        **kwargs,
     ):
         self.log(f"Connect {endpoint} {send}")
         conn = WebsocketConnection(endpoint, send, hdlr, send_type, hdlr_type)
@@ -397,15 +383,16 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
         return store
 
     def _initialize_request(
-            self,
-            client: "pybotters.Client",
-            method: str,
-            endpoint: str,
-            params_or_data: dict | None = None,
-            **kwargs,
+        self,
+        client: "pybotters.Client",
+        method: str,
+        endpoint: str,
+        params_or_data: dict | None = None,
+        **kwargs,
     ):
         # exchange用のapiを使ってBASE_URLを足す
         import pybotters_wrapper as pbw
+
         api = pbw.create_api(self.exchange, client)
         params = dict(method=method, url=endpoint)
         params["params" if method == "GET" else "data"] = params_or_data
@@ -561,14 +548,14 @@ class TradesStore(NormalizedDataStore):
         raise NotImplementedError
 
     def _itemize(
-            self,
-            id: str,
-            symbol: str,
-            side: str,
-            price: float,
-            size: float,
-            timestamp: pd.Timestamp,
-            **kwargs,
+        self,
+        id: str,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        timestamp: pd.Timestamp,
+        **kwargs,
     ) -> "TradesItem":
         return TradesItem(
             id=id,
@@ -642,14 +629,14 @@ class OrderStore(NormalizedDataStore):
         raise NotImplementedError
 
     def _itemize(
-            self,
-            id: str,
-            symbol: str,
-            side: str,
-            price: float,
-            size: float,
-            type: str,
-            **kwargs,
+        self,
+        id: str,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        type: str,
+        **kwargs,
     ):
         return OrderItem(
             id=id,
@@ -679,14 +666,14 @@ class ExecutionStore(NormalizedDataStore):
         raise NotImplementedError
 
     def _itemize(
-            self,
-            id: str,
-            symbol: str,
-            side: str,
-            price: float,
-            size: float,
-            timestamp: pd.Timestamp,
-            **kwargs,
+        self,
+        id: str,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        timestamp: pd.Timestamp,
+        **kwargs,
     ):
         return ExecutionItem(
             id=id,
