@@ -6,7 +6,7 @@ from .._base import DataStorePlugin
 
 
 class ExecutionWatcher(DataStorePlugin):
-    def __init__(self, store: "DataStoreManagerWrapper"):
+    def __init__(self, store: "DataStoreWrapper"):
         super(ExecutionWatcher, self).__init__(store.execution)
         self._order_id = None
         self._item = None
