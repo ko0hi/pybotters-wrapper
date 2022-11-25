@@ -16,7 +16,11 @@ async def _run_hook(is_aw: bool, fn, *args):
         return fn(*args)
 
 
-class DataStorePlugin:
+class Plugin:
+    ...
+
+
+class DataStorePlugin(Plugin):
     def __init__(self, store: DataStore):
         self._store = store
         self._wait_task = asyncio.create_task(self._run_wait_task())
@@ -112,7 +116,7 @@ class DataStorePlugin:
         return q
 
 
-class MultipleDataStoresPlugin:
+class MultipleDataStoresPlugin(Plugin):
     def __init__(self, *stores: DataStore):
         self._stores = stores
         self._wait_queue = asyncio.Queue()
