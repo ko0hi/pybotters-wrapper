@@ -46,7 +46,7 @@ class BarStreamDataFrame(DataStorePlugin):
         )
 
         self._cur_bar = None
-        self._queue = asyncio.Queue()
+        self._queues = []
 
         self._init_bar()
 
@@ -63,7 +63,8 @@ class BarStreamDataFrame(DataStorePlugin):
     def _next_bar(self, item: dict) -> None:
         self._sdf.append(self._cur_bar)
         self._init_bar(item)
-        self._queue.put_nowait(self.df)
+        for q in self._queues:
+            q.put_nowait(self.df)
 
     def _current_bar(self, d: dict) -> None:
         self._cur_bar["timestamp"] = d["timestamp"]
@@ -123,6 +124,12 @@ class BarStreamDataFrame(DataStorePlugin):
 
     async def wait(self):
         return await self._queue.get()
+
+    def subscribe(self) -> asyncio.Queue:
+        q = asyncio.Queue()
+        self._queues.append(q)
+        return q
+
 
     @property
     def open(self) -> np.ndarray:
