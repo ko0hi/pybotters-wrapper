@@ -102,13 +102,6 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 f"{str({p: '...' for p in params})}), ...))"
             )
 
-        def _check_name(name):
-            if name not in self._INITIALIZE_CONFIG:
-                raise RuntimeError(
-                    f"Unsupported endpoint: {name}, "
-                    f"available endpoints are {list(self._INITIALIZE_CONFIG.keys())}",
-                )
-
         request_tasks = []
         for a_or_n in aws_or_names:
             if isinstance(a_or_n, Awaitable):
@@ -119,7 +112,6 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 _check_client()
 
                 name = a_or_n
-                _check_name(name)
 
                 (
                     method,
@@ -145,7 +137,6 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
                 _check_client()
 
                 name, params = a_or_n
-                _check_name(name)
 
                 (
                     method,
@@ -259,22 +250,20 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
 
     def _get_initialize_request_config(self, key: str) -> InitializeRequestConfig:
         if key not in self._INITIALIZE_CONFIG:
-            raise RuntimeError(f"Unsupported initialize endpoint key: `{key}`")
+            raise RuntimeError(
+                f"Unsupported endpoint: {name}, "
+                f"available endpoints are {list(self._INITIALIZE_CONFIG.keys())}",
+            )
 
-        method_endpoint_params = self._INITIALIZE_CONFIG[key]
+        config = self._INITIALIZE_CONFIG[key]
 
-        if method_endpoint_params is None:
-            return None, None, None
-
-        method, endpoint, params = method_endpoint_params
-
-        if len(method_endpoint_params) != 3 or not (
-                isinstance(method, str)
-                and isinstance(endpoint, str)
-                and (isinstance(params, (list, tuple)) or params is None)
+        if len(config) != 3 or not (
+                isinstance(config[0], str)
+                and isinstance(config[1], str)
+                and (isinstance(config[2], (list, tuple)) or config[2] is None)
         ):
-            raise RuntimeError(f"Invalid initialize endpoint: {method_endpoint_params}")
-        return method, endpoint, params
+            raise RuntimeError(f"Invalid initialize endpoint: {config}")
+        return config
 
     def _init_normalized_stores(self):
         self._normalized_stores["ticker"] = self._init_ticker_store()
