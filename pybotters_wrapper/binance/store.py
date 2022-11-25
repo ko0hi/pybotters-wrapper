@@ -33,41 +33,41 @@ T = TypeVar("T", bound=BinanceDataStoreBase)
 
 class BinanceTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return {"symbol": d["s"], "price": float(d["c"])}
+        return self._itemize(d["s"], float(d["c"]))
 
 
 class BinanceTradesStore(TradesStore):
     def _normalize(self, d: dict, op: str) -> "TradesItem":
-        return {
-            "id": str(d["a"]),
-            "symbol": d["s"],
-            "side": "SELL" if d["m"] else "BUY",
-            "price": float(d["p"]),
-            "size": float(d["q"]),
-            "timestamp": pd.to_datetime(d["T"], unit="ms", utc=True),
-        }
+        return self._itemize(
+            str(d["a"]),
+            d["s"],
+            "SELL" if d["m"] else "BUY",
+            float(d["p"]),
+            float(d["q"]),
+            pd.to_datetime(d["T"], unit="ms", utc=True)
+        )
 
 
 class BinanceOrderbookStore(OrderbookStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return {
-            "symbol": d["s"],
-            "side": d["S"],
-            "price": float(d["p"]),
-            "size": float(d["q"]),
-        }
+        return self._itemize(
+            d["s"],
+            d["S"],
+            float(d["p"]),
+            float(d["q"])
+        )
 
 
 class BinanceOrderStore(OrderStore):
     def _normalize(self, d: dict, op: str) -> "OrderItem":
-        return {
-            "id": str(d["i"]),
-            "symbol": d["s"],
-            "side": d["S"],
-            "price": float(d["p"]),
-            "size": float(d["q"]) - float(d["z"]),
-            "type": d["o"],
-        }
+        return self._itemize(
+            str(d["i"]),
+            d["s"],
+            d["S"],
+            float(d["p"]),
+            float(d["q"]) - float(d["z"]),
+            d["o"],
+        )
 
 
 class BinanceExecutionStore(ExecutionStore):
@@ -118,13 +118,13 @@ class BinancePositionStore(PositionStore):
         else:
             side = "BUY" if d["ps"] == "LONG" else "SELL"
 
-        return {
-            "symbol": d["s"],
-            "side": side,
-            "price": float(d["ep"]),
-            "size": abs(size),
-            "ps": d["ps"],
-        }
+        return self._itemize(
+            d["s"],
+            side,
+            float(d["ep"]),
+            abs(size),
+            ps=d["ps"],
+        )
 
 
 class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
