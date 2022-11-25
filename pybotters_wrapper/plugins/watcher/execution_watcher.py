@@ -22,7 +22,7 @@ class ExecutionWatcher(DataStorePlugin):
         self._event.set()
         return self
 
-    async def on_watch(self, d: dict, op: str):
+    async def _on_watch(self, d: dict, op: str):
         if not self._event.is_set():
             # order_idがsetされるまで待機
             # 注文が即約定した時にsocket messageがresのresponseより早く到達するケースがあるので、
@@ -33,7 +33,7 @@ class ExecutionWatcher(DataStorePlugin):
             self._done = True
             self._item = d
 
-    def on_watch_is_stop(self, d: dict, op: str) -> bool:
+    def _on_watch_is_stop(self, d: dict, op: str) -> bool:
         return self._done
 
     def done(self):
