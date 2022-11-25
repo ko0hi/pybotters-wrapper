@@ -125,19 +125,32 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
     """
 
     def _parse_endpoint(self, endpoint: str, client: pybotters.Client) -> str:
-        return endpoint or self.endpoint
+        return self.endpoint
 
     def _parse_send(
             self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
         assert endpoint is not None
-        rtn = {endpoint: send}
-        if send is None:
-            rtn[endpoint] = []
-            subscribe_lists = self._ws_channels.get()
-            assert len(subscribe_lists), "No channels have not been subscribed."
-            for k, v in subscribe_lists.items():
-                rtn[endpoint] += v
+
+        subscribe_lists = self._ws_channels.get()
+
+        if len(subscribe_lists) == 0 and send is None:
+            raise RuntimeError("No channels got subscribed")
+            return {endpoint: send}
+
+        rtn = {endpoint: []}
+
+        if send is not None:
+            if isinstance(send, dict):
+                rtn[endpoint].append(send)
+            elif isinstance(send, list):
+                rtn[endpoint] += send
+            else:
+                raise TypeError(f"Invalid `send`: {send}")
+
+        for _, v in subscribe_lists.items():
+            rtn[endpoint] += v
+
         return rtn
 
     @property

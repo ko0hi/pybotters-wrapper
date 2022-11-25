@@ -140,20 +140,23 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
     ) -> dict[str, list[any]]:
         subscribe_list = super()._parse_send(endpoint, send, client)
 
-        rtn = copy.deepcopy(subscribe_list)
-        for endpoint, send in subscribe_list.items():
-            for p in send["params"]:
-                if p == "LISTEN_KEY":
-                    if self.store.listenkey is None:
-                        raise RuntimeError(
-                            f"`listenkey` has not been initialized. "
-                            f"HINT: "
-                            f"`store.initialize(..., 'token_private', client=client)`"
-                        )
+        for endpoint, sends in subscribe_list.items():
+            for i, send in enumerate(sends):
+                new_params = []
+                for p in set(send["params"]):
+                    if p == "LISTEN_KEY":
+                        if self.store.listenkey is None:
+                            raise RuntimeError(
+                                f"`listenkey` has not been initialized. "
+                                f"HINT: "
+                                f"`store.initialize(..., 'token_private', client=client)`"
+                            )
+                        new_params.append(self.store.listenkey)
+                    else:
+                        new_params.append(p)
+                subscribe_list[endpoint][i]["params"] = new_params
 
-                    if self.store.listenkey not in rtn[endpoint]["params"]:
-                        rtn[endpoint]["params"].append(self.store.listenkey)
-        return rtn
+            return subscribe_list
 
 
 class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]):
