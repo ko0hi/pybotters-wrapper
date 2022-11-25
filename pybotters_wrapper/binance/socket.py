@@ -21,11 +21,11 @@ class BinanceWebsocketChannels(WebsocketChannels):
     def get(self) -> dict[str, list]:
         compressed = {}
         for endpoint, sends in self._subscribe_list.items():
-            compressed[endpoint] = {
+            compressed[endpoint] = [{
                 "method": "SUBSCRIBE",
                 "params": [s["params"][0] for s in sends],
                 "id": sends[0]["id"],
-            }
+            }]
         return compressed
 
     # channels for normalized stores
