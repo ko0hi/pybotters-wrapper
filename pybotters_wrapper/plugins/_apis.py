@@ -40,7 +40,7 @@ def _build_plugin(store, module, name, **kwargs):
         )
 
 
-def _import_and_build_plugin(store, name, *, default_cls=None, **kwargs):
+def _maybe_override_by_exchange(store, name, *, default_cls=None, **kwargs):
     try:
         # 取引所別のfactory methodがあればそちらを呼び出す
         module = _import_module(store)
@@ -61,7 +61,7 @@ def timebar(
         callback: Callable[[pd.DataFrame], dict] = None,
         message_delay: int = 2,
 ) -> TimeBarStreamDataFrame:
-    return _import_and_build_plugin(
+    return _maybe_override_by_exchange(
         store,
         "timebar",
         default_cls=TimeBarStreamDataFrame,
@@ -81,7 +81,7 @@ def volumebar(
         df: pd.DataFrame = None,
         callback: Callable[[pd.DataFrame], dict] = None,
 ):
-    return _import_and_build_plugin(
+    return _maybe_override_by_exchange(
         store,
         "volumebar",
         default_cls=VolumeBarStreamDataFrame,
@@ -100,7 +100,7 @@ def binningbook(
         pips: int = 1,
         precision: int = 10,
 ) -> BinningBook:
-    return _import_and_build_plugin(
+    return _maybe_override_by_exchange(
         store,
         "binningbook",
         default_cls=BinningBook,
@@ -112,11 +112,11 @@ def binningbook(
 
 
 def bookticker(store: DataStoreWrapper) -> BookTicker:
-    return _import_and_build_plugin(store, "bookticker", default_cls=BookTicker)
+    return _maybe_override_by_exchange(store, "bookticker", default_cls=BookTicker)
 
 
 def execution_watcher(store: DataStoreWrapper) -> ExecutionWatcher:
-    return _import_and_build_plugin(store, "execution", default_cls=ExecutionWatcher)
+    return _maybe_override_by_exchange(store, "execution", default_cls=ExecutionWatcher)
 
 
 def watch_csvwriter(
@@ -128,7 +128,7 @@ def watch_csvwriter(
         columns: list[str] = None,
         operations: list[str] = None,
 ):
-    return _import_and_build_plugin(
+    return _maybe_override_by_exchange(
         store,
         "watch_csvwriter",
         default_cls=DataStoreWatchCSVWriter,
@@ -148,7 +148,7 @@ def wait_csvwriter(
         per_day: bool = False,
         columns: list[str] = None,
 ):
-    return _import_and_build_plugin(
+    return _maybe_override_by_exchange(
         store,
         "wait_csvwriter",
         default_cls=DataStoreWaitCSVWriter,
