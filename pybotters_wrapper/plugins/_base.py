@@ -113,7 +113,7 @@ class DataStorePlugin(Plugin):
         self._wait_task.cancel()
         self._watch_task.cancel()
 
-    def subscribe(self) -> asyncio.Queue:
+    def register_queue(self) -> asyncio.Queue:
         q = asyncio.Queue()
         self._queues.append(q)
         return q
@@ -241,7 +241,7 @@ class MultipleDataStoresPlugin(Plugin):
         [t.cancel() for t in self._wait_tasks]
         [t.cancel() for t in self._watch_tasks]
 
-    def subscribe(self) -> asyncio.Queue:
+    def register_queue(self) -> asyncio.Queue:
         q = asyncio.Queue()
         self._queues.append(q)
         return q
