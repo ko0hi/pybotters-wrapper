@@ -54,7 +54,6 @@ class BarStreamDataFrame(DataStorePlugin):
         if op == "insert":
             if self._is_new_bar(d, op):
                 self._next_bar(d)
-                self._queue.put_nowait(self.df)
             else:
                 self._current_bar(d)
 
@@ -64,6 +63,7 @@ class BarStreamDataFrame(DataStorePlugin):
     def _next_bar(self, item: dict) -> None:
         self._sdf.append(self._cur_bar)
         self._init_bar(item)
+        self._queue.put_nowait(self.df)
 
     def _current_bar(self, d: dict) -> None:
         self._cur_bar["timestamp"] = d["timestamp"]
