@@ -130,7 +130,7 @@ def watch_csvwriter(
 ):
     return _import_and_build_plugin(
         store,
-        "datastorewatch_csvwriter",
+        "watch_csvwriter",
         default_cls=DataStoreWatchCSVWriter,
         store_name=store_name,
         path=path,
@@ -150,7 +150,7 @@ def wait_csvwriter(
 ):
     return _import_and_build_plugin(
         store,
-        "datastorewait_csvwriter",
+        "wait_csvwriter",
         default_cls=DataStoreWaitCSVWriter,
         store_name=store_name,
         path=path,
