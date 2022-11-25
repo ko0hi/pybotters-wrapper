@@ -46,6 +46,7 @@ class BarStreamDataFrame(DataStorePlugin):
         )
 
         self._cur_bar = None
+        self._queue = asyncio.Queue()
 
         self._init_bar()
 
@@ -53,6 +54,7 @@ class BarStreamDataFrame(DataStorePlugin):
         if op == "insert":
             if self._is_new_bar(d, op):
                 self._next_bar(d)
+                self._queue.put_nowait(self.df)
             else:
                 self._current_bar(d)
 
@@ -118,6 +120,9 @@ class BarStreamDataFrame(DataStorePlugin):
 
     def remaining_time(self):
         raise NotImplementedError
+
+    async def wait(self):
+        return await self._queue.get()
 
     @property
     def open(self) -> np.ndarray:
