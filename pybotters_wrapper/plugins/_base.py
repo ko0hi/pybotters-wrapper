@@ -21,6 +21,7 @@ class DataStorePlugin:
         self._store = store
         self._wait_task = asyncio.create_task(self._run_wait_task())
         self._watch_task = asyncio.create_task(self._run_watch_task())
+        self._queues = []
 
     def __del__(self):
         self.stop()
@@ -105,6 +106,11 @@ class DataStorePlugin:
         self._wait_task.cancel()
         self._watch_task.cancel()
 
+    def subscribe(self) -> asyncio.Queue:
+        q = asyncio.Queue()
+        self._queues.append(q)
+        return q
+
 
 class MultipleDataStoresPlugin:
     def __init__(self, *stores: DataStore):
@@ -115,6 +121,7 @@ class MultipleDataStoresPlugin:
         self._watch_task = asyncio.create_task(self._run_watch_task())
         self._wait_tasks = None
         self._watch_tasks = None
+        self._queues = asyncio.Queue()
 
     def __del__(self):
         self.stop()
@@ -226,3 +233,8 @@ class MultipleDataStoresPlugin:
         self._watch_task.cancel()
         [t.cancel() for t in self._wait_tasks]
         [t.cancel() for t in self._watch_tasks]
+
+    def subscribe(self) -> asyncio.Queue:
+        q = asyncio.Queue()
+        self._queues.append(q)
+        return q

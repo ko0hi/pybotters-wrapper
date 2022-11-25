@@ -46,7 +46,6 @@ class BarStreamDataFrame(DataStorePlugin):
         )
 
         self._cur_bar = None
-        self._queues = []
 
         self._init_bar()
 
@@ -124,12 +123,6 @@ class BarStreamDataFrame(DataStorePlugin):
 
     async def wait(self):
         return await self._queue.get()
-
-    def subscribe(self) -> asyncio.Queue:
-        q = asyncio.Queue()
-        self._queues.append(q)
-        return q
-
 
     @property
     def open(self) -> np.ndarray:
