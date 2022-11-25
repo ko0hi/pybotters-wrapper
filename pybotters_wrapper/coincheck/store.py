@@ -14,28 +14,28 @@ from .socket import CoinCheckWebsocketChannels
 
 class CoincheckTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return self._itemize(symbol=d["pair"], price=float(d["rate"]))
+        return self._itemize(d["pair"], float(d["rate"]))
 
 
 class CoincheckTradeStore(TradesStore):
     def _normalize(self, d: dict, op: str) -> "TradesItem":
         return self._itemize(
-            id=str(d["id"]),
-            symbol=d["pair"],
-            side=d["side"].upper(),
-            price=float(d["rate"]),
-            size=float(d["amount"]),
-            timestamp=pd.Timestamp.utcnow()
+            str(d["id"]),
+            d["pair"],
+            d["side"].upper(),
+            float(d["rate"]),
+            float(d["amount"]),
+            pd.Timestamp.utcnow()
         )
 
 
 class CoincheckOrderbookStore(OrderbookStore):
     def _normalize(self, d: dict, op: str) -> "OrderbookItem":
         return self._itemize(
-            symbol=None,
-            side="BUY" if d["side"] == "bids" else "SELL",
-            price=float(d["rate"]),
-            size=float(d["amount"])
+            None,
+            "BUY" if d["side"] == "bids" else "SELL",
+            float(d["rate"]),
+            float(d["amount"])
         )
 
 
