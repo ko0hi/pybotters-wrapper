@@ -12,9 +12,9 @@ from .market import (
     BinningBook,
     BookTicker,
 )
+from .market.bar import BarStreamDataFrame
 from .watcher import ExecutionWatcher
 from .writer import DataStoreWatchCSVWriter, DataStoreWaitCSVWriter, BarCSVWriter
-from .market.bar import BarStreamDataFrame
 
 import_cache = {}
 
