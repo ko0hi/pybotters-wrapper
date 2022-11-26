@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pybotters
+
 if TYPE_CHECKING:
     pass
 
@@ -206,7 +208,7 @@ async def main(args):
 
     # clientの初期化：exchangeにあったbase_urlを埋めてくれる。ただし複数のエンドポイントがある場合は
     # base_urlはNoneのまま（例：GMOCoinのpublic/private endpoints）
-    async with pbw.create_client(args.exchange, apis=args.apis) as client:
+    async with pybotters.Client(apis=args.apis) as client:
         # 注文用apiの初期化
         api = pbw.create_api(args.exchange, client, verbose=True)
         # DataStore（ラッパー）の初期化
