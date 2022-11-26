@@ -39,17 +39,17 @@ class bitFlyerWebsocketChannels(WebsocketChannels):
     def lightning_ticker(self, symbol: str) -> bitFlyerWebsocketChannels:
         return self._subscribe(f"lightning_ticker_{symbol}")
 
-    def lightning_board(self, symbol):
+    def lightning_board(self, symbol) -> bitFlyerWebsocketChannels:
         return self._subscribe(f"lightning_board_{symbol}")
 
-    def lightning_board_snapshot(self, symbol):
+    def lightning_board_snapshot(self, symbol) -> bitFlyerWebsocketChannels:
         return self._subscribe(f"lightning_board_snapshot_{symbol}")
 
-    def lightning_executions(self, symbol):
+    def lightning_executions(self, symbol) -> bitFlyerWebsocketChannels:
         return self._subscribe(f"lightning_executions_{symbol}")
 
-    def child_order_events(self):
+    def child_order_events(self) -> bitFlyerWebsocketChannels:
         return self._subscribe("child_order_events")
 
-    def parent_order_events(self):
+    def parent_order_events(self) -> bitFlyerWebsocketChannels:
         return self._subscribe("parent_order_events")
