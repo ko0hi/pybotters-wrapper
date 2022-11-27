@@ -10,6 +10,7 @@ from pybotters_wrapper.common import (
     TradesStore,
     OrderbookStore,
 )
+from pybotters_wrapper.utils import bitbankMixin
 
 
 class bitbankTickerStore(TickerStore):
@@ -36,8 +37,7 @@ class bitbankOrderbookStore(OrderbookStore):
         )
 
 
-class bitbankDataStoreWrapper(DataStoreWrapper[bitbankDataStore]):
-    _NAME = "bitbank"
+class bitbankDataStoreWrapper(bitbankMixin, DataStoreWrapper[bitbankDataStore]):
     _WRAP_STORE = bitbankDataStore
     _WEBSOCKET_CHANNELS = bitbankWebsocketChannels
     _TICKER_STORE = (bitbankTickerStore, "ticker")

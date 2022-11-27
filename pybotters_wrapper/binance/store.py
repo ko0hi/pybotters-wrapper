@@ -29,6 +29,8 @@ from pybotters_wrapper.common import (
     PositionStore,
 )
 
+from pybotters_wrapper.utils import BinanceSpotMixin, BinanceUSDSMMixin, BinanceCOINMMixin
+
 T = TypeVar("T", bound=BinanceDataStoreBase)
 
 
@@ -168,8 +170,7 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
             return subscribe_list
 
 
-class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]):
-    _NAME = "binancespot"
+class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore], BinanceSpotMixin):
     _WEBSOCKET_CHANNELS = BinanceSpotWebsocketChannels
     _INITIALIZE_CONFIG = {
         "token": ("POST", "/api/v3/userDataStream", None),
@@ -197,8 +198,7 @@ class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]
         )
 
 
-class BinanceUSDSMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceUSDSMDataStore]):
-    _NAME = "binanceusdsm"
+class BinanceUSDSMDataStoreWrapper(BinanceUSDSMMixin, _BinanceDataStoreWrapper[BinanceUSDSMDataStore]):
     _WEBSOCKET_CHANNELS = BinanceUSDSMWebsocketChannels
     _INITIALIZE_CONFIG = {
         "token": ("POST", "/fapi/v1/listenKey", None),
@@ -209,8 +209,7 @@ class BinanceUSDSMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceUSDSMDataStor
     _WRAP_STORE = BinanceUSDSMDataStore
 
 
-class BinanceCOINMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceCOINMDataStore]):
-    _NAME = "binancecoinm"
+class BinanceCOINMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceCOINMDataStore], BinanceCOINMMixin):
     _WEBSOCKET_CHANNELS = BinanceCOINMWebsocketChannels
     _INITIALIZE_CONFIG = {
         "token": ("POST", "/dapi/v1/listenKey", None),

@@ -13,7 +13,7 @@ from pybotters_wrapper.common import (
     ExecutionStore,
     PositionStore,
 )
-
+from pybotters_wrapper.utils import bitflyerMixin
 
 class bitFlyerTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
@@ -82,8 +82,7 @@ class bitFlyerPositionStore(PositionStore):
         )
 
 
-class bitFlyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
-    _NAME = "bitflyer"
+class bitFlyerDataStoreWrapper(bitflyerMixin, DataStoreWrapper[bitFlyerDataStore]):
     _WRAP_STORE = bitFlyerDataStore
 
     _WEBSOCKET_CHANNELS = bitFlyerWebsocketChannels

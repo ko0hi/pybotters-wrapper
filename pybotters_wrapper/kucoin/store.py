@@ -16,6 +16,7 @@ from pybotters_wrapper.kucoin import (
     KuCoinSpotWebsocketChannels,
     KuCoinFuturesWebsocketChannels,
 )
+from pybotters_wrapper.utils import KuCoinSpotMixin, KuCoinFuturesMixin
 
 
 class KuCoinTickerStore(TickerStore):
@@ -168,11 +169,9 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
         return self.store.endpoint
 
 
-class KuCoinSpotDataStoreWrapper(_KuCoinDataStoreWrapper):
-    _NAME = "kucoinspot"
+class KuCoinSpotDataStoreWrapper(KuCoinSpotMixin, _KuCoinDataStoreWrapper):
     _WEBSOCKET_CHANNELS = KuCoinSpotWebsocketChannels
 
 
-class KuCoinFuturesDataStoreWrapper(_KuCoinDataStoreWrapper):
-    _NAME = "kucoinfutures"
+class KuCoinFuturesDataStoreWrapper(KuCoinFuturesMixin, _KuCoinDataStoreWrapper):
     _WEBSOCKET_CHANNELS = KuCoinFuturesWebsocketChannels
