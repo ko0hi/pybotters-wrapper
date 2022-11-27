@@ -3,14 +3,6 @@ from __future__ import annotations
 from pybotters_wrapper.common import API
 from pybotters_wrapper.utils.mixins import BinanceSpotMixin, BinanceUSDSMMixin, \
     BinanceCOINMMixin
-from .resources import (
-    SPOT_PRICE_PRECISIONS,
-    SPOT_SIZE_PRECISIONS,
-    USDSM_PRICE_PRECISIONS,
-    USDSM_SIZE_PRECISIONS,
-    COINM_PRICE_PRECISIONS,
-    COINM_SIZE_PRECISIONS,
-)
 
 
 class BinanceAPIBase(API):
@@ -49,22 +41,6 @@ class BinanceAPIBase(API):
     ) -> dict:
         return {"symbol": symbol.upper(), "orderId": order_id}
 
-
-    def _get_price_precision(self, symbol: str):
-        if isinstance(self, BinanceSpotAPI):
-            return SPOT_PRICE_PRECISIONS[symbol]
-        elif isinstance(self, BinanceUSDSMAPI):
-            return USDSM_PRICE_PRECISIONS[symbol]
-        elif isinstance(self, COINM_PRICE_PRECISIONS):
-            return COINM_PRICE_PRECISIONS[symbol]
-
-    def _get_size_precision(self, symbol: str):
-        if isinstance(self, BinanceSpotAPI):
-            return SPOT_SIZE_PRECISIONS[symbol]
-        elif isinstance(self, BinanceUSDSMAPI):
-            return USDSM_SIZE_PRECISIONS[symbol]
-        elif isinstance(self, COINM_PRICE_PRECISIONS):
-            return COINM_SIZE_PRECISIONS[symbol]
 
 
 class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
