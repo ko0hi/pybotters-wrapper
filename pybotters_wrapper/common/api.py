@@ -6,6 +6,10 @@ import aiohttp
 import pybotters
 from loguru import logger
 
+import requests
+from pybotters.auth import Auth, Hosts
+from yarl import URL
+from multidict import MultiDict, CIMultiDict
 from ..utils import LoggingMixin
 
 
@@ -56,6 +60,44 @@ class API(LoggingMixin):
         return await self._client.request(
             "DELETE", url, params=None, data=data, **kwargs
         )
+
+    def srequest(
+        self, method, url, *, params=None, data=None, **kwargs
+    ) -> requests.Response:
+        # TODO: 網羅的なテスト
+        # aiohttp.ClientSession._requestをpybotters.Clientから呼び出した時の処理を抜き出している
+        sess: aiohttp.ClientSession = self._client._session
+        url = self._attach_base_url(url)
+        req = sess._request_class(
+            method,
+            sess._build_url(self._attach_base_url(url)),
+            params=params,
+            data=data,
+            headers=sess._prepare_headers([]),
+            session=sess,
+            auth=pybotters.auth.Auth,
+        )
+        headers = {str(k): str(v) for (k, v) in dict(req.headers).items()}
+        if isinstance(req.body, aiohttp.payload.BytesPayload):
+            data = req.body._value
+        else:
+            data = req.body
+        # paramsはurlに埋め込まれている
+        return requests.request(
+            method=req.method, url=str(req.url), data=data, headers=headers, **kwargs
+        )
+
+    def sget(self, url, *, params=None, data=None, **kwargs) -> requests.Response:
+        return self.srequest("GET", url, params=params, data=data, **kwargs)
+
+    def spost(self, url, *, params=None, data=None, **kwargs) -> requests.Response:
+        return self.srequest("POST", url, params=params, data=data, **kwargs)
+
+    def sput(self, url, *, params=None, data=None, **kwargs) -> requests.Response:
+        return self.srequest("PUT", url, params=params, data=data, **kwargs)
+
+    def sdelete(self, url, *, params=None, data=None, **kwargs) -> requests.Response:
+        return self.srequest("DELETE", url, params=params, data=data, **kwargs)
 
     @logger.catch
     async def market_order(
