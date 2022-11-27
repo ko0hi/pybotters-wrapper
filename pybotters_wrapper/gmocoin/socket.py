@@ -46,36 +46,3 @@ class GMOWebsocketChannels(WebsocketChannels):
     def position_summary_events(self):
         return self._subscribe("positionSummaryEvents")
 
-    def public_channels(self, symbol):
-        return [self.ticker(symbol), self.orderbooks(symbol), self.trades(symbol)]
-
-    def private_channels(self):
-        return [
-            self.execution_events(),
-            self.order_events(),
-            self.position_events(),
-            self.position_summary_events(),
-        ]
-
-    def all_channels(self, symbol):
-        return self.public_channels(symbol) + self.private_channels()
-
-    def get_public_channels(self, send_json):
-        return [
-            sj
-            for sj in send_json
-            if sj["channel"] in ("ticker", "orderbooks", "trades")
-        ]
-
-    def get_private_channels(self, send_json):
-        return [
-            sj
-            for sj in send_json
-            if sj["channel"]
-               in (
-                   "executionEvents",
-                   "orderEvents",
-                   "positionEvents",
-                   "positionSummaryEvents",
-               )
-        ]
