@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import copy
 from typing import TypeVar
 
@@ -146,10 +147,18 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
                 for p in set(send["params"]):
                     if p == "LISTEN_KEY":
                         if self.store.listenkey is None:
-                            raise RuntimeError(
-                                f"`listenkey` has not been initialized. "
-                                f"HINT: "
-                                f"`store.initialize(..., 'token_private', client=client)`"
+                            import pybotters_wrapper as pbw
+                            from yarl import URL
+                            api = pbw.create_api(self.exchange, client)
+                            _, url, _ = self._INITIALIZE_CONFIG["token"]
+                            resp = api.spost(url)
+                            data = resp.json()
+                            key = data["listenKey"]
+                            self.store.listenkey = key
+                            asyncio.create_task(self.store._listenkey(URL(resp.url), client._session))
+                            self.log(
+                                "`listenkey` got automatically initialized. ",
+                                "warning"
                             )
                         new_params.append(self.store.listenkey)
                     else:

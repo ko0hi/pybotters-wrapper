@@ -125,7 +125,17 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
     """
 
     def _parse_endpoint(self, endpoint: str, client: pybotters.Client) -> str:
-        return self.endpoint
+        try:
+            return self.endpoint
+        except RuntimeError:
+            import pybotters_wrapper as pbw
+            api = pbw.create_api(self.exchange, client)
+            url = self._INITIALIZE_CONFIG["token"][1]
+            resp = api.spost(url)
+            data = resp.json()
+            self.store._endpoint = self.store._create_endpoint(data["data"])
+            self.log("Websocket token got automatically initialized", "warning")
+            return self.endpoint
 
     def _parse_send(
             self, endpoint: str, send: any, client: pybotters.Client
