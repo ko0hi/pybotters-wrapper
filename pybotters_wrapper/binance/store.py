@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import copy
 from typing import TypeVar
 
 import pandas as pd
@@ -28,8 +27,8 @@ from pybotters_wrapper.common import (
     ExecutionStore,
     PositionStore,
 )
-
-from pybotters_wrapper.utils.mixins import BinanceSpotMixin, BinanceUSDSMMixin, BinanceCOINMMixin
+from pybotters_wrapper.utils.mixins import BinanceSpotMixin, BinanceUSDSMMixin, \
+    BinanceCOINMMixin
 
 T = TypeVar("T", bound=BinanceDataStoreBase)
 
@@ -157,7 +156,8 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
                             data = resp.json()
                             key = data["listenKey"]
                             self.store.listenkey = key
-                            asyncio.create_task(self.store._listenkey(URL(resp.url), client._session))
+                            asyncio.create_task(
+                                self.store._listenkey(URL(resp.url), client._session))
                             self.log(
                                 "`listenkey` got automatically initialized. ",
                                 "warning"
@@ -170,7 +170,8 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
             return subscribe_list
 
 
-class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore], BinanceSpotMixin):
+class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore],
+                                  BinanceSpotMixin):
     _WEBSOCKET_CHANNELS = BinanceSpotWebsocketChannels
     _INITIALIZE_CONFIG = {
         "token": ("POST", "/api/v3/userDataStream", None),
@@ -198,7 +199,8 @@ class BinanceSpotDataStoreWrapper(_BinanceDataStoreWrapper[BinanceSpotDataStore]
         )
 
 
-class BinanceUSDSMDataStoreWrapper(BinanceUSDSMMixin, _BinanceDataStoreWrapper[BinanceUSDSMDataStore]):
+class BinanceUSDSMDataStoreWrapper(BinanceUSDSMMixin,
+                                   _BinanceDataStoreWrapper[BinanceUSDSMDataStore]):
     _WEBSOCKET_CHANNELS = BinanceUSDSMWebsocketChannels
     _INITIALIZE_CONFIG = {
         "token": ("POST", "/fapi/v1/listenKey", None),
@@ -209,7 +211,8 @@ class BinanceUSDSMDataStoreWrapper(BinanceUSDSMMixin, _BinanceDataStoreWrapper[B
     _WRAP_STORE = BinanceUSDSMDataStore
 
 
-class BinanceCOINMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceCOINMDataStore], BinanceCOINMMixin):
+class BinanceCOINMDataStoreWrapper(_BinanceDataStoreWrapper[BinanceCOINMDataStore],
+                                   BinanceCOINMMixin):
     _WEBSOCKET_CHANNELS = BinanceCOINMWebsocketChannels
     _INITIALIZE_CONFIG = {
         "token": ("POST", "/dapi/v1/listenKey", None),

@@ -1,3 +1,12 @@
+from loguru import logger
+
+
+class LoggingMixin:
+    def log(self, msg, level="debug", verbose=True):
+        if verbose:
+            getattr(logger, level)(f"[{self.__class__.__name__}] {msg}")
+
+
 class ExchangeMixin:
     _NAME = None
 

@@ -55,12 +55,6 @@ def init_logger(
 init_logger()
 
 
-class LoggingMixin:
-    def log(self, msg, level="debug", verbose=True):
-        if verbose:
-            getattr(logger, level)(f"[{self.__class__.__name__}] {msg}")
-
-
 def log_command_args(
         logdir: str, args: "argparse.Namespace", filename: str = "args.json"
 ):

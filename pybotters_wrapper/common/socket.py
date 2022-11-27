@@ -8,7 +8,7 @@ import pybotters
 from pybotters.typedefs import WsStrHandler, WsBytesHandler, WsJsonHandler
 from pybotters.ws import WebSocketRunner
 
-from pybotters_wrapper.utils import LoggingMixin
+from pybotters_wrapper.utils.mixins import LoggingMixin
 
 WsHandler = WsStrHandler | WsBytesHandler | WsJsonHandler
 
