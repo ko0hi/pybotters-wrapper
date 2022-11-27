@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import asyncio
 
-from pybotters.store import DataStore, StoreChange
-
 from loguru import logger
+from pybotters.store import DataStore, StoreChange
 
 
 def _is_aw(fn):

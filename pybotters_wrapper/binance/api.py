@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from pybotters_wrapper.common import API
-from pybotters_wrapper.utils.mixins import BinanceSpotMixin, BinanceUSDSMMixin, BinanceCOINMMixin
+from pybotters_wrapper.utils.mixins import BinanceSpotMixin, BinanceUSDSMMixin, \
+    BinanceCOINMMixin
 from .resources import (
     SPOT_PRICE_PRECISIONS,
     SPOT_SIZE_PRECISIONS,

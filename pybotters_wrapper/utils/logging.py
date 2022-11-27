@@ -55,8 +55,6 @@ def init_logger(
 init_logger()
 
 
-
-
 def log_command_args(
         logdir: str, args: "argparse.Namespace", filename: str = "args.json"
 ):

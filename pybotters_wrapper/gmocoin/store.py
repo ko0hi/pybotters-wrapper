@@ -12,6 +12,7 @@ from pybotters_wrapper.common import (
 from pybotters_wrapper.gmocoin import GMOWebsocketChannels
 from pybotters_wrapper.utils.mixins import GMOCoinMixin
 
+
 class GMOCoinTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
         return self._itemize(d["symbol"].name, float(d["last"]))

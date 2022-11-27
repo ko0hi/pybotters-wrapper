@@ -9,8 +9,8 @@ from pybotters_wrapper.common import (
     TradesStore,
     OrderbookStore,
 )
-from .socket import CoinCheckWebsocketChannels
 from pybotters_wrapper.utils.mixins import CoincheckMixin
+from .socket import CoinCheckWebsocketChannels
 
 
 class CoincheckTickerStore(TickerStore):

@@ -12,6 +12,7 @@ from pybotters_wrapper.common import (
 from pybotters_wrapper.okx import OKXWebsocketChannels
 from pybotters_wrapper.utils.mixins import OKXMixin
 
+
 class OKXTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
         return self._itemize(d["instId"], float(d["last"]))

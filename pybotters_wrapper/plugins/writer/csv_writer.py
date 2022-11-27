@@ -14,7 +14,8 @@ from ...common import DataStoreWrapper
 
 class _CSVWriter:
     def __init__(
-        self, path: str, per_day: bool, columns: list[str] = None, flush: bool = False
+            self, path: str, per_day: bool, columns: list[str] = None,
+            flush: bool = False
     ):
         self._path = path
         self._columns = columns
@@ -59,15 +60,15 @@ class _CSVWriter:
 
 class DataStoreWatchCSVWriter(DataStoreWatchWriter):
     def __init__(
-        self,
-        store: DataStoreWrapper,
-        store_name: str,
-        path: str,
-        *,
-        per_day: bool = False,
-        columns: list[str] = None,
-        flush: bool = False,
-        operations: list[str] = None,
+            self,
+            store: DataStoreWrapper,
+            store_name: str,
+            path: str,
+            *,
+            per_day: bool = False,
+            columns: list[str] = None,
+            flush: bool = False,
+            operations: list[str] = None,
     ):
         super(DataStoreWatchCSVWriter, self).__init__(
             store, store_name, columns=columns, operations=operations
@@ -86,14 +87,14 @@ class DataStoreWatchCSVWriter(DataStoreWatchWriter):
 
 class DataStoreWaitCSVWriter(DataStoreWaitWriter):
     def __init__(
-        self,
-        store: DataStoreWrapper,
-        store_name: str,
-        path: str,
-        *,
-        per_day: bool = False,
-        columns: list[str] = None,
-        flush: bool = False,
+            self,
+            store: DataStoreWrapper,
+            store_name: str,
+            path: str,
+            *,
+            per_day: bool = False,
+            columns: list[str] = None,
+            flush: bool = False,
     ):
         super(DataStoreWaitCSVWriter, self).__init__(store, store_name, columns=columns)
         self._writer: _CSVWriter = _CSVWriter(path, per_day, flush=flush)
@@ -110,12 +111,12 @@ class DataStoreWaitCSVWriter(DataStoreWaitWriter):
 
 class BarCSVWriter(Plugin, WriterMixin):
     def __init__(
-        self,
-        bar: BarStreamDataFrame,
-        path: str,
-        *,
-        per_day: bool = False,
-        flush: bool = False,
+            self,
+            bar: BarStreamDataFrame,
+            path: str,
+            *,
+            per_day: bool = False,
+            flush: bool = False,
     ):
         super(BarCSVWriter)
         self._bar = bar
