@@ -13,6 +13,7 @@ from pybotters_wrapper.common import (
     ExecutionStore,
     PositionStore,
 )
+from pybotters_wrapper.utils.mixins import bitflyerMixin
 
 
 class bitFlyerTickerStore(TickerStore):
@@ -82,8 +83,7 @@ class bitFlyerPositionStore(PositionStore):
         )
 
 
-class bitFlyerDataStoreWrapper(DataStoreWrapper[bitFlyerDataStore]):
-    _NAME = "bitflyer"
+class bitFlyerDataStoreWrapper(bitflyerMixin, DataStoreWrapper[bitFlyerDataStore]):
     _WRAP_STORE = bitFlyerDataStore
 
     _WEBSOCKET_CHANNELS = bitFlyerWebsocketChannels

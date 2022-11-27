@@ -19,6 +19,7 @@ from loguru import logger
 from pybotters.store import DataStore, DataStoreManager
 
 from pybotters_wrapper.common import WebsocketConnection
+from pybotters_wrapper.utils.mixins import ExchangeMixin
 from pybotters_wrapper.utils import LoggingMixin
 
 if TYPE_CHECKING:
@@ -32,9 +33,7 @@ T = TypeVar("T", bound=DataStoreManager)
 InitializeRequestConfig = tuple[str, str, list[str] | tuple[str] | None]
 
 
-class DataStoreWrapper(Generic[T], LoggingMixin):
-    _NAME = None
-
+class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
     _WRAP_STORE: Type[T] = None
 
     _WEBSOCKET_CHANNELS: Type[WebsocketChannels] = None
@@ -435,11 +434,6 @@ class DataStoreWrapper(Generic[T], LoggingMixin):
     @property
     def position(self) -> PositionStore:
         return self._get_normalized_store("position")
-
-    @property
-    def exchange(self) -> str:
-        assert self._NAME is not None
-        return self._NAME
 
     @property
     def ws_connections(self) -> list[WebsocketConnection]:

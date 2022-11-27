@@ -7,6 +7,7 @@ from pybotters_wrapper.bybit import BybitUSDTWebsocketChannels, \
     BybitInverseWebsocketChannels
 from pybotters_wrapper.common import DataStoreWrapper
 from pybotters_wrapper.common.store import TickerStore, TradesStore, OrderbookStore
+from pybotters_wrapper.utils.mixins import BybitUSDTMixin, BybitInverseMixin
 
 
 class BybitTickerStore(TickerStore):
@@ -44,17 +45,17 @@ class BybitDataStoreMixin:
 
 class BybitUSDTDataStoreWrapper(
     BybitDataStoreMixin,
+    BybitUSDTMixin,
     DataStoreWrapper[BybitUSDTDataStore]
 ):
-    _NAME = "bybitusdt"
     _WRAP_STORE = BybitUSDTDataStore
     _WEBSOCKET_CHANNELS = BybitUSDTWebsocketChannels
 
 
 class BybitInverseDataStoreWrapper(
     BybitDataStoreMixin,
+    BybitInverseMixin,
     DataStoreWrapper[BybitInverseDataStore]
 ):
-    _NAME = "bybitinverse"
     _WRAP_STORE = BybitInverseDataStore
     _WEBSOCKET_CHANNELS = BybitInverseWebsocketChannels

@@ -10,7 +10,7 @@ from pybotters_wrapper.common import (
     OrderbookStore,
 )
 from pybotters_wrapper.gmocoin import GMOWebsocketChannels
-
+from pybotters_wrapper.utils.mixins import GMOCoinMixin
 
 class GMOCoinTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
@@ -36,8 +36,7 @@ class GMOCoinOrderbookStore(OrderbookStore):
         )
 
 
-class GMOCoinDataStoreWrapper(DataStoreWrapper[GMOCoinDataStore]):
-    _NAME = "gmocoin"
+class GMOCoinDataStoreWrapper(GMOCoinMixin, DataStoreWrapper[GMOCoinDataStore]):
     _WRAP_STORE = GMOCoinDataStore
     _WEBSOCKET_CHANNELS = GMOWebsocketChannels
     _TICKER_STORE = (GMOCoinTickerStore, "ticker")

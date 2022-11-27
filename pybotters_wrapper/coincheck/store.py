@@ -10,6 +10,7 @@ from pybotters_wrapper.common import (
     OrderbookStore,
 )
 from .socket import CoinCheckWebsocketChannels
+from pybotters_wrapper.utils.mixins import CoincheckMixin
 
 
 class CoincheckTickerStore(TickerStore):
@@ -39,8 +40,7 @@ class CoincheckOrderbookStore(OrderbookStore):
         )
 
 
-class CoincheckDataStoreWrapper(DataStoreWrapper[CoincheckDataStore]):
-    _NAME = "coincheck"
+class CoincheckDataStoreWrapper(CoincheckMixin, DataStoreWrapper[CoincheckDataStore]):
     _WRAP_STORE = CoincheckDataStore
     _WEBSOCKET_CHANNELS = CoinCheckWebsocketChannels
     _TICKER_STORE = (CoincheckTickerStore, "trades")

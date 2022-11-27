@@ -12,6 +12,7 @@ from pybotters_wrapper.common import (
     OrderbookStore,
 )
 from pybotters_wrapper.phemex import PhemexWebsocketChannels
+from pybotters_wrapper.utils.mixins import PhemexMixin
 
 
 class PhemexTickerStore(TickerStore):
@@ -36,8 +37,7 @@ class PhemexOrderbookStore(OrderbookStore):
         return self._itemize(d["symbol"], d["side"], d["price"], d["size"])
 
 
-class PhemexDataStoreWrapper(DataStoreWrapper[PhemexDataStore]):
-    _NAME = "phemex"
+class PhemexDataStoreWrapper(PhemexMixin, DataStoreWrapper[PhemexDataStore]):
     _WRAP_STORE = PhemexDataStore
     _WEBSOCKET_CHANNELS = PhemexWebsocketChannels
     _TICKER_STORE = (PhemexTickerStore, "ticker")
