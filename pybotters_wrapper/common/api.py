@@ -8,9 +8,8 @@ import requests
 from loguru import logger
 from pybotters.auth import Auth
 
-from ..utils import LoggingMixin
 
-from pybotters_wrapper.utils.mixins import ExchangeMixin
+from pybotters_wrapper.utils.mixins import ExchangeMixin, LoggingMixin
 
 
 class OrderResponse(NamedTuple):

@@ -19,8 +19,7 @@ from loguru import logger
 from pybotters.store import DataStore, DataStoreManager
 
 from pybotters_wrapper.common import WebsocketConnection
-from pybotters_wrapper.utils.mixins import ExchangeMixin
-from pybotters_wrapper.utils import LoggingMixin
+from pybotters_wrapper.utils.mixins import ExchangeMixin, LoggingMixin
 
 if TYPE_CHECKING:
     from pybotters import Item
