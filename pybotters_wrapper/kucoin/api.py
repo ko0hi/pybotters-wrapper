@@ -5,6 +5,7 @@ import uuid
 import pybotters
 
 from pybotters_wrapper.common import API
+from pybotters_wrapper.utils.mixins import KuCoinSpotMixin, KuCoinFuturesMixin
 
 
 class KuCoinAPIBase(API):
@@ -21,7 +22,7 @@ class KuCoinAPIBase(API):
         return None
 
 
-class KuCoinSpotAPI(KuCoinAPIBase):
+class KuCoinSpotAPI(KuCoinSpotMixin, KuCoinAPIBase):
     BASE_URL = "https://api.kucoin.com"
 
     def _make_market_order_parameter(
@@ -52,7 +53,7 @@ class KuCoinSpotAPI(KuCoinAPIBase):
         }
 
 
-class KuCoinFuturesAPI(KuCoinAPIBase):
+class KuCoinFuturesAPI(KuCoinFuturesMixin, KuCoinAPIBase):
     BASE_URL = "https://api-futures.kucoin.com"
 
     def __init__(self, client: pybotters.Client, leverage=1, **kwargs):

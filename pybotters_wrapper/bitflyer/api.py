@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from pybotters_wrapper.common import API
+from pybotters_wrapper.utils import bitflyerMixin
 
 
-class bitFlyerAPI(API):
+class bitFlyerAPI(bitflyerMixin, API):
     BASE_URL = "https://api.bitflyer.com"
     _ORDER_ENDPOINT = "/v1/me/sendchildorder"
     _CANCEL_ENDPOINT = "/v1/me/cancelchildorder"

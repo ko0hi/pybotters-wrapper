@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pybotters_wrapper.common import API
+from pybotters_wrapper.utils import BinanceSpotMixin, BinanceUSDSMMixin, BinanceCOINMMixin
 from .resources import (
     SPOT_PRICE_PRECISIONS,
     SPOT_SIZE_PRECISIONS,
@@ -75,7 +76,7 @@ class BinanceAPIBase(API):
             return COINM_SIZE_PRECISIONS[symbol]
 
 
-class BinanceSpotAPI(BinanceAPIBase):
+class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
     BASE_URL = "https://api.binance.com"
     _ORDER_ENDPOINT = "/api/v3/order"
 
@@ -101,11 +102,11 @@ class BinanceSpotAPI(BinanceAPIBase):
     }
 
 
-class BinanceUSDSMAPI(BinanceAPIBase):
+class BinanceUSDSMAPI(BinanceUSDSMMixin, BinanceAPIBase):
     BASE_URL = "https://fapi.binance.com"
     _ORDER_ENDPOINT = "/fapi/v1/order"
 
 
-class BinanceCOINMAPI(BinanceAPIBase):
+class BinanceCOINMAPI(BinanceCOINMMixin, BinanceAPIBase):
     BASE_URL = "https://dapi.binance.com"
     _ORDER_ENDPOINT = "/dapi/v1/order"

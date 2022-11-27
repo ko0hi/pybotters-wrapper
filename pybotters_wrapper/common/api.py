@@ -10,6 +10,8 @@ from pybotters.auth import Auth
 
 from ..utils import LoggingMixin
 
+from pybotters_wrapper.utils.mixins import ExchangeMixin
+
 
 class OrderResponse(NamedTuple):
     order_id: str
@@ -24,7 +26,7 @@ class OrderResponse(NamedTuple):
         return self.resp.status == 200
 
 
-class API(LoggingMixin):
+class API(ExchangeMixin, LoggingMixin):
     BASE_URL = None
     _ORDER_ENDPOINT = None
     _MARKET_ENDPOINT = None
