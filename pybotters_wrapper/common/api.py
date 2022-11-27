@@ -65,7 +65,6 @@ class API(LoggingMixin):
         # TODO: 網羅的なテスト
         # aiohttp.ClientSession._requestをpybotters.Clientから呼び出した時の処理を抜き出している
         sess: aiohttp.ClientSession = self._client._session
-        url = self._attach_base_url(url)
         req = sess._request_class(
             method,
             sess._build_url(self._attach_base_url(url)),
