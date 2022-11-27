@@ -29,7 +29,7 @@ from pybotters_wrapper.common import (
     PositionStore,
 )
 
-from pybotters_wrapper.utils import BinanceSpotMixin, BinanceUSDSMMixin, BinanceCOINMMixin
+from pybotters_wrapper.utils.mixins import BinanceSpotMixin, BinanceUSDSMMixin, BinanceCOINMMixin
 
 T = TypeVar("T", bound=BinanceDataStoreBase)
 

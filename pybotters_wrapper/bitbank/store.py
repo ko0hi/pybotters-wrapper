@@ -10,7 +10,7 @@ from pybotters_wrapper.common import (
     TradesStore,
     OrderbookStore,
 )
-from pybotters_wrapper.utils import bitbankMixin
+from pybotters_wrapper.utils.mixins import bitbankMixin
 
 
 class bitbankTickerStore(TickerStore):

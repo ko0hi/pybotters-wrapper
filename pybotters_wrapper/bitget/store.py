@@ -12,7 +12,7 @@ from pybotters_wrapper.common import (
     TradesStore,
     OrderbookStore,
 )
-from pybotters_wrapper.utils import BitgetMixin
+from pybotters_wrapper.utils.mixins import BitgetMixin
 
 
 class BitgetTickerStore(TickerStore):

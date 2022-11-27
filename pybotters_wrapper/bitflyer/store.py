@@ -13,7 +13,8 @@ from pybotters_wrapper.common import (
     ExecutionStore,
     PositionStore,
 )
-from pybotters_wrapper.utils import bitflyerMixin
+from pybotters_wrapper.utils.mixins import bitflyerMixin
+
 
 class bitFlyerTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":

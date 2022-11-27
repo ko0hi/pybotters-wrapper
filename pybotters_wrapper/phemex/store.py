@@ -12,7 +12,7 @@ from pybotters_wrapper.common import (
     OrderbookStore,
 )
 from pybotters_wrapper.phemex import PhemexWebsocketChannels
-from pybotters_wrapper.utils import PhemexMixin
+from pybotters_wrapper.utils.mixins import PhemexMixin
 
 
 class PhemexTickerStore(TickerStore):

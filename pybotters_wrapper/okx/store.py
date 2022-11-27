@@ -10,7 +10,7 @@ from pybotters_wrapper.common import (
     OrderbookStore,
 )
 from pybotters_wrapper.okx import OKXWebsocketChannels
-from pybotters_wrapper.utils import OKXMixin
+from pybotters_wrapper.utils.mixins import OKXMixin
 
 class OKXTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":

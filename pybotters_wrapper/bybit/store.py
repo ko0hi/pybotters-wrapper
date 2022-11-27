@@ -7,7 +7,8 @@ from pybotters_wrapper.bybit import BybitUSDTWebsocketChannels, \
     BybitInverseWebsocketChannels
 from pybotters_wrapper.common import DataStoreWrapper
 from pybotters_wrapper.common.store import TickerStore, TradesStore, OrderbookStore
-from pybotters_wrapper.utils import BybitUSDTMixin, BybitInverseMixin
+from pybotters_wrapper.utils.mixins import BybitUSDTMixin, BybitInverseMixin
+
 
 class BybitTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":

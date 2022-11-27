@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pybotters_wrapper.common import API
-from pybotters_wrapper.utils import BybitUSDTMixin, BybitInverseMixin
+from pybotters_wrapper.utils.mixins import BybitUSDTMixin, BybitInverseMixin
 
 
 class BybitUSDTAPI(BybitUSDTMixin, API):

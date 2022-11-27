@@ -10,7 +10,8 @@ from pybotters_wrapper.common import (
     OrderbookStore,
 )
 from .socket import CoinCheckWebsocketChannels
-from pybotters_wrapper.utils import CoincheckMixin
+from pybotters_wrapper.utils.mixins import CoincheckMixin
+
 
 class CoincheckTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":

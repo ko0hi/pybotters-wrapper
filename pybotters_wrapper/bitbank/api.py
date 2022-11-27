@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pybotters_wrapper.common import API
-from pybotters_wrapper.utils import bitbankMixin
+from pybotters_wrapper.utils.mixins import bitbankMixin
 
 
 class bitbankAPI(bitbankMixin, API):

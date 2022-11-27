@@ -16,7 +16,7 @@ from pybotters_wrapper.kucoin import (
     KuCoinSpotWebsocketChannels,
     KuCoinFuturesWebsocketChannels,
 )
-from pybotters_wrapper.utils import KuCoinSpotMixin, KuCoinFuturesMixin
+from pybotters_wrapper.utils.mixins import KuCoinSpotMixin, KuCoinFuturesMixin
 
 
 class KuCoinTickerStore(TickerStore):
