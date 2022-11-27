@@ -31,6 +31,7 @@ class KuCoinSpotAPI(KuCoinSpotMixin, KuCoinAPIBase):
         return {
             "symbol": symbol,
             "side": side.lower(),
+            "size": self.format_size(symbol, size),
             "type": "market",
             "clientOid": str(uuid.uuid4()),
         }
@@ -47,8 +48,8 @@ class KuCoinSpotAPI(KuCoinSpotMixin, KuCoinAPIBase):
             "symbol": symbol,
             "side": side.lower(),
             "type": "limit",
-            "price": price,
-            "size": f"{size:.8f}",
+            "price": self.format_price(symbol, price),
+            "size": self.format_size(symbol, size),
             "clientOid": str(uuid.uuid4()),
         }
 
@@ -66,6 +67,7 @@ class KuCoinFuturesAPI(KuCoinFuturesMixin, KuCoinAPIBase):
         return {
             "symbol": symbol,
             "side": side.lower(),
+            "size": self.format_size(symbol, size),
             "type": "market",
             "clientOid": str(uuid.uuid4()),
             "leverage": self._leverage,
@@ -83,8 +85,8 @@ class KuCoinFuturesAPI(KuCoinFuturesMixin, KuCoinAPIBase):
             "symbol": symbol,
             "side": side.lower(),
             "type": "limit",
-            "price": price,
-            "size": f"{size:.0f}",
+            "price": self.format_price(symbol, price),
+            "size": self.format_size(symbol, size),
             "clientOid": str(uuid.uuid4()),
             "leverage": self._leverage,
         }

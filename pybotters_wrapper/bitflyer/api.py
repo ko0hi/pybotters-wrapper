@@ -17,7 +17,7 @@ class bitFlyerAPI(bitflyerMixin, API):
         return {
             "product_code": symbol,
             "side": side,
-            "size": f"{size:.8f}",
+            "size": self.format_size(symbol, size),
             "child_order_type": "MARKET",
         }
 
@@ -32,9 +32,9 @@ class bitFlyerAPI(bitflyerMixin, API):
         return {
             "product_code": symbol,
             "side": side,
-            "size": f"{size:.8f}",
+            "size": self.format_size(symbol, size),
             "child_order_type": "LIMIT",
-            "price": int(price),
+            "price": self.format_price(symbol, price),
         }
 
     def _make_cancel_order_parameter(
