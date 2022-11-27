@@ -35,7 +35,6 @@ class BinanceAPIBase(API):
             price: float,
             size: float,
     ) -> dict:
-
         return {
             "symbol": symbol.upper(),
             "side": side.upper(),
@@ -50,15 +49,6 @@ class BinanceAPIBase(API):
     ) -> dict:
         return {"symbol": symbol.upper(), "orderId": order_id}
 
-    def format_precision(self, value: float, precision: int):
-        str_value = f"{value:.10f}"
-        return str_value[: -(10 - precision)]
-
-    def format_price(self, symbol: str, price: float):
-        return self.format_precision(price, self._get_price_precision(symbol))
-
-    def format_size(self, symbol: str, size: float):
-        return self.format_precision(size, self._get_size_precision(symbol))
 
     def _get_price_precision(self, symbol: str):
         if isinstance(self, BinanceSpotAPI):
