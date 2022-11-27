@@ -4,12 +4,10 @@ from typing import NamedTuple
 
 import aiohttp
 import pybotters
-from loguru import logger
-
 import requests
-from pybotters.auth import Auth, Hosts
-from yarl import URL
-from multidict import MultiDict, CIMultiDict
+from loguru import logger
+from pybotters.auth import Auth
+
 from ..utils import LoggingMixin
 
 
@@ -101,13 +99,13 @@ class API(LoggingMixin):
 
     @logger.catch
     async def market_order(
-            self,
-            symbol: str,
-            side: str,
-            size: float,
-            request_params: dict = None,
-            order_id_key: str = None,
-            **kwargs,
+        self,
+        symbol: str,
+        side: str,
+        size: float,
+        request_params: dict = None,
+        order_id_key: str = None,
+        **kwargs,
     ) -> "OrderResponse":
         request_params = request_params or {}
         endpoint = self._make_market_endpoint(symbol, side, size, **kwargs)
@@ -124,14 +122,14 @@ class API(LoggingMixin):
 
     @logger.catch
     async def limit_order(
-            self,
-            symbol: str,
-            side: str,
-            price: float,
-            size: float,
-            request_params: dict = None,
-            order_id_key: str = None,
-            **kwargs,
+        self,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        request_params: dict = None,
+        order_id_key: str = None,
+        **kwargs,
     ) -> "OrderResponse":
         request_params = request_params or {}
         endpoint = self._make_limit_endpoint(symbol, side, price, size, **kwargs)
@@ -148,11 +146,11 @@ class API(LoggingMixin):
 
     @logger.catch
     async def cancel_order(
-            self,
-            symbol: str,
-            order_id: str,
-            request_params: dict = None,
-            **kwargs,
+        self,
+        symbol: str,
+        order_id: str,
+        request_params: dict = None,
+        **kwargs,
     ) -> "CancelResponse":
         request_params = request_params or {}
         endpoint = self._make_cancel_endpoint(symbol, order_id, **kwargs)
@@ -177,12 +175,12 @@ class API(LoggingMixin):
         return url if self._client._base_url else base_url + url
 
     def _make_market_endpoint(
-            self, symbol: str, side: str, size: float, **kwargs
+        self, symbol: str, side: str, size: float, **kwargs
     ) -> str:
         return self._MARKET_ENDPOINT or self._ORDER_ENDPOINT
 
     def _make_limit_endpoint(
-            self, symbol: str, side: str, price: float, size: float, **kwargs
+        self, symbol: str, side: str, price: float, size: float, **kwargs
     ) -> str:
         return self._LIMIT_ENDPOINT or self._ORDER_ENDPOINT
 
@@ -190,31 +188,31 @@ class API(LoggingMixin):
         return self._CANCEL_ENDPOINT or self._ORDER_ENDPOINT
 
     def _make_market_order_parameter(
-            self, endpoint: str, symbol: str, side: str, size: float
+        self, endpoint: str, symbol: str, side: str, size: float
     ) -> dict | None:
         raise NotImplementedError
 
     def _make_limit_order_parameter(
-            self,
-            endpoint: str,
-            symbol: str,
-            side: str,
-            price: float,
-            size: float,
+        self,
+        endpoint: str,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
     ) -> dict | None:
         raise NotImplementedError
 
     def _make_cancel_order_parameter(
-            self, endpoint: str, symbol: str, order_id: str
+        self, endpoint: str, symbol: str, order_id: str
     ) -> dict | None:
         raise NotImplementedError
 
     def _make_order_id(
-            self,
-            resp: "aiohttp.ClientResponse",
-            resp_data: dict,
-            data: dict,
-            order_id_key: str,
+        self,
+        resp: "aiohttp.ClientResponse",
+        resp_data: dict,
+        data: dict,
+        order_id_key: str,
     ) -> str | None:
         if resp.status == 200:
             order_id = resp_data
@@ -228,25 +226,25 @@ class API(LoggingMixin):
             return None
 
     def _make_market_order_id(
-            self,
-            resp: "aiohttp.ClientResponse",
-            resp_data: dict,
-            data: dict,
-            order_id_key: str,
+        self,
+        resp: "aiohttp.ClientResponse",
+        resp_data: dict,
+        data: dict,
+        order_id_key: str,
     ) -> str:
         return self._make_order_id(resp, resp_data, data, order_id_key)
 
     def _make_limit_order_id(
-            self,
-            resp: "aiohttp.ClientResponse",
-            resp_data: dict,
-            data: dict,
-            order_id_key: str,
+        self,
+        resp: "aiohttp.ClientResponse",
+        resp_data: dict,
+        data: dict,
+        order_id_key: str,
     ) -> str:
         return self._make_order_id(resp, resp_data, data, order_id_key)
 
     async def _make_request(
-            self, method: str, endpoint: str, params_or_data: dict | None, **kwargs
+        self, method: str, endpoint: str, params_or_data: dict | None, **kwargs
     ):
         params = {"method": method, "url": endpoint}
         if method == "GET":
@@ -261,46 +259,46 @@ class API(LoggingMixin):
         return resp, resp_data
 
     async def _make_market_request(
-            self, endpoint: str, params_or_data=dict | None, **kwargs
+        self, endpoint: str, params_or_data=dict | None, **kwargs
     ):
         return await self._make_request(
             self._MARKET_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_limit_request(
-            self, endpoint: str, params_or_data=dict | None, **kwargs
+        self, endpoint: str, params_or_data=dict | None, **kwargs
     ):
         return await self._make_request(
             self._LIMIT_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_cancel_request(
-            self, endpoint: str, params_or_data=dict | None, **kwargs
+        self, endpoint: str, params_or_data=dict | None, **kwargs
     ):
         return await self._make_request(
             self._CANCEL_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     def _make_order_response(
-            self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
+        self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
     ) -> "OrderResponse":
         return OrderResponse(order_id, resp, resp_data)
 
     def _make_market_order_response(
-            self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
+        self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
     ) -> "OrderResponse":
         return self._make_order_response(resp, resp_data, order_id)
 
     def _make_limit_order_response(
-            self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
+        self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
     ) -> "OrderResponse":
         return self._make_order_response(resp, resp_data, order_id)
 
     def _make_cancel_order_response(
-            self,
-            resp: aiohttp.ClientResponse,
-            resp_data: dict,
-            order_id: str,
+        self,
+        resp: aiohttp.ClientResponse,
+        resp_data: dict,
+        order_id: str,
     ) -> "OrderResponse":
         return self._make_order_response(resp, resp_data, order_id)
 
