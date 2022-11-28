@@ -143,8 +143,6 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
                         )
                     )
 
-                else:
-                    raise RuntimeError(f"Unsupported type: {a_or_n}")
         try:
             await self._store.initialize(*request_tasks)
         except AttributeError:
@@ -236,10 +234,12 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
 
     def _get_initialize_request_config(self, key: str) -> InitializeRequestConfig:
         if key not in self._INITIALIZE_CONFIG:
-            raise RuntimeError(
+            self.log(
                 f"Unsupported endpoint: {key}, "
                 f"available endpoints are {list(self._INITIALIZE_CONFIG.keys())}",
+                "warning",
             )
+            return None, None, None
 
         config = self._INITIALIZE_CONFIG[key]
 
