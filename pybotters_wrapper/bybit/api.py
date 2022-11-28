@@ -51,6 +51,34 @@ class BybitUSDTAPI(BybitUSDTMixin, BybitAPI):
     _ORDER_ENDPOINT = "/private/linear/order/create"
     _CANCEL_ENDPOINT = "/private/linear/order/cancel"
 
+    def __init__(self, oneway=True, **kwargs):
+        super(BybitUSDTAPI, self).__init__(**kwargs)
+        self._oneway = oneway
+
+    def _make_market_order_parameter(
+        self, endpoint: str, symbol: str, side: str, size: float
+    ) -> dict:
+        return self._add_position_idx(
+            super()._make_market_order_parameter(endpoint, symbol, side, size)
+        )
+
+    def _make_limit_order_parameter(
+        self,
+        endpoint: str,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+    ) -> dict:
+        return self._add_position_idx(
+            super()._make_limit_order_parameter(endpoint, symbol, side, price, size)
+        )
+
+    def _add_position_idx(self, p):
+        if self._oneway:
+            p["position_idx"] = 0
+        return p
+
 
 class BybitInverseAPI(BybitInverseMixin, BybitAPI):
     _ORDER_ENDPOINT = "/v2/private/order/create"
