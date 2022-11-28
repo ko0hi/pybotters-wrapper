@@ -121,7 +121,7 @@ class BarCSVWriter(Plugin, WriterMixin):
         super(BarCSVWriter)
         self._bar = bar
         self._writer: _CSVWriter = _CSVWriter(path, per_day, self._bar.COLUMNS, flush)
-        self._queue = self._bar.subscribe()
+        self._queue = self._bar.register_queue()
         self._task = asyncio.create_task(self._auto_write())
 
     async def _auto_write(self):
