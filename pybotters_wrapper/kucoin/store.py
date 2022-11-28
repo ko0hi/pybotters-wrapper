@@ -2,21 +2,20 @@ from __future__ import annotations
 
 import pandas as pd
 import pybotters
-
 from pybotters_wrapper.common import DataStoreWrapper
 from pybotters_wrapper.common.store import (
-    TickerStore,
-    TradesStore,
+    ExecutionStore,
     OrderbookStore,
     OrderStore,
-    ExecutionStore,
     PositionStore,
+    TickerStore,
+    TradesStore,
 )
 from pybotters_wrapper.kucoin import (
-    KuCoinSpotWebsocketChannels,
     KuCoinFuturesWebsocketChannels,
+    KuCoinSpotWebsocketChannels,
 )
-from pybotters_wrapper.utils.mixins import KuCoinSpotMixin, KuCoinFuturesMixin
+from pybotters_wrapper.utils.mixins import KuCoinFuturesMixin, KuCoinSpotMixin
 
 
 class KuCoinTickerStore(TickerStore):
@@ -96,6 +95,9 @@ class KuCoinExecutionStore(ExecutionStore):
 
 
 class KuCoinPositionStore(PositionStore):
+    # one-way only
+    _KEYS = ["symbol"]
+
     def _normalize(self, d: dict, op: str) -> "PositionItem":
         return self._itemize(
             d["symbol"], d["side"], d["avgEntryPrice"], abs(float(d["currentQty"]))
@@ -130,6 +132,7 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
             return self.endpoint
         except RuntimeError:
             import pybotters_wrapper as pbw
+
             api = pbw.create_api(self.exchange, client)
             url = self._INITIALIZE_CONFIG["token"][1]
             resp = api.spost(url)
@@ -139,7 +142,7 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
             return self.endpoint
 
     def _parse_send(
-            self, endpoint: str, send: any, client: pybotters.Client
+        self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
         assert endpoint is not None
 
