@@ -96,6 +96,9 @@ class KuCoinExecutionStore(ExecutionStore):
 
 
 class KuCoinPositionStore(PositionStore):
+    # one-way only
+    _KEYS = ["symbol"]
+
     def _normalize(self, d: dict, op: str) -> "PositionItem":
         return self._itemize(
             d["symbol"], d["side"], d["avgEntryPrice"], abs(float(d["currentQty"]))
