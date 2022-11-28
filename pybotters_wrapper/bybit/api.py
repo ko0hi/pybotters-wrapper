@@ -83,3 +83,6 @@ class BybitUSDTAPI(BybitUSDTMixin, BybitAPI):
 class BybitInverseAPI(BybitInverseMixin, BybitAPI):
     _ORDER_ENDPOINT = "/v2/private/order/create"
     _CANCEL_ENDPOINT = "/v2/private/order/cancel"
+
+    def format_size(self, symbol: str, size: float):
+        return int(super().format_size(symbol, size))
