@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pybotters
 from pybotters_wrapper.common import API
 from pybotters_wrapper.utils.mixins import BybitInverseMixin, BybitUSDTMixin
 
@@ -51,8 +52,10 @@ class BybitUSDTAPI(BybitUSDTMixin, BybitAPI):
     _ORDER_ENDPOINT = "/private/linear/order/create"
     _CANCEL_ENDPOINT = "/private/linear/order/cancel"
 
-    def __init__(self, oneway=True, **kwargs):
-        super(BybitUSDTAPI, self).__init__(**kwargs)
+    def __init__(
+        self, client: pybotters.Client, verbose: bool = False, oneway=True, **kwargs
+    ):
+        super(BybitUSDTAPI, self).__init__(client, verbose, **kwargs)
         self._oneway = oneway
 
     def _make_market_order_parameter(
