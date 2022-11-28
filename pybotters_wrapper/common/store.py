@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, Awaitable, Callable, Generic, Type, TypedDict, TypeVar
+from typing import (TYPE_CHECKING, Awaitable, Callable, Generic, Type,
+                    TypedDict, TypeVar)
 
 import aiohttp
 import pandas as pd
