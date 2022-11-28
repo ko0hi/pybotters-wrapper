@@ -4,9 +4,13 @@ from pybotters_wrapper.common import WebsocketChannels
 
 
 class BybitWebsocketChannels(WebsocketChannels):
-    def _make_endpoint_and_request_pair(self, *args):
-        request = {"op": "subscribe", "args": list(args)}
-        return self.ENDPOINT, request
+    def _make_endpoint_and_request_pair(self, topic, **kwargs):
+        request = {"op": "subscribe", "args": [topic]}
+        endpoint = self._get_endpoint(topic)
+        return endpoint, request
+
+    def _get_endpoint(self, topic):
+        raise NotImplementedError
 
     def ticker(self, symbol: str, **kwargs) -> BybitWebsocketChannels:
         return self.instrument_info(symbol)
@@ -18,7 +22,7 @@ class BybitWebsocketChannels(WebsocketChannels):
         return self.orderbook_l2_200(symbol, 100)
 
     def order(self, **kwargs) -> BybitWebsocketChannels:
-        return self._subscribe("order")
+        return self.stop_order()._subscribe("order")
 
     def execution(self, **kwargs) -> BybitWebsocketChannels:
         return self._subscribe("execution")
@@ -46,6 +50,12 @@ class BybitUSDTWebsocketChannels(BybitWebsocketChannels):
     ENDPOINT = "wss://stream.bybit.com/realtime_public"
     PUBLIC_ENDPOINT = ENDPOINT
     PRIVATE_ENDPOINT = "wss://stream.bybit.com/realtime_private"
+
+    def _get_endpoint(self, topic) -> str:
+        if topic in ("position", "execution", "order", "stop_order", "wallet"):
+            return self.PRIVATE_ENDPOINT
+        else:
+            return self.PUBLIC_ENDPOINT
 
     def candle(
         self, symbol: str, interval: int | str = 1
