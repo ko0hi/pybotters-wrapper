@@ -18,6 +18,8 @@ class BybitAPI(API):
             "order_type": "Market",
             "qty": self.format_size(symbol, size),
             "time_in_force": "GoodTillCancel",
+            "reduce_only": False,
+            "close_on_trigger": False,
         }
 
     def _make_limit_order_parameter(
@@ -35,6 +37,8 @@ class BybitAPI(API):
             "price": self.format_price(symbol, price),
             "qty": self.format_size(symbol, size),
             "time_in_force": "GoodTillCancel",
+            "reduce_only": False,
+            "close_on_trigger": False,
         }
 
     def _make_cancel_order_parameter(
