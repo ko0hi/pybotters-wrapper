@@ -10,7 +10,7 @@ class BybitWebsocketChannels(WebsocketChannels):
         return endpoint, request
 
     def _get_endpoint(self, topic):
-        raise NotImplementedError
+        return self.ENDPOINT
 
     def ticker(self, symbol: str, **kwargs) -> BybitWebsocketChannels:
         return self.instrument_info(symbol)
