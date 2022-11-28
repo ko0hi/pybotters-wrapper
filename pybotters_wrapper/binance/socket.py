@@ -13,7 +13,7 @@ class BinanceWebsocketChannels(WebsocketChannels):
         send_json = {
             "method": "SUBSCRIBE",
             "params": params,
-            "id": int(time.monotonic() * 10 ** 9),
+            "id": int(time.monotonic() * 10**9),
         }
 
         return self.ENDPOINT, send_json
@@ -21,11 +21,13 @@ class BinanceWebsocketChannels(WebsocketChannels):
     def get(self) -> dict[str, list]:
         compressed = {}
         for endpoint, sends in self._subscribe_list.items():
-            compressed[endpoint] = [{
-                "method": "SUBSCRIBE",
-                "params": [s["params"][0] for s in sends],
-                "id": sends[0]["id"],
-            }]
+            compressed[endpoint] = [
+                {
+                    "method": "SUBSCRIBE",
+                    "params": [s["params"][0] for s in sends],
+                    "id": sends[0]["id"],
+                }
+            ]
         return compressed
 
     # channels for normalized stores
@@ -42,12 +44,12 @@ class BinanceWebsocketChannels(WebsocketChannels):
         return self.listenkey(listen_key)
 
     def execution(
-            self, listen_key: str = "LISTEN_KEY", **kwargs
+        self, listen_key: str = "LISTEN_KEY", **kwargs
     ) -> BinanceWebsocketChannels:
         return self.listenkey(listen_key)
 
     def position(
-            self, listen_key: str = "LISTEN_KEY", **kwargs
+        self, listen_key: str = "LISTEN_KEY", **kwargs
     ) -> BinanceWebsocketChannels:
         return self.listenkey(listen_key)
 
@@ -74,8 +76,8 @@ class BinanceSpotWebsocketChannels(BinanceWebsocketChannels):
 
 class BinanceFuturesWebsocketChannels(BinanceWebsocketChannels):
     def continuous_kline(
-            self, pair: str, contract: str, interval: str
-    ) -> WebsocketChannels:
+        self, pair: str, contract: str, interval: str
+    ) -> BinanceFuturesWebsocketChannels:
         return self._subscribe(
             f"{pair.lower()}_{contract.lower()}@continuousKline_{interval}"
         )
@@ -87,22 +89,22 @@ class BinanceFuturesWebsocketChannels(BinanceWebsocketChannels):
         return self._subscribe(f"{symbol.lower()}@markPrice")
 
 
-class BinanceUSDSMWebsocketChannels(BinanceWebsocketChannels):
+class BinanceUSDSMWebsocketChannels(BinanceFuturesWebsocketChannels):
     ENDPOINT = "wss://fstream.binance.com/ws"
 
     def composite_index(self, symbol: str) -> BinanceUSDSMWebsocketChannels:
         return self._subscribe(f"{symbol.lower()}@compositeIndex")
 
 
-class BinanceCOINMWebsocketChannels(BinanceWebsocketChannels):
+class BinanceCOINMWebsocketChannels(BinanceFuturesWebsocketChannels):
     ENDPOINT = "wss://dstream.binance.com/ws"
 
     def index_price(
-            self, symbol: str, interval: str = "1s"
+        self, symbol: str, interval: str = "1s"
     ) -> BinanceCOINMWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@indexPrice{interval}")
+        return self._subscribe(f"{symbol.lower()}@indexPrice@{interval}")
 
     def index_price_kline(
-            self, symbol: str, interval: str
+        self, symbol: str, interval: str
     ) -> BinanceCOINMWebsocketChannels:
         return self._subscribe(f"{symbol.lower()}@indexPriceKline_{interval}")
