@@ -8,12 +8,11 @@ if TYPE_CHECKING:
     pass
 
 import asyncio
-import numpy as np
-
 from argparse import ArgumentParser
-from loguru import logger
 
+import numpy as np
 import pybotters_wrapper as pbw
+from loguru import logger
 
 
 class Status:
@@ -202,6 +201,8 @@ async def main(args):
     #
     initialize_configs = {
         "bitflyer": [],
+        "bybitusdt": [],
+        "bybitinverse": [],
         "kucoinfutures": ["token_private", "position"],
         "binanceusdsm": ["token_private", ("orderbook", {"symbol": "BTCUSDT"})],
     }
@@ -287,7 +288,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--exchange",
         help="取引所",
-        choices=["bitflyer", "binanceusdsm", "kucoinfutures"],
+        choices=[
+            "bitflyer",
+            "binanceusdsm",
+            "kucoinfutures",
+            "bybitusdt",
+            "bybitinverse",
+        ],
         required=True,
     )
     parser.add_argument("--symbol", help="取引通貨", required=True)
