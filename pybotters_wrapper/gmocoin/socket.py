@@ -20,29 +20,26 @@ class GMOWebsocketChannels(WebsocketChannels):
 
         return endpoint, params
 
-    # common channel methods
-    def ticker(self, symbol, **kwargs):
+    def ticker(self, symbol, **kwargs) -> GMOWebsocketChannels:
         return self._subscribe("ticker", symbol=symbol)
 
-    def trades(self, symbol, option="TAKER_ONLY", **kwargs):
+    def trades(self, symbol, option="TAKER_ONLY", **kwargs) -> GMOWebsocketChannels:
         return self._subscribe("trades", symbol=symbol, option=option)
 
-    def orderbook(self, symbol, **kwargs):
+    def orderbook(self, symbol, **kwargs) -> GMOWebsocketChannels:
         return self.orderbooks(symbol)
 
-    # GMO channel methods
-    def orderbooks(self, symbol):
+    def orderbooks(self, symbol) -> GMOWebsocketChannels:
         return self._subscribe("orderbooks", symbol=symbol)
 
-    def execution_events(self):
+    def execution_events(self) -> GMOWebsocketChannels:
         return self._subscribe("executionEvents")
 
-    def order_events(self):
+    def order_events(self) -> GMOWebsocketChannels:
         return self._subscribe("orderEvents")
 
-    def position_events(self):
+    def position_events(self) -> GMOWebsocketChannels:
         return self._subscribe("positionEvents")
 
-    def position_summary_events(self):
+    def position_summary_events(self) -> GMOWebsocketChannels:
         return self._subscribe("positionSummaryEvents")
-
