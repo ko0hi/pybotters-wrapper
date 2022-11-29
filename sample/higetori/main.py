@@ -52,6 +52,7 @@ class HigetoriBot:
         id = id or uuid.uuid4()
         logger.info(f"start entry: {id}")
 
+        # 初期注文
         limit_price = self.get_limit_price()
         watcher = pbw.plugins.execution_watcher(self._store)
         resp = await self._api.limit_order(
@@ -70,12 +71,17 @@ class HigetoriBot:
 
             logger.info(f"{id} {self._side} {watcher.order_id} {limit_price}")
 
+            # order is None => 約定
+            # 注文価格が設定価格から離れすぎている場合は更新
             if order and self._should_update(order["price"]):
                 await asyncio.sleep(self._update_patience_seconds)
                 if not watcher.done():
+                    # 待機中に約定しなかったので更新
                     logger.info("update order")
                     await self._api.cancel_order(order["symbol"], order["id"])
                     logger.info(f"[{id}] cancel order: {order}")
+
+                    # 指値を出し直す
                     limit_price = self.get_limit_price()
                     watcher = pbw.plugins.execution_watcher(self._store)
                     resp = await self._api.limit_order(
@@ -87,6 +93,8 @@ class HigetoriBot:
         logger.info(f"start exit: {id}")
         exec_item = watcher.result()
         exit_side = "BUY" if self._side == "SELL" else "SELL"
+
+        # トリガー発火で成行エグジット
         while True:
             await asyncio.sleep(self._watcher_interval)
             if self._should_exit(exec_item["price"]):
@@ -106,9 +114,6 @@ class HigetoriBot:
             return center * (1 - self._limit_distance)
         else:
             return center * (1 + self._limit_distance)
-
-    def _distance_from_ltp(self, price: float) -> float:
-        return price / self._last["price"] - 1
 
     def _should_update(self, price) -> bool:
         assert self._last is not None
