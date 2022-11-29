@@ -88,7 +88,8 @@ class BybitOrderStore(OrderStore):
 
 
 class BybitExecutionStore(ExecutionStore):
-    _AVAILABLE_OPERATIONS = ("_update",)
+    def _get_operation(self, change: "StoreChange") -> str:
+        return "_insert"
 
     def _normalize(self, d: dict, op: str) -> "ExecutionItem":
         return self._itemize(
