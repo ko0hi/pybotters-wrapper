@@ -78,7 +78,7 @@ class KuCoinFuturesWebsocketChannels(KuCoinWebsocketChannels):
         return self._subscribe(f"/contractMarket/execution:{symbol}")
 
     def contract_market_level2depth50(
-            self, symbol: str
+        self, symbol: str
     ) -> KuCoinFuturesWebsocketChannels:
         return self._subscribe(f"/contractMarket/level2Depth50:{symbol}")
 

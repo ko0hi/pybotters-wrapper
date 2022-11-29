@@ -7,7 +7,7 @@ class BitgetWebsocketChannels(WebsocketChannels):
     ENDPOINT = "wss://ws.bitget.com/mix/v1/stream"
 
     def _make_endpoint_and_request_pair(
-        self, channel: str, params: dict, inst_type: str = "mc", **kwargs
+            self, channel: str, params: dict, inst_type: str = "mc", **kwargs
     ) -> [str, dict]:
         return self.ENDPOINT, {
             "op": "subscribe",
@@ -27,7 +27,7 @@ class BitgetWebsocketChannels(WebsocketChannels):
         return self._subscribe("books", {"instId": symbol})
 
     def candlesticks(
-        self, symbol: str, interval: str = "1m"
+            self, symbol: str, interval: str = "1m"
     ) -> BitgetWebsocketChannels:
         assert interval == "1m", "only '1m' interval is supported"
         return self._subscribe(f"candle{interval}", {"instId": symbol})

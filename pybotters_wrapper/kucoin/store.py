@@ -2,13 +2,20 @@ from __future__ import annotations
 
 import pandas as pd
 import pybotters
-from pybotters_wrapper.common import DataStoreWrapper
+from pybotters.store import StoreChange
 from pybotters_wrapper.common.store import (
+    DataStoreWrapper,
+    ExecutionItem,
     ExecutionStore,
+    OrderbookItem,
     OrderbookStore,
+    OrderItem,
     OrderStore,
+    PositionItem,
     PositionStore,
+    TickerItem,
     TickerStore,
+    TradesItem,
     TradesStore,
 )
 from pybotters_wrapper.kucoin import (
@@ -37,7 +44,6 @@ class KuCoinTradesStore(TradesStore):
             ts = d["ts"]
         else:
             raise RuntimeError(f"Unexpected input: {d}")
-
         return self._itemize(
             d["tradeId"],
             d["symbol"],
@@ -142,7 +148,7 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
             return self.endpoint
 
     def _parse_send(
-            self, endpoint: str, send: any, client: pybotters.Client
+        self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
         assert endpoint is not None
 

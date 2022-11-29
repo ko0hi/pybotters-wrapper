@@ -5,9 +5,8 @@ from collections import defaultdict
 from typing import Callable, TypeVar
 
 import pybotters
-from pybotters.typedefs import WsStrHandler, WsBytesHandler, WsJsonHandler
+from pybotters.typedefs import WsBytesHandler, WsJsonHandler, WsStrHandler
 from pybotters.ws import WebSocketRunner
-
 from pybotters_wrapper.utils.mixins import LoggingMixin
 
 WsHandler = WsStrHandler | WsBytesHandler | WsJsonHandler
@@ -62,12 +61,12 @@ class WebsocketChannels(LoggingMixin):
 
 class WebsocketConnection(LoggingMixin):
     def __init__(
-            self,
-            endpoint: str,
-            send: any,
-            hdlr: WsHandler | list[WsHandler],
-            send_type: str = "json",
-            hdlr_type: str = "json",
+        self,
+        endpoint: str,
+        send: any,
+        hdlr: WsHandler | list[WsHandler],
+        send_type: str = "json",
+        hdlr_type: str = "json",
     ):
         self._ws: WebSocketRunner = None
         self._endpoint = endpoint
@@ -80,11 +79,11 @@ class WebsocketConnection(LoggingMixin):
         self._hdlr_type = hdlr_type
 
     async def connect(
-            self,
-            client: "pybotters.Client",
-            auto_reconnect: bool = False,
-            on_reconnection: Callable = None,
-            **kwargs,
+        self,
+        client: "pybotters.Client",
+        auto_reconnect: bool = False,
+        on_reconnection: Callable = None,
+        **kwargs,
     ) -> WebSocketRunner:
         params = {
             f"send_{self._send_type}": self._send,
@@ -98,7 +97,7 @@ class WebsocketConnection(LoggingMixin):
         return self
 
     async def _auto_reconnect(
-            self, client: "pybotters.Client", on_reconnection: Callable = None, **kwargs
+        self, client: "pybotters.Client", on_reconnection: Callable = None, **kwargs
     ):
         while True:
             if not self.connected:

@@ -2,16 +2,22 @@ from __future__ import annotations
 
 import pandas as pd
 from pybotters.models.bitflyer import bitFlyerDataStore
-
+from pybotters.store import StoreChange
 from pybotters_wrapper.bitflyer import bitFlyerWebsocketChannels
-from pybotters_wrapper.common import (
+from pybotters_wrapper.common.store import (
     DataStoreWrapper,
-    TickerStore,
-    TradesStore,
-    OrderbookStore,
-    OrderStore,
+    ExecutionItem,
     ExecutionStore,
+    OrderbookItem,
+    OrderbookStore,
+    OrderItem,
+    OrderStore,
+    PositionItem,
     PositionStore,
+    TickerItem,
+    TickerStore,
+    TradesItem,
+    TradesStore,
 )
 from pybotters_wrapper.utils.mixins import bitflyerMixin
 
@@ -22,7 +28,7 @@ class bitFlyerTickerStore(TickerStore):
 
 
 class bitFlyerTradesStore(TradesStore):
-    def _normalize(self, d: dict, op: str) -> "TickerItem":
+    def _normalize(self, d: dict, op: str) -> "TradesItem":
         side = d["side"]
         if side:
             order_id = d[side.lower() + "_child_order_acceptance_id"]
@@ -39,7 +45,7 @@ class bitFlyerTradesStore(TradesStore):
 
 
 class bitFlyerOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op: str) -> "TickerItem":
+    def _normalize(self, d: dict, op: str) -> "OrderbookItem":
         return self._itemize(
             d["product_code"], d["side"], float(d["price"]), float(d["size"])
         )
@@ -97,5 +103,5 @@ class bitFlyerDataStoreWrapper(bitflyerMixin, DataStoreWrapper[bitFlyerDataStore
 
     _INITIALIZE_CONFIG = {
         "order": ("GET", "/v1/me/getchildorders", ["product_code"]),
-        "position": ("GET", "/v1/me/getpositions", ["product_code"])
+        "position": ("GET", "/v1/me/getpositions", ["product_code"]),
     }
