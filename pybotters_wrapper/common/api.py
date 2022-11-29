@@ -11,7 +11,6 @@ from pybotters.auth import Auth
 from pybotters_wrapper.utils import read_resource
 from pybotters_wrapper.utils.mixins import ExchangeMixin, LoggingMixin
 
-
 PRICE_PRECISIONS, SIZE_PRECISIONS = {}, {}
 
 
