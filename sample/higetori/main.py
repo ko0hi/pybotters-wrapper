@@ -107,9 +107,6 @@ class HigetoriBot:
         else:
             return center * (1 + self._limit_distance)
 
-    def get_limit_prices(self, ltp):
-        return self.get_limit_price(ltp, "BUY"), self.get_limit_price(ltp, "SELL")
-
     def _distance_from_ltp(self, price: float) -> float:
         return price / self._last["price"] - 1
 
@@ -122,18 +119,6 @@ class HigetoriBot:
         profit = abs(self._last["price"] / entry_price - 1)
         logger.error(profit)
         return profit > self._stop_loss_distance or profit > self._take_profit_distance
-
-    @property
-    def _config(self):
-        return [
-            self._symbol,
-            self._side,
-            self._size,
-            self._limit_distance,
-            self._update_distance,
-            self._take_profit_distance,
-            self._stop_loss_distance,
-        ]
 
     @property
     def center(self):
