@@ -132,7 +132,7 @@ async def create_ws_connect(
             conns.append(conn)
         return conns
     else:
-        raise RuntimeError(f"Need either of `endpoint` and `send` or `subscribe_list`")
+        raise RuntimeError("Need either of `endpoint` and `send` or `subscribe_list`")
 
 
 def get_base_url(exchange: str) -> str:
