@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from pybotters_wrapper.common import API
-from pybotters_wrapper.utils.mixins import BinanceSpotMixin, BinanceUSDSMMixin, \
-    BinanceCOINMMixin
+from pybotters_wrapper.utils.mixins import (
+    BinanceCOINMMixin,
+    BinanceSpotMixin,
+    BinanceUSDSMMixin,
+)
 
 
 class BinanceAPIBase(API):
@@ -10,7 +13,7 @@ class BinanceAPIBase(API):
     _ORDER_ID_KEY = "orderId"
 
     def _make_market_order_parameter(
-            self, endpoint: str, symbol: str, side: str, size: float
+        self, endpoint: str, symbol: str, side: str, size: float
     ) -> dict:
         return {
             "symbol": symbol.upper(),
@@ -20,12 +23,12 @@ class BinanceAPIBase(API):
         }
 
     def _make_limit_order_parameter(
-            self,
-            endpoint: str,
-            symbol: str,
-            side: str,
-            price: float,
-            size: float,
+        self,
+        endpoint: str,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
     ) -> dict:
         return {
             "symbol": symbol.upper(),
@@ -37,7 +40,7 @@ class BinanceAPIBase(API):
         }
 
     def _make_cancel_order_parameter(
-            self, endpoint: str, symbol: str, order_id: str
+        self, endpoint: str, symbol: str, order_id: str
     ) -> dict:
         return {"symbol": symbol.upper(), "orderId": order_id}
 
