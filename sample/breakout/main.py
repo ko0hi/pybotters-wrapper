@@ -86,8 +86,6 @@ async def main(args):
             seconds=args.bar_seconds,
             callback=[partial(timebar_callback, period=args.trigger_period)],
         )
-        # 更新のたびに最新のDataFrameを取得するためのqueueを発行
-        df_queue = tbar.register_queue()
         # 約定履歴とBarの書き出しを設定
         writers = (
             pbw.plugins.watch_csvwriter(
