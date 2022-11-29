@@ -2,6 +2,7 @@ import asyncio
 import time
 import uuid
 from argparse import ArgumentParser
+from collections import deque
 
 import pandas_ta
 import pybotters
@@ -22,12 +23,14 @@ class HigetoriBot:
         take_profit_distance: float,
         stop_loss_distance: float,
         update_patience_seconds: int,
+        window: int,
         watcher_interval: float = 0.33,
     ):
         self._api = api
         self._store = store
         self._symbol = symbol
         self._side = side
+        self._window = window
         self._size = size
         self._limit_distance = limit_distance
         self._update_distance = update_distance
@@ -36,18 +39,20 @@ class HigetoriBot:
         self._update_patience_seconds = update_patience_seconds
         self._watcher_interval = watcher_interval
         self._last = None
+        self._window_deque = deque(maxlen=window)
         self._watch_trade_task = asyncio.create_task(self._watch_trade())
 
     async def _watch_trade(self):
         with self._store.trades.watch() as stream:
             async for change in stream:
                 self._last = change.data
+                self._window_deque.append(change.data["price"])
 
     async def run(self, id=None):
         id = id or uuid.uuid4()
         logger.info(f"start entry: {id}")
 
-        limit_price = self.get_limit_price(self.ltp)
+        limit_price = self.get_limit_price()
         watcher = pbw.plugins.execution_watcher(self._store)
         resp = await self._api.limit_order(
             self._symbol, self._side, limit_price, self._size
@@ -71,7 +76,7 @@ class HigetoriBot:
                     logger.info("update order")
                     await self._api.cancel_order(order["symbol"], order["id"])
                     logger.info(f"[{id}] cancel order: {order}")
-                    limit_price = self.get_limit_price(self.ltp)
+                    limit_price = self.get_limit_price()
                     watcher = pbw.plugins.execution_watcher(self._store)
                     resp = await self._api.limit_order(
                         self._symbol, self._side, limit_price, self._size
@@ -94,12 +99,13 @@ class HigetoriBot:
             await self.run()
             await asyncio.sleep(interval)
 
-    def get_limit_price(self, ltp, side=None):
+    def get_limit_price(self, side=None):
         side = side or self._side
+        center = self.center
         if side == "BUY":
-            return ltp * (1 - self._limit_distance)
+            return center * (1 - self._limit_distance)
         else:
-            return ltp * (1 + self._limit_distance)
+            return center * (1 + self._limit_distance)
 
     def get_limit_prices(self, ltp):
         return self.get_limit_price(ltp, "BUY"), self.get_limit_price(ltp, "SELL")
@@ -130,11 +136,11 @@ class HigetoriBot:
         ]
 
     @property
-    def ltp(self):
+    def center(self):
         if self._last is None:
             return self._store.trades.find()[-1]["price"]
         else:
-            return self._last["price"]
+            return sum(self._window_deque) / len(self._window_deque)
 
 
 async def main(args):
@@ -181,6 +187,7 @@ async def main(args):
                 take_profit_distance=args.take_profit_distance,
                 stop_loss_distance=args.stop_loss_distance,
                 update_patience_seconds=args.update_patience_seconds,
+                window=args.window,
             ).run_forever()
 
         else:
@@ -196,9 +203,10 @@ if __name__ == "__main__":
     parser.add_argument("--symbol", default="BTCUSDT")
     parser.add_argument("--size", default=0.001, type=float)
     parser.add_argument("--side", default="BUY")
+    parser.add_argument("--window", help="中心価格を決める約定履歴数", default=100, type=int)
     parser.add_argument(
         "--limit_distance",
-        help="最終取引価格からn％離れたとろに指値を配置（0~1)",
+        help="中心価格からn％離れたとろに指値を配置（0~1)",
         default=0.002,
         type=float,
     )
