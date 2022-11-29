@@ -2,14 +2,17 @@ from __future__ import annotations
 
 import pandas as pd
 from pybotters.models.coincheck import CoincheckDataStore
-
-from pybotters_wrapper.common import (
+from pybotters_wrapper.common.store import (
     DataStoreWrapper,
-    TickerStore,
-    TradesStore,
+    OrderbookItem,
     OrderbookStore,
+    TickerItem,
+    TickerStore,
+    TradesItem,
+    TradesStore,
 )
 from pybotters_wrapper.utils.mixins import CoincheckMixin
+
 from .socket import CoinCheckWebsocketChannels
 
 
@@ -26,7 +29,7 @@ class CoincheckTradeStore(TradesStore):
             d["side"].upper(),
             float(d["rate"]),
             float(d["amount"]),
-            pd.Timestamp.utcnow()
+            pd.Timestamp.utcnow(),
         )
 
 
@@ -36,7 +39,7 @@ class CoincheckOrderbookStore(OrderbookStore):
             None,
             "BUY" if d["side"] == "bids" else "SELL",
             float(d["rate"]),
-            float(d["amount"])
+            float(d["amount"]),
         )
 
 
