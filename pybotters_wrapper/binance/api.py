@@ -42,7 +42,6 @@ class BinanceAPIBase(API):
         return {"symbol": symbol.upper(), "orderId": order_id}
 
 
-
 class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
     BASE_URL = "https://api.binance.com"
     _ORDER_ENDPOINT = "/api/v3/order"

@@ -58,7 +58,7 @@ class BybitUSDTWebsocketChannels(BybitWebsocketChannels):
             return self.PUBLIC_ENDPOINT
 
     def candle(
-        self, symbol: str, interval: int | str = 1
+            self, symbol: str, interval: int | str = 1
     ) -> BybitUSDTWebsocketChannels:
         return self._subscribe(f"candle.{interval}.{symbol}")
 
@@ -73,7 +73,7 @@ class BybitInverseWebsocketChannels(BybitWebsocketChannels):
         return self._subscribe("insurance")
 
     def kline_v2(
-        self, symbol: str, interval: int | str = 1
+            self, symbol: str, interval: int | str = 1
     ) -> BybitInverseWebsocketChannels:
         return self._subscribe(f"klineV2.{interval}.{symbol}")
 

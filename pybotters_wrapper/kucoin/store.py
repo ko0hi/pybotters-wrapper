@@ -142,7 +142,7 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
             return self.endpoint
 
     def _parse_send(
-        self, endpoint: str, send: any, client: pybotters.Client
+            self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
         assert endpoint is not None
 
