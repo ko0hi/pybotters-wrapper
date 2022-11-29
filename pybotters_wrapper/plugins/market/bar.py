@@ -164,6 +164,10 @@ class BarStreamDataFrame(DataStorePlugin):
     def df(self):
         return self._sdf.df
 
+    @property
+    def _(self):
+        return self._sdf._
+
 
 class TimeBarStreamDataFrame(BarStreamDataFrame):
     def __init__(
