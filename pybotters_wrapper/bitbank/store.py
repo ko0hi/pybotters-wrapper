@@ -1,14 +1,22 @@
 from __future__ import annotations
 
-import pandas as pd
-from pybotters import bitbankDataStore
+from typing import Callable
 
+import pandas as pd
+import pybotters
+from pybotters import bitbankDataStore
+from pybotters.store import DataStore
+from pybotters.typedefs import WsBytesHandler, WsStrHandler
+from pybotters.ws import WebSocketRunner
 from pybotters_wrapper.bitbank import bitbankWebsocketChannels
-from pybotters_wrapper.common import (
+from pybotters_wrapper.common.store import (
     DataStoreWrapper,
-    TickerStore,
-    TradesStore,
+    OrderbookItem,
     OrderbookStore,
+    TickerItem,
+    TickerStore,
+    TradesItem,
+    TradesStore,
 )
 from pybotters_wrapper.utils.mixins import bitbankMixin
 
@@ -45,19 +53,20 @@ class bitbankDataStoreWrapper(bitbankMixin, DataStoreWrapper[bitbankDataStore]):
     _ORDERBOOK_STORE = (bitbankOrderbookStore, "depth")
 
     async def connect(
-            self,
-            client: "pybotters.Client",
-            *,
-            endpoint: str = None,
-            send: any = None,
-            hdlr: "WsStrHandler" | "WsBytesHandler" = None,
-            waits: list["DataStore" | str] = None,
-            send_type: str = "json",
-            hdlr_type: str = "json",
-            auto_reconnect: bool = False,
-            on_reconnection: "Callable" = None,
-            **kwargs,
+        self,
+        client: "pybotters.Client",
+        *,
+        endpoint: str = None,
+        send: any = None,
+        hdlr: "WsStrHandler" | "WsBytesHandler" = None,
+        waits: list["DataStore" | str] = None,
+        send_type: str = "json",
+        hdlr_type: str = "json",
+        auto_reconnect: bool = False,
+        on_reconnection: "Callable" = None,
+        **kwargs,
     ) -> dict[str, "WebSocketRunner"]:
+
         return await super().connect(
             client,
             endpoint=endpoint,

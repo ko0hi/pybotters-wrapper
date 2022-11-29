@@ -12,17 +12,17 @@ class bitbankWebsocketChannels(WebsocketChannels):
             '42["join-room",' + ",".join([f'"{str(p)}"' for p in params]) + "]",
         )
 
-    def ticker(self, symbol: str, **kwargs) -> BitbankWebsocketChannels:
+    def ticker(self, symbol: str, **kwargs) -> bitbankWebsocketChannels:
         return self._subscribe(f"ticker_{symbol}")
 
-    def trades(self, symbol: str, **kwargs) -> BitbankWebsocketChannels:
+    def trades(self, symbol: str, **kwargs) -> bitbankWebsocketChannels:
         return self.transaction(symbol)
 
-    def orderbook(self, symbol: str, **kwargs) -> BitbankWebsocketChannels:
+    def orderbook(self, symbol: str, **kwargs) -> bitbankWebsocketChannels:
         return self.depth_whole(symbol)
 
-    def transaction(self, symbol: str) -> BitbankWebsocketChannels:
+    def transaction(self, symbol: str) -> bitbankWebsocketChannels:
         return self._subscribe(f"transactions_{symbol}")
 
-    def depth_whole(self, symbol: str) -> BitbankWebsocketChannels:
+    def depth_whole(self, symbol: str) -> bitbankWebsocketChannels:
         return self._subscribe(f"depth_whole_{symbol}")
