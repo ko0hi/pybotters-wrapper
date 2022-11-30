@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import asyncio
+
 import pandas as pd
+import pybotters
 from pybotters.models.gmocoin import GMOCoinDataStore
 from pybotters_wrapper.common.store import (
     DataStoreWrapper,
@@ -91,3 +94,28 @@ class GMOCoinDataStoreWrapper(GMOCoinMixin, DataStoreWrapper[GMOCoinDataStore]):
     _ORDER_STORE = (GMOCoinOrderStore, "orders")
     _EXECUTION_STORE = (GMOCoinExecutionStore, "executions")
     _POSITION_STORE = (GMOCoinPositionStore, "positions")
+
+    def _parse_send(
+        self, endpoint: str, send: any, client: pybotters.Client
+    ) -> dict[str, list[any]]:
+        subscribe_list = super()._parse_send(endpoint, send, client)
+        rtn = {}
+        for endpoint, send_items in subscribe_list.items():
+            if "private" in endpoint:
+                if self.store.token is None:
+                    import pybotters_wrapper as pbw
+
+                    api = pbw.create_api(self.exchange, client)
+                    _, url, _ = self._INITIALIZE_CONFIG["token"]
+                    resp = api.spost(url)
+                    data = resp.json()
+                    key = data["data"]
+                    self.store.token = key
+                    asyncio.create_task(self.store._token(client._session))
+                    self.log("`token` got automatically initialized. ", "warning")
+                rtn[endpoint + f"/{self.store.token}"] = send_items
+
+            else:
+                rtn[endpoint] = send_items
+
+        return rtn
