@@ -29,6 +29,15 @@ class GMOWebsocketChannels(WebsocketChannels):
     def orderbook(self, symbol, **kwargs) -> GMOWebsocketChannels:
         return self.orderbooks(symbol)
 
+    def order(self, **kwargs) -> GMOWebsocketChannels:
+        return self.order_events()
+
+    def execution(self, **kwargs) -> GMOWebsocketChannels:
+        return self.execution_events()
+
+    def position(self, **kwargs) -> GMOWebsocketChannels:
+        return self.position_events()
+
     def orderbooks(self, symbol) -> GMOWebsocketChannels:
         return self._subscribe("orderbooks", symbol=symbol)
 
