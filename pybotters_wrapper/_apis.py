@@ -77,9 +77,11 @@ def _get_value(exchange, dic):
     return dic[exchange]
 
 
-def create_store(
-    exchange: str, *, store: DataStoreManager = None, **kwargs
-) -> DataStoreWrapper:
+def create_client(**kwargs) -> pybotters.Client:
+    return pybotters.Client(**kwargs)
+
+
+def create_store(exchange: str, *, store: DataStoreManager = None) -> DataStoreWrapper:
     return _get_value(exchange, EXCHANGE2STORE)(store)
 
 
@@ -136,3 +138,129 @@ async def create_ws_connect(
 
 def get_base_url(exchange: str) -> str:
     return EXCHANGE2API[exchange].BASE_URL
+
+
+def create_binancespot_store(**kwargs) -> pbw.binance.BinanceSpotDataStoreWrapper:
+    return create_store("binancespot", **kwargs)
+
+
+def create_binanceusdsm_store(**kwargs) -> pbw.binance.BinanceUSDSMDataStoreWrapper:
+    return create_store("binanceusdsm", **kwargs)
+
+
+def create_binancecoinm_store(**kwargs) -> pbw.binance.BinanceCOINMDataStoreWrapper:
+    return create_store("binancecoinm", **kwargs)
+
+
+def create_bitbank_store(**kwargs) -> pbw.bitbank.bitbankDataStoreWrapper:
+    return create_store("bitbank", **kwargs)
+
+
+def create_bitflyer_store(**kwargs) -> pbw.bitflyer.bitFlyerDataStoreWrapper:
+    return create_store("bitflyer", **kwargs)
+
+
+def create_bitget_store(**kwargs) -> pbw.bitget.BitgetDataStoreWrapper:
+    return create_store("bitget", **kwargs)
+
+
+def create_bybitusdt_store(**kwargs) -> pbw.bybit.BybitUSDTDataStoreWrapper:
+    return create_store("bybitusdt", **kwargs)
+
+
+def create_bybitinverse_store(**kwargs) -> pbw.bybit.BybitInverseDataStoreWrapper:
+    return create_store("bybitinverse", **kwargs)
+
+
+def create_coincheck_store(**kwargs) -> pbw.coincheck.CoincheckDataStoreWrapper:
+    return create_store("coincheck", **kwargs)
+
+
+def create_gmocoin_store(**kwargs) -> pbw.gmocoin.GMOCoinDataStoreWrapper:
+    return create_store("gmocoin", **kwargs)
+
+
+def create_kucoinspot_store(**kwargs) -> pbw.kucoin.KuCoinSpotDataStoreWrapper:
+    return create_store("kucoinspot", **kwargs)
+
+
+def create_kucoinfutures_store(**kwargs) -> pbw.kucoin.KuCoinFuturesDataStoreWrapper:
+    return create_store("kucoinfutures", **kwargs)
+
+
+def create_okx_store(**kwargs) -> pbw.okx.OKXDataStoreWrapper:
+    return create_store("okx", **kwargs)
+
+
+def create_phemex_store(**kwargs) -> pbw.phemex.PhemexDataStoreWrapper:
+    return create_store("phemex", **kwargs)
+
+
+def create_binancespot_api(
+    client: pybotters.Client, **kwargs
+) -> pbw.binance.BinanceSpotAPI:
+    return create_api("binancespot", client, **kwargs)
+
+
+def create_binanceusdsm_api(
+    client: pybotters.Client, **kwargs
+) -> pbw.binance.BinanceUSDSMAPI:
+    return create_api("binanceusdsm", client, **kwargs)
+
+
+def create_binancecoinm_api(
+    client: pybotters.Client, **kwargs
+) -> pbw.binance.BinanceCOINMAPI:
+    return create_api("binancecoinm", client, **kwargs)
+
+
+def create_bitbank_api(client: pybotters.Client, **kwargs) -> pbw.bitbank.bitbankAPI:
+    return create_api("bitbank", client, **kwargs)
+
+
+def create_bitflyer_api(client: pybotters.Client, **kwargs) -> pbw.bitflyer.bitFlyerAPI:
+    return create_api("bitflyer", client, **kwargs)
+
+
+def create_bitget_api(client: pybotters.Client, **kwargs) -> pbw.bitget.BitgetAPI:
+    return create_api("bitget", client, **kwargs)
+
+
+def create_bybitusdt_api(client: pybotters.Client, **kwargs) -> pbw.bybit.BybitUSDTAPI:
+    return create_api("bybitusdt", client, **kwargs)
+
+
+def create_bybitinverse_api(
+    client: pybotters.Client, **kwargs
+) -> pbw.bybit.BybitInverseAPI:
+    return create_api("bybitinverse", client, **kwargs)
+
+
+def create_coincheck_api(
+    client: pybotters.Client, **kwargs
+) -> pbw.coincheck.CoincheckAPI:
+    return create_api("coincheck", client, **kwargs)
+
+
+def create_gmocoin_api(client: pybotters.Client, **kwargs) -> pbw.gmocoin.GMOCoinAPI:
+    return create_api("gmocoin", client, **kwargs)
+
+
+def create_kucoinspot_api(
+    client: pybotters.Client, **kwargs
+) -> pbw.kucoin.KuCoinSpotAPI:
+    return create_api("kucoinspot", client, **kwargs)
+
+
+def create_kucoinfutures_api(
+    client: pybotters.Client, **kwargs
+) -> pbw.kucoin.KuCoinFuturesAPI:
+    return create_api("kucoinfutures", client, **kwargs)
+
+
+def create_okx_api(client: pybotters.Client, **kwargs) -> pbw.okx.OKXAPI:
+    return create_api("okx", client, **kwargs)
+
+
+def create_phemex_api(client: pybotters.Client, **kwargs) -> pbw.phemex.PhemexAPI:
+    return create_api("phemex", client, **kwargs)
