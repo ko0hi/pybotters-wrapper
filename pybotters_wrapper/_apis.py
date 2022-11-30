@@ -8,8 +8,8 @@ from pybotters.store import DataStoreManager
 
 import pybotters_wrapper as pbw
 from pybotters_wrapper import plugins
-from pybotters_wrapper.common import API, DataStoreWrapper
-from pybotters_wrapper.common.socket import (
+from pybotters_wrapper.core import API, DataStoreWrapper
+from pybotters_wrapper.core.socket import (
     WebsocketChannels,
     WebsocketConnection,
     WsHandler,

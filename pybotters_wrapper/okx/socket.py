@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pybotters_wrapper.common import WebsocketChannels
+from pybotters_wrapper.core import WebsocketChannels
 
 
 class OKXWebsocketChannels(WebsocketChannels):

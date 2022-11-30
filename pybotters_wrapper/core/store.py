@@ -9,7 +9,7 @@ import pybotters
 from aiohttp.client_reqrep import ClientResponse
 from loguru import logger
 from pybotters.store import DataStore, DataStoreManager
-from pybotters_wrapper.common import WebsocketConnection
+from pybotters_wrapper.core import WebsocketConnection
 from pybotters_wrapper.utils.mixins import ExchangeMixin, LoggingMixin
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from pybotters.store import StoreChange
     from pybotters.typedefs import WsBytesHandler, WsStrHandler
     from pybotters.ws import ClientWebSocketResponse, WebSocketRunner
-    from pybotters_wrapper.common import WebsocketChannels
+    from pybotters_wrapper.core import WebsocketChannels
 
 T = TypeVar("T", bound=DataStoreManager)
 InitializeRequestConfig = tuple[str, str, list[str] | tuple[str] | None]

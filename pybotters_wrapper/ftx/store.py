@@ -3,8 +3,8 @@ from __future__ import annotations
 import pandas as pd
 from pybotters.models.ftx import FTXDataStore
 
-from pybotters_wrapper.common import DataStoreWrapper
-from pybotters_wrapper.common.store import (
+from pybotters_wrapper.core import DataStoreWrapper
+from pybotters_wrapper.core.store import (
     TickerStore,
     TradesStore,
     OrderbookStore,

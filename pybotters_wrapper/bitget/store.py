@@ -5,7 +5,7 @@ import uuid
 import pandas as pd
 from pybotters.models.bitget import BitgetDataStore
 from pybotters_wrapper.bitget import BitgetWebsocketChannels
-from pybotters_wrapper.common.store import (
+from pybotters_wrapper.core.store import (
     DataStoreWrapper,
     OrderbookItem,
     OrderbookStore,

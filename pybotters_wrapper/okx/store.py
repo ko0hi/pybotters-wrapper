@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 from pybotters.models.okx import OKXDataStore
 
-from pybotters_wrapper.common import (
+from pybotters_wrapper.core import (
     DataStoreWrapper,
     TickerStore,
     TradesStore,

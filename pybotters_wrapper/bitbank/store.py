@@ -9,7 +9,7 @@ from pybotters.store import DataStore
 from pybotters.typedefs import WsBytesHandler, WsStrHandler
 from pybotters.ws import WebSocketRunner
 from pybotters_wrapper.bitbank import bitbankWebsocketChannels
-from pybotters_wrapper.common.store import (
+from pybotters_wrapper.core.store import (
     DataStoreWrapper,
     OrderbookItem,
     OrderbookStore,

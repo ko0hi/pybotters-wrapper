@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from .._base import DataStorePlugin
-from ...common import DataStoreWrapper
+from ...core import DataStoreWrapper
 
 
 class WriterMixin:
