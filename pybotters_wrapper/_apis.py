@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import traceback
-from typing import Callable, Type, TypeVar
+from typing import Callable, Type
 
 import pybotters
 from pybotters.store import DataStoreManager
