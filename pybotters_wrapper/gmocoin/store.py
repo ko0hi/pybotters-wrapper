@@ -79,6 +79,12 @@ class GMOCoinPositionStore(PositionStore):
 class GMOCoinDataStoreWrapper(GMOCoinMixin, DataStoreWrapper[GMOCoinDataStore]):
     _WRAP_STORE = GMOCoinDataStore
     _WEBSOCKET_CHANNELS = GMOWebsocketChannels
+    _INITIALIZE_CONFIG = {
+        "token": ("POST", "/private/v1/ws-auth", None),
+        "token_private": ("POST", "/private/v1/ws-auth", None),
+        "order": ("GET", "/private/v1/activeOrders", ["symbol"]),
+        "position": ("GET", "/private/v1/activeOrders", ["symbol"]),
+    }
     _TICKER_STORE = (GMOCoinTickerStore, "ticker")
     _TRADES_STORE = (GMOCoinTradesStore, "trades")
     _ORDERBOOK_STORE = (GMOCoinOrderbookStore, "orderbooks")
