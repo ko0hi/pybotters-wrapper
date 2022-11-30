@@ -77,9 +77,7 @@ def _get_value(exchange, dic):
     return dic[exchange]
 
 
-def create_store(
-    exchange: str, *, store: DataStoreManager = None, **kwargs
-) -> DataStoreWrapper:
+def create_store(exchange: str, *, store: DataStoreManager = None) -> DataStoreWrapper:
     return _get_value(exchange, EXCHANGE2STORE)(store)
 
 
