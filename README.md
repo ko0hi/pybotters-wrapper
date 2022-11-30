@@ -11,7 +11,7 @@ library未満snippet以上。
 
 | Exchange        | DataStoreWrapper | Ticker | Trades | Orderbook | Execution | Order | Position | API  | 
 |:----------------|:----------------:|:------:|:------:|:---------:|:---------:|:-----:|:--------:|:----:|
-| `binancespot`   |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   | 
+| `binancespot`   |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ❌     |  ✅   | 
 | `binanceusdsm`  |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   | 
 | `binancecoinm`  |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   | 
 | `bitbank`       |        ✅         |   ✅    |   ✅    |     ✅     |     ❌     |   ❌   |    ❌     | WIP  | 
