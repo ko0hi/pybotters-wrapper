@@ -37,7 +37,7 @@ class GMOCoinTradesStore(TradesStore):
             d["side"].name,
             float(d["price"]),
             float(d["size"]),
-            pd.to_datetime(d["timestamp"]),
+            pd.to_datetime(d["timestamp"], utc=True),
         )
 
 
@@ -68,7 +68,7 @@ class GMOCoinExecutionStore(ExecutionStore):
             d["side"].name,
             float(d["price"]),
             float(d["size"]),
-            pd.to_datetime(d["timestamp"]),
+            pd.to_datetime(d["timestamp"], utc=True),
         )
 
 
@@ -86,7 +86,7 @@ class GMOCoinDataStoreWrapper(GMOCoinMixin, DataStoreWrapper[GMOCoinDataStore]):
         "token": ("POST", "/private/v1/ws-auth", None),
         "token_private": ("POST", "/private/v1/ws-auth", None),
         "order": ("GET", "/private/v1/activeOrders", ["symbol"]),
-        "position": ("GET", "/private/v1/activeOrders", ["symbol"]),
+        "position": ("GET", "/private/v1/openPositions", ["symbol"]),
     }
     _TICKER_STORE = (GMOCoinTickerStore, "ticker")
     _TRADES_STORE = (GMOCoinTradesStore, "trades")

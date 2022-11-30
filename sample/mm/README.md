@@ -49,3 +49,22 @@ api.jsonは以下のフォーマットになっている必要があります。
 }
 ```
 
+
+### GMOCoin
+
+GMOは建玉別決済のため基本的に他取引所と同じ注文スクリプトで動かすことはできません。
+
+`main_gmo.py`はGMO用に修正を入れたものです。とはいえ異なっている箇所は下記のところだけで、`close`という決済注文フラグを渡すようになっているのみです。
+
+```python
+# GMOは建玉別決済で新規と決済で注文エンドポイントが異なる。
+# pybotters-wrapperではデフォルトは新規注文用の"/private/v1/order"エンドポイント、
+# close=Trueフラグを与えると、一括決済用の"/private/v1/closeBulkOrder"エンドポイントを
+# 叩きにいく。ここでは逆サイドの建玉を持っていれば後者を用いるようにしている。
+exit_side = "BUY" if side == "SELL" else "SELL"
+close = store.position.size(exit_side) > 0
+
+...
+
+resp_order = await api.limit_order(symbol, side, price, size, close=close)
+```
