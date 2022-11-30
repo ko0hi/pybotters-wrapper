@@ -37,7 +37,7 @@ class GMOCoinTradesStore(TradesStore):
             d["side"].name,
             float(d["price"]),
             float(d["size"]),
-            pd.to_datetime(d["timestamp"]),
+            pd.to_datetime(d["timestamp"], utc=True),
         )
 
 
@@ -68,7 +68,7 @@ class GMOCoinExecutionStore(ExecutionStore):
             d["side"].name,
             float(d["price"]),
             float(d["size"]),
-            pd.to_datetime(d["timestamp"]),
+            pd.to_datetime(d["timestamp"], utc=True),
         )
 
 
