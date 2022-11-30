@@ -186,7 +186,11 @@ class API(ExchangeMixin, LoggingMixin):
             raise RuntimeError(f"Unsupported: {kind}")
 
         if symbol in precisions:
-            return round(value, precisions[symbol])
+            precision = precisions[symbol]
+            if precision == 0:
+                return int(value)
+            else:
+                return round(value, precisions[symbol])
         else:
             return str(value)
 

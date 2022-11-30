@@ -20,11 +20,11 @@ library未満snippet以上。
 | `bybitusdt`     |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   |
 | `bybitinverse`  |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   |
 | `coincheck`     |        ✅         |   ✅    |   ✅    |     ✅     |     ❌     |   ❌   |    ❌     | WIP  | 
-| `gmocoin`       |        ✅         |   ✅    |   ✅    |     ✅     |    WIP    |  WIP  |   WIP    | 🔺^1 |
+| `gmocoin`       |        ✅         |   ✅    |   ✅    |     ✅     |     ✅      |  ✅  |   ✅    | 🔺^1 |
 | `kucoinspot`    |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ❌     |  ✅   | 
 | `kucoinfutures` |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   | 
 | `okx`           |        ✅         |   ✅    |   ✅    |     ✅     |    WIP    |  WIP  |   WIP    | WIP  |
 | `phemex`        |        ✅         |   ✅    |   ✅    |     ✅     |    WIP    |  WIP  |   WIP    | WIP  |
                                                                                                          
 
-^1: 建玉別決済のため対応方法検討中
+^1: 建玉別決済のため決済用の独自パラメータあり
