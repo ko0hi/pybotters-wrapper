@@ -133,7 +133,7 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
 
     """
 
-    def _parse_endpoint(self, endpoint: str, client: pybotters.Client) -> str:
+    def _parse_connect_endpoint(self, endpoint: str, client: pybotters.Client) -> str:
         try:
             return self.endpoint
         except RuntimeError:
@@ -147,7 +147,7 @@ class _KuCoinDataStoreWrapper(DataStoreWrapper[pybotters.KuCoinDataStore]):
             self.log("Websocket token got automatically initialized", "warning")
             return self.endpoint
 
-    def _parse_send(
+    def _parse_connect_send(
         self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
         assert endpoint is not None

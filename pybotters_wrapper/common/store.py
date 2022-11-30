@@ -193,9 +193,9 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
         on_reconnection: Callable = None,
         **kwargs,
     ) -> dict[str, WebSocketRunner]:
-        endpoint = self._parse_endpoint(endpoint, client)
-        endpoint_to_sends = self._parse_send(endpoint, send, client)
-        hdlr = self._parse_hdlr(hdlr, client)
+        endpoint = self._parse_connect_endpoint(endpoint, client)
+        endpoint_to_sends = self._parse_connect_send(endpoint, send, client)
+        hdlr = self._parse_connect_hdlr(hdlr, client)
 
         for ep, sj in endpoint_to_sends.items():
             await self._ws_connect(
@@ -287,10 +287,10 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
     def _init_position_store(self) -> "PositionStore" | None:
         return self._init_normalized_store(self._POSITION_STORE)
 
-    def _parse_endpoint(self, endpoint: str, client: pybotters.Client) -> str:
+    def _parse_connect_endpoint(self, endpoint: str, client: pybotters.Client) -> str:
         return endpoint or self._ws_channels.ENDPOINT
 
-    def _parse_send(
+    def _parse_connect_send(
         self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
         subscribe_lists = self._ws_channels.get()
@@ -313,7 +313,7 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
 
         return subscribe_lists
 
-    def _parse_hdlr(self, hdlr_json: any, client: pybotters.Client):
+    def _parse_connect_hdlr(self, hdlr_json: any, client: pybotters.Client):
         if hdlr_json is None:
             hdlr_json = self.onmessage
         else:
