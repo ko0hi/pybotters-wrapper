@@ -28,7 +28,7 @@ from pybotters_wrapper.utils.mixins import BybitInverseMixin, BybitUSDTMixin
 
 class BybitTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return self._itemize(d["symbol"], d["last_price"])
+        return self._itemize(d["symbol"], float(d["last_price"]))
 
 
 class BybitTradesStore(TradesStore):
