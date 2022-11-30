@@ -77,6 +77,10 @@ def _get_value(exchange, dic):
     return dic[exchange]
 
 
+def create_client(**kwargs) -> pybotters.Client:
+    return pybotters.Client(**kwargs)
+
+
 def create_store(exchange: str, *, store: DataStoreManager = None) -> DataStoreWrapper:
     return _get_value(exchange, EXCHANGE2STORE)(store)
 
