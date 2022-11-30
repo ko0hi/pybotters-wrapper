@@ -86,7 +86,7 @@ class GMOCoinDataStoreWrapper(GMOCoinMixin, DataStoreWrapper[GMOCoinDataStore]):
         "token": ("POST", "/private/v1/ws-auth", None),
         "token_private": ("POST", "/private/v1/ws-auth", None),
         "order": ("GET", "/private/v1/activeOrders", ["symbol"]),
-        "position": ("GET", "/private/v1/activeOrders", ["symbol"]),
+        "position": ("GET", "/private/v1/openPositions", ["symbol"]),
     }
     _TICKER_STORE = (GMOCoinTickerStore, "ticker")
     _TRADES_STORE = (GMOCoinTradesStore, "trades")
