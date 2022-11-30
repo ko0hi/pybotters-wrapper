@@ -51,24 +51,24 @@ class GMOCoinOrderbookStore(OrderbookStore):
 class GMOCoinOrderStore(OrderStore):
     def _normalize(self, d: dict, op: str) -> "OrderItem":
         return self._itemize(
-            str(d["orderId"]),
+            str(d["order_id"]),
             d["symbol"].name,
             d["side"].name,
-            float(d["orderPrice"]),
-            float(d["orderSize"]),
-            d["executionType"],
+            float(d["price"]),
+            float(d["size"]),
+            d["execution_type"],
         )
 
 
 class GMOCoinExecutionStore(ExecutionStore):
     def _normalize(self, d: dict, op: str) -> "ExecutionItem":
         return self._itemize(
-            str(d["orderId"]),
+            str(d["order_id"]),
             d["symbol"].name,
             d["side"].name,
-            float(d["executionPrice"]),
-            float(d["executionSize"]),
-            pd.to_datetime(d["executionTimestamp"]),
+            float(d["price"]),
+            float(d["size"]),
+            pd.to_datetime(d["timestamp"]),
         )
 
 
