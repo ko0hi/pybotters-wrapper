@@ -12,6 +12,5 @@ __all__ = (
     "init_logger",
     "init_logdir",
     "logger",
-    log_command_args,
+    "log_command_args",
 )
-
