@@ -67,7 +67,7 @@ class GMOCoinAPI(GMOCoinMixin, API):
             "symbol": symbol,
             "side": side,
             "executionType": "MARKET",
-            "size": self.format_price(symbol, size),
+            "size": self.format_size(symbol, size),
         }
 
     def _make_limit_order_parameter(
@@ -83,7 +83,7 @@ class GMOCoinAPI(GMOCoinMixin, API):
             "side": side,
             "executionType": "LIMIT",
             "price": self.format_price(symbol, price),
-            "size": self.format_price(symbol, size),
+            "size": self.format_size(symbol, size),
         }
 
     def _make_cancel_order_parameter(
