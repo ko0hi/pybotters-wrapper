@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pybotters_wrapper.common.api import API, OrderResponse
+from pybotters_wrapper.core.api import API, OrderResponse
 from pybotters_wrapper.utils.mixins import GMOCoinMixin
 
 

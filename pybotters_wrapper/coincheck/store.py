@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pandas as pd
 from pybotters.models.coincheck import CoincheckDataStore
-from pybotters_wrapper.common.store import (
+from pybotters_wrapper.core.store import (
     DataStoreWrapper,
     OrderbookItem,
     OrderbookStore,

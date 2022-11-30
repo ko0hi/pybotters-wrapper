@@ -5,7 +5,7 @@ from typing import Callable
 
 import pandas as pd
 
-from pybotters_wrapper.common import DataStoreWrapper
+from pybotters_wrapper.core import DataStoreWrapper
 from .market import (
     TimeBarStreamDataFrame,
     VolumeBarStreamDataFrame,

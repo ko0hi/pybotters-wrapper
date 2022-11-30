@@ -18,7 +18,7 @@ from pybotters_wrapper.binance.socket import (
     BinanceSpotWebsocketChannels,
     BinanceUSDSMWebsocketChannels,
 )
-from pybotters_wrapper.common.store import (
+from pybotters_wrapper.core.store import (
     DataStoreWrapper,
     ExecutionStore,
     OrderbookItem,
@@ -141,10 +141,10 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
     _EXECUTION_STORE = (BinanceExecutionStore, None)
     _POSITION_STORE = (BinancePositionStore, "position")
 
-    def _parse_send(
+    def _parse_connect_send(
         self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
-        subscribe_list = super()._parse_send(endpoint, send, client)
+        subscribe_list = super()._parse_connect_send(endpoint, send, client)
 
         for endpoint, sends in subscribe_list.items():
             for i, send in enumerate(sends):

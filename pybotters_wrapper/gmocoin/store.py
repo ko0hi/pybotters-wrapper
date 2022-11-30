@@ -5,7 +5,7 @@ import asyncio
 import pandas as pd
 import pybotters
 from pybotters.models.gmocoin import GMOCoinDataStore
-from pybotters_wrapper.common.store import (
+from pybotters_wrapper.core.store import (
     DataStoreWrapper,
     ExecutionItem,
     ExecutionStore,
@@ -95,10 +95,10 @@ class GMOCoinDataStoreWrapper(GMOCoinMixin, DataStoreWrapper[GMOCoinDataStore]):
     _EXECUTION_STORE = (GMOCoinExecutionStore, "executions")
     _POSITION_STORE = (GMOCoinPositionStore, "positions")
 
-    def _parse_send(
+    def _parse_connect_send(
         self, endpoint: str, send: any, client: pybotters.Client
     ) -> dict[str, list[any]]:
-        subscribe_list = super()._parse_send(endpoint, send, client)
+        subscribe_list = super()._parse_connect_send(endpoint, send, client)
         rtn = {}
         for endpoint, send_items in subscribe_list.items():
             if "private" in endpoint:

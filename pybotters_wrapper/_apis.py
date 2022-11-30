@@ -1,21 +1,20 @@
 from __future__ import annotations
 
 import traceback
-from typing import Callable, Type, TypeVar
+from typing import Callable, Type
 
 import pybotters
 from pybotters.store import DataStoreManager
 
 import pybotters_wrapper as pbw
 from pybotters_wrapper import plugins
-from pybotters_wrapper.common import API, DataStoreWrapper
-from pybotters_wrapper.common.socket import (
+from pybotters_wrapper.core import API, DataStoreWrapper
+from pybotters_wrapper.core.socket import (
     WebsocketChannels,
     WebsocketConnection,
     WsHandler,
 )
-
-TWebsocketChannels = TypeVar("TWebsocketChannels", bound=WebsocketChannels)
+from pybotters_wrapper.plugins._base import Plugin
 
 EXCHANGE2BASEURL = {
     "binancespot": pbw.binance.BinanceSpotAPI.BASE_URL,
@@ -88,7 +87,7 @@ def create_api(exchange: str, client: pybotters.Client, **kwargs) -> API:
     return _get_value(exchange, EXCHANGE2API)(client, **kwargs)
 
 
-def create_plugin(store: DataStoreWrapper, name: str, **kwargs):
+def create_plugin(store: DataStoreWrapper, name: str, **kwargs) -> Plugin:
     try:
         factory_fn = getattr(plugins, name)
     except AttributeError:
@@ -96,7 +95,7 @@ def create_plugin(store: DataStoreWrapper, name: str, **kwargs):
     return factory_fn(store, **kwargs)
 
 
-def create_socket_channels(exchange: str) -> TWebsocketChannels:
+def create_socket_channels(exchange: str) -> WebsocketChannels:
     return EXCHANGE2STORE[exchange]._WEBSOCKET_CHANNELS()
 
 
