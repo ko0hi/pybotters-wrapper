@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
-from ...core.store import ExecutionItem
+from ...core.store import DataStoreWrapper, ExecutionItem
 from .._base import DataStorePlugin
 
 
@@ -19,7 +19,7 @@ class ExecutionWatcher(DataStorePlugin):
         """監視対象の注文IDをセット"""
         if self._order_id is not None:
             raise RuntimeError(
-                f"ExecutionWatcher must not be 'reused', create a new instance instead."
+                "ExecutionWatcher must not be 'reused', create a new instance instead."
             )
         self._order_id = order_id
         self._event.set()
