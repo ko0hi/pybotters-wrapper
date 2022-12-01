@@ -2,11 +2,8 @@ from __future__ import annotations
 
 from typing import NamedTuple
 
-from pybotters_wrapper.core import (
-    DataStoreWrapper,
-    OrderbookStore,
-    TradesStore,
-)
+from pybotters_wrapper.core import DataStoreWrapper, OrderbookStore, TradesStore
+
 from .._base import MultipleDataStoresPlugin
 
 
@@ -46,7 +43,7 @@ class BookTicker(MultipleDataStoresPlugin):
             self._update(asks=asks, bids=bids)
 
     def _on_watch(self, d: dict, op: str, store: "DataStore"):
-        if isinstance(store, TradesStore) and op == "insert":
+        if isinstance(store, TradesStore):
             self._update(price=d["price"])
 
     def _update(self, *, asks=None, bids=None, price=None):
@@ -85,3 +82,11 @@ class BookTicker(MultipleDataStoresPlugin):
     @property
     def price(self):
         return self._tick.price
+
+    @property
+    def mid(self):
+        return self._tick.mid
+
+    @property
+    def spread(self):
+        return self.best_ask - self.best_bid

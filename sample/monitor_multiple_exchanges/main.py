@@ -1,7 +1,6 @@
 import asyncio
 
 import pandas as pd
-
 import pybotters
 import pybotters_wrapper as pbw
 
@@ -39,19 +38,20 @@ async def main():
         for exchange, conf in configs.items():
             store = pbw.create_store(exchange)
 
+            # 約定をcsvに書き出し
+            for exchange, store in stores.items():
+                pbw.plugins.watch_csvwriter(
+                    store, "trades", f"{exchange}-trades.csv", per_day=True
+                )
+
             if "initialize" in conf:
                 await store.initialize(conf["initialize"], client)
 
             await store.subscribe("public", symbol=conf["symbol"]).connect(
-                client, auto_reconnect=True,
+                client,
+                auto_reconnect=True,
             )
             stores[exchange] = store
-
-        # 約定をcsvに書き出し
-        for exchange, store in stores.items():
-            pbw.plugins.watch_csvwriter(
-                store, "trades", f"{exchange}-trades.csv", per_day=True
-            )
 
         while True:
             data = {}

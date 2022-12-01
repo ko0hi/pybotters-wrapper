@@ -215,23 +215,17 @@ async def main(args):
         # DataStore（ラッパー）の初期化
         store = pbw.create_store(args.exchange)
 
-        await store.initialize(initialize_configs[args.exchange], client=client)
-
-        # websocket接続
-        # "default"とするとNormalizedStore（"ticker",  "trades", "orderbook", "order",
-        # "execution", "position"）に対応するチャンネルを全て購読する
-        # `auto_reconnect=True`で切断された場合に再度同じチャンネルを購読し直す
-        await store.subscribe("all", symbol=args.symbol).connect(
-            client, auto_reconnect=True
-        )
-
         # pluginの設定
+        # データの取りこぼしが起こりうるため、pluginの設定はstore.initialize・store.connectの
+        # 前に行う必要がある。
+
         # watch_csvwriterは,watchメソッドでストアの更新を監視し、挿入（i.e., _insert メソッド
         # が呼ばれる）があるたびに指定カラムの値（デフォルトは全カラム）を書き出す。約定履歴などデータを
         # 順次書き出していきたい時に使う。
         execution_writer = pbw.plugins.watch_csvwriter(
             store, "execution", f"{logdir}/execution.csv"
         )
+
         # wait_csvwriterはwaitメソッドでストアの更新を監視し、更新があるたびに指定カラムの値（デフォ
         # ルトは全カラム）を１アイテム１行で書き出す。注文やポジションなど定期的なスナップショットを保存
         # したい時に使う。
@@ -240,6 +234,7 @@ async def main(args):
             "order",
             f"{logdir}/order.csv",
         )
+
         # 約定履歴からtimebarを作成するプラグイン
         tbar = pbw.plugins.timebar(store, seconds=args.bar_seconds)
 
@@ -251,6 +246,17 @@ async def main(args):
             position_adjust=args.position_adjust,
             market_amount_default=args.market_amount_default,
             market_amount_weight=args.market_amount_weight,
+        )
+
+        # ストアの初期化
+        await store.initialize(initialize_configs[args.exchange], client=client)
+
+        # websocket接続
+        # "default"とするとNormalizedStore（"ticker",  "trades", "orderbook", "order",
+        # "execution", "position"）に対応するチャンネルを全て購読する
+        # `auto_reconnect=True`で切断された場合に再度同じチャンネルを購読し直す
+        await store.subscribe("all", symbol=args.symbol).connect(
+            client, auto_reconnect=True
         )
 
         # メインループ
@@ -324,5 +330,5 @@ if __name__ == "__main__":
 
     try:
         asyncio.run(main(args))
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         pass
