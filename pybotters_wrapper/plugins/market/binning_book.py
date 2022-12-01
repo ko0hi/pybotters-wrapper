@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import TypeVar, NamedTuple, Union
+from typing import NamedTuple, TypeVar, Union
 
 import numpy as np
 import pybotters
 from pybotters.store import DataStore
 
-from .._base import DataStorePlugin
 from ...utils import Bucket
+from .._base import DataStorePlugin
 
 T = TypeVar("T", bound=DataStore)
 
@@ -21,13 +21,13 @@ class BookChange(NamedTuple):
 
 class BinningBook(DataStorePlugin):
     def __init__(
-            self,
-            store: "DataStoreManagerWrapper",
-            *,
-            min_bin: int,
-            max_bin: int,
-            pips: int = 1,
-            precision: int = 10,
+        self,
+        store: "DataStoreManagerWrapper",
+        *,
+        min_bin: int,
+        max_bin: int,
+        pips: int = 1,
+        precision: int = 10,
     ):
         super(BinningBook, self).__init__(store.orderbook)
         self._buckets: dict[Bucket] = {
@@ -38,7 +38,7 @@ class BinningBook(DataStorePlugin):
 
     def _on_watch(self, d: dict, op: str):
         self.set_mid(self.store.mid)
-        if op == "insert":
+        if op in ("insert", "update"):
             self._insert(d["side"], d["price"], d["size"])
         elif op == "delete":
             self._delete(d["side"], d["price"], d["size"])
