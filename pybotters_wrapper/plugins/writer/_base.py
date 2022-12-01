@@ -20,11 +20,11 @@ class DataStoreWatchWriter(DataStorePlugin, WriterMixin):
         store_name: str,
         *,
         columns: list[str] = None,
-        operations: list[str] = ("insert",),
+        operations: list[str] = None,
     ):
         super(DataStoreWatchWriter, self).__init__(getattr(store, store_name))
         self._columns = columns
-        self._operations = operations
+        self._operations = operations or ("insert",)
 
     def _write(self, d: dict):
         raise NotImplementedError
