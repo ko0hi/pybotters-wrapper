@@ -144,14 +144,9 @@ async def main(args):
     async with pybotters.Client(apis=args.api) as client:
         # ストアの設定
         store = pbw.create_store(args.exchange)
-        await store.subscribe("all", symbol=args.symbol).connect(
-            client, auto_reconnect=True, waits=["trades"]
-        )
-
-        api = pbw.create_api(args.exchange, client, verbose=True)
 
         # 約定履歴とBarの書き出しを設定
-        writers = (
+        (
             pbw.plugins.wait_csvwriter(
                 store, "order", f"{logdir}/order.csv", per_day=True, flush=True
             ),
@@ -159,6 +154,12 @@ async def main(args):
                 store, "execution", f"{logdir}/execution.csv", per_day=True, flush=True
             ),
         )
+
+        await store.subscribe("all", symbol=args.symbol).connect(
+            client, auto_reconnect=True, waits=["trades"]
+        )
+
+        api = pbw.create_api(args.exchange, client, verbose=True)
 
         params = {
             "api": api,

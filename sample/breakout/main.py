@@ -72,10 +72,6 @@ async def main(args):
     async with pybotters.Client(apis=args.api) as client:
         # ストアの設定
         store = pbw.create_store(args.exchange)
-        # await store.initialize(["token"], client)
-        await store.subscribe("all", symbol=args.symbol).connect(
-            client, auto_reconnect=True, waits=["trades"]
-        )
 
         # APIの設定 (verbose=Trueでリクエストごとにログ出力する）
         api = pbw.create_api(args.exchange, client, verbose=True)
@@ -86,14 +82,20 @@ async def main(args):
             seconds=args.bar_seconds,
             callback=[partial(timebar_callback, period=args.trigger_period)],
         )
+
         # 約定履歴とBarの書き出しを設定
-        writers = (
+        (
             pbw.plugins.watch_csvwriter(
                 store, "execution", f"{logdir}/execution.csv", per_day=True, flush=True
             ),
             pbw.plugins.bar_csvwriter(
                 tbar, f"{logdir}/bar.csv", per_day=True, flush=True
             ),
+        )
+
+        # websocket接続
+        await store.subscribe("all", symbol=args.symbol).connect(
+            client, auto_reconnect=True, waits=["trades"]
         )
 
         run_params = {

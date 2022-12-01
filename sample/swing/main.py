@@ -1,10 +1,9 @@
 import asyncio
+from argparse import ArgumentParser
 
+import pandas_ta  # noqa
 import pybotters
 import pybotters_wrapper as pbw
-import pandas_ta
-
-from argparse import ArgumentParser
 
 
 def get_feature(df, length=14, th=20):
@@ -30,10 +29,6 @@ async def main(args):
     async with pybotters.Client(apis=args.api) as client:
         # ストアの設定
         store = pbw.create_store(args.exchange)
-        # await store.initialize(["token"], client)
-        await store.subscribe("all", symbol=args.symbol).connect(
-            client, auto_reconnect=True, waits=["trades"]
-        )
 
         # APIの設定 (verbose=Trueでリクエストごとにログ出力する）
         api = pbw.create_api(args.exchange, client, verbose=True)
@@ -43,13 +38,17 @@ async def main(args):
         # 更新のたびに最新のDataFrameを取得するためのqueueを発行
         df_queue = tbar.register_queue()
         # 約定履歴とBarの書き出しを設定
-        writers = (
+        (
             pbw.plugins.watch_csvwriter(
                 store, "execution", f"{logdir}/execution.csv", per_day=True, flush=True
             ),
             pbw.plugins.bar_csvwriter(
                 tbar, f"{logdir}/bar.csv", per_day=True, flush=True
             ),
+        )
+
+        await store.subscribe("all", symbol=args.symbol).connect(
+            client, auto_reconnect=True, waits=["trades"]
         )
 
         while True:
