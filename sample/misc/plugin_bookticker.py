@@ -8,18 +8,10 @@ async def main():
     configs = {
         "binanceusdsm": {
             "symbol": "BTCUSDT",
-            "min": 0,
-            "max": 200000,
-            "pips": 20,
             "initialize": [("orderbook", {"symbol": "BTCUSDT"})],
         },
-        "bitflyer": {
-            "symbol": "FX_BTC_JPY",
-            "min": 1000000,
-            "max": 5000000,
-            "pips": 1000,
-        },
-        "bybitusdt": {"symbol": "BTCUSDT", "min": 0, "max": 40000, "pips": 10},
+        "bitflyer": {"symbol": "FX_BTC_JPY"},
+        "bybitusdt": {"symbol": "BTCUSDT"},
     }
 
     async with pbw.create_client() as client:

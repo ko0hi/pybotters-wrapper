@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 import asyncio
+from typing import Callable
 
 from loguru import logger
 from pybotters.store import DataStore, StoreChange
 
 
-def _is_aw(fn):
+def _is_aw(fn: Callable) -> bool:
     return asyncio.iscoroutinefunction(fn)
 
 
 @logger.catch
-async def _run_hook(is_aw: bool, fn, *args):
+async def _run_hook(is_aw: bool, fn: Callable, *args) -> any:
     if is_aw:
         return await fn(*args)
     else:
@@ -19,20 +20,30 @@ async def _run_hook(is_aw: bool, fn, *args):
 
 
 class Plugin:
-    ...
+    def __init__(self):
+        self._queues = []
+
+    def register_queue(self) -> asyncio.Queue:
+        q = asyncio.Queue()
+        self._queues.append(q)
+        return q
 
 
 class DataStorePlugin(Plugin):
+    """単一のDataStoreを用いるプラグイン"""
+
     def __init__(self, store: DataStore):
+        super(DataStorePlugin, self).__init__()
         self._store = store
         self._wait_task = asyncio.create_task(self._run_wait_task())
         self._watch_task = asyncio.create_task(self._run_watch_task())
-        self._queues = []
 
     def __del__(self):
+        # インスタンス破棄時に監視タスクをキャンセルする
         self.stop()
 
     async def _run_wait_task(self):
+        """wait監視"""
         is_aw_on_before = _is_aw(self._on_wait_before)
         is_aw_on_wait = _is_aw(self._on_wait)
         is_aw_on_after = _is_aw(self._on_wait_after)
@@ -47,6 +58,7 @@ class DataStorePlugin(Plugin):
                 break
 
     async def _run_watch_task(self):
+        """watch監視"""
         is_aw_on_before = _is_aw(self._on_watch_before)
         is_aw_on_transform = _is_aw(self._on_watch_transform)
         is_aw_on_watch = _is_aw(self._on_watch)
@@ -56,6 +68,7 @@ class DataStorePlugin(Plugin):
             async for change in stream:
                 await _run_hook(is_aw_on_before, self._on_watch_before, change)
 
+                # watchはアイテム変換用のhookがある
                 transformed = await _run_hook(
                     is_aw_on_transform,
                     self._on_watch_transform,
@@ -112,14 +125,12 @@ class DataStorePlugin(Plugin):
         self._wait_task.cancel()
         self._watch_task.cancel()
 
-    def register_queue(self) -> asyncio.Queue:
-        q = asyncio.Queue()
-        self._queues.append(q)
-        return q
-
 
 class MultipleDataStoresPlugin(Plugin):
+    """複数のDataStoreを用いるプラグイン"""
+
     def __init__(self, *stores: DataStore):
+        super(MultipleDataStoresPlugin, self).__init__()
         self._stores = stores
         self._wait_queue = asyncio.Queue()
         self._watch_queue = asyncio.Queue()
@@ -127,7 +138,6 @@ class MultipleDataStoresPlugin(Plugin):
         self._watch_task = asyncio.create_task(self._run_watch_task())
         self._wait_tasks = None
         self._watch_tasks = None
-        self._queues = asyncio.Queue()
 
     def __del__(self):
         self.stop()
@@ -143,6 +153,7 @@ class MultipleDataStoresPlugin(Plugin):
                 self._watch_queue.put_nowait((store, change))
 
     async def _run_wait_task(self):
+        # 使用するDataStoreのwaitをそれぞれ監視してキューで結果を取得する
         self._wait_tasks = [
             asyncio.create_task(self._run_wait_task_one(s)) for s in self._stores
         ]
@@ -151,8 +162,8 @@ class MultipleDataStoresPlugin(Plugin):
         is_aw_on_after = _is_aw(self._on_wait_after)
         is_aw_on_is_stop = _is_aw(self._on_wait_is_stop)
         while True:
-            await _run_hook(is_aw_on_before, self._on_wait_before)
             store = await self._wait_queue.get()
+            await _run_hook(is_aw_on_before, self._on_wait_before)
             await _run_hook(is_aw_on_wait, self._on_wait, store)
             await _run_hook(is_aw_on_after, self._on_wait_after, store)
             is_stop = await _run_hook(is_aw_on_is_stop, self._on_wait_is_stop, store)
@@ -219,9 +230,9 @@ class MultipleDataStoresPlugin(Plugin):
         ...
 
     def _on_watch_before(
-            self,
-            change: "StoreChange",
-            store: "DataStore",
+        self,
+        change: "StoreChange",
+        store: "DataStore",
     ):
         ...
 
@@ -239,8 +250,3 @@ class MultipleDataStoresPlugin(Plugin):
         self._watch_task.cancel()
         [t.cancel() for t in self._wait_tasks]
         [t.cancel() for t in self._watch_tasks]
-
-    def register_queue(self) -> asyncio.Queue:
-        q = asyncio.Queue()
-        self._queues.append(q)
-        return q
