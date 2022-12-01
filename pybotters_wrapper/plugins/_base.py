@@ -19,15 +19,21 @@ async def _run_hook(is_aw: bool, fn, *args):
 
 
 class Plugin:
-    ...
+    def __init__(self):
+        self._queues = []
+
+    def register_queue(self) -> asyncio.Queue:
+        q = asyncio.Queue()
+        self._queues.append(q)
+        return q
 
 
 class DataStorePlugin(Plugin):
     def __init__(self, store: DataStore):
+        super(DataStorePlugin, self).__init__()
         self._store = store
         self._wait_task = asyncio.create_task(self._run_wait_task())
         self._watch_task = asyncio.create_task(self._run_watch_task())
-        self._queues = []
 
     def __del__(self):
         self.stop()
@@ -112,14 +118,10 @@ class DataStorePlugin(Plugin):
         self._wait_task.cancel()
         self._watch_task.cancel()
 
-    def register_queue(self) -> asyncio.Queue:
-        q = asyncio.Queue()
-        self._queues.append(q)
-        return q
-
 
 class MultipleDataStoresPlugin(Plugin):
     def __init__(self, *stores: DataStore):
+        super(MultipleDataStoresPlugin, self).__init__()
         self._stores = stores
         self._wait_queue = asyncio.Queue()
         self._watch_queue = asyncio.Queue()
@@ -127,7 +129,6 @@ class MultipleDataStoresPlugin(Plugin):
         self._watch_task = asyncio.create_task(self._run_watch_task())
         self._wait_tasks = None
         self._watch_tasks = None
-        self._queues = asyncio.Queue()
 
     def __del__(self):
         self.stop()
@@ -239,8 +240,3 @@ class MultipleDataStoresPlugin(Plugin):
         self._watch_task.cancel()
         [t.cancel() for t in self._wait_tasks]
         [t.cancel() for t in self._watch_tasks]
-
-    def register_queue(self) -> asyncio.Queue:
-        q = asyncio.Queue()
-        self._queues.append(q)
-        return q
