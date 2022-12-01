@@ -2,7 +2,6 @@ import asyncio
 from argparse import ArgumentParser
 
 import pandas_ta  # noqa
-import pybotters
 import pybotters_wrapper as pbw
 
 
@@ -26,7 +25,7 @@ async def main(args):
     )
     logger = pbw.utils.init_logger(f"{logdir}/log.txt")
 
-    async with pybotters.Client(apis=args.api) as client:
+    async with pbw.create_client(apis=args.api) as client:
         # ストアの設定
         store = pbw.create_store(args.exchange)
 
