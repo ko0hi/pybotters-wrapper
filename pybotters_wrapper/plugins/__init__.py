@@ -9,6 +9,7 @@ from ._apis import (
     wait_csvwriter,
     watch_csvwriter,
 )
+from ._base import DataStorePlugin, MultipleDataStoresPlugin
 
 __all__ = (
     "market",
@@ -22,4 +23,6 @@ __all__ = (
     "watch_csvwriter",
     "wait_csvwriter",
     "bar_csvwriter",
+    "DataStorePlugin",
+    "MultipleDataStoresPlugin",
 )
