@@ -1,3 +1,4 @@
+from . import market, watcher, writer
 from ._apis import (
     bar_csvwriter,
     binningbook,
@@ -10,6 +11,9 @@ from ._apis import (
 )
 
 __all__ = (
+    "market",
+    "watcher",
+    "writer",
     "timebar",
     "volumebar",
     "binningbook",
