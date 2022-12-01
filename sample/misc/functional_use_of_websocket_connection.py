@@ -38,7 +38,7 @@ async def main():
 
         hdlr = lambda msg, ws: print(msg)
 
-        connection = pbw.common.WebsocketConnection(endpoint, send, hdlr)
+        connection = pbw.core.WebsocketConnection(endpoint, send, hdlr)
         await connection.connect(client, auto_reconnect=True)
 
         while True:
