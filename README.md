@@ -4,9 +4,13 @@ A high-level api collection for pybotters
 
 ## Requires
 
-- `python 3.10 or higher` 
-- `pybotters 0.14.1 or higher`
+python 3.10 or higher
 
+## Install
+
+```bash
+pip install git+https://github.com/ko0hi/pybotters-wrapper
+```
 
 ## Usage
 
@@ -58,7 +62,7 @@ async def main(args):
         while True:
             # barの更新があるまで待機
             df = await df_queue.get()
-            
+
             # rsiの計算
             rsi = df.ta.rsi(length=length).values[-1]
             if rsi > (100 - th):
@@ -67,7 +71,7 @@ async def main(args):
                 trend = 1
             else:
                 trend = 0
-            
+
             # 注文
             logger.info(f"rsi={rsi} trend={trend} position={store.position.summary()}")
             if trend == 1:
@@ -89,8 +93,8 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--api", required=True)
     parser.add_argument(
-        "--exchange", 
-        default="bitflyer", 
+        "--exchange",
+        default="bitflyer",
         choices=["binanceusdsm", "binancecoinm", "bitflyer", "bybitinverse", "bybitusdt", "kucoinfutures"]
     )
     parser.add_argument("--symbol", default="FX_BTC_JPY")
@@ -107,7 +111,6 @@ if __name__ == "__main__":
 
 ```
 
-
 ## Features
 
 - DataStore周りの取引所間差分吸収
@@ -115,24 +118,22 @@ if __name__ == "__main__":
 - プラグインによる拡張性の提供
 
 ### 対応状況
-                                                             
 
-| Exchange        | DataStoreWrapper | Ticker | Trades | Orderbook | Execution | Order | Position | API  | 
-|:----------------|:----------------:|:------:|:------:|:---------:|:---------:|:-----:|:--------:|:----:|
-| `binancespot`   |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ❌     |  ✅   | 
-| `binanceusdsm`  |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   | 
-| `binancecoinm`  |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   | 
-| `bitbank`       |        ✅         |   ✅    |   ✅    |     ✅     |     ❌     |   ❌   |    ❌     | WIP  | 
-| `bitflyer`      |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   | 
-| `bitget`        |        ✅         |   ✅    |   ✅    |     ✅     |    WIP    |  WIP  |   WIP    | WIP  |
-| `bybitusdt`     |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   |
-| `bybitinverse`  |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   |
-| `coincheck`     |        ✅         |   ✅    |   ✅    |     ✅     |     ❌     |   ❌   |    ❌     | WIP  | 
-| `gmocoin`       |        ✅         |   ✅    |   ✅    |     ✅     |     ✅      |  ✅  |   ✅    | 🔺^1 |
-| `kucoinspot`    |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ❌     |  ✅   | 
-| `kucoinfutures` |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   | 
-| `okx`           |        ✅         |   ✅    |   ✅    |     ✅     |    WIP    |  WIP  |   WIP    | WIP  |
-| `phemex`        |        ✅         |   ✅    |   ✅    |     ✅     |    WIP    |  WIP  |   WIP    | WIP  |
-                                                                                                         
+| Exchange        | DataStoreWrapper | Ticker | Trades | Orderbook | Execution | Order | Position | API  |  Plugin  |  
+|:----------------|:----------------:|:------:|:------:|:---------:|:---------:|:-----:|:--------:|:----:|:--------:|
+| `binancespot`   |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ❌     |  ✅   |    ✅     | 
+| `binanceusdsm`  |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   |    ✅     | 
+| `binancecoinm`  |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   |    ✅     | 
+| `bitbank`       |        ✅         |   ✅    |   ✅    |     ✅     |     ❌     |   ❌   |    ❌     | WIP  |    ✅     | 
+| `bitflyer`      |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   |    ✅     | 
+| `bitget`        |        ✅         |   ✅    |   ✅    |     ✅     |    WIP    |  WIP  |   WIP    | WIP  |    ✅     |
+| `bybitusdt`     |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   |    ✅     |
+| `bybitinverse`  |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   |    ✅     |
+| `coincheck`     |        ✅         |   ✅    |   ✅    |     ✅     |     ❌     |   ❌   |    ❌     | WIP  |    ✅     | 
+| `gmocoin`       |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     | 🔺^1 |    ✅     |
+| `kucoinspot`    |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ❌     |  ✅   |    ✅     | 
+| `kucoinfutures` |        ✅         |   ✅    |   ✅    |     ✅     |     ✅     |   ✅   |    ✅     |  ✅   |    ✅     | 
+| `okx`           |        ✅         |   ✅    |   ✅    |     ✅     |    WIP    |  WIP  |   WIP    | WIP  |    ✅     |
+| `phemex`        |        ✅         |   ✅    |   ✅    |     ✅     |    WIP    |  WIP  |   WIP    | WIP  |    ✅     |
 
 ^1: 建玉別決済のため決済用の独自パラメータあり
