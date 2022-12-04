@@ -1,10 +1,9 @@
 import asyncio
-import time
 import uuid
 from argparse import ArgumentParser
 from collections import deque
 
-import pandas_ta
+import pandas_ta  # noqa
 import pybotters
 import pybotters_wrapper as pbw
 from loguru import logger
@@ -13,8 +12,8 @@ from loguru import logger
 class HigetoriBot:
     def __init__(
         self,
-        api: pbw.common.API,
-        store: pbw.common.DataStoreWrapper,
+        api: pbw.core.API,
+        store: pbw.core.DataStoreWrapper,
         symbol: str,
         side: str,
         size: float,
@@ -102,12 +101,12 @@ class HigetoriBot:
                 break
         logger.info(f"finish: {id}")
 
-    async def run_forever(self, interval=5):
+    async def run_forever(self, interval: int = 5):
         while True:
             await self.run()
             await asyncio.sleep(interval)
 
-    def get_limit_price(self, side=None):
+    def get_limit_price(self, side: str = None):
         side = side or self._side
         center = self.center
         if side == "BUY":
@@ -115,21 +114,31 @@ class HigetoriBot:
         else:
             return center * (1 + self._limit_distance)
 
-    def _should_update(self, price) -> bool:
+    def _should_update(self, limit_price: float) -> bool:
+        """指値の距離が指定距離から一定幅超えたらTrue"""
         assert self._last is not None
-        cur_distance = abs(price / self._last["price"] - 1)
+        cur_distance = abs(limit_price / self._last["price"] - 1)
         return abs(cur_distance - self._limit_distance) > self._update_distance
 
-    def _should_exit(self, entry_price) -> bool:
-        profit = abs(self._last["price"] / entry_price - 1)
-        logger.error(profit)
-        return profit > self._stop_loss_distance or profit > self._take_profit_distance
+    def _should_exit(self, entry_price: float) -> bool:
+        """ポジションの損益が利確幅or損切幅を超えたらTrue"""
+        profit = self._last["price"] / entry_price - 1
+        profit_abs = abs(profit)
+        logger.debug(
+            f"profit={profit} "
+            f"tp={self._take_profit_distance} sl={self._stop_loss_distance}"
+        )
+        return (
+            profit_abs > self._stop_loss_distance
+            or profit_abs > self._take_profit_distance
+        )
 
     @property
-    def center(self):
+    def center(self) -> float:
         if self._last is None:
             return self._store.trades.find()[-1]["price"]
         else:
+            # 歩値の移動平均
             return sum(self._window_deque) / len(self._window_deque)
 
 
@@ -139,7 +148,7 @@ async def main(args):
         args.exchange,
         args.symbol,
     )
-    logger = pbw.utils.init_logger(f"{logdir}/log.txt")
+    pbw.utils.init_logger(f"{logdir}/log.txt")
 
     async with pybotters.Client(apis=args.api) as client:
         # ストアの設定
@@ -169,7 +178,6 @@ async def main(args):
         }
 
         if args.config is None:
-
             await HigetoriBot(
                 **params,
                 side=args.side,
@@ -182,6 +190,7 @@ async def main(args):
             ).run_forever()
 
         else:
+            # 複数のコンフィグを同時に走らせたい場合はJSONファイルで設定
             config = pbw.utils.read_json(args.config)
             tasks = [HigetoriBot(**params, **c).run_forever() for c in config]
             await asyncio.gather(*tasks)
