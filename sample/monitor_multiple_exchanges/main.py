@@ -39,10 +39,9 @@ async def main():
             store = pbw.create_store(exchange)
 
             # 約定をcsvに書き出し
-            for exchange, store in stores.items():
-                pbw.plugins.watch_csvwriter(
-                    store, "trades", f"{exchange}-trades.csv", per_day=True
-                )
+            pbw.plugins.watch_csvwriter(
+                store, "trades", f"{exchange}-trades.csv", per_day=True
+            )
 
             if "initialize" in conf:
                 await store.initialize(conf["initialize"], client)
