@@ -18,7 +18,7 @@ from loguru import logger
 class Status:
     def __init__(
         self,
-        store: pbw.common.DataStoreWrapper,
+        store: pbw.core.DataStoreWrapper,
         bar: pbw.plugins.bar.BarStreamDataFrame,
         bar_num: int = 5,
         position_adjust: float = 1.5,
@@ -113,8 +113,8 @@ class Status:
 
 
 async def market_making(
-    api: pbw.common.API,
-    store: pbw.common.DataStoreWrapper,
+    api: pbw.core.API,
+    store: pbw.core.DataStoreWrapper,
     status: Status,
     symbol: str,
     margin: float,
@@ -284,7 +284,6 @@ async def main(args):
 
 
 if __name__ == "__main__":
-
     parser = ArgumentParser(description="Simple Market Making Bot")
     parser.add_argument(
         "--apis",

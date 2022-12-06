@@ -11,7 +11,7 @@ from loguru import logger
 class Status:
     def __init__(
         self,
-        store: pbw.common.DataStoreWrapper,
+        store: pbw.core.DataStoreWrapper,
         bar: pbw.plugins.bar.BarStreamDataFrame,
         bar_num: int = 5,
         position_adjust: float = 1.5,
