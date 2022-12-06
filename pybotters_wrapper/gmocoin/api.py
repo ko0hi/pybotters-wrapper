@@ -12,7 +12,7 @@ class GMOCoinAPI(GMOCoinMixin, API):
     _ORDER_ID_KEY = "data"
 
     # close引数をsignatureに追加
-    def market_order(
+    async def market_order(
         self,
         symbol: str,
         side: str,
@@ -22,11 +22,11 @@ class GMOCoinAPI(GMOCoinMixin, API):
         order_id_key: str = None,
         **kwargs,
     ) -> "OrderResponse":
-        return super().market_order(
+        return await super().market_order(
             symbol, side, size, request_params, order_id_key, close=close
         )
 
-    def limit_order(
+    async def limit_order(
         self,
         symbol: str,
         side: str,
@@ -37,7 +37,7 @@ class GMOCoinAPI(GMOCoinMixin, API):
         order_id_key: str = None,
         **kwargs,
     ) -> "OrderResponse":
-        return super().limit_order(
+        return await super().limit_order(
             symbol, side, price, size, request_params, order_id_key, close=close
         )
 
