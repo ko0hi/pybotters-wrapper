@@ -41,6 +41,72 @@ class GMOCoinAPI(GMOCoinMixin, API):
             symbol, side, price, size, request_params, order_id_key, close=close
         )
 
+    async def close_order(
+        self,
+        symbol: str,
+        side: str,
+        size: float,
+        position_id: int,
+        execution_type: str,
+        *,
+        time_in_force: str = "FAK",
+        price: float = None,
+        cancel_before: bool = False,
+    ):
+        params = {
+            "symbol": symbol,
+            "side": side,
+            "executionType": execution_type,
+            "settlePosition": [{"positionId": position_id, "size": size}],
+            "timeInForce": time_in_force,
+            "cancelBefore": cancel_before,
+        }
+
+        if execution_type == "LIMIT":
+            params["price"] = price
+
+        return await self.post("/private/v1/closeOrder", data=params)
+
+    async def close_market_order(
+        self,
+        symbol: str,
+        side: str,
+        size: float,
+        position_id: int,
+        time_in_force: str = "FAK",
+        cancel_before: bool = False,
+    ):
+        return await self.close_order(
+            symbol,
+            side,
+            size,
+            position_id,
+            "MARKET",
+            time_in_force=time_in_force,
+            cancel_before=cancel_before,
+        )
+
+    async def close_limit_order(
+        self,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        position_id: int,
+        time_in_force: str = "FAS",
+        cancel_before: bool = False,
+    ):
+        return await self.close_order(
+            symbol,
+            side,
+            size,
+            position_id,
+            "LIMIT",
+            price=price,
+            time_in_force=time_in_force,
+            cancel_before=cancel_before,
+        )
+
     def _make_order_endpoint(self, close: bool = False) -> str:
         return "/private/v1/closeBulkOrder" if close else self._ORDER_ENDPOINT
 
