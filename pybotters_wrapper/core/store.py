@@ -679,17 +679,23 @@ class PositionStore(NormalizedDataStore):
             symbol=symbol, side=side, price=price, size=size, **kwargs  # noqa
         )
 
-    def size(self, side: str) -> float:
-        return sum([x["size"] for x in self.find({"side": side})])
+    def size(self, side: str, symbol: str = None) -> float:
+        query = {"side": side}
+        if symbol:
+            query["symbol"] = symbol
+        return sum([x["size"] for x in self.find(query)])
 
-    def price(self, side: str) -> float:
-        return sum(x["price"] for x in self.find({"side": side}))
+    def price(self, side: str, symbol: str = None) -> float:
+        query = {"side": side}
+        if symbol:
+            query["symbol"] = symbol
+        return sum(x["price"] for x in self.find(query))
 
-    def summary(self):
+    def summary(self, symbol: str = None):
         rtn = {}
         for s in ["BUY", "SELL"]:
-            rtn[f"{s}_size"] = self.size(s)
-            rtn[f"{s}_price"] = self.price(s)
+            rtn[f"{s}_size"] = self.size(s, symbol)
+            rtn[f"{s}_price"] = self.price(s, symbol)
 
         if rtn["BUY_size"] > 0 and rtn["SELL_size"] == 0:
             rtn["side"] = "BUY"
