@@ -689,7 +689,12 @@ class PositionStore(NormalizedDataStore):
         query = {"side": side}
         if symbol:
             query["symbol"] = symbol
-        return sum(x["price"] for x in self.find(query))
+        positions = self.find(query)
+        size = self.size(side)
+        if size > 0:
+            return sum([p["price"] * p["size"] for p in positions]) / size
+        else:
+            return 0
 
     def summary(self, symbol: str = None):
         rtn = {}
