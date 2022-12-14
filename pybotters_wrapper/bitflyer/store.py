@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import warnings
+
 import pandas as pd
 from pybotters.models.bitflyer import bitFlyerDataStore
 from pybotters.store import StoreChange
@@ -80,13 +82,33 @@ class bitFlyerExecutionStore(ExecutionStore):
 
 
 class bitFlyerPositionStore(PositionStore):
+    _KEYS = []
+
     def _normalize(self, d: dict, op: str) -> "PositionItem":
         return self._itemize(
             d["product_code"],
             d["side"],
             float(d["price"]),
             float(d["size"]),
+            product_code=d["product_code"],
+            commission=d["commission"],
+            sfd=d["sfd"],
         )
+
+    def _on_watch(self, change: "StoreChange"):
+        self._clear()
+        items = []
+        for i in self._store.find():
+            item = {**self._normalize(i, None), "info": i}
+            items.append(item)
+        self._insert(items)
+
+    async def watch(self) -> "StoreStream":
+        warnings.warn(
+            "bitFlyerPositionStore.watch is not recommended to use due to its "
+            "ad-hook implementation."
+        )
+        return super().watch()
 
 
 class bitFlyerDataStoreWrapper(bitflyerMixin, DataStoreWrapper[bitFlyerDataStore]):
