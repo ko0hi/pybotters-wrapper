@@ -73,9 +73,15 @@ class GMOCoinExecutionStore(ExecutionStore):
 
 
 class GMOCoinPositionStore(PositionStore):
+    _KEYS = ["symbol", "side", "position_id"]
+
     def _normalize(self, d: dict, op: str) -> "PositionItem":
         return self._itemize(
-            d["symbol"].name, d["side"].name, float(d["price"]), float(d["size"])
+            d["symbol"].name,
+            d["side"].name,
+            float(d["price"]),
+            float(d["size"]),
+            position_id=d["position_id"],
         )
 
 
