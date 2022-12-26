@@ -44,14 +44,14 @@ T = TypeVar("T", bound=BinanceDataStoreBase)
 
 class BinanceTickerStore(TickerStore):
     def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return self._itemize(d["s"], float(d["c"]))
+        return self._itemize(d["s"].upper(), float(d["c"]))
 
 
 class BinanceTradesStore(TradesStore):
     def _normalize(self, d: dict, op: str) -> "TradesItem":
         return self._itemize(
             str(d["a"]),
-            d["s"],
+            d["s"].upper(),
             "SELL" if d["m"] else "BUY",
             float(d["p"]),
             float(d["q"]),
@@ -61,14 +61,14 @@ class BinanceTradesStore(TradesStore):
 
 class BinanceOrderbookStore(OrderbookStore):
     def _normalize(self, d: dict, op: str) -> "OrderbookItem":
-        return self._itemize(d["s"], d["S"], float(d["p"]), float(d["q"]))
+        return self._itemize(d["s"].upper(), d["S"], float(d["p"]), float(d["q"]))
 
 
 class BinanceOrderStore(OrderStore):
     def _normalize(self, d: dict, op: str) -> "OrderItem":
         return self._itemize(
             str(d["i"]),
-            d["s"],
+            d["s"].upper(),
             d["S"],
             float(d["p"]),
             float(d["q"]) - float(d["z"]),
@@ -90,7 +90,7 @@ class BinanceExecutionStore(ExecutionStore):
             if item and item["X"] in ("TRADE", "PARTIALLY_FILLED", "FILLED"):
                 item = self._itemize(
                     str(item["i"]),
-                    item["s"],
+                    item["s"].upper(),
                     item["S"],
                     float(item["L"]),
                     float(item["l"]),
@@ -125,7 +125,7 @@ class BinancePositionStore(PositionStore):
             side = "BUY" if d["ps"] == "LONG" else "SELL"
 
         return self._itemize(
-            d["s"],
+            d["s"].upper(),
             side,
             float(d["ep"]),
             abs(size),
