@@ -15,6 +15,7 @@ from pybotters_wrapper.core.socket import (
     WsHandler,
 )
 from pybotters_wrapper.plugins._base import Plugin
+from pybotters_wrapper.sandbox import SandboxAPI, SandboxDataStoreWrapper, SandboxEngine
 
 EXCHANGE2BASEURL = {
     "binancespot": pbw.binance.BinanceSpotAPI.BASE_URL,
@@ -134,6 +135,12 @@ async def create_ws_connect(
         return conns
     else:
         raise RuntimeError("Need either of `endpoint` and `send` or `subscribe_list`")
+
+
+def create_sandbox(
+    exchange: str, client: pybotters.Client
+) -> tuple[SandboxDataStoreWrapper, SandboxAPI]:
+    return SandboxEngine.register(create_store(exchange), create_api(exchange, client))
 
 
 def get_base_url(exchange: str) -> str:
