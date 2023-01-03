@@ -3,8 +3,10 @@ from __future__ import annotations
 from pybotters_wrapper.core import API
 from pybotters_wrapper.utils.mixins import (
     BinanceCOINMMixin,
+    BinanceCOINMTESTMixin,
     BinanceSpotMixin,
     BinanceUSDSMMixin,
+    BinanceUSDSMTESTMixin
 )
 
 
@@ -76,6 +78,16 @@ class BinanceUSDSMAPI(BinanceUSDSMMixin, BinanceAPIBase):
     _ORDER_ENDPOINT = "/fapi/v1/order"
 
 
+class BinanceUSDSMTESTAPI(BinanceUSDSMTESTMixin, BinanceAPIBase):
+    BASE_URL = "https://testnet.binancefuture.com"
+    _ORDER_ENDPOINT = "/fapi/v1/order"
+
+
 class BinanceCOINMAPI(BinanceCOINMMixin, BinanceAPIBase):
     BASE_URL = "https://dapi.binance.com"
+    _ORDER_ENDPOINT = "/dapi/v1/order"
+
+
+class BinanceCOINMTESTAPI(BinanceCOINMTESTMixin, BinanceAPIBase):
+    BASE_URL = "https://testnet.binancefuture.com"
     _ORDER_ENDPOINT = "/dapi/v1/order"
