@@ -19,7 +19,9 @@ from pybotters_wrapper.plugins._base import Plugin
 EXCHANGE2BASEURL = {
     "binancespot": pbw.binance.BinanceSpotAPI.BASE_URL,
     "binanceusdsm": pbw.binance.BinanceUSDSMAPI.BASE_URL,
+    "binanceusdsm_test": pbw.binance.BinanceUSDSMTESTAPI.BASE_URL,
     "binancecoinm": pbw.binance.BinanceCOINMAPI.BASE_URL,
+    "binancecoinm_test": pbw.binance.BinanceCOINMTESTAPI.BASE_URL,
     "bitbank": pbw.bitbank.bitbankAPI.BASE_URL,
     "bitflyer": pbw.bitflyer.bitFlyerAPI.BASE_URL,
     "bitget": pbw.bitget.BitgetAPI.BASE_URL,
@@ -36,7 +38,9 @@ EXCHANGE2BASEURL = {
 EXCHANGE2STORE = {
     "binancespot": pbw.binance.BinanceSpotDataStoreWrapper,
     "binanceusdsm": pbw.binance.BinanceUSDSMDataStoreWrapper,
+    "binanceusdsm_test": pbw.binance.BinanceUSDSMTESTDataStoreWrapper,
     "binancecoinm": pbw.binance.BinanceCOINMDataStoreWrapper,
+    "binancecoinm_test": pbw.binance.BinanceCOINMTESTDataStoreWrapper,
     "bitbank": pbw.bitbank.bitbankDataStoreWrapper,
     "bitflyer": pbw.bitflyer.bitFlyerDataStoreWrapper,
     "bitget": pbw.bitget.BitgetDataStoreWrapper,
@@ -54,7 +58,9 @@ EXCHANGE2STORE = {
 EXCHANGE2API: dict[str, Type[API]] = {
     "binancespot": pbw.binance.BinanceSpotAPI,
     "binanceusdsm": pbw.binance.BinanceUSDSMAPI,
+    "binanceusdsm_test": pbw.binance.BinanceUSDSMTESTAPI,
     "binancecoinm": pbw.binance.BinanceCOINMAPI,
+    "binancecoinm_test": pbw.binance.BinanceCOINMTESTAPI,
     "bitbank": pbw.bitbank.bitbankAPI,
     "bitget": pbw.bitget.BitgetAPI,
     "bitflyer": pbw.bitflyer.bitFlyerAPI,
@@ -148,8 +154,16 @@ def create_binanceusdsm_store(**kwargs) -> pbw.binance.BinanceUSDSMDataStoreWrap
     return create_store("binanceusdsm", **kwargs)
 
 
+def create_binanceusdsm_test_store(**kwargs) -> pbw.binance.BinanceUSDSMTESTDataStoreWrapper:
+    return create_store("binanceusdsm_test", **kwargs)
+
+
 def create_binancecoinm_store(**kwargs) -> pbw.binance.BinanceCOINMDataStoreWrapper:
     return create_store("binancecoinm", **kwargs)
+
+
+def create_binancecoinm_test_store(**kwargs) -> pbw.binance.BinanceCOINMTESTDataStoreWrapper:
+    return create_store("binancecoinm_test", **kwargs)
 
 
 def create_bitbank_store(**kwargs) -> pbw.bitbank.bitbankDataStoreWrapper:
@@ -207,11 +221,22 @@ def create_binanceusdsm_api(
 ) -> pbw.binance.BinanceUSDSMAPI:
     return create_api("binanceusdsm", client, **kwargs)
 
+def create_binanceusdsm_test_api(
+    client: pybotters.Client, **kwargs
+) -> pbw.binance.BinanceUSDSMTESTAPI:
+    return create_api("binanceusdsm_test", client, **kwargs)
+
 
 def create_binancecoinm_api(
     client: pybotters.Client, **kwargs
 ) -> pbw.binance.BinanceCOINMAPI:
     return create_api("binancecoinm", client, **kwargs)
+
+
+def create_binancecoinm_test_api(
+    client: pybotters.Client, **kwargs
+) -> pbw.binance.BinanceCOINMTESTAPI:
+    return create_api("binancecoinm_test", client, **kwargs)
 
 
 def create_bitbank_api(client: pybotters.Client, **kwargs) -> pbw.bitbank.bitbankAPI:

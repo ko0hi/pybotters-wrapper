@@ -25,8 +25,16 @@ class BinanceUSDSMMixin(ExchangeMixin):
     _NAME = "binanceusdsm"
 
 
+class BinanceUSDSMTESTMixin(ExchangeMixin):
+    _NAME = "binanceusdsm_test"
+
+
 class BinanceCOINMMixin(ExchangeMixin):
     _NAME = "binancecoinm"
+
+
+class BinanceCOINMTESTMixin(ExchangeMixin):
+    _NAME = "binancecoinm_test"
 
 
 class bitbankMixin(ExchangeMixin):

@@ -98,6 +98,14 @@ class BinanceUSDSMWebsocketChannels(BinanceFuturesWebsocketChannels):
         return self._subscribe(f"{symbol.lower()}@compositeIndex")
 
 
+class BinanceUSDSMTESTWebsocketChannels(BinanceFuturesWebsocketChannels):
+    ENDPOINT = "wss://stream.binancefuture.com/ws"
+
+    def composite_index(self, symbol: str) -> BinanceUSDSMTESTWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@compositeIndex")
+
+
+
 class BinanceCOINMWebsocketChannels(BinanceFuturesWebsocketChannels):
     ENDPOINT = "wss://dstream.binance.com/ws"
 
@@ -109,4 +117,18 @@ class BinanceCOINMWebsocketChannels(BinanceFuturesWebsocketChannels):
     def index_price_kline(
         self, symbol: str, interval: str
     ) -> BinanceCOINMWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@indexPriceKline_{interval}")
+
+
+class BinanceCOINMTESTWebsocketChannels(BinanceFuturesWebsocketChannels):
+    ENDPOINT = "wss://dstream.binancefuture.com/ws"
+
+    def index_price(
+        self, symbol: str, interval: str = "1s"
+    ) -> BinanceCOINMTESTWebsocketChannels:
+        return self._subscribe(f"{symbol.lower()}@indexPrice@{interval}")
+
+    def index_price_kline(
+        self, symbol: str, interval: str
+    ) -> BinanceCOINMTESTWebsocketChannels:
         return self._subscribe(f"{symbol.lower()}@indexPriceKline_{interval}")

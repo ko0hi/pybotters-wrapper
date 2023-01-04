@@ -15,8 +15,10 @@ from pybotters.store import Item, StoreChange
 from pybotters.ws import ClientWebSocketResponse
 from pybotters_wrapper.binance.socket import (
     BinanceCOINMWebsocketChannels,
+    BinanceCOINMTESTWebsocketChannels,
     BinanceSpotWebsocketChannels,
     BinanceUSDSMWebsocketChannels,
+    BinanceUSDSMTESTWebsocketChannels
 )
 from pybotters_wrapper.core.store import (
     DataStoreWrapper,
@@ -34,8 +36,10 @@ from pybotters_wrapper.core.store import (
 )
 from pybotters_wrapper.utils.mixins import (
     BinanceCOINMMixin,
+    BinanceCOINMTESTMixin,
     BinanceSpotMixin,
     BinanceUSDSMMixin,
+    BinanceUSDSMTESTMixin
 )
 from yarl import URL
 
@@ -218,10 +222,37 @@ class BinanceUSDSMDataStoreWrapper(
     _WRAP_STORE = BinanceUSDSMDataStore
 
 
+class BinanceUSDSMTESTDataStoreWrapper(
+    BinanceUSDSMTESTMixin, _BinanceDataStoreWrapper[BinanceUSDSMDataStore]
+):
+    _WEBSOCKET_CHANNELS = BinanceUSDSMTESTWebsocketChannels
+
+    _INITIALIZE_CONFIG = {
+        "token": ("POST", "/fapi/v1/listenKey", None),
+        "token_private": ("POST", "/fapi/v1/listenKey", None),
+        "orderbook": ("GET", "/fapi/v1/depth", ["symbol"]),
+        "order": ("GET", "/fapi/v1/openOrders", None),
+    }
+    _WRAP_STORE = BinanceUSDSMDataStore
+
+
 class BinanceCOINMDataStoreWrapper(
     _BinanceDataStoreWrapper[BinanceCOINMDataStore], BinanceCOINMMixin
 ):
     _WEBSOCKET_CHANNELS = BinanceCOINMWebsocketChannels
+    _INITIALIZE_CONFIG = {
+        "token": ("POST", "/dapi/v1/listenKey", None),
+        "token_private": ("POST", "/dapi/v1/listenKey", None),
+        "orderbook": ("GET", "/dapi/v1/depth", ["symbol"]),
+        "order": ("GET", "/dapi/v1/openOrders", None),
+    }
+    _WRAP_STORE = BinanceCOINMDataStore
+
+
+class BinanceCOINMTESTDataStoreWrapper(
+    _BinanceDataStoreWrapper[BinanceCOINMDataStore], BinanceCOINMTESTMixin
+):
+    _WEBSOCKET_CHANNELS = BinanceCOINMTESTWebsocketChannels
     _INITIALIZE_CONFIG = {
         "token": ("POST", "/dapi/v1/listenKey", None),
         "token_private": ("POST", "/dapi/v1/listenKey", None),
