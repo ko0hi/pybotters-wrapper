@@ -9,18 +9,6 @@ from loguru import logger
 from pybotters_wrapper.utils import read_resource
 from pybotters_wrapper.utils.mixins import ExchangeMixin, LoggingMixin
 
-PRICE_PRECISIONS, SIZE_PRECISIONS = {}, {}
-
-
-def load_precisions(exchange):
-    global PRICE_PRECISIONS, SIZE_PRECISIONS
-    try:
-        PRICE_PRECISIONS[exchange] = read_resource(f"{exchange}_price_precision.json")
-        SIZE_PRECISIONS[exchange] = read_resource(f"{exchange}_size_precision.json")
-    except FileNotFoundError:
-        PRICE_PRECISIONS[exchange] = {}
-        SIZE_PRECISIONS[exchange] = {}
-
 
 class OrderResponse(NamedTuple):
     order_id: str
@@ -173,32 +161,6 @@ class API(ExchangeMixin, LoggingMixin):
         self.log(f"cancel order response: {resp} {resp_data}", verbose=self._verbose)
         wrapped_resp = self._make_cancel_order_response(resp, resp_data, order_id)
         return wrapped_resp
-
-    def format_precision(self, symbol: str, value: float, kind: str):
-        if self.exchange not in PRICE_PRECISIONS:
-            load_precisions(self.exchange)
-
-        if kind == "price":
-            precisions = PRICE_PRECISIONS[self.exchange]
-        elif kind == "size":
-            precisions = SIZE_PRECISIONS[self.exchange]
-        else:
-            raise RuntimeError(f"Unsupported: {kind}")
-
-        if symbol in precisions:
-            precision = precisions[symbol]
-            if precision == 0:
-                return int(value)
-            else:
-                return round(value, precisions[symbol])
-        else:
-            return str(value)
-
-    def format_price(self, symbol: str, price: float):
-        return self.format_precision(symbol, price, "price")
-
-    def format_size(self, symbol: str, size: float):
-        return self.format_precision(symbol, size, "size")
 
     def _attach_base_url(self, url, base_url: str = None) -> str:
         base_url = base_url or self.BASE_URL
