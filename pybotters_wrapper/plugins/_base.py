@@ -72,23 +72,37 @@ class DataStorePlugin(Plugin):
                 transformed = await _run_hook(
                     is_aw_on_transform,
                     self._on_watch_transform,
-                    {**change.data},
+                    change.store,
                     change.operation,
+                    change.source,
+                    change.data,
                 )
 
                 await _run_hook(
-                    is_aw_on_watch, self._on_watch, transformed, change.operation
+                    is_aw_on_watch,
+                    self._on_watch,
+                    change.store,
+                    change.operation,
+                    change.source,
+                    transformed,
                 )
 
                 await _run_hook(
-                    is_aw_on_after, self._on_watch_after, transformed, change.operation
+                    is_aw_on_after,
+                    self._on_watch_after,
+                    change.store,
+                    change.operation,
+                    change.source,
+                    transformed,
                 )
 
                 is_stop = await _run_hook(
                     is_aw_on_is_stop,
                     self._on_watch_is_stop,
-                    transformed,
+                    change.store,
                     change.operation,
+                    change.source,
+                    transformed,
                 )
 
                 if is_stop:
@@ -106,19 +120,25 @@ class DataStorePlugin(Plugin):
     def _on_wait_is_stop(self) -> bool:
         return False
 
-    def _on_watch(self, d: dict, op: str):
+    def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
         ...
 
     def _on_watch_before(self, change: "StoreChange"):
         ...
 
-    def _on_watch_transform(self, d: dict, op: str) -> dict:
-        return d
+    def _on_watch_transform(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> dict:
+        return data
 
-    def _on_watch_is_stop(self, d: dict, op: str) -> bool:
+    def _on_watch_is_stop(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> bool:
         return False
 
-    def _on_watch_after(self, d: dict, op: str):
+    def _on_watch_after(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ):
         ...
 
     def stop(self):
@@ -150,7 +170,7 @@ class MultipleDataStoresPlugin(Plugin):
     async def _run_watch_task_one(self, store: "DataStore"):
         with store.watch() as stream:
             async for change in stream:
-                self._watch_queue.put_nowait((store, change))
+                self._watch_queue.put_nowait(change)
 
     async def _run_wait_task(self):
         # 使用するDataStoreのwaitをそれぞれ監視してキューで結果を取得する
@@ -180,35 +200,43 @@ class MultipleDataStoresPlugin(Plugin):
         is_aw_on_after = _is_aw(self._on_watch_after)
         is_aw_on_is_stop = _is_aw(self._on_watch_is_stop)
         while True:
-            store, change = await self._watch_queue.get()
-            await _run_hook(is_aw_on_before, self._on_watch_before, change, store)
+            change = await self._watch_queue.get()
+            await _run_hook(is_aw_on_before, self._on_watch_before, change)
 
             transformed = await _run_hook(
                 is_aw_on_transform,
                 self._on_watch_transform,
-                {**change.data},
+                change.store,
                 change.operation,
-                store,
+                change.source,
+                change.data,
             )
 
             await _run_hook(
-                is_aw_on_watch, self._on_watch, transformed, change.operation, store
+                is_aw_on_watch,
+                self._on_watch,
+                change.store,
+                change.operation,
+                change.source,
+                transformed,
             )
 
             await _run_hook(
                 is_aw_on_after,
                 self._on_watch_after,
-                transformed,
+                change.store,
                 change.operation,
-                store,
+                change.source,
+                transformed,
             )
 
             is_stop = await _run_hook(
                 is_aw_on_is_stop,
                 self._on_watch_is_stop,
-                transformed,
+                change.store,
                 change.operation,
-                store,
+                change.source,
+                transformed,
             )
 
             if is_stop:
@@ -226,23 +254,25 @@ class MultipleDataStoresPlugin(Plugin):
     def _on_wait_is_stop(self, store: "DataStore") -> bool:
         return False
 
-    def _on_watch(self, d: dict, op: str, store: "DataStore"):
+    def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
         ...
 
-    def _on_watch_before(
-        self,
-        change: "StoreChange",
-        store: "DataStore",
-    ):
+    def _on_watch_before(self, change: "StoreChange"):
         ...
 
-    def _on_watch_transform(self, d: dict, op: str, store: "DataStore") -> dict:
-        return d
+    def _on_watch_transform(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> dict:
+        return data
 
-    def _on_watch_is_stop(self, d: dict, op: str, store: "DataStore") -> bool:
+    def _on_watch_is_stop(
+        self, store: "DataStore", operation: str, source, data: dict
+    ) -> bool:
         return False
 
-    def _on_watch_after(self, d: dict, op: str, store: "DataStore"):
+    def _on_watch_after(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ):
         ...
 
     def stop(self):

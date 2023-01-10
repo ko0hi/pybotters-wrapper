@@ -14,29 +14,29 @@ from pybotters_wrapper.utils.mixins import OKXMixin
 
 
 class OKXTickerStore(TickerStore):
-    def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return self._itemize(d["instId"], float(d["last"]))
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TickerItem":
+        return self._itemize(data["instId"], float(data["last"]))
 
 
 class OKXTradesStore(TradesStore):
-    def _normalize(self, d: dict, op: str) -> "TradesItem":
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TradesItem":
         return self._itemize(
-            d["tradeId"],
-            d["instId"],
-            d["side"].upper(),
-            float(d["px"]),
-            float(d["sz"]),
-            pd.to_datetime(d["ts"], unit="ms", utc=True),
+            data["tradeId"],
+            data["instId"],
+            data["side"].upper(),
+            float(data["px"]),
+            float(data["sz"]),
+            pd.to_datetime(data["ts"], unit="ms", utc=True),
         )
 
 
 class OKXOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op: str) -> "OrderbookItem":
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "OrderbookItem":
         return self._itemize(
-            d["instId"],
-            "SELL" if d["side"] == "asks" else "BUY",
-            float(d["px"]),
-            float(d["sz"])
+            data["instId"],
+            "SELL" if data["side"] == "asks" else "BUY",
+            float(data["px"]),
+            float(data["sz"])
         )
 
 

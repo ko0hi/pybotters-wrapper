@@ -36,12 +36,12 @@ class BinningBook(DataStorePlugin):
         }
         self._mid = None
 
-    def _on_watch(self, d: dict, op: str):
+    def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
         self.set_mid(self.store.mid)
-        if op in ("insert", "update"):
-            self._insert(d["side"], d["price"], d["size"])
-        elif op == "delete":
-            self._delete(d["side"], d["price"], d["size"])
+        if operation in ("insert", "update"):
+            self._insert(data["side"], data["price"], data["size"])
+        elif operation == "delete":
+            self._delete(data["side"], data["price"], data["size"])
 
     def _insert(self, side: str, price, size):
         self._buckets[side].insert(price, size)

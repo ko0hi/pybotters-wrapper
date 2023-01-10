@@ -16,25 +16,25 @@ from pybotters_wrapper.utils.mixins import PhemexMixin
 
 
 class PhemexTickerStore(TickerStore):
-    def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return self._itemize(d["symbol"], float(d["last"]))
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TickerItem":
+        return self._itemize(data["symbol"], float(data["last"]))
 
 
 class PhemexTradesStore(TradesStore):
-    def _normalize(self, d: dict, op: str) -> "TradesItem":
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TradesItem":
         return self._itemize(
             str(uuid.uuid4()),
-            d["symbol"],
-            d["side"].upper(),
-            d["price"],
-            d["size"],
-            pd.to_datetime(d["timestamp"], unit="ns"),
+            data["symbol"],
+            data["side"].upper(),
+            data["price"],
+            data["size"],
+            pd.to_datetime(data["timestamp"], unit="ns"),
         )
 
 
 class PhemexOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op: str) -> "OrderbookItem":
-        return self._itemize(d["symbol"], d["side"], d["price"], d["size"])
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "OrderbookItem":
+        return self._itemize(data["symbol"], data["side"], data["price"], data["size"])
 
 
 class PhemexDataStoreWrapper(PhemexMixin, DataStoreWrapper[PhemexDataStore]):

@@ -18,26 +18,26 @@ from pybotters_wrapper.utils.mixins import BitgetMixin
 
 
 class BitgetTickerStore(TickerStore):
-    def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return self._itemize(d["instId"], float(d["last"]))
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TickerItem":
+        return self._itemize(data["instId"], float(data["last"]))
 
 
 class BitgetTradesStore(TradesStore):
-    def _normalize(self, d: dict, op: str) -> "TradesItem":
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TradesItem":
         return self._itemize(
             id=str(uuid.uuid4()),
-            symbol=d["instId"],
-            side=d["side"].upper(),
-            price=d["price"],
-            size=d["size"],
-            timestamp=pd.to_datetime(d["ts"], unit="ms"),
+            symbol=data["instId"],
+            side=data["side"].upper(),
+            price=data["price"],
+            size=data["size"],
+            timestamp=pd.to_datetime(data["ts"], unit="ms"),
         )
 
 
 class BitgetOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op: str) -> "OrderbookItem":
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "OrderbookItem":
         return self._itemize(
-            symbol=d["instId"], side=d["side"].upper(), price=d["price"], size=d["size"]
+            symbol=data["instId"], side=data["side"].upper(), price=data["price"], size=data["size"]
         )
 
 

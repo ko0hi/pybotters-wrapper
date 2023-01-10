@@ -42,9 +42,9 @@ class BookTicker(MultipleDataStoresPlugin):
             asks, bids = store.sorted().values()
             self._update(asks=asks, bids=bids)
 
-    def _on_watch(self, d: dict, op: str, store: "DataStore"):
+    def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
         if isinstance(store, TradesStore):
-            self._update(price=d["price"])
+            self._update(price=data["price"])
 
     def _update(self, *, asks=None, bids=None, price=None):
         self._tick = self.Item(
