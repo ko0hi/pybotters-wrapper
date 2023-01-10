@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import importlib
-from typing import Callable
+import types
+from typing import Callable, Type
 
 import pandas as pd
 from pybotters_wrapper.core import DataStoreWrapper
 
+from ._base import Plugin
 from .market import (
     BinningBook,
     BookTicker,
@@ -19,19 +21,23 @@ from .writer import BarCSVWriter, DataStoreWaitCSVWriter, DataStoreWatchCSVWrite
 import_cache = {}
 
 
-def _import_module(store: DataStoreWrapper) -> object:
+def _import_module(store: DataStoreWrapper) -> types.ModuleType:
+    """取引所固有のプラグインのmoduleを読み込む。読み込んだものはキャッシュする。"""
     try:
         module_path = f"pybotters_wrapper.{store.package}.plugins.{store.exchange}"
         if module_path in import_cache:
             return import_cache[module_path]
-        modu = importlib.import_module(module_path)
-        import_cache[module_path] = modu
-        return modu
+        module = importlib.import_module(module_path)
+        import_cache[module_path] = module
+        return module
     except ModuleNotFoundError:
         raise RuntimeError(f"no plugins module for {store.exchange}")
 
 
-def _build_plugin(store, module, name, **kwargs):
+def _build_plugin(
+    store: DataStoreWrapper, module: types.ModuleType, name: str, **kwargs
+) -> Plugin:
+    """取引所固有のプラグイン実装をインスタンス化する"""
     try:
         return getattr(module, name)(store, **kwargs)
     except AttributeError:
@@ -40,17 +46,17 @@ def _build_plugin(store, module, name, **kwargs):
         )
 
 
-def _maybe_override_by_exchange(store, name, *, default_cls=None, **kwargs):
+def _maybe_override_by_exchange(
+    store: DataStoreWrapper, plugin_class: Type[Plugin], **kwargs
+) -> Plugin:
+    """取引所別の実装クラスがあればそちらを呼び出す。取引所別の実装は同名クラスが
+    "pybotters_wrapper/${package}/plugins/${exchange}/__init__.pyで定義されている想定
+    """
     try:
-        # 取引所別のfactory methodがあればそちらを呼び出す
-        # 取引所別の実装は"pybotters_wrapper.${exchange}.plugins.${name}で定義されている仕様
         module = _import_module(store)
-        return _build_plugin(store, module, name, **kwargs)
-    except RuntimeError as e:
-        if default_cls is not None:
-            return default_cls(store, **kwargs)
-        else:
-            raise e
+        return _build_plugin(store, module, plugin_class.__name__, **kwargs)
+    except RuntimeError:
+        return plugin_class(store, **kwargs)  # noqa
 
 
 # pluginのファクトリーメソッド
@@ -65,8 +71,7 @@ def timebar(
 ) -> TimeBarStreamDataFrame:
     return _maybe_override_by_exchange(
         store,
-        "timebar",
-        default_cls=TimeBarStreamDataFrame,
+        TimeBarStreamDataFrame,
         seconds=seconds,
         maxlen=maxlen,
         df=df,
@@ -85,8 +90,7 @@ def volumebar(
 ) -> VolumeBarStreamDataFrame:
     return _maybe_override_by_exchange(
         store,
-        "volumebar",
-        default_cls=VolumeBarStreamDataFrame,
+        VolumeBarStreamDataFrame,
         volume_unit=volume_unit,
         maxlen=maxlen,
         df=df,
@@ -104,8 +108,7 @@ def binningbook(
 ) -> BinningBook:
     return _maybe_override_by_exchange(
         store,
-        "binningbook",
-        default_cls=BinningBook,
+        BinningBook,
         min_bin=min_bin,
         max_bin=max_bin,
         pips=pips,
@@ -114,11 +117,11 @@ def binningbook(
 
 
 def bookticker(store: DataStoreWrapper) -> BookTicker:
-    return _maybe_override_by_exchange(store, "bookticker", default_cls=BookTicker)
+    return _maybe_override_by_exchange(store, BookTicker)
 
 
 def execution_watcher(store: DataStoreWrapper) -> ExecutionWatcher:
-    return _maybe_override_by_exchange(store, "execution", default_cls=ExecutionWatcher)
+    return _maybe_override_by_exchange(store, ExecutionWatcher)
 
 
 def watch_csvwriter(
@@ -133,8 +136,7 @@ def watch_csvwriter(
 ) -> DataStoreWatchCSVWriter:
     return _maybe_override_by_exchange(
         store,
-        "watch_csvwriter",
-        default_cls=DataStoreWatchCSVWriter,
+        DataStoreWatchCSVWriter,
         store_name=store_name,
         path=path,
         per_day=per_day,
@@ -155,8 +157,7 @@ def wait_csvwriter(
 ) -> DataStoreWaitCSVWriter:
     return _maybe_override_by_exchange(
         store,
-        "wait_csvwriter",
-        default_cls=DataStoreWaitCSVWriter,
+        DataStoreWaitCSVWriter,
         store_name=store_name,
         path=path,
         per_day=per_day,
