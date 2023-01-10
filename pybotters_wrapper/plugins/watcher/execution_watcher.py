@@ -25,7 +25,7 @@ class ExecutionWatcher(DataStorePlugin):
         self._event.set()
         return self
 
-    async def _on_watch(self, d: ExecutionItem, op: str):
+    async def _on_watch(self, store, operation: str, source, data: ExecutionItem):
         """流れてきた約定情報が監視中の注文に関するものであるかをチェック
 
         ExecutionStoreを監視してるので、流れてくるdictはExecutionItem
@@ -37,12 +37,13 @@ class ExecutionWatcher(DataStorePlugin):
             # order_idがセットされるまでメッセージをここで待機させておく
             await self._event.wait()
 
-        if d["id"] == self._order_id:
+        if data["id"] == self._order_id:
             self._done = True
-            self._item = d
+            self._item = data
 
-    def _on_watch_is_stop(self, d: dict, op: str) -> bool:
-        """監視終了判定"""
+    def _on_watch_is_stop(self, store: "DataStore", operation: str, source: dict, data: dict) -> bool:
+        """監視終了判定
+        """
         return self._done
 
     def done(self) -> bool:

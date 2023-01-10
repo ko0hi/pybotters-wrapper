@@ -49,12 +49,12 @@ class BarStreamDataFrame(DataStorePlugin):
 
         self._init_bar()
 
-    def _on_watch(self, d: dict, op: str):
-        if op == "insert":
-            if self._is_new_bar(d, op):
-                self._next_bar(d)
+    def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
+        if operation == "insert":
+            if self._is_new_bar(data, operation):
+                self._next_bar(data)
             else:
-                self._current_bar(d)
+                self._current_bar(data)
 
     def _is_new_bar(self, d: dict, op: str, **kwargs) -> bool:
         raise NotImplementedError
