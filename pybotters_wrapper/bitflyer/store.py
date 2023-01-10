@@ -111,10 +111,18 @@ class bitFlyerPositionStore(PositionStore):
         )
 
     def _on_watch(self, change: "StoreChange"):
+        # TODO: bitflyerのポジションの同期方法を考える
+        # pybottersにおけるbitflyerのポジション計算は結構複雑なので、
+        # 確実に状態を同じにするために"一括同期"をしている。
+        # 具体的には元ストアの更新をwatchで検知するたびに全取っ替えを行っている。
+        # デメリットは計算量が多くなる点と、このNormalizedStoreのwatchが機能しなくなる点。
         self._clear()
         items = []
         for i in self._store.find():
-            item = {**self._normalize(None, None, None, i), "info": i}
+            item = {
+                **self._normalize(change.store, change.operation, change.source, i),
+                "info": i,
+            }
             items.append(item)
         self._insert(items)
 
