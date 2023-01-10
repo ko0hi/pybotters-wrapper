@@ -17,29 +17,35 @@ from .socket import CoinCheckWebsocketChannels
 
 
 class CoincheckTickerStore(TickerStore):
-    def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return self._itemize(d["pair"], float(d["rate"]))
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "TickerItem":
+        return self._itemize(data["pair"], float(data["rate"]))
 
 
 class CoincheckTradeStore(TradesStore):
-    def _normalize(self, d: dict, op: str) -> "TradesItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "TradesItem":
         return self._itemize(
-            str(d["id"]),
-            d["pair"],
-            d["side"].upper(),
-            float(d["rate"]),
-            float(d["amount"]),
-            pd.Timestamp.utcnow(),
+            str(data["id"]),
+            data["pair"],
+            data["side"].upper(),
+            float(data["rate"]),
+            float(data["amount"]),
+            pd.to_datetime(int(data["timestamp"]), unit="s"),
         )
 
 
 class CoincheckOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op: str) -> "OrderbookItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "OrderbookItem":
         return self._itemize(
-            None,
-            "BUY" if d["side"] == "bids" else "SELL",
-            float(d["rate"]),
-            float(d["amount"]),
+            data["pair"],
+            "BUY" if data["side"] == "bids" else "SELL",
+            float(data["rate"]),
+            float(data["amount"]),
         )
 
 

@@ -18,7 +18,7 @@ from pybotters_wrapper.binance.socket import (
     BinanceCOINMTESTWebsocketChannels,
     BinanceSpotWebsocketChannels,
     BinanceUSDSMWebsocketChannels,
-    BinanceUSDSMTESTWebsocketChannels
+    BinanceUSDSMTESTWebsocketChannels,
 )
 from pybotters_wrapper.core.store import (
     DataStoreWrapper,
@@ -39,7 +39,7 @@ from pybotters_wrapper.utils.mixins import (
     BinanceCOINMTESTMixin,
     BinanceSpotMixin,
     BinanceUSDSMMixin,
-    BinanceUSDSMTESTMixin
+    BinanceUSDSMTESTMixin,
 )
 from yarl import URL
 
@@ -47,43 +47,53 @@ T = TypeVar("T", bound=BinanceDataStoreBase)
 
 
 class BinanceTickerStore(TickerStore):
-    def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return self._itemize(d["s"].upper(), float(d["c"]))
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "TickerItem":
+        return self._itemize(data["s"].upper(), float(data["c"]))
 
 
 class BinanceTradesStore(TradesStore):
-    def _normalize(self, d: dict, op: str) -> "TradesItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "TradesItem":
         return self._itemize(
-            str(d["a"]),
-            d["s"].upper(),
-            "SELL" if d["m"] else "BUY",
-            float(d["p"]),
-            float(d["q"]),
-            pd.to_datetime(d["T"], unit="ms", utc=True),
+            str(data["a"]),
+            data["s"].upper(),
+            "SELL" if data["m"] else "BUY",
+            float(data["p"]),
+            float(data["q"]),
+            pd.to_datetime(data["T"], unit="ms", utc=True),
         )
 
 
 class BinanceOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op: str) -> "OrderbookItem":
-        return self._itemize(d["s"].upper(), d["S"], float(d["p"]), float(d["q"]))
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "OrderbookItem":
+        return self._itemize(
+            data["s"].upper(), data["S"], float(data["p"]), float(data["q"])
+        )
 
 
 class BinanceOrderStore(OrderStore):
-    def _normalize(self, d: dict, op: str) -> "OrderItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "OrderItem":
         return self._itemize(
-            str(d["i"]),
-            d["s"].upper(),
-            d["S"],
-            float(d["p"]),
-            float(d["q"]) - float(d["z"]),
-            d["o"],
+            str(data["i"]),
+            data["s"].upper(),
+            data["S"],
+            float(data["p"]),
+            float(data["q"]) - float(data["z"]),
+            data["o"],
         )
 
 
 class BinanceExecutionStore(ExecutionStore):
     """対応ストアなし"""
 
-    def _onmessage(self, msg: "Item", ws: "ClientWebSocketResponse"):
+    def _on_msg(self, msg: "Item"):
         if "e" in msg:
             item = None
             if msg["e"] == "ORDER_TRADE_UPDATE":
@@ -115,10 +125,12 @@ class BinancePositionStore(PositionStore):
         else:
             return f"_{change.operation}"
 
-    def _normalize(self, d: dict, op: str) -> "PositionItem":
-        size = float(d["pa"])
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "PositionItem":
+        size = float(data["pa"])
 
-        if d["ps"] == "BOTH":
+        if data["ps"] == "BOTH":
             if size == 0:
                 side = None
             elif size > 0:
@@ -126,14 +138,14 @@ class BinancePositionStore(PositionStore):
             else:
                 side = "SELL"
         else:
-            side = "BUY" if d["ps"] == "LONG" else "SELL"
+            side = "BUY" if data["ps"] == "LONG" else "SELL"
 
         return self._itemize(
-            d["s"].upper(),
+            data["s"].upper(),
             side,
-            float(d["ep"]),
+            float(data["ep"]),
             abs(size),
-            ps=d["ps"],
+            ps=data["ps"],
         )
 
 

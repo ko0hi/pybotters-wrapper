@@ -22,26 +22,26 @@ from pybotters_wrapper.utils.mixins import bitbankMixin
 
 
 class bitbankTickerStore(TickerStore):
-    def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return self._itemize(d["pair"], float(d["last"]))
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TickerItem":
+        return self._itemize(data["pair"], float(data["last"]))
 
 
 class bitbankTradesStore(TradesStore):
-    def _normalize(self, d: dict, op: str) -> "TradesItem":
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TradesItem":
         return self._itemize(
-            str(d["transaction_id"]),
-            d["pair"],
-            d["side"].upper(),
-            float(d["price"]),
-            float(d["amount"]),
-            pd.to_datetime(d["executed_at"]),
+            str(data["transaction_id"]),
+            data["pair"],
+            data["side"].upper(),
+            float(data["price"]),
+            float(data["amount"]),
+            pd.to_datetime(data["executed_at"]),
         )
 
 
 class bitbankOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op: str) -> "OrderbookItem":
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "OrderbookItem":
         return self._itemize(
-            d["pair"], d["side"].upper(), float(d["price"]), float(d["size"])
+            data["pair"], data["side"].upper(), float(data["price"]), float(data["size"])
         )
 
 

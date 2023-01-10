@@ -27,41 +27,47 @@ from pybotters_wrapper.utils.mixins import BybitInverseMixin, BybitUSDTMixin
 
 
 class BybitTickerStore(TickerStore):
-    def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return self._itemize(d["symbol"], float(d["last_price"]))
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "TickerItem":
+        return self._itemize(data["symbol"], float(data["last_price"]))
 
 
 class BybitTradesStore(TradesStore):
-    def _normalize(self, d: dict, op: str) -> "TradesItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "TradesItem":
         return self._itemize(
-            d["trade_id"],
-            d["symbol"],
-            d["side"].upper(),
-            float(d["price"]),
-            d["size"],
-            pd.to_datetime(d["timestamp"]),
+            data["trade_id"],
+            data["symbol"],
+            data["side"].upper(),
+            float(data["price"]),
+            data["size"],
+            pd.to_datetime(data["timestamp"]),
         )
 
 
 class BybitOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op: str) -> "OrderbookItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "OrderbookItem":
         return self._itemize(
-            d["symbol"],
-            d["side"].upper(),
-            float(d["price"]),
-            float(d["size"]),
+            data["symbol"],
+            data["side"].upper(),
+            float(data["price"]),
+            float(data["size"]),
         )
 
 
 class BybitOrderStore(OrderStore):
-    def _onmessage(self, msg: "Item", ws: "ClientWebSocketResponse"):
+    def _on_msg(self, msg: "Item"):
         if "topic" in msg:
             topic: str = msg["topic"]
             data = msg["data"]
 
             if topic == "order":
                 for item in data:
-                    normalized_item = self._normalize(item, None)
+                    normalized_item = self._normalize(None, None, None, item)
                     normalized_item = {**normalized_item, "info": item}
                     if item["order_status"] in ("Created", "New", "PartiallyFilled"):
                         self._update([normalized_item])
@@ -70,28 +76,30 @@ class BybitOrderStore(OrderStore):
 
             elif topic == "stop_order":
                 for item in data:
-                    normalized_item = self._normalize(item, None)
+                    normalized_item = self._normalize(None, None, None, item)
                     normalized_item = {**normalized_item, "info": item}
                     if item["order_status"] in ("Active", "Untriggered"):
                         self._update([normalized_item])
                     else:
                         self._delete([normalized_item])
 
-    def _normalize(self, d: dict, op: str) -> "OrderItem":
-        if "order_id" in d:
-            id = d["order_id"]
-        elif "stop_order_id" in d:
-            id = d["stop_order_id"]
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "OrderItem":
+        if "order_id" in data:
+            id = data["order_id"]
+        elif "stop_order_id" in data:
+            id = data["stop_order_id"]
         else:
-            raise RuntimeError(f"ID not found: {d}")
+            raise RuntimeError(f"ID not found: {data}")
 
         return self._itemize(
             id,
-            d["symbol"],
-            d["side"].upper(),
-            float(d["price"]),
-            float(d["qty"]),
-            d["order_type"],
+            data["symbol"],
+            data["side"].upper(),
+            float(data["price"]),
+            float(data["qty"]),
+            data["order_type"],
         )
 
 
@@ -99,27 +107,31 @@ class BybitExecutionStore(ExecutionStore):
     def _get_operation(self, change: "StoreChange") -> str:
         return "_insert"
 
-    def _normalize(self, d: dict, op: str) -> "ExecutionItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "ExecutionItem":
         return self._itemize(
-            d["order_id"],
-            d["symbol"],
-            d["side"].upper(),
-            float(d["price"]),
-            float(d["exec_qty"]),
-            pd.to_datetime(d["trade_time"]),
+            data["order_id"],
+            data["symbol"],
+            data["side"].upper(),
+            float(data["price"]),
+            float(data["exec_qty"]),
+            pd.to_datetime(data["trade_time"]),
         )
 
 
 class BybitPositionStore(PositionStore):
     _KEYS = ("symbol", "position_idx")
 
-    def _normalize(self, d: dict, op: str) -> "PositionItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "PositionItem":
         return self._itemize(
-            d["symbol"],
-            d["side"].upper(),
-            float(d["entry_price"]),
-            float(d["size"]),
-            position_idx=d["position_idx"],
+            data["symbol"],
+            data["side"].upper(),
+            float(data["entry_price"]),
+            float(data["size"]),
+            position_idx=data["position_idx"],
         )
 
 

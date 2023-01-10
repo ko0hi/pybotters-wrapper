@@ -26,30 +26,34 @@ from pybotters_wrapper.utils.mixins import KuCoinFuturesMixin, KuCoinSpotMixin
 
 
 class KuCoinTickerStore(TickerStore):
-    def _normalize(self, d: dict, op: str) -> "TickerItem":
-        if "price" in d:
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "TickerItem":
+        if "price" in data:
             # spot
-            price = float(d["price"])
+            price = float(data["price"])
         else:
             # futuresはtickerにltpが入ってないので仲値で代用
-            price = (float(d["bestAskPrice"]) + float(d["bestBidPrice"])) / 2
-        return self._itemize(d["symbol"], price)
+            price = (float(data["bestAskPrice"]) + float(data["bestBidPrice"])) / 2
+        return self._itemize(data["symbol"], price)
 
 
 class KuCoinTradesStore(TradesStore):
-    def _normalize(self, d: dict, op: str) -> "TradesItem":
-        if "time" in d:
-            ts = d["time"]
-        elif "ts" in d:
-            ts = d["ts"]
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "TradesItem":
+        if "time" in data:
+            ts = data["time"]
+        elif "ts" in data:
+            ts = data["ts"]
         else:
-            raise RuntimeError(f"Unexpected input: {d}")
+            raise RuntimeError(f"Unexpected input: {data}")
         return self._itemize(
-            d["tradeId"],
-            d["symbol"],
-            d["side"].upper(),
-            float(d["price"]),
-            float(d["size"]),
+            data["tradeId"],
+            data["symbol"],
+            data["side"].upper(),
+            float(data["price"]),
+            float(data["size"]),
             pd.to_datetime(int(ts), unit="ns", utc=True),  # spot / futures
         )
 
@@ -57,25 +61,29 @@ class KuCoinTradesStore(TradesStore):
 class KuCoinOrderbookStore(OrderbookStore):
     _KEYS = ["symbol", "k", "side"]
 
-    def _normalize(self, d: dict, op: str) -> "OrderbookItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "OrderbookItem":
         return self._itemize(
-            d["symbol"],
-            "SELL" if d["side"] == "ask" else "BUY",
-            d["price"],
-            d["size"],
-            k=d["k"],
+            data["symbol"],
+            "SELL" if data["side"] == "ask" else "BUY",
+            data["price"],
+            data["size"],
+            k=data["k"],
         )
 
 
 class KuCoinOrderStore(OrderStore):
-    def _normalize(self, d: dict, op: str) -> "OrderItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "OrderItem":
         return self._itemize(
-            d["orderId"],
-            d["symbol"],
-            d["side"].upper(),
-            float(d["price"]),
-            float(d["size"]),
-            d.get("orderType", d["type"]),  # spot / futures
+            data["orderId"],
+            data["symbol"],
+            data["side"].upper(),
+            float(data["price"]),
+            float(data["size"]),
+            data.get("orderType", data["type"]),  # spot / futures
         )
 
 
@@ -84,19 +92,21 @@ class KuCoinExecutionStore(ExecutionStore):
         if change.data["type"] == "filled":
             return "_insert"
 
-    def _normalize(self, d: dict, op: str) -> "ExecutionItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "ExecutionItem":
         try:
-            price = float(d["price"])
+            price = float(data["price"])
         except ValueError:
             price = 0
 
         return self._itemize(
-            d["orderId"],
-            d["symbol"],
-            d["side"].upper(),
+            data["orderId"],
+            data["symbol"],
+            data["side"].upper(),
             price,
-            float(d["size"]),
-            pd.to_datetime(int(d["ts"]), unit="ns", utc=True),
+            float(data["size"]),
+            pd.to_datetime(int(data["ts"]), unit="ns", utc=True),
         )
 
 
@@ -104,9 +114,14 @@ class KuCoinPositionStore(PositionStore):
     # one-way only
     _KEYS = ["symbol"]
 
-    def _normalize(self, d: dict, op: str) -> "PositionItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "PositionItem":
         return self._itemize(
-            d["symbol"], d["side"], d["avgEntryPrice"], abs(float(d["currentQty"]))
+            data["symbol"],
+            data["side"],
+            data["avgEntryPrice"],
+            abs(float(data["currentQty"])),
         )
 
 

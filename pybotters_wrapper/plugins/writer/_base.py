@@ -34,12 +34,12 @@ class DataStoreWatchWriter(DataStorePlugin, WriterMixin):
         if self._columns is None:
             self._columns = list(change.data.keys())
 
-    def _on_watch_transform(self, d: dict, op: str) -> dict:
-        return self._transform_item(d)
+    def _on_watch_transform(self, store: "DataStore", operation: str, source: dict, data: dict) -> dict:
+        return self._transform_item(data)
 
-    async def _on_watch(self, d: dict, op: str):
-        if op in self._operations:
-            self._write(d)
+    async def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
+        if operation in self._operations:
+            self._write(data)
 
     def _transform_item(self, d: dict) -> dict:
         return {k: d[k] for k in self._columns}
