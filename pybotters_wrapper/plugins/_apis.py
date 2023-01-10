@@ -21,7 +21,7 @@ import_cache = {}
 
 def _import_module(store: DataStoreWrapper) -> object:
     try:
-        module_path = f"pybotters_wrapper.{store.exchange}.plugins"
+        module_path = f"pybotters_wrapper.{store.package}.plugins.{store.exchange}"
         if module_path in import_cache:
             return import_cache[module_path]
         modu = importlib.import_module(module_path)
