@@ -10,7 +10,7 @@ class LoggingMixin:
 
 
 class ExchangeMixin:
-    _NAME = None
+    _EXCHANGE_NAME = None
     _PRICE_PRECISIONS: dict[str, dict[str, int]] = {}
     _SIZE_PRECISIONS: dict[str, dict[str, int]] = {}
 
@@ -73,9 +73,9 @@ class ExchangeMixin:
 
     @property
     def exchange(self) -> str:
-        if self._NAME is None:
+        if self._EXCHANGE_NAME is None:
             raise RuntimeError("_EXCHANGE_NAME has not been set")
-        return self._NAME
+        return self._EXCHANGE_NAME
 
     @property
     def package(self) -> str:
@@ -84,64 +84,64 @@ class ExchangeMixin:
 
 
 class BinanceSpotMixin(ExchangeMixin):
-    _NAME = "binancespot"
+    _EXCHANGE_NAME = "binancespot"
 
 
 class BinanceUSDSMMixin(ExchangeMixin):
-    _NAME = "binanceusdsm"
+    _EXCHANGE_NAME = "binanceusdsm"
 
 
 class BinanceUSDSMTESTMixin(ExchangeMixin):
-    _NAME = "binanceusdsm_test"
+    _EXCHANGE_NAME = "binanceusdsm_test"
 
 
 class BinanceCOINMMixin(ExchangeMixin):
-    _NAME = "binancecoinm"
+    _EXCHANGE_NAME = "binancecoinm"
 
 
 class BinanceCOINMTESTMixin(ExchangeMixin):
-    _NAME = "binancecoinm_test"
+    _EXCHANGE_NAME = "binancecoinm_test"
 
 
 class bitbankMixin(ExchangeMixin):
-    _NAME = "bitbank"
+    _EXCHANGE_NAME = "bitbank"
 
 
 class bitflyerMixin(ExchangeMixin):
-    _NAME = "bitflyer"
+    _EXCHANGE_NAME = "bitflyer"
 
 
 class BitgetMixin(ExchangeMixin):
-    _NAME = "bitget"
+    _EXCHANGE_NAME = "bitget"
 
 
 class BybitUSDTMixin(ExchangeMixin):
-    _NAME = "bybitusdt"
+    _EXCHANGE_NAME = "bybitusdt"
 
 
 class BybitInverseMixin(ExchangeMixin):
-    _NAME = "bybitinverse"
+    _EXCHANGE_NAME = "bybitinverse"
 
 
 class CoincheckMixin(ExchangeMixin):
-    _NAME = "coincheck"
+    _EXCHANGE_NAME = "coincheck"
 
 
 class GMOCoinMixin(ExchangeMixin):
-    _NAME = "gmocoin"
+    _EXCHANGE_NAME = "gmocoin"
 
 
 class KuCoinSpotMixin(ExchangeMixin):
-    _NAME = "kucoinspot"
+    _EXCHANGE_NAME = "kucoinspot"
 
 
 class KuCoinFuturesMixin(ExchangeMixin):
-    _NAME = "kucoinfutures"
+    _EXCHANGE_NAME = "kucoinfutures"
 
 
 class OKXMixin(ExchangeMixin):
-    _NAME = "okx"
+    _EXCHANGE_NAME = "okx"
 
 
 class PhemexMixin(ExchangeMixin):
-    _NAME = "phemex"
+    _EXCHANGE_NAME = "phemex"
