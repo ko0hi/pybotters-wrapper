@@ -60,7 +60,7 @@ class BybitOrderbookStore(OrderbookStore):
 
 
 class BybitOrderStore(OrderStore):
-    def _onmessage(self, msg: "Item", ws: "ClientWebSocketResponse"):
+    def _on_msg(self, msg: "Item"):
         if "topic" in msg:
             topic: str = msg["topic"]
             data = msg["data"]

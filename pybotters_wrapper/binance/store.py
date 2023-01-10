@@ -93,7 +93,7 @@ class BinanceOrderStore(OrderStore):
 class BinanceExecutionStore(ExecutionStore):
     """対応ストアなし"""
 
-    def _onmessage(self, msg: "Item", ws: "ClientWebSocketResponse"):
+    def _on_msg(self, msg: "Item"):
         if "e" in msg:
             item = None
             if msg["e"] == "ORDER_TRADE_UPDATE":

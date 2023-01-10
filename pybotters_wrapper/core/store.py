@@ -437,6 +437,8 @@ class NormalizedDataStore(DataStore):
         else:
             self._wait_task = None
             self._watch_task = None
+        self._queue = pybotters.WebSocketQueue()
+        self._queue_task = asyncio.create_task(self._wait_msg())
 
     def __repr__(self):
         return (
@@ -445,7 +447,7 @@ class NormalizedDataStore(DataStore):
         )
 
     def _onmessage(self, msg: "Item", ws: "ClientWebSocketResponse"):
-        ...
+        self._queue.onmessage(msg, ws)
 
     @logger.catch
     async def _wait_store(self):
@@ -458,6 +460,11 @@ class NormalizedDataStore(DataStore):
         with self._store.watch() as stream:
             async for change in stream:
                 self._on_watch(change)
+
+    @logger.catch
+    async def _wait_msg(self):
+        async for msg in self._queue.iter_msg():
+            self._on_msg(msg)
 
     def _on_wait(self):
         ...
@@ -493,6 +500,9 @@ class NormalizedDataStore(DataStore):
 
     def _itemize(self, *args, **kwargs):
         raise NotImplementedError
+
+    def _on_msg(self, msg: "Item"):
+        ...
 
 
 class TickerItem(TypedDict):
