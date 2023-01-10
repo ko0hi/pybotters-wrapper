@@ -47,7 +47,6 @@ EXCHANGE2STORE = {
     "bybitusdt": pbw.bybit.BybitUSDTDataStoreWrapper,
     "bybitinverse": pbw.bybit.BybitInverseDataStoreWrapper,
     "coincheck": pbw.coincheck.CoincheckDataStoreWrapper,
-    "ftx": pbw.ftx.FTXDataStoreWrapper,
     "gmocoin": pbw.gmocoin.GMOCoinDataStoreWrapper,
     "kucoinspot": pbw.kucoin.KuCoinSpotDataStoreWrapper,
     "kucoinfutures": pbw.kucoin.KuCoinFuturesDataStoreWrapper,
@@ -67,7 +66,6 @@ EXCHANGE2API: dict[str, Type[API]] = {
     "bybitusdt": pbw.bybit.BybitUSDTAPI,
     "bybitinverse": pbw.bybit.BybitInverseAPI,
     "coincheck": pbw.coincheck.CoincheckAPI,
-    "ftx": pbw.ftx.FTXAPI,
     "gmocoin": pbw.gmocoin.GMOCoinAPI,
     "kucoinspot": pbw.kucoin.KuCoinSpotAPI,
     "kucoinfutures": pbw.kucoin.KuCoinFuturesAPI,
@@ -154,7 +152,9 @@ def create_binanceusdsm_store(**kwargs) -> pbw.binance.BinanceUSDSMDataStoreWrap
     return create_store("binanceusdsm", **kwargs)
 
 
-def create_binanceusdsm_test_store(**kwargs) -> pbw.binance.BinanceUSDSMTESTDataStoreWrapper:
+def create_binanceusdsm_test_store(
+    **kwargs,
+) -> pbw.binance.BinanceUSDSMTESTDataStoreWrapper:
     return create_store("binanceusdsm_test", **kwargs)
 
 
@@ -162,7 +162,9 @@ def create_binancecoinm_store(**kwargs) -> pbw.binance.BinanceCOINMDataStoreWrap
     return create_store("binancecoinm", **kwargs)
 
 
-def create_binancecoinm_test_store(**kwargs) -> pbw.binance.BinanceCOINMTESTDataStoreWrapper:
+def create_binancecoinm_test_store(
+    **kwargs,
+) -> pbw.binance.BinanceCOINMTESTDataStoreWrapper:
     return create_store("binancecoinm_test", **kwargs)
 
 
@@ -220,6 +222,7 @@ def create_binanceusdsm_api(
     client: pybotters.Client, **kwargs
 ) -> pbw.binance.BinanceUSDSMAPI:
     return create_api("binanceusdsm", client, **kwargs)
+
 
 def create_binanceusdsm_test_api(
     client: pybotters.Client, **kwargs

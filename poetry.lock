@@ -252,7 +252,7 @@ test = ["appdirs (==1.4.4)", "pytest (>=7.2)", "pytest-cov (>=4)", "pytest-mock 
 
 [[package]]
 name = "pybotters"
-version = "0.14.1"
+version = "0.15.0"
 description = "An advanced api client for python botters."
 category = "main"
 optional = false
@@ -407,7 +407,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10.0,<4.0"
-content-hash = "cb028b953c444029a0f92e51d5545a8db157a0320003cdae2b1d2afd0f0dc205"
+content-hash = "160a25791baef2e823d08d30ca352e0cfb5163cd1cd00ef0a6bb30023b33c793"
 
 [metadata.files]
 aiohttp = [
@@ -753,8 +753,8 @@ platformdirs = [
     {file = "platformdirs-2.5.4.tar.gz", hash = "sha256:1006647646d80f16130f052404c6b901e80ee4ed6bef6792e1f238a8969106f7"},
 ]
 pybotters = [
-    {file = "pybotters-0.14.1-py3-none-any.whl", hash = "sha256:854ede65a2f3de45925fcb196c4fe6912673e9e6e8219dc55e4cfe0061890349"},
-    {file = "pybotters-0.14.1.tar.gz", hash = "sha256:5ec16fdb819fa7da9cb7ee9ba8f7324a1aa6923c2da9e38605da17c6eaf34e1f"},
+    {file = "pybotters-0.15.0-py3-none-any.whl", hash = "sha256:63571f6679d31623fa468131f5f63215bc01554603b996b690778be4e4ff1533"},
+    {file = "pybotters-0.15.0.tar.gz", hash = "sha256:55ff990396baeb359d90cd1c334a05e7eb936d7f3ff06778bbbfc94a26d6ec86"},
 ]
 pycodestyle = [
     {file = "pycodestyle-2.10.0-py2.py3-none-any.whl", hash = "sha256:8a4eaf0d0495c7395bdab3589ac2db602797d76207242c17d470186815706610"},
