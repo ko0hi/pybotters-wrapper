@@ -503,7 +503,9 @@ class TickerItem(TypedDict):
 class TickerStore(NormalizedDataStore):
     _KEYS = ["symbol"]
 
-    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TickerItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "TickerItem":
         raise NotImplementedError
 
     def _itemize(self, symbol: str, price: float, **kwargs):
@@ -513,7 +515,7 @@ class TickerStore(NormalizedDataStore):
 
 
 class TradesItem(TypedDict):
-    id: str | int
+    id: str
     symbol: str
     side: str
     price: float
@@ -524,7 +526,9 @@ class TradesItem(TypedDict):
 class TradesStore(NormalizedDataStore):
     _KEYS = ["id", "symbol"]
 
-    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TradesItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "TradesItem":
         raise NotImplementedError
 
     def _itemize(
@@ -562,7 +566,9 @@ class OrderbookStore(NormalizedDataStore):
         super(OrderbookStore, self).__init__(*args, **kwargs)
         self._mid = None
 
-    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "OrderbookItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "OrderbookItem":
         raise NotImplementedError
 
     def _on_wait(self):
@@ -605,7 +611,9 @@ class OrderItem(TypedDict):
 class OrderStore(NormalizedDataStore):
     _KEYS = ["id", "symbol"]
 
-    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "OrderItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "OrderItem":
         raise NotImplementedError
 
     def _itemize(
@@ -642,7 +650,9 @@ class ExecutionStore(NormalizedDataStore):
     _KEYS = []
     _AVAILABLE_OPERATIONS = ("_insert",)
 
-    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "ExecutionItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "ExecutionItem":
         raise NotImplementedError
 
     def _itemize(
@@ -676,7 +686,9 @@ class PositionItem(TypedDict):
 class PositionStore(NormalizedDataStore):
     _KEYS = ["symbol", "side"]
 
-    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "PositionItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "PositionItem":
         raise NotImplementedError
 
     def _itemize(self, symbol: str, side: str, price: float, size: float, **kwargs):
