@@ -25,63 +25,63 @@ from pybotters_wrapper.utils.mixins import GMOCoinMixin
 
 
 class GMOCoinTickerStore(TickerStore):
-    def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return self._itemize(d["symbol"].name, float(d["last"]))
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TickerItem":
+        return self._itemize(data["symbol"].name, float(data["last"]))
 
 
 class GMOCoinTradesStore(TradesStore):
-    def _normalize(self, d: dict, op: str) -> "TradesItem":
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TradesItem":
         return self._itemize(
-            hash(tuple(d)),
-            d["symbol"].name,
-            d["side"].name,
-            float(d["price"]),
-            float(d["size"]),
-            pd.to_datetime(d["timestamp"], utc=True),
+            hash(tuple(data)),
+            data["symbol"].name,
+            data["side"].name,
+            float(data["price"]),
+            float(data["size"]),
+            pd.to_datetime(data["timestamp"], utc=True),
         )
 
 
 class GMOCoinOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op: str) -> "OrderbookItem":
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "OrderbookItem":
         return self._itemize(
-            d["symbol"].name, d["side"].name, float(d["price"]), float(d["size"])
+            data["symbol"].name, data["side"].name, float(data["price"]), float(data["size"])
         )
 
 
 class GMOCoinOrderStore(OrderStore):
-    def _normalize(self, d: dict, op: str) -> "OrderItem":
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "OrderItem":
         return self._itemize(
-            str(d["order_id"]),
-            d["symbol"].name,
-            d["side"].name,
-            float(d["price"]),
-            float(d["size"]),
-            d["execution_type"],
+            str(data["order_id"]),
+            data["symbol"].name,
+            data["side"].name,
+            float(data["price"]),
+            float(data["size"]),
+            data["execution_type"],
         )
 
 
 class GMOCoinExecutionStore(ExecutionStore):
-    def _normalize(self, d: dict, op: str) -> "ExecutionItem":
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "ExecutionItem":
         return self._itemize(
-            str(d["order_id"]),
-            d["symbol"].name,
-            d["side"].name,
-            float(d["price"]),
-            float(d["size"]),
-            pd.to_datetime(d["timestamp"], utc=True),
+            str(data["order_id"]),
+            data["symbol"].name,
+            data["side"].name,
+            float(data["price"]),
+            float(data["size"]),
+            pd.to_datetime(data["timestamp"], utc=True),
         )
 
 
 class GMOCoinPositionStore(PositionStore):
     _KEYS = ["symbol", "side", "position_id"]
 
-    def _normalize(self, d: dict, op: str) -> "PositionItem":
+    def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "PositionItem":
         return self._itemize(
-            d["symbol"].name,
-            d["side"].name,
-            float(d["price"]),
-            float(d["size"]),
-            position_id=d["position_id"],
+            data["symbol"].name,
+            data["side"].name,
+            float(data["price"]),
+            float(data["size"]),
+            position_id=data["position_id"],
         )
 
 

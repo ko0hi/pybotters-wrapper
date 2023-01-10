@@ -25,43 +25,54 @@ from pybotters_wrapper.utils.mixins import bitflyerMixin
 
 
 class bitFlyerTickerStore(TickerStore):
-    def _normalize(self, d: dict, op: str) -> "TickerItem":
-        return self._itemize(d["product_code"], d["ltp"])
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "TickerItem":
+        return self._itemize(data["product_code"], data["ltp"])
 
 
 class bitFlyerTradesStore(TradesStore):
-    def _normalize(self, d: dict, op: str) -> "TradesItem":
-        side = d["side"]
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "TradesItem":
+        side = data["side"]
         if side:
-            order_id = d[side.lower() + "_child_order_acceptance_id"]
+            order_id = data[side.lower() + "_child_order_acceptance_id"]
         else:
-            order_id = d["buy_child_order_acceptance_id"]
+            order_id = data["buy_child_order_acceptance_id"]
         return self._itemize(
             order_id,
-            d["product_code"],
+            data["product_code"],
             side,
-            float(d["price"]),
-            float(d["size"]),
-            pd.to_datetime(d["exec_date"]),
+            float(data["price"]),
+            float(data["size"]),
+            pd.to_datetime(data["exec_date"]),
         )
 
 
 class bitFlyerOrderbookStore(OrderbookStore):
-    def _normalize(self, d: dict, op: str) -> "OrderbookItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "OrderbookItem":
         return self._itemize(
-            d["product_code"], d["side"], float(d["price"]), float(d["size"])
+            data["product_code"],
+            data["side"],
+            float(data["price"]),
+            float(data["size"]),
         )
 
 
 class bitFlyerOrderStore(OrderStore):
-    def _normalize(self, d: dict, op: str) -> "OrderItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "OrderItem":
         return self._itemize(
-            d["child_order_acceptance_id"],
-            d["product_code"],
-            d["side"],
-            float(d["price"]),
-            float(d["size"]),
-            d["child_order_type"],
+            data["child_order_acceptance_id"],
+            data["product_code"],
+            data["side"],
+            float(data["price"]),
+            float(data["size"]),
+            data["child_order_type"],
         )
 
 
@@ -70,36 +81,40 @@ class bitFlyerExecutionStore(ExecutionStore):
         if change.data["event_type"] == "EXECUTION":
             return "_insert"
 
-    def _normalize(self, d: dict, op: str) -> "ExecutionItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "ExecutionItem":
         return self._itemize(
-            d["child_order_acceptance_id"],
-            d["product_code"],
-            d["side"],
-            float(d["price"]),
-            float(d["size"]),
-            pd.to_datetime(d["event_date"]),
+            data["child_order_acceptance_id"],
+            data["product_code"],
+            data["side"],
+            float(data["price"]),
+            float(data["size"]),
+            pd.to_datetime(data["event_date"]),
         )
 
 
 class bitFlyerPositionStore(PositionStore):
     _KEYS = []
 
-    def _normalize(self, d: dict, op: str) -> "PositionItem":
+    def _normalize(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ) -> "PositionItem":
         return self._itemize(
-            d["product_code"],
-            d["side"],
-            float(d["price"]),
-            float(d["size"]),
-            product_code=d["product_code"],
-            commission=d["commission"],
-            sfd=d["sfd"],
+            data["product_code"],
+            data["side"],
+            float(data["price"]),
+            float(data["size"]),
+            product_code=data["product_code"],
+            commission=data["commission"],
+            sfd=data["sfd"],
         )
 
     def _on_watch(self, change: "StoreChange"):
         self._clear()
         items = []
         for i in self._store.find():
-            item = {**self._normalize(i, None), "info": i}
+            item = {**self._normalize(None, None, None, i), "info": i}
             items.append(item)
         self._insert(items)
 
