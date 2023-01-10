@@ -33,7 +33,7 @@ class CoincheckTradeStore(TradesStore):
             data["side"].upper(),
             float(data["rate"]),
             float(data["amount"]),
-            pd.Timestamp.utcnow(),
+            pd.to_datetime(int(data["timestamp"]), unit="s"),
         )
 
 
@@ -42,7 +42,7 @@ class CoincheckOrderbookStore(OrderbookStore):
         self, store: "DataStore", operation: str, source: dict, data: dict
     ) -> "OrderbookItem":
         return self._itemize(
-            None,
+            data["pair"],
             "BUY" if data["side"] == "bids" else "SELL",
             float(data["rate"]),
             float(data["amount"]),
