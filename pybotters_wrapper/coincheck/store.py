@@ -29,14 +29,14 @@ class CoincheckTradeStore(TradesStore):
             d["side"].upper(),
             float(d["rate"]),
             float(d["amount"]),
-            pd.Timestamp.utcnow(),
+            pd.to_datetime(int(d["timestamp"]), unit="s"),
         )
 
 
 class CoincheckOrderbookStore(OrderbookStore):
     def _normalize(self, d: dict, op: str) -> "OrderbookItem":
         return self._itemize(
-            None,
+            d["pair"],
             "BUY" if d["side"] == "bids" else "SELL",
             float(d["rate"]),
             float(d["amount"]),
