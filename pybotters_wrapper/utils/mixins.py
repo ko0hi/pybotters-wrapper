@@ -77,6 +77,11 @@ class ExchangeMixin:
             raise RuntimeError("_EXCHANGE_NAME has not been set")
         return self._NAME
 
+    @property
+    def package(self) -> str:
+        # pybotters_wrapper.${package}
+        return self.__module__.split(".")[1]
+
 
 class BinanceSpotMixin(ExchangeMixin):
     _NAME = "binancespot"
