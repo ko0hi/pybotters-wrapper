@@ -51,6 +51,7 @@ class PnL(DataStorePlugin):
             self._status["SELL_price"],
             self._status["SELL_size"],
         )
+        self._status["updated_at"] = str(datetime.utcnow())
 
     @property
     def pnl(self):
