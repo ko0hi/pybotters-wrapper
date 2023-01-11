@@ -39,7 +39,7 @@ class API(ExchangeMixin, LoggingMixin):
         self._verbose = verbose
 
     async def request(self, method, url, *, params=None, data=None, **kwargs):
-        url = self._attach_base_url(url)
+        url = self._attach_base_url(url, kwargs.pop("base_url", True))
         return await self._client.request(
             method, url, params=params, data=data, **kwargs
         )
@@ -66,7 +66,7 @@ class API(ExchangeMixin, LoggingMixin):
         sess: aiohttp.ClientSession = self._client._session
         req = sess._request_class(
             method,
-            sess._build_url(self._attach_base_url(url)),
+            sess._build_url(self._attach_base_url(url, kwargs.pop("base_url", True))),
             params=params,
             data=data,
             headers=sess._prepare_headers([]),
@@ -162,9 +162,11 @@ class API(ExchangeMixin, LoggingMixin):
         wrapped_resp = self._make_cancel_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
-    def _attach_base_url(self, url, base_url: str = None) -> str:
-        base_url = base_url or self.BASE_URL
-        return url if self._client._base_url else base_url + url
+    def _attach_base_url(self, url, base_url: str = False) -> str:
+        if base_url:
+            return url if self._client._base_url else self.BASE_URL + url
+        else:
+            return url
 
     def _make_market_endpoint(
         self, symbol: str, side: str, size: float, **kwargs
