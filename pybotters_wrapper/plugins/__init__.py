@@ -1,9 +1,10 @@
-from . import market, watcher, writer
+from . import market, status, watcher, writer
 from ._apis import (
     bar_csvwriter,
     binningbook,
     bookticker,
     execution_watcher,
+    pnl,
     timebar,
     volumebar,
     wait_csvwriter,
@@ -13,6 +14,7 @@ from ._base import DataStorePlugin, MultipleDataStoresPlugin
 
 __all__ = (
     "market",
+    "status",
     "watcher",
     "writer",
     "timebar",
@@ -20,6 +22,7 @@ __all__ = (
     "binningbook",
     "bookticker",
     "execution_watcher",
+    "pnl",
     "watch_csvwriter",
     "wait_csvwriter",
     "bar_csvwriter",

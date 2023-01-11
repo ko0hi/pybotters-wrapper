@@ -15,6 +15,7 @@ from .market import (
     VolumeBarStreamDataFrame,
 )
 from .market.bar import BarStreamDataFrame
+from .status import PnL
 from .watcher import ExecutionWatcher
 from .writer import BarCSVWriter, DataStoreWaitCSVWriter, DataStoreWatchCSVWriter
 
@@ -122,6 +123,10 @@ def bookticker(store: DataStoreWrapper) -> BookTicker:
 
 def execution_watcher(store: DataStoreWrapper) -> ExecutionWatcher:
     return _maybe_override_by_exchange(store, ExecutionWatcher)
+
+
+def pnl(store: DataStoreWrapper, symbol: str) -> PnL:
+    return _maybe_override_by_exchange(store, PnL, symbol=symbol)
 
 
 def watch_csvwriter(
