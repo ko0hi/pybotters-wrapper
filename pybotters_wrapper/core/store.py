@@ -495,10 +495,10 @@ class NormalizedDataStore(DataStore):
             "info": {"data": change.data, "source": change.source},
         }
 
-    def _check_operation(self, op):
-        if op not in self._AVAILABLE_OPERATIONS:
+    def _check_operation(self, operation: str):
+        if operation not in self._AVAILABLE_OPERATIONS:
             raise RuntimeError(
-                f"Unsupported operation '{op}' for {self.__class__.__name__}"
+                f"Unsupported operation '{operation}' for {self.__class__.__name__}"
             )
 
     def _itemize(self, *args, **kwargs):
