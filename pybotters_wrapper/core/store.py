@@ -490,6 +490,8 @@ class NormalizedDataStore(DataStore):
         return data
 
     def _make_item(self, transformed_item: "Item", change: "StoreChange") -> "Item":
+        # ストアに格納するアイテムとしてはchange.sourceは不要かもしれないが、watchした際に元のitemの
+        # sourceをたどりたい場合がありうるので付帯させる
         return {
             **transformed_item,
             "info": {"data": change.data, "source": change.source},
