@@ -8,7 +8,7 @@ from ....plugins._base import DataStorePlugin
 
 class CloseWatcher(DataStorePlugin):
     def __init__(self, store: "DataStoreWrapper"):
-        # ExecutionDataStoreを監視
+        # OrderStoreを監視
         super(CloseWatcher, self).__init__(store.order)
         self._order_id = None
         self._item = None
