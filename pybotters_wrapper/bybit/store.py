@@ -68,7 +68,10 @@ class BybitOrderStore(OrderStore):
             if topic == "order":
                 for item in data:
                     normalized_item = self._normalize(None, None, None, item)
-                    normalized_item = {**normalized_item, "info": item}
+                    normalized_item = {
+                        **normalized_item,
+                        "info": {"data": item, "source": None},
+                    }
                     if item["order_status"] in ("Created", "New", "PartiallyFilled"):
                         self._update([normalized_item])
                     else:
@@ -77,7 +80,10 @@ class BybitOrderStore(OrderStore):
             elif topic == "stop_order":
                 for item in data:
                     normalized_item = self._normalize(None, None, None, item)
-                    normalized_item = {**normalized_item, "info": item}
+                    normalized_item = {
+                        **normalized_item,
+                        "info": {"data": item, "source": None},
+                    }
                     if item["order_status"] in ("Active", "Untriggered"):
                         self._update([normalized_item])
                     else:

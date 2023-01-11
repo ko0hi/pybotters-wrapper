@@ -121,7 +121,7 @@ class bitFlyerPositionStore(PositionStore):
         for i in self._store.find():
             item = {
                 **self._normalize(change.store, change.operation, change.source, i),
-                "info": i,
+                "info": {"data": i, "source": change.source},
             }
             items.append(item)
         self._insert(items)
