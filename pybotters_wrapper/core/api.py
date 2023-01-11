@@ -162,11 +162,17 @@ class API(ExchangeMixin, LoggingMixin):
         wrapped_resp = self._make_cancel_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
-    def _attach_base_url(self, url, base_url: str = False) -> str:
+    def _attach_base_url(self, url: str, base_url: str = False) -> str:
         if base_url:
-            return url if self._client._base_url else self.BASE_URL + url
+            base_url = self._get_base_url(url)
+            return url if self._client._base_url else base_url + url
         else:
             return url
+
+    def _get_base_url(self, url: str = None):
+        if self.BASE_URL is None:
+            raise RuntimeError(f"BASE_URL is not defined: {self.exchange}")
+        return self.BASE_URL
 
     def _make_market_endpoint(
         self, symbol: str, side: str, size: float, **kwargs
