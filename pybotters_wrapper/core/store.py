@@ -490,7 +490,10 @@ class NormalizedDataStore(DataStore):
         return data
 
     def _make_item(self, transformed_item: "Item", change: "StoreChange") -> "Item":
-        return {**transformed_item, "info": change.data}
+        return {
+            **transformed_item,
+            "info": {"data": change.data, "source": change.source},
+        }
 
     def _check_operation(self, op):
         if op not in self._AVAILABLE_OPERATIONS:

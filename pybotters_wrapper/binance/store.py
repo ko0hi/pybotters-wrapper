@@ -110,7 +110,7 @@ class BinanceExecutionStore(ExecutionStore):
                     float(item["l"]),
                     pd.to_datetime(item["T"], unit="ms", utc=True),
                 )
-                self._insert([{**item, "info": msg}])
+                self._insert([{**item, "info": {"data": msg, "source": None}}])
 
 
 class BinancePositionStore(PositionStore):
