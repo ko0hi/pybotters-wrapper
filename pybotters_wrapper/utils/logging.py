@@ -30,7 +30,7 @@ def init_logdir(*subdirs: str):
         "logs",
         os.path.basename(__main__.__file__).replace(".py", ""),
         *subdirs,
-        datetime.utcnow().strftime("%Y-%m-%d_%H:%M:%S"),
+        datetime.utcnow().strftime("%Y%m%d_%H%M%S"),
     )
     os.makedirs(logdir, exist_ok=True)
     return logdir
