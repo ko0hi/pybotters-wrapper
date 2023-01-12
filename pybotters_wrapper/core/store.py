@@ -490,12 +490,17 @@ class NormalizedDataStore(DataStore):
         return data
 
     def _make_item(self, transformed_item: "Item", change: "StoreChange") -> "Item":
-        return {**transformed_item, "info": change.data}
+        # ストアに格納するアイテムとしてはchange.sourceは不要かもしれないが、watchした際に元のitemの
+        # sourceをたどりたい場合がありうるので付帯させる
+        return {
+            **transformed_item,
+            "info": {"data": change.data, "source": change.source},
+        }
 
-    def _check_operation(self, op):
-        if op not in self._AVAILABLE_OPERATIONS:
+    def _check_operation(self, operation: str):
+        if operation not in self._AVAILABLE_OPERATIONS:
             raise RuntimeError(
-                f"Unsupported operation '{op}' for {self.__class__.__name__}"
+                f"Unsupported operation '{operation}' for {self.__class__.__name__}"
             )
 
     def _itemize(self, *args, **kwargs):
