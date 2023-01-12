@@ -19,7 +19,8 @@ from pybotters_wrapper.utils.mixins import LoggingMixin
 
 
 class SandboxEngine(LoggingMixin):
-    _REGISTRY = {}
+    SUFFIX = ".sandbox"
+    _REGISTRY: dict[str, SandboxEngine] = {}
 
     def __init__(self, store: SandboxDataStoreWrapper, api: SandboxAPI):
         self._store = store
@@ -172,12 +173,17 @@ class SandboxEngine(LoggingMixin):
     def register(
         cls, store: DataStoreWrapper, api: API
     ) -> tuple[SandboxDataStoreWrapper, SandboxAPI]:
+
+        if store.exchange in cls._REGISTRY:
+            engine = cls._REGISTRY[store.exchange]
+            return engine._store, engine._api
+
         from .api import SandboxAPI
         from .store import SandboxDataStoreWrapper
 
         sandbox_store = SandboxDataStoreWrapper(store)
         sandbox_api = SandboxAPI(api)
-        cls._REGISTRY[f"{store.exchange}-{uuid.uuid4()}"] = SandboxEngine(
-            sandbox_store, sandbox_api
-        )
+
+        cls._REGISTRY[store.exchange] = SandboxEngine(sandbox_store, sandbox_api)
+
         return sandbox_store, sandbox_api
