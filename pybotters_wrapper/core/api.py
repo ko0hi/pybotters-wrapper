@@ -169,7 +169,7 @@ class API(ExchangeMixin, LoggingMixin):
         else:
             return url
 
-    def _get_base_url(self, url: str = None):
+    def _get_base_url(self, url: str):
         if self.BASE_URL is None:
             raise RuntimeError(f"BASE_URL is not defined: {self.exchange}")
         return self.BASE_URL
