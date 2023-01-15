@@ -121,8 +121,15 @@ def bookticker(store: DataStoreWrapper) -> BookTicker:
     return _maybe_override_by_exchange(store, BookTicker)
 
 
-def execution_watcher(store: DataStoreWrapper) -> ExecutionWatcher:
-    return _maybe_override_by_exchange(store, ExecutionWatcher)
+def execution_watcher(
+    store: DataStoreWrapper,
+    *,
+    store_name: str = None,
+    is_target: Callable[["DataStore", str, dict, dict], bool] = None,
+) -> ExecutionWatcher:
+    return _maybe_override_by_exchange(
+        store, ExecutionWatcher, store_name=store_name, is_target=is_target
+    )
 
 
 def pnl(store: DataStoreWrapper, symbol: str) -> PnL:
