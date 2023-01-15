@@ -89,14 +89,14 @@ class KuCoinOrderStore(OrderStore):
 
 class KuCoinExecutionStore(ExecutionStore):
     def _get_operation(self, change: "StoreChange") -> str | None:
-        if change.data["type"] == "filled":
+        if change.data["type"] == "match":
             return "_insert"
 
     def _normalize(
         self, store: "DataStore", operation: str, source: dict, data: dict
     ) -> "ExecutionItem":
         try:
-            price = float(data["price"])
+            price = float(data["matchPrice"])
         except ValueError:
             price = 0
 
@@ -105,7 +105,7 @@ class KuCoinExecutionStore(ExecutionStore):
             data["symbol"],
             data["side"].upper(),
             price,
-            float(data["size"]),
+            float(data["matchSize"]),
             pd.to_datetime(int(data["ts"]), unit="ns", utc=True),
         )
 
