@@ -23,21 +23,25 @@ class CloseWatcher(DataStorePlugin):
                 "CancelWatcher must not be 'reused', create a new instance instead."
             )
         self._order_id = order_id
+        self._status = 'OPEN'
         self._event.set()
         return self
 
     async def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
-    # async def _on_watch(self, d: OrderItem, op: str):
         """open orderが約定したかチェック
-        約定後のstatus FILLED or CANCEL の状態を更新
+        OPEN: idがopen
+        FILLED: openなidが約定
+        CANCEL: openなidがcancel
+        CLOSE: idが最初からopenでない
         """
         if not self._event.is_set():
             # order_idがsetされるまで待機
             # 注文が即約定した時にsocket messageがresのresponseより早く到達するケースがあるので、
             # order_idがセットされるまでメッセージをここで待機させておく
             await self._event.wait()
-        if data["id"] == self._order_id and operation == 'update':
-            self._status = 'OPEN'
+        if len(self._store.find({'id': self._order_id})) == 0 and operation != 'delete':
+            self._done = True
+            self._status = 'CLOSE'
         if data["id"] == self._order_id and operation == 'delete':  # なくなったらexecuted or cancelと判断
             if (source['info']['source']['X'] == 'FILLED'):
                 self._done = True
