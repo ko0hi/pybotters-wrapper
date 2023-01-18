@@ -5,7 +5,8 @@ import types
 from typing import Callable, Type
 
 import pandas as pd
-from pybotters_wrapper.core import DataStoreWrapper
+import pybotters
+from pybotters_wrapper.core import API, DataStoreWrapper
 
 from ._base import Plugin
 from .market import (
@@ -15,6 +16,7 @@ from .market import (
     VolumeBarStreamDataFrame,
 )
 from .market.bar import BarStreamDataFrame
+from .periodic import Poller
 from .status import PnL
 from .watcher import ExecutionWatcher
 from .writer import BarCSVWriter, DataStoreWaitCSVWriter, DataStoreWatchCSVWriter
@@ -119,6 +121,19 @@ def binningbook(
 
 def bookticker(store: DataStoreWrapper) -> BookTicker:
     return _maybe_override_by_exchange(store, BookTicker)
+
+
+def poller(
+    api_or_client: pybotters.Client | API,
+    *,
+    url: str,
+    interval: int,
+    params: dict | Callable = None,
+    handler: Callable = None,
+    history: int = 999,
+    method: str = "GET",
+) -> Poller:
+    return Poller(api_or_client, url, interval, params, handler, history, method)
 
 
 def execution_watcher(
