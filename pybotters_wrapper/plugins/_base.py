@@ -21,12 +21,22 @@ async def _run_hook(is_aw: bool, fn: Callable, *args) -> any:
 
 class Plugin:
     def __init__(self):
-        self._queues = []
+        self._queues: list[asyncio.Queue] = []
 
-    def register_queue(self) -> asyncio.Queue:
+    def subscribe(self) -> asyncio.Queue:
         q = asyncio.Queue()
         self._queues.append(q)
         return q
+
+    def register_queue(self) -> asyncio.Queue:
+        # TODO: duplicated. use subscribe instead.
+        q = asyncio.Queue()
+        self._queues.append(q)
+        return q
+
+    def put(self, item: any):
+        for q in self._queues:
+            q.put_nowait(item)
 
 
 class DataStorePlugin(Plugin):
