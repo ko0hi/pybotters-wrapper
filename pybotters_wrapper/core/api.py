@@ -51,12 +51,10 @@ class API(ExchangeMixin, LoggingMixin):
         return await self.request("POST", url, params=None, data=data, **kwargs)
 
     async def put(self, url, *, data=None, **kwargs):
-        return await self._client.request("PUT", url, params=None, data=data, **kwargs)
+        return await self.request("PUT", url, params=None, data=data, **kwargs)
 
     async def delete(self, url, *, data=None, **kwargs):
-        return await self._client.request(
-            "DELETE", url, params=None, data=data, **kwargs
-        )
+        return await self.request("DELETE", url, params=None, data=data, **kwargs)
 
     def srequest(
         self, method, url, *, params=None, data=None, **kwargs
