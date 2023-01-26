@@ -67,9 +67,6 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
         self._ws_channels = self._WEBSOCKET_CHANNELS()
         self._ws_connections = []
 
-    def __repr__(self):
-        return self._store.__class__.__name__
-
     async def initialize(
         self,
         aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
