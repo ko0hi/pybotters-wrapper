@@ -65,9 +65,16 @@ class PeriodicPlugin(Plugin):
                 return self._handle(item)
 
     @property
-    def task(self):
+    def task(self) -> asyncio.Task:
         return self._task
 
     @property
-    def history(self):
+    def history(self) -> list[any]:
         return self._history
+
+    @property
+    def last(self) -> any:
+        try:
+            return self._history[-1]
+        except IndexError:
+            return None
