@@ -5,25 +5,13 @@ import pybotters_wrapper as pbw
 
 
 async def main():
-    symbol = "BTCUSDT"
+    symbol = "BTCUSD"
 
     async with pybotters.Client() as client:
-        channels = pbw.bybit.BybitUSDTWebsocketChannels()
+        channels = pbw.phemex.PhemexWebsocketChannels()
         subscribes = (
-            channels
-            .ticker(symbol)
-            .trades(symbol)
-            .orderbook(symbol)
-            .candle(symbol)
-            .liquidation(symbol)
-            .order()
-            .position()
-            .execution()
-            .wallet()
-            .stop_order()
-            .get()
+            channels.tick(symbol).trade(symbol).orderbook(symbol).get()
         )
-
         for endpoint, send in subscribes.items():
             await client.ws_connect(
                 endpoint, send_json=send, hdlr_json=lambda msg, ws: print(msg)
