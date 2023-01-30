@@ -28,11 +28,15 @@ class API(ExchangeMixin, LoggingMixin):
     _ORDER_ENDPOINT = None
     _MARKET_ENDPOINT = None
     _LIMIT_ENDPOINT = None
+    _STOP_MARKET_ENDPOINT = None
+    _STOP_LIMIT_ENDPOINT = None
     _CANCEL_ENDPOINT = None
     _ORDER_ID_KEY = None
     _MARKET_REQUEST_METHOD = "POST"
     _LIMIT_REQUEST_METHOD = "POST"
     _CANCEL_REQUEST_METHOD = "DELETE"
+    _STOP_MARKET_REQUEST_METHOD = "POST"
+    _STOP_LIMIT_REQUEST_METHOD = "POST"
 
     def __init__(self, client: pybotters.Client, verbose: bool = False, **kwargs):
         self._client = client
@@ -160,6 +164,63 @@ class API(ExchangeMixin, LoggingMixin):
         wrapped_resp = self._make_cancel_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
+    @logger.catch
+    async def stop_market_order(
+        self,
+        symbol: str,
+        side: str,
+        size: float,
+        trigger: float,
+        request_params: dict = None,
+        order_id_key: str = None,
+        **kwargs,
+    ) -> "OrderResponse":
+        request_params = request_params or {}
+        endpoint = self._make_stop_market_endpoint(symbol, side, size, trigger)
+        p = self._make_stop_market_order_parameter(
+            endpoint, symbol, side, size, trigger
+        )
+        p_w_kwargs = self._add_kwargs_to_data(p, **kwargs)
+        self.log(f"stop market order request: {p_w_kwargs}", verbose=self._verbose)
+        resp, resp_data = await self._make_stop_market_request(
+            endpoint, p_w_kwargs, **request_params
+        )
+        self.log(
+            f"stop market order response: {resp} {resp_data}", verbose=self._verbose
+        )
+        order_id = self._make_stop_market_order_id(resp, resp_data, p, order_id_key)
+        wrapped_resp = self._make_stop_market_order_response(resp, resp_data, order_id)
+        return wrapped_resp
+
+    @logger.catch
+    async def stop_limit_order(
+        self,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        trigger: float,
+        request_params: dict = None,
+        order_id_key: str = None,
+        **kwargs,
+    ) -> "OrderResponse":
+        request_params = request_params or {}
+        endpoint = self._make_stop_limit_endpoint(symbol, side, price, size, trigger)
+        p = self._make_stop_limit_order_parameter(
+            endpoint, symbol, side, price, size, trigger
+        )
+        p_w_kwargs = self._add_kwargs_to_data(p, **kwargs)
+        self.log(f"stop limit order request: {p_w_kwargs}", verbose=self._verbose)
+        resp, resp_data = await self._make_stop_limit_request(
+            endpoint, p_w_kwargs, **request_params
+        )
+        self.log(
+            f"stop limit order response: {resp} {resp_data}", verbose=self._verbose
+        )
+        order_id = self._make_stop_limit_order_id(resp, resp_data, p, order_id_key)
+        wrapped_resp = self._make_stop_limit_order_response(resp, resp_data, order_id)
+        return wrapped_resp
+
     def _attach_base_url(self, url: str, base_url: str = False) -> str:
         if base_url:
             base_url = self._get_base_url(url)
@@ -185,6 +246,22 @@ class API(ExchangeMixin, LoggingMixin):
     def _make_cancel_endpoint(self, symbol: str, order_id: str, **kwargs) -> str:
         return self._CANCEL_ENDPOINT or self._ORDER_ENDPOINT
 
+    def _make_stop_market_endpoint(
+        self, symbol: str, side: str, size: float, trigger: float, **kwargs
+    ) -> str:
+        return self._STOP_MARKET_ENDPOINT or self._ORDER_ENDPOINT
+
+    def _make_stop_limit_endpoint(
+        self,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        trigger: float,
+        **kwargs,
+    ):
+        return self._STOP_LIMIT_ENDPOINT or self._ORDER_ENDPOINT
+
     def _make_market_order_parameter(
         self, endpoint: str, symbol: str, side: str, size: float
     ) -> dict | None:
@@ -202,6 +279,27 @@ class API(ExchangeMixin, LoggingMixin):
 
     def _make_cancel_order_parameter(
         self, endpoint: str, symbol: str, order_id: str
+    ) -> dict | None:
+        raise NotImplementedError
+
+    def _make_stop_market_order_parameter(
+        self,
+        endpoint: str,
+        symbol: str,
+        side: str,
+        size: float,
+        trigger: float,
+    ) -> dict | None:
+        raise NotImplementedError
+
+    def _make_stop_limit_order_parameter(
+        self,
+        endpoint: str,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        trigger: float,
     ) -> dict | None:
         raise NotImplementedError
 
@@ -233,6 +331,24 @@ class API(ExchangeMixin, LoggingMixin):
         return self._make_order_id(resp, resp_data, data, order_id_key)
 
     def _make_limit_order_id(
+        self,
+        resp: "aiohttp.ClientResponse",
+        resp_data: dict,
+        data: dict,
+        order_id_key: str,
+    ) -> str:
+        return self._make_order_id(resp, resp_data, data, order_id_key)
+
+    def _make_stop_market_order_id(
+        self,
+        resp: "aiohttp.ClientResponse",
+        resp_data: dict,
+        data: dict,
+        order_id_key: str,
+    ) -> str:
+        return self._make_order_id(resp, resp_data, data, order_id_key)
+
+    def _make_stop_limit_order_id(
         self,
         resp: "aiohttp.ClientResponse",
         resp_data: dict,
@@ -277,6 +393,20 @@ class API(ExchangeMixin, LoggingMixin):
             self._CANCEL_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
+    async def _make_stop_market_request(
+        self, endpoint: str, params_or_data=dict | None, **kwargs
+    ):
+        return await self._make_request(
+            self._STOP_MARKET_REQUEST_METHOD, endpoint, params_or_data, **kwargs
+        )
+
+    async def _make_stop_limit_request(
+            self, endpoint: str, params_or_data=dict | None, **kwargs
+    ):
+        return await self._make_request(
+            self._STOP_LIMIT_REQUEST_METHOD, endpoint, params_or_data, **kwargs
+        )
+
     def _make_order_response(
         self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
     ) -> "OrderResponse":
@@ -297,6 +427,16 @@ class API(ExchangeMixin, LoggingMixin):
         resp: aiohttp.ClientResponse,
         resp_data: dict,
         order_id: str,
+    ) -> "OrderResponse":
+        return self._make_order_response(resp, resp_data, order_id)
+
+    def _make_stop_market_order_response(
+        self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
+    ) -> "OrderResponse":
+        return self._make_order_response(resp, resp_data, order_id)
+
+    def _make_stop_limit_order_response(
+        self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
     ) -> "OrderResponse":
         return self._make_order_response(resp, resp_data, order_id)
 
