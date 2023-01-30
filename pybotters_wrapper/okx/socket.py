@@ -8,24 +8,27 @@ class OKXWebsocketChannels(WebsocketChannels):
     PRIVATE_ENDPOINT = "wss://ws.okx.com:8443/ws/v5/private"
     ENDPOINT = PUBLIC_ENDPOINT
 
-    def _make_endpoint_and_request_pair(self, channel, **kwargs):
-        d = {"channel": channel}
-        d.update(kwargs)
-        params = {"op": "subscribe", "args": [d]}
-        # TODO: private endpoint
-        return self.ENDPOINT, params
+    def subscribe(self, channel: str, *args, **kwargs) -> OKXWebsocketChannels:
+        return super().subscribe(channel, *args, **kwargs)
 
-    def ticker(self, symbol: str, **kwargs):
+    def make_subscribe_request(self, channel: str, *args, **kwargs) -> dict:
+        return {"op": "subscribe", "args": [{"channel": channel, **kwargs}]}
+
+    def make_subscribe_endpoint(self, channel: str, *args, **kwargs) -> str:
+        # TODO: private endpoint
+        return self.ENDPOINT
+
+    def ticker(self, symbol: str, **kwargs) -> OKXWebsocketChannels:
         return self.tickers(symbol)
 
-    def trades(self, symbol: str, **kwargs):
-        return self._subscribe("trades", instId=symbol)
+    def trades(self, symbol: str, **kwargs) -> OKXWebsocketChannels:
+        return self.subscribe("trades", instId=symbol)
 
-    def orderbook(self, symbol: str, **kwargs):
+    def orderbook(self, symbol: str, **kwargs) -> OKXWebsocketChannels:
         return self.books(symbol)
 
-    def tickers(self, symbol: str):
-        return self._subscribe("tickers", instId=symbol)
+    def tickers(self, symbol: str) -> OKXWebsocketChannels:
+        return self.subscribe("tickers", instId=symbol)
 
-    def books(self, symbol: str):
-        return self._subscribe("books", instId=symbol)
+    def books(self, symbol: str) -> OKXWebsocketChannels:
+        return self.subscribe("books", instId=symbol)

@@ -31,7 +31,7 @@ async def main():
             await client.ws_connect(
                 endpoint,
                 send_json=send,
-                hdlr_json=store.onmessage,
+                hdlr_json=lambda msg, ws: print(msg),
             )
 
         while True:

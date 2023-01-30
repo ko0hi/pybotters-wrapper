@@ -14,7 +14,6 @@ async def main():
             .contract_market_execution(symbol)
             .contract_market_level2depth50(symbol)
             .contract_market_trade_orders()
-            .contract_market_execution(symbol)
             .contract_position(symbol)
             .get()
         )
