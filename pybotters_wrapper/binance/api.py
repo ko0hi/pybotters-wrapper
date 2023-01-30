@@ -6,7 +6,7 @@ from pybotters_wrapper.utils.mixins import (
     BinanceCOINMTESTMixin,
     BinanceSpotMixin,
     BinanceUSDSMMixin,
-    BinanceUSDSMTESTMixin
+    BinanceUSDSMTESTMixin,
 )
 
 
@@ -41,6 +41,41 @@ class BinanceAPIBase(API):
             "timeInForce": "GTC",
         }
 
+    def _make_stop_market_order_parameter(
+        self,
+        endpoint: str,
+        symbol: str,
+        side: str,
+        size: float,
+        trigger: float,
+    ) -> dict:
+        return {
+            "symbol": symbol.upper(),
+            "side": side.upper(),
+            "type": "STOP_MARKET",
+            "quantity": self.format_size(symbol, size),
+            "stopPrice": self.format_price(symbol, trigger),
+        }
+
+    def _make_stop_limit_order_parameter(
+        self,
+        endpoint: str,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        trigger: float,
+    ) -> dict:
+        return {
+            "symbol": symbol.upper(),
+            "side": side.upper(),
+            "type": "STOP",
+            "quantity": self.format_size(symbol, size),
+            "price": self.format_price(symbol, price),
+            "stopPrice": self.format_price(symbol, trigger),
+            "timeInForce": "GTC",  # GTC以外を指定したい場合、kwargsで上書きする。
+        }
+
     def _make_cancel_order_parameter(
         self, endpoint: str, symbol: str, order_id: str
     ) -> dict:
@@ -71,6 +106,35 @@ class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
             "ticker",
         ]
     }
+
+    async def stop_market_order(
+        self,
+        symbol: str,
+        side: str,
+        size: float,
+        trigger: float,
+        request_params: dict = None,
+        order_id_key: str = None,
+        **kwargs,
+    ) -> "OrderResponse":
+        raise RuntimeError(
+            "stop_market_order is not supported for binancespot officially."
+        )
+
+    def _make_stop_limit_order_parameter(
+        self,
+        endpoint: str,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        trigger: float,
+    ) -> dict:
+        params = super()._make_stop_limit_order_parameter(
+            endpoint, symbol, side, price, size, trigger
+        )
+        params["type"] = "STOP_LOSS_LIMIT"
+        return params
 
 
 class BinanceUSDSMAPI(BinanceUSDSMMixin, BinanceAPIBase):
