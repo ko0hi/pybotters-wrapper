@@ -14,11 +14,11 @@ from pybotters.models.binance import (
 from pybotters.store import Item, StoreChange
 from pybotters.ws import ClientWebSocketResponse
 from pybotters_wrapper.binance.socket import (
-    BinanceCOINMWebsocketChannels,
     BinanceCOINMTESTWebsocketChannels,
+    BinanceCOINMWebsocketChannels,
     BinanceSpotWebsocketChannels,
-    BinanceUSDSMWebsocketChannels,
     BinanceUSDSMTESTWebsocketChannels,
+    BinanceUSDSMWebsocketChannels,
 )
 from pybotters_wrapper.core.store import (
     DataStoreWrapper,
@@ -230,6 +230,7 @@ class BinanceUSDSMDataStoreWrapper(
         "token_private": ("POST", "/fapi/v1/listenKey", None),
         "orderbook": ("GET", "/fapi/v1/depth", ["symbol"]),
         "order": ("GET", "/fapi/v1/openOrders", None),
+        "position": ("GET", "/fapi/v2/positionRisk", None),
     }
     _WRAP_STORE = BinanceUSDSMDataStore
 
@@ -244,6 +245,7 @@ class BinanceUSDSMTESTDataStoreWrapper(
         "token_private": ("POST", "/fapi/v1/listenKey", None),
         "orderbook": ("GET", "/fapi/v1/depth", ["symbol"]),
         "order": ("GET", "/fapi/v1/openOrders", None),
+        "position": ("GET", "/fapi/v2/positionRisk", None)
     }
     _WRAP_STORE = BinanceUSDSMDataStore
 
@@ -257,6 +259,7 @@ class BinanceCOINMDataStoreWrapper(
         "token_private": ("POST", "/dapi/v1/listenKey", None),
         "orderbook": ("GET", "/dapi/v1/depth", ["symbol"]),
         "order": ("GET", "/dapi/v1/openOrders", None),
+        "position": ("GET", "/dapi/v1/positionRisk", None)
     }
     _WRAP_STORE = BinanceCOINMDataStore
 
@@ -270,5 +273,6 @@ class BinanceCOINMTESTDataStoreWrapper(
         "token_private": ("POST", "/dapi/v1/listenKey", None),
         "orderbook": ("GET", "/dapi/v1/depth", ["symbol"]),
         "order": ("GET", "/dapi/v1/openOrders", None),
+        "position": ("GET", "/dapi/v1/positionRisk", None)
     }
     _WRAP_STORE = BinanceCOINMDataStore

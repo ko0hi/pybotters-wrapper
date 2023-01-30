@@ -6,17 +6,19 @@ from pybotters_wrapper.core import WebsocketChannels
 
 
 class BinanceWebsocketChannels(WebsocketChannels):
-    def _make_endpoint_and_request_pair(self, params, **kwargs):
+    def subscribe(
+        self, params: str | list[str], *args, **kwargs
+    ) -> BinanceWebsocketChannels:
+        return super().subscribe(params, *args, **kwargs)
+
+    def make_subscribe_request(self, params: str | list[str], *args, **kwargs) -> dict:
         if isinstance(params, str):
             params = [params]
-
-        send_json = {
+        return {
             "method": "SUBSCRIBE",
             "params": params,
             "id": int(time.monotonic() * 10**9),
         }
-
-        return self.ENDPOINT, send_json
 
     def get(self) -> dict[str, list]:
         compressed = {}
@@ -32,7 +34,7 @@ class BinanceWebsocketChannels(WebsocketChannels):
 
     # channels for normalized stores
     def ticker(self, symbol: str, **kwargs) -> BinanceWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@ticker")
+        return self.subscribe(f"{symbol.lower()}@ticker")
 
     def trades(self, symbol: str, **kwargs) -> BinanceWebsocketChannels:
         return self.agg_trades(symbol)
@@ -57,78 +59,102 @@ class BinanceWebsocketChannels(WebsocketChannels):
 
     # other channels
     def agg_trades(self, symbol: str) -> BinanceWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@aggTrade")
+        return self.subscribe(f"{symbol.lower()}@aggTrade")
 
     def book_ticker(self, symbol: str) -> BinanceWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@bookTicker")
+        return self.subscribe(f"{symbol.lower()}@bookTicker")
 
     def depth(self, symbol: str) -> BinanceWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@depth")
+        return self.subscribe(f"{symbol.lower()}@depth")
 
     def kline(self, symbol: str, interval: str) -> BinanceWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@kline_{interval}")
+        return self.subscribe(f"{symbol.lower()}@kline_{interval}")
 
     def listenkey(self, listen_key: str) -> BinanceWebsocketChannels:
-        return self._subscribe(listen_key)
+        return self.subscribe(listen_key)
 
 
 class BinanceSpotWebsocketChannels(BinanceWebsocketChannels):
     ENDPOINT = "wss://stream.binance.com/ws"
+
+    def subscribe(
+        self, params: str | list[str], *args, **kwargs
+    ) -> BinanceSpotWebsocketChannels:
+        return super().subscribe(params, *args, **kwargs)
 
 
 class BinanceFuturesWebsocketChannels(BinanceWebsocketChannels):
     def continuous_kline(
         self, pair: str, contract: str, interval: str
     ) -> BinanceFuturesWebsocketChannels:
-        return self._subscribe(
+        return self.subscribe(
             f"{pair.lower()}_{contract.lower()}@continuousKline_{interval}"
         )
 
     def liquidation(self, symbol: str) -> BinanceFuturesWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@forceOrder")
+        return self.subscribe(f"{symbol.lower()}@forceOrder")
 
     def mark_price(self, symbol: str) -> BinanceFuturesWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@markPrice")
+        return self.subscribe(f"{symbol.lower()}@markPrice")
 
 
 class BinanceUSDSMWebsocketChannels(BinanceFuturesWebsocketChannels):
     ENDPOINT = "wss://fstream.binance.com/ws"
 
+    def subscribe(
+        self, params: str | list[str], *args, **kwargs
+    ) -> BinanceUSDSMWebsocketChannels:
+        return super().subscribe(params, *args, **kwargs)
+
     def composite_index(self, symbol: str) -> BinanceUSDSMWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@compositeIndex")
+        return self.subscribe(f"{symbol.lower()}@compositeIndex")
 
 
 class BinanceUSDSMTESTWebsocketChannels(BinanceFuturesWebsocketChannels):
     ENDPOINT = "wss://stream.binancefuture.com/ws"
 
-    def composite_index(self, symbol: str) -> BinanceUSDSMTESTWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@compositeIndex")
+    def subscribe(
+        self, params: str | list[str], *args, **kwargs
+    ) -> BinanceUSDSMTESTWebsocketChannels:
+        return super().subscribe(params, *args, **kwargs)
 
+    def composite_index(self, symbol: str) -> BinanceUSDSMTESTWebsocketChannels:
+        return self.subscribe(f"{symbol.lower()}@compositeIndex")
 
 
 class BinanceCOINMWebsocketChannels(BinanceFuturesWebsocketChannels):
     ENDPOINT = "wss://dstream.binance.com/ws"
 
+    def subscribe(
+        self, params: str | list[str], *args, **kwargs
+    ) -> BinanceCOINMWebsocketChannels:
+        return super().subscribe(params, *args, **kwargs)
+
     def index_price(
         self, symbol: str, interval: str = "1s"
     ) -> BinanceCOINMWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@indexPrice@{interval}")
+        return self.subscribe(f"{symbol.lower()}@indexPrice@{interval}")
 
     def index_price_kline(
         self, symbol: str, interval: str
     ) -> BinanceCOINMWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@indexPriceKline_{interval}")
+        return self.subscribe(f"{symbol.lower()}@indexPriceKline_{interval}")
 
 
 class BinanceCOINMTESTWebsocketChannels(BinanceFuturesWebsocketChannels):
     ENDPOINT = "wss://dstream.binancefuture.com/ws"
 
+    def subscribe(
+        self, params: str | list[str], *args, **kwargs
+    ) -> BinanceCOINMTESTWebsocketChannels:
+        return super().subscribe(params, *args, **kwargs)
+
     def index_price(
         self, symbol: str, interval: str = "1s"
     ) -> BinanceCOINMTESTWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@indexPrice@{interval}")
+        return self.subscribe(f"{symbol.lower()}@indexPrice@{interval}")
 
     def index_price_kline(
         self, symbol: str, interval: str
     ) -> BinanceCOINMTESTWebsocketChannels:
-        return self._subscribe(f"{symbol.lower()}@indexPriceKline_{interval}")
+        return self.subscribe(f"{symbol.lower()}@indexPriceKline_{interval}")

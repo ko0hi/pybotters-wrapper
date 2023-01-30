@@ -98,6 +98,17 @@ class BinanceUSDSMTESTMixin(ExchangeMixin):
 class BinanceCOINMMixin(ExchangeMixin):
     _EXCHANGE_NAME = "binancecoinm"
 
+    def _lookup_precision(self, symbol: str, precisions: dict) -> int | None:
+        if symbol in precisions:
+            return precisions[symbol]
+        else:
+            # perpのものを参照する
+            symbol_perp = symbol.split("_")[0] + "_PERP"
+            if symbol_perp in precisions:
+                return precisions[symbol_perp]
+            else:
+                return None
+
 
 class BinanceCOINMTESTMixin(ExchangeMixin):
     _EXCHANGE_NAME = "binancecoinm_test"

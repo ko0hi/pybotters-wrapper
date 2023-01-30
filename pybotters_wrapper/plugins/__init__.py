@@ -1,10 +1,11 @@
-from . import market, status, watcher, writer
+from . import market, periodic, status, watcher, writer
 from ._apis import (
     bar_csvwriter,
     binningbook,
     bookticker,
     execution_watcher,
     pnl,
+    poller,
     timebar,
     volumebar,
     wait_csvwriter,
@@ -21,6 +22,7 @@ __all__ = (
     "volumebar",
     "binningbook",
     "bookticker",
+    "poller",
     "execution_watcher",
     "pnl",
     "watch_csvwriter",

@@ -67,9 +67,6 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
         self._ws_channels = self._WEBSOCKET_CHANNELS()
         self._ws_connections = []
 
-    def __repr__(self):
-        return self._store.__class__.__name__
-
     async def initialize(
         self,
         aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
@@ -169,13 +166,22 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
             channel = ["order", "execution", "position"]
 
         if isinstance(channel, str):
-            self._ws_channels.add(channel, **kwargs)
+            try:
+                getattr(self._ws_channels, channel)(**kwargs)
+            except AttributeError:
+                self._ws_channels.subscribe(channel, **kwargs)
         elif isinstance(channel, list):
             for item in channel:
                 if isinstance(item, str):
-                    self._ws_channels.add(item, **kwargs)
+                    try:
+                        getattr(self._ws_channels, item)(**kwargs)
+                    except AttributeError:
+                        self._ws_channels.subscribe(item, **kwargs)
                 elif isinstance(item, tuple):
-                    self._ws_channels.add(item[0], **{**kwargs, **item[1]})
+                    try:
+                        getattr(self._ws_channels, item[0])(**{**kwargs, **item[1]})
+                    except AttributeError:
+                        self._ws_channels.subscribe(item[0], **{**kwargs, **item[1]})
 
         return self
 
