@@ -166,13 +166,22 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
             channel = ["order", "execution", "position"]
 
         if isinstance(channel, str):
-            getattr(self._ws_channels, channel)(**kwargs)
+            try:
+                getattr(self._ws_channels, channel)(**kwargs)
+            except AttributeError:
+                self._ws_channels.subscribe(channel, **kwargs)
         elif isinstance(channel, list):
             for item in channel:
                 if isinstance(item, str):
-                    getattr(self._ws_channels, item)(**kwargs)
+                    try:
+                        getattr(self._ws_channels, item)(**kwargs)
+                    except AttributeError:
+                        self._ws_channels.subscribe(item, **kwargs)
                 elif isinstance(item, tuple):
-                    getattr(self._ws_channels, item[0])(**{**kwargs, **item[1]})
+                    try:
+                        getattr(self._ws_channels, item[0])(**{**kwargs, **item[1]})
+                    except AttributeError:
+                        self._ws_channels.subscribe(item[0], **{**kwargs, **item[1]})
 
         return self
 
