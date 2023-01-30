@@ -22,9 +22,6 @@ class WebsocketChannels(LoggingMixin):
         self._subscribe_list = defaultdict(list)
         self._cash = defaultdict(set)
 
-    def add(self, channel, **kwargs) -> TWebsocketChannels:
-        return getattr(self, channel)(**kwargs)
-
     def get(self) -> dict[str, list]:
         return self._subscribe_list
 

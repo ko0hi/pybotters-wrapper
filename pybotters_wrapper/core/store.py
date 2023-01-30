@@ -166,13 +166,13 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
             channel = ["order", "execution", "position"]
 
         if isinstance(channel, str):
-            self._ws_channels.add(channel, **kwargs)
+            getattr(self._ws_channels, channel)(**kwargs)
         elif isinstance(channel, list):
             for item in channel:
                 if isinstance(item, str):
-                    self._ws_channels.add(item, **kwargs)
+                    getattr(self._ws_channels, item)(**kwargs)
                 elif isinstance(item, tuple):
-                    self._ws_channels.add(item[0], **{**kwargs, **item[1]})
+                    getattr(self._ws_channels, item[0])(**{**kwargs, **item[1]})
 
         return self
 
