@@ -4,13 +4,11 @@ from pybotters_wrapper.core import WebsocketChannels
 
 
 class BybitWebsocketChannels(WebsocketChannels):
-    def _make_endpoint_and_request_pair(self, topic, **kwargs):
-        request = {"op": "subscribe", "args": [topic]}
-        endpoint = self._get_endpoint(topic)
-        return endpoint, request
+    def subscribe(self, topic: str, *args, **kwargs) -> BybitWebsocketChannels:
+        return super().subscribe(topic, *args, **kwargs)
 
-    def _get_endpoint(self, topic):
-        return self.ENDPOINT
+    def make_subscribe_request(self, topic: str, *args, **kwargs) -> dict:
+        return {"op": "subscribe", "args": [topic]}
 
     def ticker(self, symbol: str, **kwargs) -> BybitWebsocketChannels:
         return self.instrument_info(symbol)
@@ -22,28 +20,28 @@ class BybitWebsocketChannels(WebsocketChannels):
         return self.orderbook_l2_200(symbol, 100)
 
     def order(self, **kwargs) -> BybitWebsocketChannels:
-        return self.stop_order()._subscribe("order")
+        return self.stop_order().subscribe("order")
 
     def execution(self, **kwargs) -> BybitWebsocketChannels:
-        return self._subscribe("execution")
+        return self.subscribe("execution")
 
     def position(self, **kwargs) -> BybitWebsocketChannels:
-        return self._subscribe("position")
+        return self.subscribe("position")
 
     def instrument_info(self, symbol: str) -> BybitWebsocketChannels:
-        return self._subscribe(f"instrument_info.100ms.{symbol}")
+        return self.subscribe(f"instrument_info.100ms.{symbol}")
 
     def trade(self, symbol: str) -> BybitWebsocketChannels:
-        return self._subscribe(f"trade.{symbol}")
+        return self.subscribe(f"trade.{symbol}")
 
     def orderbook_l2_200(self, symbol: str, n: int) -> BybitWebsocketChannels:
-        return self._subscribe(f"orderBook_200.{n}ms.{symbol}")
+        return self.subscribe(f"orderBook_200.{n}ms.{symbol}")
 
     def stop_order(self) -> BybitWebsocketChannels:
-        return self._subscribe("stop_order")
+        return self.subscribe("stop_order")
 
     def wallet(self) -> BybitWebsocketChannels:
-        return self._subscribe("wallet")
+        return self.subscribe("wallet")
 
 
 class BybitUSDTWebsocketChannels(BybitWebsocketChannels):
@@ -51,7 +49,10 @@ class BybitUSDTWebsocketChannels(BybitWebsocketChannels):
     PUBLIC_ENDPOINT = ENDPOINT
     PRIVATE_ENDPOINT = "wss://stream.bybit.com/realtime_private"
 
-    def _get_endpoint(self, topic) -> str:
+    def subscribe(self, topic: str, *args, **kwargs) -> BybitUSDTWebsocketChannels:
+        return super().subscribe(topic, *args, **kwargs)
+
+    def make_subscribe_endpoint(self, topic: str, *args, **kwargs) -> str:
         if topic in ("position", "execution", "order", "stop_order", "wallet"):
             return self.PRIVATE_ENDPOINT
         else:
@@ -60,22 +61,25 @@ class BybitUSDTWebsocketChannels(BybitWebsocketChannels):
     def candle(
         self, symbol: str, interval: int | str = 1
     ) -> BybitUSDTWebsocketChannels:
-        return self._subscribe(f"candle.{interval}.{symbol}")
+        return self.subscribe(f"candle.{interval}.{symbol}")
 
     def liquidation(self, symbol: str) -> BybitUSDTWebsocketChannels:
-        return self._subscribe(f"liquidation.{symbol}")
+        return self.subscribe(f"liquidation.{symbol}")
 
 
 class BybitInverseWebsocketChannels(BybitWebsocketChannels):
     ENDPOINT = "wss://stream.bybit.com/realtime"
 
+    def subscribe(self, topic: str, *args, **kwargs) -> BybitInverseWebsocketChannels:
+        return super().subscribe(topic, *args, **kwargs)
+
     def insurance(self) -> BybitInverseWebsocketChannels:
-        return self._subscribe("insurance")
+        return self.subscribe("insurance")
 
     def kline_v2(
         self, symbol: str, interval: int | str = 1
     ) -> BybitInverseWebsocketChannels:
-        return self._subscribe(f"klineV2.{interval}.{symbol}")
+        return self.subscribe(f"klineV2.{interval}.{symbol}")
 
     def liquidation(self) -> BybitInverseWebsocketChannels:
-        return self._subscribe("liquidation")
+        return self.subscribe("liquidation")

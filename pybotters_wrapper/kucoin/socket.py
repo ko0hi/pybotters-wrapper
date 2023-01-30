@@ -6,11 +6,14 @@ from pybotters_wrapper.core import WebsocketChannels
 
 
 class KuCoinWebsocketChannels(WebsocketChannels):
-    def _make_endpoint_and_request_pair(self, channel: str, **kwargs) -> [str, dict]:
-        return None, {
+    def subscribe(self, topic: str, *args, **kwargs) -> KuCoinWebsocketChannels:
+        return super().subscribe(topic, *args, **kwargs)
+
+    def make_subscribe_request(self, topic: str, *args, **kwargs) -> str:
+        return {
             "id": str(uuid.uuid4()),
             "type": "subscribe",
-            "topic": channel,
+            "topic": topic,
             "response": True,
         }
 
@@ -38,18 +41,18 @@ class KuCoinSpotWebsocketChannels(KuCoinWebsocketChannels):
         return self.spot_market_trade_orders()
 
     def market_ticker(self, *symbols: str) -> KuCoinSpotWebsocketChannels:
-        return self._subscribe("/market/ticker:" + self._join_symbols(symbols))
+        return self.subscribe("/market/ticker:" + self._join_symbols(symbols))
 
     def market_match(self, *symbols: str) -> KuCoinSpotWebsocketChannels:
-        return self._subscribe("/market/match:" + self._join_symbols(symbols))
+        return self.subscribe("/market/match:" + self._join_symbols(symbols))
 
     def spot_market_level2depth50(self, *symbols: str) -> KuCoinSpotWebsocketChannels:
-        return self._subscribe(
+        return self.subscribe(
             "/spotMarket/level2Depth50:" + self._join_symbols(symbols)
         )
 
     def spot_market_trade_orders(self) -> KuCoinSpotWebsocketChannels:
-        return self._subscribe("/spotMarket/tradeOrders")
+        return self.subscribe("/spotMarket/tradeOrders")
 
 
 class KuCoinFuturesWebsocketChannels(KuCoinWebsocketChannels):
@@ -72,18 +75,18 @@ class KuCoinFuturesWebsocketChannels(KuCoinWebsocketChannels):
         return self.contract_position(symbol)
 
     def contract_market_ticker_v2(self, symbol: str) -> KuCoinFuturesWebsocketChannels:
-        return self._subscribe(f"/contractMarket/tickerV2:{symbol}")
+        return self.subscribe(f"/contractMarket/tickerV2:{symbol}")
 
     def contract_market_execution(self, symbol: str) -> KuCoinFuturesWebsocketChannels:
-        return self._subscribe(f"/contractMarket/execution:{symbol}")
+        return self.subscribe(f"/contractMarket/execution:{symbol}")
 
     def contract_market_level2depth50(
         self, symbol: str
     ) -> KuCoinFuturesWebsocketChannels:
-        return self._subscribe(f"/contractMarket/level2Depth50:{symbol}")
+        return self.subscribe(f"/contractMarket/level2Depth50:{symbol}")
 
     def contract_market_trade_orders(self) -> KuCoinFuturesWebsocketChannels:
-        return self._subscribe("/contractMarket/tradeOrders")
+        return self.subscribe("/contractMarket/tradeOrders")
 
     def contract_position(self, symbol: str) -> KuCoinFuturesWebsocketChannels:
-        return self._subscribe(f"/contract/position: {symbol}")
+        return self.subscribe(f"/contract/position:{symbol}")
