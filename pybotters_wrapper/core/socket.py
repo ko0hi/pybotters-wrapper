@@ -28,17 +28,31 @@ class WebsocketChannels(LoggingMixin):
     def get(self) -> dict[str, list]:
         return self._subscribe_list
 
-    def _subscribe(self, *args, **kwargs) -> TWebsocketChannels:
-        endpoint, send = self._make_endpoint_and_request_pair(*args, **kwargs)
+    def make_subscribe_request(self, *args, **kwargs) -> dict:
+        """ 購読リクエスト（i.e., `send_json`）を生成する。引数はsubscribeメソッドに準ずる。
+        """
+        raise NotImplementedError
+
+    def make_subscribe_endpoint(self, *args, **kwargs) -> str:
+        """ エンドポイントを生成する。引数はsubscribeメソッドに準ずる。
+        """
+        return self.ENDPOINT
+
+    def subscribe(self, *args, **kwargs) -> "TWebsocketChannels":
+        """ 購読リストに追加する。引数は各取引所の実装クラスでオーバーロードする。
+        """
+        send = self.make_subscribe_request(*args, **kwargs)
+        endpoint = self.make_subscribe_endpoint(*args, **kwargs)
+
+        endpoint = kwargs.get("endpoint", endpoint)
         send_str = str(send)
+
         if send_str not in self._cash[endpoint]:
             self._subscribe_list[endpoint].append(send)
             self._cash[endpoint].add(send_str)
             self.log(f"Add socket channel: {endpoint} / {send}")
-        return self
 
-    def _make_endpoint_and_request_pair(self, *args, **kwargs) -> [str, dict]:
-        raise NotImplementedError
+        return self
 
     def ticker(self, symbol: str, **kwargs) -> "TWebsocketChannels":
         raise NotImplementedError
