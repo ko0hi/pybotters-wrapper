@@ -73,23 +73,9 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
     async def initialize(
         self,
         aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
-        client: "pybotters.Client" = None,
+        client: "pybotters.Client",
     ) -> "DataStoreWrapper":
         self.log(f"Initialize requests {aws_or_names}")
-
-        def _check_client():
-            assert (
-                client is not None
-            ), "need to pass `client` as store.initialize(..., client=client)"
-
-        def _raise_invalid_params(name, params):
-            raise RuntimeError(
-                f"Missing required parameters for initializing "
-                f"'{name}' of {self.__class__.__name__}: "
-                f"{params} (HINT: store.initialize([('{name}', "
-                f"{str({p: '...' for p in params})}), ...))"
-            )
-
         awaitables = []
         for a_or_n in aws_or_names:
             if isinstance(a_or_n, Awaitable):
@@ -98,18 +84,7 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
 
             elif isinstance(a_or_n, str):
                 _check_client()
-
-                name = a_or_n
-
-                conf = self._get_initialize_request_config(name)
-
-                if conf.url:
-                    if conf.params is not None:
-                        _raise_invalid_params(name, conf.params)
-                    awaitables.append(
-                        self._initialize_request(client, conf.method, conf.url)
-                    )
-
+                awaitables.append(self._initialize_request_from_conf(client, a_or_n))
             elif (
                 isinstance(a_or_n, tuple)
                 and len(a_or_n) == 2
@@ -117,19 +92,12 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
                 and isinstance(a_or_n[1], dict)
             ):
                 _check_client()
+                awaitables.append(
+                    self._initialize_request_from_conf(client, a_or_n[0], **a_or_n[1])
+                )
 
-                name, params = a_or_n
-
-                conf = self._get_initialize_request_config(name)
-
-                if conf.url:
-                    missing_params = set(conf.params).difference(params.keys())
-                    if len(missing_params) > 0:
-                        _raise_invalid_params(name, conf.params)
-
-                    awaitables.append(
-                        self._initialize_request(client, conf.method, conf.url, params)
-                    )
+        # null confを除外
+        awaitables = [aws for aws in awaitables if aws is not None]
 
         await self._initialize_with_validation(*awaitables)
 
