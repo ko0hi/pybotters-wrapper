@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Awaitable, Callable, Generic, Type, TypedDict, TypeVar
 
+from collections import namedtuple
 import aiohttp
 import pandas as pd
 import pybotters
@@ -20,7 +21,9 @@ if TYPE_CHECKING:
     from pybotters_wrapper.core import WebsocketChannels
 
 T = TypeVar("T", bound=DataStoreManager)
-InitializeRequestConfig = tuple[str, str, list[str] | tuple[str] | None]
+InitializeRequestConfig = namedtuple(
+    "InitializeRequestConf", ("method", "url", "params")
+)
 
 
 class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
@@ -98,18 +101,14 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
 
                 name = a_or_n
 
-                (
-                    method,
-                    endpoint,
-                    required_params,
-                ) = self._get_initialize_request_config(name)
+                conf = self._get_initialize_request_config(name)
 
-                if endpoint:
-                    if required_params is not None:
-                        _raise_invalid_params(name, required_params)
+                if conf.url:
+                    if conf.params is not None:
+                        _raise_invalid_params(name, conf.params)
                     request_tasks.append(
                         asyncio.create_task(
-                            self._initialize_request(client, method, endpoint)
+                            self._initialize_request(client, conf.method, conf.url)
                         )
                     )
 
@@ -123,20 +122,18 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
 
                 name, params = a_or_n
 
-                (
-                    method,
-                    endpoint,
-                    required_params,
-                ) = self._get_initialize_request_config(name)
+                conf = self._get_initialize_request_config(name)
 
-                if endpoint:
-                    missing_params = set(required_params).difference(params.keys())
+                if conf.url:
+                    missing_params = set(conf.params).difference(params.keys())
                     if len(missing_params) > 0:
-                        _raise_invalid_params(name, required_params)
+                        _raise_invalid_params(name, conf.params)
 
                     request_tasks.append(
                         asyncio.create_task(
-                            self._initialize_request(client, method, endpoint, params)
+                            self._initialize_request(
+                                client, conf.method, conf.url, params
+                            )
                         )
                     )
 
@@ -237,7 +234,7 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
                 f"available endpoints are {list(self._INITIALIZE_CONFIG.keys())}",
                 "warning",
             )
-            return None, None, None
+            return InitializeRequestConfig(None, None, None)
 
         config = self._INITIALIZE_CONFIG[key]
 
@@ -247,7 +244,7 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
             and (isinstance(config[2], (list, tuple)) or config[2] is None)
         ):
             raise RuntimeError(f"Invalid initialize endpoint: {config}")
-        return config
+        return InitializeRequestConfig(*config)
 
     def _init_normalized_stores(self):
         self._normalized_stores["ticker"] = self._init_ticker_store()
