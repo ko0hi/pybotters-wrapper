@@ -207,17 +207,17 @@ class BinanceSpotDataStoreWrapper(
         self,
         client: "pybotters.Client",
         method: str,
-        endpoint: str,
+        url: str,
         params_or_data: dict | None = None,
         **kwargs,
     ):
         from .api import BinanceSpotAPI
 
         kwargs = kwargs or {}
-        if URL(endpoint).path in BinanceSpotAPI._PUBLIC_ENDPOINTS:
+        if URL(url).path in BinanceSpotAPI._PUBLIC_ENDPOINTS:
             kwargs["auth"] = None
         return await super()._initialize_request(
-            client, method, endpoint, params_or_data, **kwargs
+            client, method, url, params_or_data, **kwargs
         )
 
 
