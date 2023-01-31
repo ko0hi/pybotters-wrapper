@@ -353,13 +353,15 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
         method: str,
         url: str,
         params_or_data: dict | None = None,
+        **kwargs,
     ):
         # exchange用のapiを使ってBASE_URLを足す
         import pybotters_wrapper as pbw
+
         api = pbw.create_api(self.exchange, client)
         params = dict(method=method, url=url)
         params["params" if method == "GET" else "data"] = params_or_data
-        return await api.request(**params)
+        return await api.request(**params, **kwargs)
 
     async def _initialize_request_from_conf(
         self,
@@ -407,6 +409,16 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
             # APIレスポンスが成功していたかチェック
             for task in tasks:
                 result: ClientResponse = task.result()
+
+                # null conf
+                if result is None:
+                    continue
+
+                if not isinstance(result, ClientResponse):
+                    raise RuntimeError(
+                        f"Unexpected result of initialize api response: {result}"
+                    )
+
                 if result.status != 200:
                     try:
                         data = await result.json()
