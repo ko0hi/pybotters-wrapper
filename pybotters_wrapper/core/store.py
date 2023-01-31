@@ -101,25 +101,6 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
 
         return self
 
-    async def _initialize_with_validation(self, *request_tasks: list[asyncio.Task]):
-        try:
-            await self._store.initialize(*request_tasks)
-        except AttributeError:
-            # initializeはDataStoreManagerのメソッドではなく、各実装クラスレベルでのメソッド
-            # bitbankDataStoreなど実装がない
-            pass
-        finally:
-            # APIレスポンスが成功していたかチェック
-            for task in request_tasks:
-                result: ClientResponse = task.result()
-                if result.status != 200:
-                    try:
-                        data = await result.json()
-                    except Exception:
-                        data = None
-                    raise RuntimeError(f"Initialization failed: {result.url} {data}")
-
-
     def subscribe(
         self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
     ) -> "DataStoreWrapper":
