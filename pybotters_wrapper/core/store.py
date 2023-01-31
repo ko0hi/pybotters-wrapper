@@ -94,9 +94,6 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
                     self._initialize_request_from_conf(client, a_or_n[0], **a_or_n[1])
                 )
 
-        # null confを除外
-        awaitables = [aws for aws in awaitables if aws is not None]
-
         await self._initialize_with_validation(*awaitables)
 
         return self
@@ -367,7 +364,7 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
             raise RuntimeError(f"Initialization failed: {result.url} {data}")
 
     async def _initialize_with_validation(self, *aws: list[Awaitable]):
-        tasks = [asyncio.create_task(aw) for aw in aws]
+        tasks = [asyncio.create_task(aw) for aw in aws if aw is not None]
         try:
             await self._store.initialize(*tasks)
         except AttributeError:
