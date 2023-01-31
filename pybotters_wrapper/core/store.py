@@ -98,6 +98,39 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
 
         return self
 
+    async def _initialize_by_config(self, client: "pybotters", name: str, **kwargs):
+        await self._initialize_with_validation(
+            self._initialize_request_from_conf(client, name, **kwargs)
+        )
+        return self
+
+    async def initialize_token(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "token", **kwargs)
+
+    async def initialize_public_token(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "public_token", **kwargs)
+
+    async def initialize_private_token(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "private_token", **kwargs)
+
+    async def initialize_ticker(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "ticker", **kwargs)
+
+    async def initialize_trades(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "trades", **kwargs)
+
+    async def initialize_orderbook(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "orderbook", **kwargs)
+
+    async def initialize_order(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "order", **kwargs)
+
+    async def initialize_execution(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "execution", **kwargs)
+
+    async def initialize_position(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "position", **kwargs)
+
     def subscribe(
         self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
     ) -> "DataStoreWrapper":
