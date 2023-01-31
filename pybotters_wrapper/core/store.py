@@ -381,8 +381,7 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
                 raise RuntimeError(
                     f"Missing required parameters for initializing "
                     f"'{name}' of {self.__class__.__name__}: "
-                    f"{params} (HINT: store.initialize([('{name}', "
-                    f"{str({p: '...' for p in params})}), ...))"
+                    f"{conf.params} are required."
                 )
 
         return await self._initialize_request(client, conf.method, conf.url, params)
