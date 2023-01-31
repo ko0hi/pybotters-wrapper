@@ -83,7 +83,6 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
                 awaitables.append(a_or_n)
 
             elif isinstance(a_or_n, str):
-                _check_client()
                 awaitables.append(self._initialize_request_from_conf(client, a_or_n))
             elif (
                 isinstance(a_or_n, tuple)
@@ -91,7 +90,6 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
                 and isinstance(a_or_n[0], str)
                 and isinstance(a_or_n[1], dict)
             ):
-                _check_client()
                 awaitables.append(
                     self._initialize_request_from_conf(client, a_or_n[0], **a_or_n[1])
                 )
