@@ -336,21 +336,45 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
             )
         return store
 
-    def _initialize_request(
+    async def _initialize_request(
         self,
         client: "pybotters.Client",
         method: str,
-        endpoint: str,
+        url: str,
         params_or_data: dict | None = None,
-        **kwargs,
     ):
         # exchange用のapiを使ってBASE_URLを足す
         import pybotters_wrapper as pbw
-
         api = pbw.create_api(self.exchange, client)
-        params = dict(method=method, url=endpoint)
+        params = dict(method=method, url=url)
         params["params" if method == "GET" else "data"] = params_or_data
-        return api.request(**params, **kwargs)
+        return await api.request(**params)
+
+    async def _initialize_request_from_conf(
+        self,
+        client: pybotters.Client,
+        name: str,
+        **kwargs,
+    ):
+        conf = self._get_initialize_request_config(name)
+
+        # 設定なし
+        if conf.url is None:
+            return None
+
+        params = dict(kwargs)
+
+        # required parameterチェック
+        if conf.params is not None:
+            if len(params) == 0 or len(set(conf.params).difference(params.keys())) > 0:
+                raise RuntimeError(
+                    f"Missing required parameters for initializing "
+                    f"'{name}' of {self.__class__.__name__}: "
+                    f"{params} (HINT: store.initialize([('{name}', "
+                    f"{str({p: '...' for p in params})}), ...))"
+                )
+
+        return await self._initialize_request(client, conf.method, conf.url, params)
 
     async def _validate_initialize_response(self, task: asyncio.Task):
         result: ClientResponse = task.result()
