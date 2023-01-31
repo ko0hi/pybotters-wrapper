@@ -90,11 +90,11 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
                 f"{str({p: '...' for p in params})}), ...))"
             )
 
-        request_tasks = []
+        awaitables = []
         for a_or_n in aws_or_names:
             if isinstance(a_or_n, Awaitable):
                 # validateの用にレスポンスにアクセスしたいのでTaskとしてスケジューリング
-                request_tasks.append(asyncio.create_task(a_or_n))
+                awaitables.append(a_or_n)
 
             elif isinstance(a_or_n, str):
                 _check_client()
@@ -106,10 +106,8 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
                 if conf.url:
                     if conf.params is not None:
                         _raise_invalid_params(name, conf.params)
-                    request_tasks.append(
-                        asyncio.create_task(
-                            self._initialize_request(client, conf.method, conf.url)
-                        )
+                    awaitables.append(
+                        self._initialize_request(client, conf.method, conf.url)
                     )
 
             elif (
@@ -129,15 +127,11 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
                     if len(missing_params) > 0:
                         _raise_invalid_params(name, conf.params)
 
-                    request_tasks.append(
-                        asyncio.create_task(
-                            self._initialize_request(
-                                client, conf.method, conf.url, params
-                            )
-                        )
+                    awaitables.append(
+                        self._initialize_request(client, conf.method, conf.url, params)
                     )
 
-        await self._initialize_with_validation(*request_tasks)
+        await self._initialize_with_validation(*awaitables)
 
         return self
 
@@ -400,6 +394,25 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
             except Exception:
                 data = None
             raise RuntimeError(f"Initialization failed: {result.url} {data}")
+
+    async def _initialize_with_validation(self, *aws: list[Awaitable]):
+        tasks = [asyncio.create_task(aw) for aw in aws]
+        try:
+            await self._store.initialize(*tasks)
+        except AttributeError:
+            # initializeはDataStoreManagerのメソッドではなく、各実装クラスレベルでのメソッド
+            # bitbankDataStoreなど実装がない
+            pass
+        finally:
+            # APIレスポンスが成功していたかチェック
+            for task in tasks:
+                result: ClientResponse = task.result()
+                if result.status != 200:
+                    try:
+                        data = await result.json()
+                    except Exception:
+                        data = None
+                    raise RuntimeError(f"Initialization failed: {result.url} {data}")
 
     @property
     def store(self) -> T:
