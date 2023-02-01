@@ -7,11 +7,9 @@ async def main(exchange="binancecoinm"):
     # 取引所個別の設定
     configs = {
         "binancespot": {"symbol": "BTCUSDT", "size": 0.001},
-        "binanceusdsm": {
-            "symbol": "BTCUSDT",
-            "size": 0.001,
-        },
+        "binanceusdsm": {"symbol": "BTCUSDT", "size": 0.001},
         "binancecoinm": {"symbol": "BTCUSD_PERP", "size": 1},
+        "gmocoin": {"symbol": "BTC_JPY", "size": 0.01},
     }
 
     assert exchange in configs
@@ -33,9 +31,16 @@ async def main(exchange="binancecoinm"):
         trigger = store.ticker.find()[0]["price"] * 1.1
 
         # 指値注文
-        new_resp = await api.stop_limit_order(
-            symbol, "BUY", trigger, size, trigger
-        )
+        if exchange == "gmocoin":
+            try:
+                new_resp = await api.stop_limit_order(symbol, "BUY", trigger, size, trigger)
+            except RuntimeError as e:
+                print(e)
+                return
+        else:
+            new_resp = await api.stop_limit_order(
+                symbol, "BUY", trigger, size, trigger
+            )
 
         # 注文情報受信待機
         await asyncio.sleep(3)
