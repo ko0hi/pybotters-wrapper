@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Awaitable, Callable, Generic, Type, TypedDict, TypeVar
 
+from collections import namedtuple
 import aiohttp
 import pandas as pd
 import pybotters
@@ -20,7 +21,9 @@ if TYPE_CHECKING:
     from pybotters_wrapper.core import WebsocketChannels
 
 T = TypeVar("T", bound=DataStoreManager)
-InitializeRequestConfig = tuple[str, str, list[str] | tuple[str] | None]
+InitializeRequestConfig = namedtuple(
+    "InitializeRequestConf", ("method", "url", "params")
+)
 
 
 class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
@@ -70,87 +73,63 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
     async def initialize(
         self,
         aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
-        client: "pybotters.Client" = None,
+        client: "pybotters.Client",
     ) -> "DataStoreWrapper":
         self.log(f"Initialize requests {aws_or_names}")
-
-        def _check_client():
-            assert (
-                client is not None
-            ), "need to pass `client` as store.initialize(..., client=client)"
-
-        def _raise_invalid_params(name, params):
-            raise RuntimeError(
-                f"Missing required parameters for initializing "
-                f"'{name}' of {self.__class__.__name__}: "
-                f"{params} (HINT: store.initialize([('{name}', "
-                f"{str({p: '...' for p in params})}), ...))"
-            )
-
-        request_tasks = []
+        awaitables = []
         for a_or_n in aws_or_names:
             if isinstance(a_or_n, Awaitable):
                 # validateの用にレスポンスにアクセスしたいのでTaskとしてスケジューリング
-                request_tasks.append(asyncio.create_task(a_or_n))
+                awaitables.append(a_or_n)
 
             elif isinstance(a_or_n, str):
-                _check_client()
-
-                name = a_or_n
-
-                (
-                    method,
-                    endpoint,
-                    required_params,
-                ) = self._get_initialize_request_config(name)
-
-                if endpoint:
-                    if required_params is not None:
-                        _raise_invalid_params(name, required_params)
-                    request_tasks.append(
-                        asyncio.create_task(
-                            self._initialize_request(client, method, endpoint)
-                        )
-                    )
-
+                awaitables.append(self._initialize_request_from_conf(client, a_or_n))
             elif (
                 isinstance(a_or_n, tuple)
                 and len(a_or_n) == 2
                 and isinstance(a_or_n[0], str)
                 and isinstance(a_or_n[1], dict)
             ):
-                _check_client()
+                awaitables.append(
+                    self._initialize_request_from_conf(client, a_or_n[0], **a_or_n[1])
+                )
 
-                name, params = a_or_n
-
-                (
-                    method,
-                    endpoint,
-                    required_params,
-                ) = self._get_initialize_request_config(name)
-
-                if endpoint:
-                    missing_params = set(required_params).difference(params.keys())
-                    if len(missing_params) > 0:
-                        _raise_invalid_params(name, required_params)
-
-                    request_tasks.append(
-                        asyncio.create_task(
-                            self._initialize_request(client, method, endpoint, params)
-                        )
-                    )
-
-        try:
-            await self._store.initialize(*request_tasks)
-        except AttributeError:
-            # initializeはDataStoreManagerのメソッドではなく、各実装クラスレベルでのメソッド
-            # bitbankDataStoreなど実装がない
-            pass
-        finally:
-            for aw in request_tasks:
-                await self._validate_initialize_response(aw)
+        await self._initialize_with_validation(*awaitables)
 
         return self
+
+    async def _initialize_by_config(self, client: "pybotters", name: str, **kwargs):
+        await self._initialize_with_validation(
+            self._initialize_request_from_conf(client, name, **kwargs)
+        )
+        return self
+
+    async def initialize_token(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "token", **kwargs)
+
+    async def initialize_public_token(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "public_token", **kwargs)
+
+    async def initialize_private_token(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "private_token", **kwargs)
+
+    async def initialize_ticker(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "ticker", **kwargs)
+
+    async def initialize_trades(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "trades", **kwargs)
+
+    async def initialize_orderbook(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "orderbook", **kwargs)
+
+    async def initialize_order(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "order", **kwargs)
+
+    async def initialize_execution(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "execution", **kwargs)
+
+    async def initialize_position(self, client: "pybotters.Client", **kwargs):
+        return await self._initialize_by_config(client, "position", **kwargs)
 
     def subscribe(
         self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
@@ -237,7 +216,7 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
                 f"available endpoints are {list(self._INITIALIZE_CONFIG.keys())}",
                 "warning",
             )
-            return None, None, None
+            return InitializeRequestConfig(None, None, None)
 
         config = self._INITIALIZE_CONFIG[key]
 
@@ -247,7 +226,7 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
             and (isinstance(config[2], (list, tuple)) or config[2] is None)
         ):
             raise RuntimeError(f"Invalid initialize endpoint: {config}")
-        return config
+        return InitializeRequestConfig(*config)
 
     def _init_normalized_stores(self):
         self._normalized_stores["ticker"] = self._init_ticker_store()
@@ -368,11 +347,11 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
             )
         return store
 
-    def _initialize_request(
+    async def _initialize_request(
         self,
         client: "pybotters.Client",
         method: str,
-        endpoint: str,
+        url: str,
         params_or_data: dict | None = None,
         **kwargs,
     ):
@@ -380,9 +359,34 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
         import pybotters_wrapper as pbw
 
         api = pbw.create_api(self.exchange, client)
-        params = dict(method=method, url=endpoint)
+        params = dict(method=method, url=url)
         params["params" if method == "GET" else "data"] = params_or_data
-        return api.request(**params, **kwargs)
+        return await api.request(**params, **kwargs)
+
+    async def _initialize_request_from_conf(
+        self,
+        client: pybotters.Client,
+        name: str,
+        **kwargs,
+    ):
+        conf = self._get_initialize_request_config(name)
+
+        # 設定なし
+        if conf.url is None:
+            return None
+
+        params = dict(kwargs)
+
+        # required parameterチェック
+        if conf.params is not None:
+            if len(params) == 0 or len(set(conf.params).difference(params.keys())) > 0:
+                raise RuntimeError(
+                    f"Missing required parameters for initializing "
+                    f"'{name}' of {self.__class__.__name__}: "
+                    f"{conf.params} are required."
+                )
+
+        return await self._initialize_request(client, conf.method, conf.url, params)
 
     async def _validate_initialize_response(self, task: asyncio.Task):
         result: ClientResponse = task.result()
@@ -392,6 +396,35 @@ class DataStoreWrapper(Generic[T], ExchangeMixin, LoggingMixin):
             except Exception:
                 data = None
             raise RuntimeError(f"Initialization failed: {result.url} {data}")
+
+    async def _initialize_with_validation(self, *aws: list[Awaitable]):
+        tasks = [asyncio.create_task(aw) for aw in aws]
+        try:
+            await self._store.initialize(*tasks)
+        except AttributeError:
+            # initializeはDataStoreManagerのメソッドではなく、各実装クラスレベルでのメソッド
+            # bitbankDataStoreなど実装がない
+            pass
+        finally:
+            # APIレスポンスが成功していたかチェック
+            for task in tasks:
+                result: ClientResponse = task.result()
+
+                # null conf
+                if result is None:
+                    continue
+
+                if not isinstance(result, ClientResponse):
+                    raise RuntimeError(
+                        f"Unexpected result of initialize api response: {result}"
+                    )
+
+                if result.status != 200:
+                    try:
+                        data = await result.json()
+                    except Exception:
+                        data = None
+                    raise RuntimeError(f"Initialization failed: {result.url} {data}")
 
     @property
     def store(self) -> T:
