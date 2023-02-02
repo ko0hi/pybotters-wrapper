@@ -152,7 +152,39 @@ class GMOCoinAPI(GMOCoinMixin, API):
             "size": self.format_size(symbol, size),
         }
 
+    def _make_stop_market_order_parameter(
+        self,
+        endpoint: str,
+        symbol: str,
+        side: str,
+        size: float,
+        trigger: float,
+    ) -> dict:
+        return {
+            "symbol": symbol.upper(),
+            "side": side.upper(),
+            "executionType": "STOP",
+            "size": self.format_size(symbol, size),
+            "price": self.format_price(symbol, trigger),
+            "timeInForce": "FAK",  # FAS:約定しなかった注文を残す, FOK:全約定しないと全キャンセル
+        }
+
     def _make_cancel_order_parameter(
         self, endpoint: str, symbol: str, order_id: str
     ) -> dict:
         return {"orderId": order_id}
+
+    async def stop_limit_order(
+        self,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        trigger: float,
+        request_params: dict = None,
+        order_id_key: str = None,
+        **kwargs,
+    ) -> "OrderResponse":
+        raise RuntimeError(
+            "stop_limit_order is not supported for gmocoin officially."
+        )

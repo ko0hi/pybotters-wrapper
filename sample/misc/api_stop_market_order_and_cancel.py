@@ -7,14 +7,9 @@ async def main(exchange="binancespot"):
     # 取引所個別の設定
     configs = {
         "binancespot": {"symbol": "BTCUSDT", "size": 0.001},
-        "binanceusdsm": {
-            "symbol": "BTCUSDT",
-            "size": 0.001,
-        },
-        "binancecoinm": {
-            "symbol": "BTCUSD_PERP",
-            "size": 1
-        }
+        "binanceusdsm": {"symbol": "BTCUSDT", "size": 0.001},
+        "binancecoinm": {"symbol": "BTCUSD_PERP", "size": 1},
+        "gmocoin": {"symbol": "BTC_JPY", "size": 0.01},
     }
 
     assert exchange in configs
