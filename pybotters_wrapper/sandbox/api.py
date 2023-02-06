@@ -9,6 +9,14 @@ if TYPE_CHECKING:
 from pybotters_wrapper.core import API
 from pybotters_wrapper.core.api import OrderResponse
 
+from dataclasses import dataclass
+
+
+@dataclass
+class SandboxResponse:
+    status: int = 200
+    reason: str = "OK"
+
 
 class SandboxAPI(API):
     def __init__(self, simulate_api: API, **kwargs):
@@ -29,7 +37,7 @@ class SandboxAPI(API):
         **kwargs,
     ) -> "OrderResponse":
         order_id = self._engine.insert_order(symbol, side, price, size, "LIMIT")
-        return OrderResponse(order_id, None, None)
+        return OrderResponse(order_id, SandboxResponse(), {})
 
     async def market_order(
         self,
@@ -41,7 +49,7 @@ class SandboxAPI(API):
         **kwargs,
     ) -> "OrderResponse":
         order_id = self._engine.insert_order(symbol, side, None, size, "MARKET")
-        return OrderResponse(order_id, None, None)
+        return OrderResponse(order_id, SandboxResponse(), {})
 
     async def cancel_order(
         self,
@@ -51,7 +59,7 @@ class SandboxAPI(API):
         **kwargs,
     ) -> "OrderResponse":
         self._engine.delete_order(symbol, order_id)
-        return OrderResponse(order_id, None, None)
+        return OrderResponse(order_id, SandboxResponse(), {})
 
     async def request(self, method, url, *, params=None, data=None, **kwargs):
         return await self._simulate_api.request(
