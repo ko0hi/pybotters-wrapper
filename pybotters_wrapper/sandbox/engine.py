@@ -45,7 +45,7 @@ class SandboxEngine(LoggingMixin):
         return order_item["id"]
 
     def delete_order(self, symbol: str, order_id: str) -> None:
-        order_item = self._store.order.find({"symbol": symbol, order_id: "str"})
+        order_item = self._store.order.find({"symbol": symbol, order_id: order_id})
         if len(order_item) == 0:
             raise RuntimeError(
                 f"No order found with {symbol} and {order_id}. "
