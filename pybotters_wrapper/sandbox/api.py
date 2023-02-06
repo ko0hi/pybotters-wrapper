@@ -40,7 +40,7 @@ class SandboxAPI(API):
         order_id_key: str = None,
         **kwargs,
     ) -> "OrderResponse":
-        order_id = self._engine.insert_order(symbol, side, size, "MARKET")
+        order_id = self._engine.insert_order(symbol, side, None, size, "MARKET")
         return OrderResponse(order_id, None, None)
 
     async def cancel_order(
