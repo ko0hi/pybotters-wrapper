@@ -66,6 +66,9 @@ class SandboxEngine(LoggingMixin):
                             self._handle_execution(order_item)
 
     def _is_executed(self, order_item: OrderItem, trade_item: TradesItem) -> bool:
+        if order_item["symbol"] != trade_item["symbol"]:
+            return False
+
         if order_item["side"] == "BUY":
             return order_item["price"] >= trade_item["price"]
         else:
