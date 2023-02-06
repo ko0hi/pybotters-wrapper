@@ -4,6 +4,7 @@ import asyncio
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
+import pandas as pd
 
 if TYPE_CHECKING:
     from pybotters_wrapper.core.store import (
@@ -100,7 +101,7 @@ class SandboxEngine(LoggingMixin):
     ) -> OrderItem:
         order_id = str(uuid.uuid4())
         order_item = self._store.order._itemize(
-            order_id, symbol, side, price, size, type
+            order_id, symbol, side, price, size, type, timestamp=pd.Timestamp.utcnow()
         )
         return order_item
 
@@ -119,7 +120,7 @@ class SandboxEngine(LoggingMixin):
             order_item["side"],
             price,
             order_item["size"],
-            datetime.utcnow(),
+            pd.Timestamp.utcnow(),
         )
 
     def _create_position_item(self, execution_item: ExecutionItem) -> PositionItem:
