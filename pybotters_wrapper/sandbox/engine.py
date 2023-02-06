@@ -124,46 +124,46 @@ class SandboxEngine(LoggingMixin):
         )
 
     def _create_position_item(self, execution_item: ExecutionItem) -> PositionItem:
-        positions = self._store.position.find({"side": execution_item["side"]})
+        positions = self._store.position.find()
 
         symbol = execution_item["symbol"]
         side = execution_item["side"]
-        price = execution_item["price"]
         size = execution_item["size"]
+        price = execution_item["price"]
 
         if len(positions) == 0:
-            position_item = self._store.position._itemize(
-                symbol, side, price, float(size)
-            )
+            return self._store.position._itemize(symbol, side, price, float(size))
         else:
             assert len(positions) == 1
-            position = positions[0]
-            if position["side"] == execution_item["side"]:
-                total_size = size + position["size"]
-                avg_price = (
-                    price * size + position["price"] * position["size"]
-                ) / total_size
-                position_item = self._store.position._itemize(
-                    symbol, side, avg_price, total_size
-                )
+            position_item = positions[0]
+            n_side, n_size, n_price = self._compute_side_size_price(
+                position_item, execution_item
+            )
+            if n_size is not None:
+                return self._store.position._itemize(symbol, n_side, n_price, n_size)
             else:
-                remaining_size = position["size"] - size
-                if remaining_size == 0:
-                    position_item = None
-                elif remaining_size > 0:
-                    position_item = self._store.position._itemize(
-                        symbol, side, position["price"], remaining_size
-                    )
-                else:
-                    rev_side = "SELL" if side == "BUY" else "BUY"
-                    position_item = self._store.position._itemize(
-                        symbol,
-                        rev_side,
-                        price,
-                        abs(remaining_size),
-                    )
+                return None
 
-        return position_item
+    def _compute_side_size_price(
+        self, position_item: PositionItem, execution_item: ExecutionItem
+    ) -> tuple[str, float, float]:
+        side = execution_item["side"]
+        price = execution_item["price"]
+        size = execution_item["size"]
+        if position_item["side"] == execution_item["side"]:
+            total_size = size + position_item["size"]
+            avg_price = (
+                price * size + position_item["price"] * position_item["size"]
+            ) / total_size
+            return side, total_size, avg_price
+        else:
+            remaining_size = position_item["size"] - size
+            if remaining_size == 0:
+                return None, None, None
+            elif remaining_size > 0:
+                return position_item["side"], remaining_size, position_item["price"]
+            else:
+                return side, abs(remaining_size), price
 
     def _get_execution_price_for_market_order(self, order_item: OrderItem) -> float:
         # todo: 注文サイズ・スリッページの考慮
