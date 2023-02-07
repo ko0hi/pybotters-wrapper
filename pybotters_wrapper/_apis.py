@@ -89,6 +89,9 @@ def create_client(**kwargs) -> pybotters.Client:
 def create_store_and_api(
     exchange: str, client: pybotters.Client, store_kwargs=None, api_kwargs=None
 ) -> tuple[DataStoreWrapper, API]:
+    if exchange.endswith(".sandbox"):
+        return create_sandbox(exchange.replace(".sandbox", ""), client, store_kwargs, api_kwargs)
+
     store_kwargs = store_kwargs or {}
     api_kwargs = api_kwargs or {}
     store = create_store(exchange, **store_kwargs)
