@@ -34,7 +34,7 @@ class SandboxAPI(API):
         **kwargs,
     ) -> "OrderResponse":
         order_id = self._engine.insert_order(symbol, side, price, size, "LIMIT")
-        return OrderResponse(order_id, SandboxResponse(), {})
+        return OrderResponse(order_id, SandboxResponse(200, "ok"), {})
 
     async def market_order(
         self,
@@ -46,7 +46,7 @@ class SandboxAPI(API):
         **kwargs,
     ) -> "OrderResponse":
         order_id = self._engine.insert_order(symbol, side, None, size, "MARKET")
-        return OrderResponse(order_id, SandboxResponse(), {})
+        return OrderResponse(order_id, SandboxResponse(200, "ok"), {})
 
     async def cancel_order(
         self,
