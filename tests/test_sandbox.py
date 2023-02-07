@@ -586,3 +586,23 @@ async def test_store_position(
     testcase.assertEqual(1, len(store.position))
     await api.market_order(SYMBOL, "SELL", 10, 1)
     testcase.assertEqual(0, len(store.position))
+
+
+@pytest.mark.asyncio
+async def test_store_position_with_multiple_symbols(
+    testcase: unittest.TestCase,
+    client: pybotters.Client,
+    mocker: pytest_mock.MockerFixture,
+):
+    mocker.patch(
+        "pybotters_wrapper.sandbox.engine.SandboxEngine._get_execution_price_for_market_order",
+        return_value=10,
+    )
+    store, api = pbw.create_sandbox(EXCHANGE, client)
+    await api.market_order("A", "BUY", 10, 1)
+    testcase.assertEqual(1, len(store.position))
+    await api.market_order("B", "BUY", 10, 1)
+    testcase.assertEqual(2, len(store.position))
+    await api.market_order("A", "SELL", 10, 1)
+    testcase.assertEqual(1, len(store.position))
+    testcase.assertEqual("B", store.position.find()[0]["symbol"])

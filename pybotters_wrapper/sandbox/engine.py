@@ -88,10 +88,8 @@ class SandboxEngine(LoggingMixin):
         # one-side only
         position_item = self._create_position_item(execution_item)
         position_old = self._store.position.find({"symbol": order_item["symbol"]})
-        if position_item is None:
-            self._store.position._clear()
-        else:
-            self._store.position._clear()
+        self._store.position._delete(position_old)
+        if position_item is not None:
             self._store.position._insert([position_item])
         position_new = self._store.position.find({"symbol": order_item["symbol"]})
         self.log(f"update position: {position_old} => {position_new}")
@@ -128,7 +126,7 @@ class SandboxEngine(LoggingMixin):
         )
 
     def _create_position_item(self, execution_item: ExecutionItem) -> PositionItem:
-        positions = self._store.position.find()
+        positions = self._store.position.find({"symbol": execution_item["symbol"]})
 
         symbol = execution_item["symbol"]
         side = execution_item["side"]
