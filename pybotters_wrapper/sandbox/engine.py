@@ -5,6 +5,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 import pandas as pd
+from decimal import Decimal
 
 if TYPE_CHECKING:
     from pybotters_wrapper.core.store import (
@@ -147,23 +148,26 @@ class SandboxEngine(LoggingMixin):
     def _compute_side_size_price(
         self, position_item: PositionItem, execution_item: ExecutionItem
     ) -> tuple[str, float, float]:
-        side = execution_item["side"]
-        price = execution_item["price"]
-        size = execution_item["size"]
+        e_side = execution_item["side"]
+        e_price = Decimal(str(execution_item["price"]))
+        e_size = Decimal(str(execution_item["size"]))
+        p_side = position_item["side"]
+        p_price = Decimal(str(position_item["price"]))
+        p_size = Decimal(str(position_item["size"]))
         if position_item["side"] == execution_item["side"]:
-            total_size = size + position_item["size"]
+            total_size = e_size + p_size
             avg_price = (
-                price * size + position_item["price"] * position_item["size"]
+                e_price * e_size + p_price * p_size
             ) / total_size
-            return side, total_size, avg_price
+            return e_side, float(total_size), float(avg_price)
         else:
-            remaining_size = position_item["size"] - size
+            remaining_size = p_size - e_size
             if remaining_size == 0:
                 return None, None, None
             elif remaining_size > 0:
-                return position_item["side"], remaining_size, position_item["price"]
+                return p_side, float(remaining_size), float(p_price)
             else:
-                return side, abs(remaining_size), price
+                return e_side, float(abs(remaining_size)), float(e_price)
 
     def _get_execution_price_for_market_order(self, order_item: OrderItem) -> float:
         # todo: 注文サイズ・スリッページの考慮
