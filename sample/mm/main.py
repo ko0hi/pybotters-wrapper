@@ -210,10 +210,9 @@ async def main(args):
     # clientの初期化：exchangeにあったbase_urlを埋めてくれる。ただし複数のエンドポイントがある場合は
     # base_urlはNoneのまま（例：GMOCoinのpublic/private endpoints）
     async with pybotters.Client(apis=args.apis) as client:
-        exchange = args.exchange
-        if args.sandbox:
-            exchange += ".sandbox"
-        store, api = pbw.create_store_and_api(exchange, client)
+        store, api = pbw.create_store_and_api(
+            args.exchange, client, sandbox=args.sandbox
+        )
 
         # pluginの設定
         # データの取りこぼしが起こりうるため、pluginの設定はstore.initialize・store.connectの

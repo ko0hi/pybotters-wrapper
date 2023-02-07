@@ -24,7 +24,7 @@ async def test_create_store_and_api_sandbox(
     testcase: unittest.TestCase, client: pybotters.Client
 ):
     for k in EXCHANGE2STORE.keys():
-        store, api = pbw.create_store_and_api(k + ".sandbox", client)
+        store, api = pbw.create_store_and_api(k, client, sandbox=True)
         testcase.assertIsInstance(store, SandboxDataStoreWrapper)
         testcase.assertIsInstance(api, SandboxAPI)
         testcase.assertIsInstance(store._simulate_store, EXCHANGE2STORE[k])

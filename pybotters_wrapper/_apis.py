@@ -87,11 +87,15 @@ def create_client(**kwargs) -> pybotters.Client:
 
 
 def create_store_and_api(
-    exchange: str, client: pybotters.Client, store_kwargs=None, api_kwargs=None
+    exchange: str,
+    client: pybotters.Client,
+    *,
+    sandbox: bool = False,
+    store_kwargs=None,
+    api_kwargs=None,
 ) -> tuple[DataStoreWrapper, API]:
-    if exchange.endswith(".sandbox"):
-        return create_sandbox(exchange.replace(".sandbox", ""), client, store_kwargs, api_kwargs)
-
+    if sandbox:
+        return create_sandbox(exchange, client, store_kwargs, api_kwargs)
     store_kwargs = store_kwargs or {}
     api_kwargs = api_kwargs or {}
     store = create_store(exchange, **store_kwargs)
@@ -157,7 +161,9 @@ async def create_ws_connect(
 def create_sandbox(
     exchange: str, client: pybotters.Client, store_kwargs=None, api_kwargs=None
 ) -> tuple[SandboxDataStoreWrapper, SandboxAPI]:
-    store, api = create_store_and_api(exchange, client, store_kwargs, api_kwargs)
+    store, api = create_store_and_api(
+        exchange, client, store_kwargs=store_kwargs, api_kwargs=api_kwargs
+    )
     return SandboxEngine.register(store, api)
 
 
@@ -329,9 +335,10 @@ def create_binanceusdsm_store_and_api(
 
 def create_binanceusdsm_test_store_and_api(
     client: pybotters.Client, store_kwargs=None, api_kwargs=None
-) -> tuple[pbw.binance.BinanceUSDSMTestDataStoreWrapper, pbw.binance.BinanceUSDSMTESTAPI]:
+) -> tuple[
+    pbw.binance.BinanceUSDSMTestDataStoreWrapper, pbw.binance.BinanceUSDSMTESTAPI
+]:
     return create_store_and_api("binanceusdsm_test", client, store_kwargs, api_kwargs)
-
 
 
 def create_binancecoinm_store_and_api(
@@ -342,7 +349,9 @@ def create_binancecoinm_store_and_api(
 
 def create_binancecoinm_test_store_and_api(
     client: pybotters.Client, store_kwargs=None, api_kwargs=None
-) -> tuple[pbw.binance.BinanceCoinMTESTDataStoreWrapper, pbw.binance.BinanceCOINMTESTAPI]:
+) -> tuple[
+    pbw.binance.BinanceCoinMTESTDataStoreWrapper, pbw.binance.BinanceCOINMTESTAPI
+]:
     return create_store_and_api("binancecoinm_test", client, store_kwargs, api_kwargs)
 
 
