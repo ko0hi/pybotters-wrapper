@@ -61,6 +61,32 @@ class SandboxAPI(API):
         self._engine.delete_order(symbol, order_id)
         return OrderResponse(order_id, SandboxResponse(), {})
 
+
+    async def stop_market_order(
+        self,
+        symbol: str,
+        side: str,
+        size: float,
+        trigger: float,
+        request_params: dict = None,
+        order_id_key: str = None,
+        **kwargs,
+    ) -> "OrderResponse":
+        raise NotImplementedError("Unsupported: stop_limit_order")
+
+    async def stop_limit_order(
+        self,
+        symbol: str,
+        side: str,
+        price: float,
+        size: float,
+        trigger: float,
+        request_params: dict = None,
+        order_id_key: str = None,
+        **kwargs,
+    ) -> "OrderResponse":
+        raise NotImplementedError("Unsupported: stop_limit_order")
+
     async def request(self, method, url, *, params=None, data=None, **kwargs):
         return await self._simulate_api.request(
             method, url, params=params, data=data, **kwargs
