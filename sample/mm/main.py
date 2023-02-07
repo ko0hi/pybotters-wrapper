@@ -210,10 +210,9 @@ async def main(args):
     # clientの初期化：exchangeにあったbase_urlを埋めてくれる。ただし複数のエンドポイントがある場合は
     # base_urlはNoneのまま（例：GMOCoinのpublic/private endpoints）
     async with pybotters.Client(apis=args.apis) as client:
-        # 注文用apiの初期化
-        api = pbw.create_api(args.exchange, client, verbose=True)
-        # DataStore（ラッパー）の初期化
-        store = pbw.create_store(args.exchange)
+        store, api = pbw.create_store_and_api(
+            args.exchange, client, sandbox=args.sandbox
+        )
 
         # pluginの設定
         # データの取りこぼしが起こりうるため、pluginの設定はstore.initialize・store.connectの
@@ -248,6 +247,8 @@ async def main(args):
             market_amount_weight=args.market_amount_weight,
         )
 
+        pnl = pbw.plugins.pnl(store, args.symbol)
+
         # ストアの初期化
         await store.initialize(initialize_configs[args.exchange], client=client)
 
@@ -279,6 +280,8 @@ async def main(args):
                         args.update_margin,
                         args.lot,
                     )
+
+                    logger.info(pnl.status())
 
             await asyncio.sleep(args.interval)
 
@@ -316,7 +319,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--market_amount_default",
         help="デフォルトの成行推定量（Barが貯まるまでこちらを使う）",
-        default=10,
+        default=1,
         type=float,
     )
     parser.add_argument(
@@ -324,6 +327,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--interval", help="マーケットメイキングサイクルの間隔", default=5, type=int)
     parser.add_argument("--dry_run", help="発注しない", action="store_true")
+    parser.add_argument("--sandbox", help="sandbox環境での実行", action="store_true")
 
     args = parser.parse_args()
 
