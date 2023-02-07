@@ -16,7 +16,6 @@ def engine():
     return store._engine
 
 
-
 @pytest.mark.asyncio
 async def test_engine_create_order_item(
     testcase: unittest.TestCase,
@@ -501,3 +500,72 @@ async def test_engine_handle_execution(
     )
     testcase.assertEqual(0, len(store.order))
 
+
+@pytest.mark.asyncio
+async def test_api_limit_order(
+    testcase: unittest.TestCase,
+    client: pybotters.Client,
+    mocker: pytest_mock.MockerFixture,
+):
+    mocker.patch("uuid.uuid4", return_value="uuid")
+    store, api = pbw.create_sandbox(EXCHANGE, client)
+    order_resp = await api.limit_order(SYMBOL, "BUY", 10, 1)
+    testcase.assertEqual("uuid", order_resp.order_id)
+    testcase.assertEqual(200, order_resp.status)
+    testcase.assertEqual(1, len(store.order.find({"id": order_resp.order_id})))
+
+
+@pytest.mark.asyncio
+async def test_api_market_order(
+    testcase: unittest.TestCase,
+    client: pybotters.Client,
+    mocker: pytest_mock.MockerFixture,
+):
+    mocker.patch("uuid.uuid4", return_value="uuid")
+    mocker.patch(
+        "pybotters_wrapper.sandbox.engine.SandboxEngine._get_execution_price_for_market_order",
+        return_value=10,
+    )
+    store, api = pbw.create_sandbox(EXCHANGE, client)
+    order_resp = await api.market_order(SYMBOL, "BUY", 10, 1)
+    testcase.assertEqual("uuid", order_resp.order_id)
+    testcase.assertEqual(200, order_resp.status)
+    testcase.assertEqual(0, len(store.order.find({"id": order_resp.order_id})))
+    testcase.assertEqual(1, len(store.execution.find({"id": order_resp.order_id})))
+    testcase.assertEqual(1, len(store.position.find({"side": "BUY"})))
+    testcase.assertEqual(10, store.position.find()[0]["price"])
+
+
+@pytest.mark.asyncio
+async def test_api_cancel_order_200(
+    testcase: unittest.TestCase,
+    client: pybotters.Client,
+    mocker: pytest_mock.MockerFixture,
+):
+    mocker.patch("uuid.uuid4", return_value="uuid")
+    store, api = pbw.create_sandbox(EXCHANGE, client)
+    order_resp = await api.limit_order(SYMBOL, "BUY", 10, 1)
+    cancel_resp = await api.cancel_order(SYMBOL, order_resp.order_id)
+    testcase.assertEqual("uuid", cancel_resp.order_id)
+    testcase.assertEqual(200, cancel_resp.status)
+    testcase.assertEqual(0, len(store.order))
+
+
+@pytest.mark.asyncio
+async def test_api_cancel_order_500(
+    testcase: unittest.TestCase,
+    client: pybotters.Client,
+    mocker: pytest_mock.MockerFixture,
+):
+    mocker.patch("uuid.uuid4", return_value="uuid")
+    mocker.patch(
+        "pybotters_wrapper.sandbox.engine.SandboxEngine._get_execution_price_for_market_order",
+        return_value=10,
+    )
+    store, api = pbw.create_sandbox(EXCHANGE, client)
+    order_resp = await api.market_order(SYMBOL, "BUY", 10, 1)
+    cancel_resp = await api.cancel_order(SYMBOL, order_resp.order_id)
+    testcase.assertEqual("uuid", cancel_resp.order_id)
+    testcase.assertEqual(500, cancel_resp.status)
+    testcase.assertEqual(0, len(store.order))
+    testcase.assertFalse(cancel_resp.is_success())
