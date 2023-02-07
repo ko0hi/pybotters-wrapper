@@ -157,8 +157,8 @@ async def create_ws_connect(
 def create_sandbox(
     exchange: str, client: pybotters.Client, store_kwargs=None, api_kwargs=None
 ) -> tuple[SandboxDataStoreWrapper, SandboxAPI]:
-    create_store_and_api(exchange, client, store_kwargs, api_kwargs)
-    return SandboxEngine.register(create_store(exchange), create_api(exchange, client))
+    store, api = create_store_and_api(exchange, client, store_kwargs, api_kwargs)
+    return SandboxEngine.register(store, api)
 
 
 def get_base_url(exchange: str) -> str:
