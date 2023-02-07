@@ -55,8 +55,11 @@ class SandboxAPI(API):
         request_params: dict = None,
         **kwargs,
     ) -> "OrderResponse":
-        self._engine.delete_order(symbol, order_id)
-        return OrderResponse(order_id, SandboxResponse(), {})
+        try:
+            self._engine.delete_order(symbol, order_id)
+            return OrderResponse(order_id, SandboxResponse(200, "ok"), {})
+        except RuntimeError:
+            return OrderResponse(order_id, SandboxResponse(500, "cancel failed"))
 
 
     async def stop_market_order(
