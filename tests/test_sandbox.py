@@ -569,3 +569,20 @@ async def test_api_cancel_order_500(
     testcase.assertEqual(500, cancel_resp.status)
     testcase.assertEqual(0, len(store.order))
     testcase.assertFalse(cancel_resp.is_success())
+
+
+@pytest.mark.asyncio
+async def test_store_position(
+    testcase: unittest.TestCase,
+    client: pybotters.Client,
+    mocker: pytest_mock.MockerFixture,
+):
+    mocker.patch(
+        "pybotters_wrapper.sandbox.engine.SandboxEngine._get_execution_price_for_market_order",
+        return_value=10,
+    )
+    store, api = pbw.create_sandbox(EXCHANGE, client)
+    await api.market_order(SYMBOL, "BUY", 10, 1)
+    testcase.assertEqual(1, len(store.position))
+    await api.market_order(SYMBOL, "SELL", 10, 1)
+    testcase.assertEqual(0, len(store.position))

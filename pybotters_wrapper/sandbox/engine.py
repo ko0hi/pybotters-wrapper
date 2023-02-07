@@ -87,11 +87,14 @@ class SandboxEngine(LoggingMixin):
         # ポジション状態のアップデート
         # one-side only
         position_item = self._create_position_item(execution_item)
-        if position_item is not None:
-            position = self._store.position.find({"symbol": order_item["symbol"]})
+        position_old = self._store.position.find({"symbol": order_item["symbol"]})
+        if position_item is None:
+            self._store.position._clear()
+        else:
             self._store.position._clear()
             self._store.position._insert([position_item])
-            self.log(f"update position: {position} => [{position_item}]")
+        position_new = self._store.position.find({"symbol": order_item["symbol"]})
+        self.log(f"update position: {position_old} => {position_new}")
 
         # 注文の削除
         self._store.order._delete([order_item])
