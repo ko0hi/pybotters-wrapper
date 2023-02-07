@@ -10,14 +10,9 @@ if TYPE_CHECKING:
 from pybotters_wrapper.core import API
 from pybotters_wrapper.core.api import OrderResponse
 
-from dataclasses import dataclass
 
 SandboxResponse = namedtuple("SandboxResponse", ("status", "reason"))
 
-@dataclass
-class SandboxResponse:
-    status: int = 200
-    reason: str = "OK"
 
 
 class SandboxAPI(API):
