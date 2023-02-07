@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from collections import namedtuple
 
 if TYPE_CHECKING:
     import requests
@@ -11,6 +12,7 @@ from pybotters_wrapper.core.api import OrderResponse
 
 from dataclasses import dataclass
 
+SandboxResponse = namedtuple("SandboxResponse", ("status", "reason"))
 
 @dataclass
 class SandboxResponse:
