@@ -10,6 +10,7 @@ from ._apis import (
     volumebar,
     wait_csvwriter,
     watch_csvwriter,
+    influxdb,
 )
 from ._base import DataStorePlugin, MultipleDataStoresPlugin
 
@@ -30,4 +31,5 @@ __all__ = (
     "bar_csvwriter",
     "DataStorePlugin",
     "MultipleDataStoresPlugin",
+    "influxdb",
 )

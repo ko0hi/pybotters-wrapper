@@ -20,6 +20,7 @@ from .periodic import Poller
 from .status import PnL
 from .watcher import ExecutionWatcher
 from .writer import BarCSVWriter, DataStoreWaitCSVWriter, DataStoreWatchCSVWriter
+from .influxdb import InfluxDB
 
 import_cache = {}
 
@@ -198,3 +199,7 @@ def bar_csvwriter(
 ) -> BarCSVWriter:
     # pluginの上のpluginなので取引所別のオーバーライド必要なし
     return BarCSVWriter(bar, path=path, per_day=per_day, flush=flush)
+
+
+def influxdb(token: str, org: str, bucket: str, **kwargs) -> InfluxDB:
+    return InfluxDB(token, org, bucket, **kwargs)
