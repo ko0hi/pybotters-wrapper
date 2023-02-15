@@ -23,6 +23,7 @@ class InfluxDB(Plugin):
         self._host = host
         self._port = port
         self._protocol = protocol
+        self.create_bucket()
 
     @property
     def url(self):
