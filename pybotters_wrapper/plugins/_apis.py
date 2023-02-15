@@ -6,9 +6,10 @@ from typing import Callable, Type
 
 import pandas as pd
 import pybotters
-from pybotters_wrapper.core import API, DataStoreWrapper
 
+from pybotters_wrapper.core import API, DataStoreWrapper
 from ._base import Plugin
+from .influxdb import InfluxDB
 from .market import (
     BinningBook,
     BookTicker,
@@ -20,7 +21,6 @@ from .periodic import Poller
 from .status import PnL
 from .watcher import ExecutionWatcher
 from .writer import BarCSVWriter, DataStoreWaitCSVWriter, DataStoreWatchCSVWriter
-from .influxdb import InfluxDB
 
 import_cache = {}
 

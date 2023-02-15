@@ -1,9 +1,8 @@
-import pandas as pd
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
 
-from ._base import Plugin
 from pybotters_wrapper.core import DataStoreWrapper
+from ._base import Plugin
 
 
 class InfluxDB(Plugin):
@@ -94,5 +93,5 @@ class InfluxDB(Plugin):
                         d["size"],
                         d["timestamp"],
                         bucket=bucket,
-                        client=client
+                        client=client,
                     )
