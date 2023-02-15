@@ -1,14 +1,11 @@
-import pytest
 import os
-
-from datetime import datetime
-import pybotters_wrapper as pbw
-import pandas as pd
-
 import unittest
 
-from pybotters_wrapper.plugins.influxdb import InfluxDB
+import pandas as pd
+import pytest
+from influxdb_client import InfluxDBClient
 
+from pybotters_wrapper.plugins.influxdb import InfluxDB
 
 token, org, bucket = "pbw", "pbw", "pbw_test"
 
@@ -21,9 +18,25 @@ def influx():
 @pytest.fixture()
 def create_test_bucket():
     _influx = InfluxDB(token, org, bucket)
-    bucket = _influx.create_bucket(delete=True)
+    _bucket = _influx.create_bucket(delete=True)
     yield
-    _influx.client(sync=True).buckets_api().delete_bucket(bucket.id)
+    _influx.client(sync=True).buckets_api().delete_bucket(_bucket.id)
+
+
+@pytest.mark.skipif(
+    not os.environ.get("PBW_TEST_PLUGIN_INFLUXDB", None),
+    reason="require special settings for testing the InfluxDB plugin",
+)
+def test_create_bucket_if_not_exist(testcase: unittest.TestCase):
+    params = dict(url="http://localhost:8086", token="pbw", org="pbw")
+    client = InfluxDBClient(**params)
+    api = client.buckets_api()
+    test_bucket = str(pd.Timestamp.utcnow().timestamp())
+    _bucket = api.find_bucket_by_name(test_bucket)
+    testcase.assertIsNone(_bucket)
+    InfluxDB(token, org, test_bucket)
+    _bucket = api.find_bucket_by_name(test_bucket)
+    testcase.assertIsNotNone(_bucket)
 
 
 @pytest.mark.asyncio
@@ -52,7 +65,7 @@ async def test_write_execution(
             "_field": "price",
             "id": "1",
             "symbol": "BTCUSDT",
-            "side": "BUY"
+            "side": "BUY",
         },
         {
             k: v
@@ -69,7 +82,7 @@ async def test_write_execution(
             "_field": "size",
             "id": "1",
             "symbol": "BTCUSDT",
-            "side": "BUY"
+            "side": "BUY",
         },
         {
             k: v
