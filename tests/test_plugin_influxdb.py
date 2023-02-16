@@ -3,7 +3,6 @@ import unittest
 
 import pandas as pd
 import pytest
-from influxdb_client import InfluxDBClient
 
 from pybotters_wrapper.plugins.influxdb import InfluxDB
 
@@ -29,6 +28,7 @@ def create_test_bucket():
 )
 def test_create_bucket_if_not_exist(testcase: unittest.TestCase):
     params = dict(url="http://localhost:8086", token="pbw", org="pbw")
+    from influxdb_client import InfluxDBClient
     client = InfluxDBClient(**params)
     api = client.buckets_api()
     test_bucket = str(pd.Timestamp.utcnow().timestamp())

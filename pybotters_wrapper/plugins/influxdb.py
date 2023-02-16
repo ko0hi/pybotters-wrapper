@@ -1,6 +1,4 @@
-from influxdb_client import InfluxDBClient
-from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
-
+from typing import Union
 from pybotters_wrapper.core import DataStoreWrapper
 from ._base import Plugin
 
@@ -30,7 +28,10 @@ class InfluxDB(Plugin):
 
     def client(
         self, sync: bool = False, **kwargs
-    ) -> InfluxDBClient | InfluxDBClientAsync:
+    ) -> Union['InfluxDBClient', 'InfluxDBClientAsync']:
+        from influxdb_client import InfluxDBClient
+        from influxdb_client.client.influxdb_client_async import \
+            InfluxDBClientAsync
         params = dict(url=self.url, token=self._token, org=self._org)
         client_cls = InfluxDBClient if sync else InfluxDBClientAsync
         return client_cls(**params, **kwargs)
@@ -46,7 +47,7 @@ class InfluxDB(Plugin):
         timestamp: str,
         *,
         bucket: str = None,
-        client: InfluxDBClientAsync = None,
+        client: 'InfluxDBClientAsync' = None,
     ):
         bucket = bucket or self._bucket
 
