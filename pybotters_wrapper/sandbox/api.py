@@ -101,3 +101,11 @@ class SandboxAPI(API):
 
     def _link_to_engine(self, engine: "SandboxEngine"):
         self._engine = engine
+
+    @property
+    def exchange(self) -> str:
+        return self._simulate_api.exchange
+
+    @property
+    def package(self) -> str:
+        return self._simulate_api.package

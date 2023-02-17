@@ -30,7 +30,11 @@ class SandboxDataStoreWrapper(DataStoreWrapper):
     def __init__(self, simulate_store=DataStoreWrapper):
         super(SandboxDataStoreWrapper, self).__init__()
         self._simulate_store = simulate_store
+        self._store = self._simulate_store.store
         self._engine: SandboxEngine = None
+
+        # overwrite
+        self._INITIALIZE_CONFIG = self._simulate_store._INITIALIZE_CONFIG
 
     async def initialize(
         self,
@@ -96,3 +100,11 @@ class SandboxDataStoreWrapper(DataStoreWrapper):
 
     def _link_to_engine(self, engine: "SandboxEngine"):
         self._engine = engine
+
+    @property
+    def exchange(self) -> str:
+        return self._simulate_store.exchange
+
+    @property
+    def package(self) -> str:
+        return self._simulate_store.package
