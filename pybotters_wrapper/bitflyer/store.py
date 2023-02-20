@@ -35,15 +35,10 @@ class bitFlyerTradesStore(TradesStore):
     def _normalize(
         self, store: "DataStore", operation: str, source: dict, data: dict
     ) -> "TradesItem":
-        side = data["side"]
-        if side:
-            order_id = data[side.lower() + "_child_order_acceptance_id"]
-        else:
-            order_id = data["buy_child_order_acceptance_id"]
         return self._itemize(
-            order_id,
+            data["id"],
             data["product_code"],
-            side,
+            data["side"],
             float(data["price"]),
             float(data["size"]),
             pd.to_datetime(data["exec_date"]),
