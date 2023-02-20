@@ -34,7 +34,7 @@ class bitbankTradesStore(TradesStore):
             data["side"].upper(),
             float(data["price"]),
             float(data["amount"]),
-            pd.to_datetime(data["executed_at"], utc=True),
+            pd.to_datetime(data["executed_at"], unit="ms", utc=True),
         )
 
 
