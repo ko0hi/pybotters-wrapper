@@ -41,7 +41,7 @@ class bitFlyerTradesStore(TradesStore):
             data["side"],
             float(data["price"]),
             float(data["size"]),
-            pd.to_datetime(data["exec_date"]),
+            pd.to_datetime(data["exec_date"], utc=True),
         )
 
 
@@ -85,7 +85,7 @@ class bitFlyerExecutionStore(ExecutionStore):
             data["side"],
             float(data["price"]),
             float(data["size"]),
-            pd.to_datetime(data["event_date"]),
+            pd.to_datetime(data["event_date"], utc=True),
         )
 
 

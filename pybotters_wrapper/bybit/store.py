@@ -43,7 +43,7 @@ class BybitTradesStore(TradesStore):
             data["side"].upper(),
             float(data["price"]),
             data["size"],
-            pd.to_datetime(data["timestamp"]),
+            pd.to_datetime(data["timestamp"], utc=True),
         )
 
 
@@ -122,7 +122,7 @@ class BybitExecutionStore(ExecutionStore):
             data["side"].upper(),
             float(data["price"]),
             float(data["exec_qty"]),
-            pd.to_datetime(data["trade_time"]),
+            pd.to_datetime(data["trade_time"], utc=True),
         )
 
 

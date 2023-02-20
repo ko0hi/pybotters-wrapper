@@ -30,7 +30,7 @@ class BitgetTradesStore(TradesStore):
             side=data["side"].upper(),
             price=data["price"],
             size=data["size"],
-            timestamp=pd.to_datetime(data["ts"], unit="ms"),
+            timestamp=pd.to_datetime(data["ts"], unit="ms", utc=True),
         )
 
 
