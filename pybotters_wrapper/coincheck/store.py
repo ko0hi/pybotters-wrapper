@@ -33,7 +33,7 @@ class CoincheckTradeStore(TradesStore):
             data["side"].upper(),
             float(data["rate"]),
             float(data["amount"]),
-            pd.to_datetime(int(data["timestamp"]), unit="s"),
+            pd.to_datetime(int(data["timestamp"]), unit="s", utc=True),
         )
 
 

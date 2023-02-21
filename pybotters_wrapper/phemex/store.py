@@ -28,7 +28,7 @@ class PhemexTradesStore(TradesStore):
             data["side"].upper(),
             data["price"],
             data["size"],
-            pd.to_datetime(data["timestamp"], unit="ns"),
+            pd.to_datetime(data["timestamp"], unit="ns", utc=True),
         )
 
 
