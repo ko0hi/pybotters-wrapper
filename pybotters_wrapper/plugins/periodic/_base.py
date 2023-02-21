@@ -22,16 +22,18 @@ class PeriodicPlugin(Plugin):
         self._is_coro_fn = asyncio.iscoroutinefunction(self._fn)
         self._is_coro_params = asyncio.iscoroutinefunction(self._params)
         self._is_coro_handler = asyncio.iscoroutinefunction(self._handle)
-        self._task = asyncio.create_task(self._periodic_run())
+        self._task = asyncio.create_task(self._periodic_execute())
         self._history = deque(maxlen=history)
 
-    async def _periodic_run(self):
+    async def execute(self):
+        params = await self._get_params()
+        item = await self._call(params)
+        item = await self._handle(item)
+        self._history.append(item)
+        self.put(item)
+    async def _periodic_execute(self):
         while True:
-            params = await self._get_params()
-            item = await self._call(params)
-            item = await self._handle(item)
-            self._history.append(item)
-            self.put(item)
+            await self.execute()
             await asyncio.sleep(self._interval)
 
     async def _get_params(self) -> dict:
