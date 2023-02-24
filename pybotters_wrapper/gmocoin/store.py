@@ -32,7 +32,7 @@ class GMOCoinTickerStore(TickerStore):
 class GMOCoinTradesStore(TradesStore):
     def _normalize(self, store: "DataStore", operation: str, source: dict, data: dict) -> "TradesItem":
         return self._itemize(
-            str(hash(str(data))),
+            str(uuid.uuid4()),
             data["symbol"].name,
             data["side"].name,
             float(data["price"]),
