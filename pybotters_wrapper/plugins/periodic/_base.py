@@ -1,6 +1,7 @@
 import asyncio
 from collections import deque
 from typing import Callable
+from loguru import logger
 
 from .._base import Plugin
 
@@ -31,9 +32,15 @@ class PeriodicPlugin(Plugin):
         item = await self._handle(item)
         self._history.append(item)
         self.put(item)
+
+    @logger.catch
+    async def _execute(self):
+        """_periodic_executeでexceptionをcatchするためのwrapper"""
+        await self.execute()
+
     async def _periodic_execute(self):
         while True:
-            await self.execute()
+            await self._execute()
             await asyncio.sleep(self._interval)
 
     async def _get_params(self) -> dict:
