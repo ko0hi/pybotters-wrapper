@@ -25,12 +25,13 @@ async def test_poller(
 
     poller = pbw.plugins.poller(
         api,
-        interval=0.1,
+        interval=1,
         url="/api/dummy",
         handler=handler,
     )
 
     spy = mocker.spy(poller, '_handle')
+
     await asyncio.sleep(1)
 
     initial_call_count = spy.call_count
