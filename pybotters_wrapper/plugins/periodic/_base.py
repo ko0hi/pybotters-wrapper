@@ -73,6 +73,9 @@ class PeriodicPlugin(Plugin):
             else:
                 return self._handle(item)
 
+    def stop(self):
+        self._task.cancel()
+
     @property
     def task(self) -> asyncio.Task:
         return self._task
