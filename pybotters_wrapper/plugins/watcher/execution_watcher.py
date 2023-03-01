@@ -4,10 +4,11 @@ import asyncio
 from typing import Callable
 
 from ...core.store import DataStoreWrapper, ExecutionItem
-from .._base import DataStorePlugin
+from .._base import Plugin
+from ..mixins import WatchStoreMixin
 
 
-class ExecutionWatcher(DataStorePlugin):
+class ExecutionWatcher(WatchStoreMixin, Plugin):
     def __init__(
         self,
         store: "DataStoreWrapper",
@@ -16,14 +17,13 @@ class ExecutionWatcher(DataStorePlugin):
         is_target: Callable[["DataStore", str, dict, dict], bool] = None,
     ):
         # ExecutionDataStoreを監視
-        store_name = store_name or "execution"
-        watch_store = getattr(store, store_name)
-        super(ExecutionWatcher, self).__init__(watch_store)
         self._order_id = None
         self._item = None
         self._done = None
         self._event = asyncio.Event()
         self._is_target_fn = is_target
+
+        self.init_watch_store(getattr(store, store_name or "execution"))
 
     def set(self, order_id: str = None) -> ExecutionWatcher:
         """監視対象の注文IDをセット"""
@@ -35,7 +35,7 @@ class ExecutionWatcher(DataStorePlugin):
         self._event.set()
         return self
 
-    async def _on_watch(self, store, operation: str, source, data: ExecutionItem):
+    async def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
         """流れてきた約定情報が監視中の注文に関するものであるかをチェック
 
         ExecutionStoreを監視してるので、流れてくるdictはExecutionItem
@@ -50,12 +50,7 @@ class ExecutionWatcher(DataStorePlugin):
         if self._is_target(store, operation, source, data):
             self._done = True
             self._item = data
-
-    def _on_watch_is_stop(
-        self, store: "DataStore", operation: str, source: dict, data: dict
-    ) -> bool:
-        """監視終了判定"""
-        return self._done
+            self.set_break()
 
     def _is_target(self, store: "DataStore", operation: str, source: dict, data: dict):
         if self._is_target_fn:
@@ -70,7 +65,7 @@ class ExecutionWatcher(DataStorePlugin):
         return self._item
 
     async def wait(self):
-        return await self._watch_task
+        return await self.watch_task
 
     @property
     def order_id(self) -> str:

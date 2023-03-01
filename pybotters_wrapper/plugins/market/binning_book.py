@@ -7,7 +7,8 @@ import pybotters
 from pybotters.store import DataStore
 
 from ...utils import Bucket
-from .._base import DataStorePlugin
+from .._base import Plugin
+from ..mixins import WatchStoreMixin
 
 T = TypeVar("T", bound=DataStore)
 
@@ -19,7 +20,7 @@ class BookChange(NamedTuple):
     size: float
 
 
-class BinningBook(DataStorePlugin):
+class BinningBook(WatchStoreMixin, Plugin):
     def __init__(
         self,
         store: "DataStoreManagerWrapper",
@@ -29,12 +30,12 @@ class BinningBook(DataStorePlugin):
         pips: int = 1,
         precision: int = 10,
     ):
-        super(BinningBook, self).__init__(store.orderbook)
         self._buckets: dict[Bucket] = {
             "SELL": Bucket(min_bin, max_bin, pips, precision),
             "BUY": Bucket(min_bin, max_bin, pips, precision),
         }
         self._mid = None
+        self.init_watch_store(store.orderbook)
 
     def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
         self.set_mid(self.store.mid)
@@ -111,7 +112,7 @@ class BinningBook(DataStorePlugin):
 
     @property
     def store(self) -> T:
-        return self._store
+        return self.watch_store
 
     @property
     def mid(self):

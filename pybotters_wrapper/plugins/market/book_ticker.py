@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import NamedTuple
 
-from pybotters_wrapper.core import DataStoreWrapper, OrderbookStore, TradesStore
+from pybotters_wrapper.core import DataStoreWrapper
 
-from .._base import MultipleDataStoresPlugin
+from .._base import Plugin
+from ..mixins import WatchStoreMixin, WaitStoreMixin
 
 
-class BookTicker(MultipleDataStoresPlugin):
+class BookTicker(WatchStoreMixin, WaitStoreMixin, Plugin):
     class Item(NamedTuple):
         asks: list[tuple[float, float]]
         bids: list[tuple[float, float]]
@@ -34,17 +35,17 @@ class BookTicker(MultipleDataStoresPlugin):
             return (self.best_ask + self.best_bid) / 2
 
     def __init__(self, store: DataStoreWrapper):
-        super(BookTicker, self).__init__(store.trades, store.orderbook)
         self._tick = self.Item(None, None, None)
+        self._store = store
+        self.init_watch_store(store.trades)
+        self.init_wait_store(store.orderbook)
 
-    def _on_wait(self, store: "DataStore"):
-        if isinstance(store, OrderbookStore):
-            asks, bids = store.sorted().values()
-            self._update(asks=asks, bids=bids)
+    def _on_wait(self):
+        asks, bids = self.wait_store.sorted().values()
+        self._update(asks=asks, bids=bids)
 
     def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
-        if isinstance(store, TradesStore):
-            self._update(price=data["price"])
+        self._update(price=data["price"])
 
     def _update(self, *, asks=None, bids=None, price=None):
         self._tick = self.Item(
@@ -90,3 +91,4 @@ class BookTicker(MultipleDataStoresPlugin):
     @property
     def spread(self):
         return self.best_ask - self.best_bid
+
