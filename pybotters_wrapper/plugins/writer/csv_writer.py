@@ -73,7 +73,7 @@ class DataStoreWatchCSVWriter(CSVWriterMixin, DataStoreWatchWriter):
             operations: list[str] = None,
     ):
         super(DataStoreWatchCSVWriter, self).__init__(
-            store, store_name, coperations=operations
+            store, store_name, operations=operations
         )
         self.init_csv_writer(path, per_day, columns, flush)
 
