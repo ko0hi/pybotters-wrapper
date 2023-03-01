@@ -148,8 +148,8 @@ def execution_watcher(
     )
 
 
-def pnl(store: DataStoreWrapper, symbol: str) -> PnL:
-    return _maybe_override_by_exchange(store, PnL, symbol=symbol)
+def pnl(store: DataStoreWrapper, symbol: str, fee: float = 0.0) -> PnL:
+    return _maybe_override_by_exchange(store, PnL, symbol=symbol, fee=fee)
 
 
 def watch_csvwriter(
