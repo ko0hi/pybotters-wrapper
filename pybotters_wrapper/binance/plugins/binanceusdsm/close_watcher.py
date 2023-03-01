@@ -3,13 +3,14 @@ from __future__ import annotations
 import asyncio
 
 from ....core.store import DataStoreWrapper, OrderItem
-from ....plugins._base import DataStorePlugin
+from ....plugins import Plugin
+from ....plugins.mixins import WatchStoreMixin
 
 
-class CloseWatcher(DataStorePlugin):
+class CloseWatcher(WatchStoreMixin, Plugin):
     def __init__(self, store: "DataStoreWrapper"):
         # OrderStoreを監視
-        super(CloseWatcher, self).__init__(store.order)
+        self.init_watch_store(store.order)
         self._order_id = None
         self._item = None
         self._done = None
@@ -39,18 +40,21 @@ class CloseWatcher(DataStorePlugin):
             # 注文が即約定した時にsocket messageがresのresponseより早く到達するケースがあるので、
             # order_idがセットされるまでメッセージをここで待機させておく
             await self._event.wait()
-        if len(self._store.find({'id': self._order_id})) == 0 and operation != 'delete':
+        if len(self.watch_store.find({'id': self._order_id})) == 0 and operation != 'delete':
             self._done = True
             self._status = 'CLOSE'
+            self.set_break()
         if data["id"] == self._order_id and operation == 'delete':  # なくなったらexecuted or cancelと判断
             if (source['info']['source']['X'] == 'FILLED'):
                 self._done = True
                 self._item = data
                 self._status = 'FILLED'
+                self.set_break()
             else:  # cancel
                 self._done = True
                 self._item = data
                 self._status = 'CANCEL'
+                self.set_break()
 
     @property
     def status(self):
@@ -67,7 +71,7 @@ class CloseWatcher(DataStorePlugin):
         return self._item
 
     async def wait(self):
-        return await self._watch_task
+        return await self.watch_task
 
     @property
     def order_id(self) -> str:
