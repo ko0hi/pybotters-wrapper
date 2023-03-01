@@ -5,18 +5,15 @@ import pybotters_wrapper as pbw
 
 
 async def main():
-    # 3秒に一回適当に成行する
-    # テストネット以外では使用しないこと
-    exchange = "binanceusdsm_test"
+    exchange = "binanceusdsm"
     symbol = "BTCUSDT"
 
     async with pbw.create_client() as client:
-        api = pbw.create_api(exchange, client, verbose=True)
-        store = pbw.create_store(exchange)
-        await store.subscribe("all", symbol=symbol).connect(client)
-
+        store, api = pbw.create_store_and_api(exchange, symbol, sandbox=True)
+        await store.subscribe("public", symbol=symbol).connect(
+            client, waits=["orderbook"]
+        )
         pnl = pbw.plugins.pnl(store, symbol)
-
         while True:
             side = random.choice(["BUY", "SELL"])
             await api.market_order(symbol, side, 0.1)

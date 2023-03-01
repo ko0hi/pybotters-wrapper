@@ -20,7 +20,7 @@ async def main():
         store = pbw.create_store(exchange)
 
         tbar = pbw.plugins.timebar(store, seconds=1, callback=[open_double_cb])
-        queue = tbar.register_queue()
+        queue = tbar.subscribe()
 
         await store.subscribe("trades", symbol=conf["symbol"]).connect(client)
 

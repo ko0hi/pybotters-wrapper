@@ -4,11 +4,11 @@ import pybotters_wrapper as pbw
 
 
 class CustomDataStoreWaitWriter(pbw.plugins.writer.DataStoreWaitWriter):
-    def _write(self, d: dict):
-        print(d)
+    def write(self, data: dict):
+        print(data)
 
-    def _transform_item(self, d: dict):
-        return {k + "_custom": v for (k, v) in d.items()}
+    def _transform_item(self, data: dict):
+        return {k + "_custom": v for (k, v) in data.items()}
 
 
 async def main():
@@ -25,7 +25,7 @@ async def main():
 
         await store.subscribe("ticker", symbol=conf["symbol"]).connect(client)
 
-        writer = CustomDataStoreWaitWriter(store, "ticker")
+        CustomDataStoreWaitWriter(store, "ticker")
 
         while True:
             await asyncio.sleep(1)
