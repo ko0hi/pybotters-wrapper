@@ -1,4 +1,5 @@
 from . import market, periodic, status, watcher, writer
+from ._base import Plugin
 from ._apis import (
     bar_csvwriter,
     binningbook,
@@ -12,7 +13,6 @@ from ._apis import (
     watch_csvwriter,
     influxdb,
 )
-from ._base import DataStorePlugin, MultipleDataStoresPlugin
 
 __all__ = (
     "market",
@@ -29,7 +29,6 @@ __all__ = (
     "watch_csvwriter",
     "wait_csvwriter",
     "bar_csvwriter",
-    "DataStorePlugin",
-    "MultipleDataStoresPlugin",
     "influxdb",
+    "Plugin"
 )

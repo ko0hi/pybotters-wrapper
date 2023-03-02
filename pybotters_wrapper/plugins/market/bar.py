@@ -6,11 +6,12 @@ from typing import Callable
 import numpy as np
 import pandas as pd
 
-from .._base import DataStorePlugin
+from .._base import Plugin
+from ..mixins import WatchStoreMixin, PublishQueueMixin
 from ...utils import StreamDataFrame
 
 
-class BarStreamDataFrame(DataStorePlugin):
+class BarStreamDataFrame(WatchStoreMixin, PublishQueueMixin, Plugin):
     COLUMNS = [
         "timestamp",
         "open",
@@ -30,8 +31,6 @@ class BarStreamDataFrame(DataStorePlugin):
             df: pd.DataFrame = None,
             callback: Callable[[pd.DataFrame], any] = None,
     ):
-        super(BarStreamDataFrame, self).__init__(store.trades)
-
         if df is not None:
             if len(df.columns) == 7 and df.index.name == "timestamp":
                 df = df.reset_index()
@@ -46,6 +45,9 @@ class BarStreamDataFrame(DataStorePlugin):
         )
 
         self._cur_bar = None
+
+        self.init_watch_store(store.trades)
+        self.init_publish_queue()
 
         self._init_bar()
 
@@ -62,8 +64,7 @@ class BarStreamDataFrame(DataStorePlugin):
     def _next_bar(self, item: dict) -> None:
         self._sdf.append(self._cur_bar)
         self._init_bar(item)
-        for q in self._queues:
-            q.put_nowait(self.df)
+        self.put(self.df)
 
     def _current_bar(self, d: dict) -> None:
         self._cur_bar["timestamp"] = d["timestamp"]

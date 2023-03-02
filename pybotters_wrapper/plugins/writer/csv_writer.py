@@ -11,6 +11,8 @@ from .._base import Plugin
 from ..market.bar import BarStreamDataFrame
 from ._base import DataStoreWaitWriter, DataStoreWatchWriter, WriterMixin
 
+from ..mixins import CSVWriterMixin
+
 
 class _CSVWriter:
     def __init__(
@@ -58,7 +60,7 @@ class _CSVWriter:
             self._writer.writeheader()
 
 
-class DataStoreWatchCSVWriter(DataStoreWatchWriter):
+class DataStoreWatchCSVWriter(CSVWriterMixin, DataStoreWatchWriter):
     def __init__(
             self,
             store: DataStoreWrapper,
@@ -71,21 +73,23 @@ class DataStoreWatchCSVWriter(DataStoreWatchWriter):
             operations: list[str] = None,
     ):
         super(DataStoreWatchCSVWriter, self).__init__(
-            store, store_name, columns=columns, operations=operations
+            store, store_name, operations=operations
         )
-        self._writer: _CSVWriter = _CSVWriter(path, per_day, flush=flush)
+        self.init_csv_writer(path, per_day, columns, flush)
 
-    def _on_watch_before(self, change: "StoreChange"):
-        super()._on_watch_before(change)
-        if self._writer._columns is None:
-            self._writer.set_columns(self._columns)
-        self._writer._init_or_update_writer()
+    def _on_watch_first(self, store: "DataStore", operation: str, source: dict, data: dict):
+        super()._on_watch_first(store, operation, source, data)
+        if self.get_columns() is None:
+            self.set_columns(self._fields)
+        self.new_writer()
 
-    def _write(self, d: dict):
-        self._writer._write(d)
+    async def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
+        await super()._on_watch(store, operation, source, data)
+        # 日付が変わっていた場合writerを更新
+        self.new_or_update_writer()
 
 
-class DataStoreWaitCSVWriter(DataStoreWaitWriter):
+class DataStoreWaitCSVWriter(CSVWriterMixin, DataStoreWaitWriter):
     def __init__(
             self,
             store: DataStoreWrapper,
@@ -96,17 +100,21 @@ class DataStoreWaitCSVWriter(DataStoreWaitWriter):
             columns: list[str] = None,
             flush: bool = False,
     ):
-        super(DataStoreWaitCSVWriter, self).__init__(store, store_name, columns=columns)
-        self._writer: _CSVWriter = _CSVWriter(path, per_day, flush=flush)
+        if columns is not None and "wrote_at" not in columns:
+            columns.append("wrote_at")
 
-    def _on_wait_before(self):
-        super()._on_wait_before()
-        if self._writer._columns is None:
-            self._writer.set_columns(self._columns)
-        self._writer._init_or_update_writer()
+        super(DataStoreWaitCSVWriter, self).__init__(store, store_name, fields=columns)
+        self.init_csv_writer(path, per_day, columns, flush)
 
-    def _write(self, d: dict):
-        self._writer._write(d)
+    def _on_wait_first(self):
+        super()._on_wait_first()
+        if self.get_columns() is None:
+            self.set_columns(self._fields)
+        self.new_writer()
+
+    async def _on_wait(self):
+        await super()._on_wait()
+        self.new_or_update_writer()
 
 
 class BarCSVWriter(Plugin, WriterMixin):

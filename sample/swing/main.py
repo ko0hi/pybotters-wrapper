@@ -35,7 +35,7 @@ async def main(args):
         # timebarの設定
         tbar = pbw.plugins.timebar(store, seconds=args.bar_seconds)
         # 更新のたびに最新のDataFrameを取得するためのqueueを発行
-        df_queue = tbar.register_queue()
+        df_queue = tbar.subscribe()
         # 約定履歴とBarの書き出しを設定
         (
             pbw.plugins.watch_csvwriter(
