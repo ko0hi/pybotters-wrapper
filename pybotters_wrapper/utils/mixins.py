@@ -6,35 +6,6 @@ from loguru import logger
 from .io import read_resource
 
 
-def _fetch_binance_precisions(endpoint: str) -> tuple[dict, dict]:
-    resp = requests.get(endpoint)
-    if resp.status_code != 200:
-        msg = f"Failed to fetch binance exchange info: {endpoint}"
-        logger.error(msg)
-        raise RuntimeError(msg)
-    else:
-        data = resp.json()
-        price_precisions = {}
-        size_precisions = {}
-        for s in data["symbols"]:
-            symbol = s["symbol"]
-            tick_size = eval(
-                [f for f in s['filters'] if f['filterType'] == 'PRICE_FILTER'][
-                    0
-                ]['tickSize']
-            )
-            price_precision = int(math.log10(float(tick_size)) * -1)
-            step_size = eval(
-                [f for f in s['filters'] if f['filterType'] == 'LOT_SIZE'][0][
-                    'stepSize'
-                ]
-            )
-            size_precision = int(math.log10(step_size) * -1)
-            price_precisions[symbol] = price_precision
-            size_precisions[symbol] = size_precision
-        return price_precisions, size_precisions
-
-
 class LoggingMixin:
     def log(self, msg, level="debug", verbose=True):
         if verbose:
@@ -120,15 +91,45 @@ class ExchangeMixin:
 class _BinanceExchangeMixin(ExchangeMixin):
     _EXCHANGE_INFO_ENDPOINT = None
 
+    def get_precisions_from_exchange_info(self, data):
+        price_precisions = {}
+        size_precisions = {}
+
+        for s in data["symbols"]:
+            symbol = s["symbol"]
+            tick_size = eval(
+                [f for f in s['filters'] if
+                 f['filterType'] == 'PRICE_FILTER'][0]['tickSize']
+            )
+            price_precision = int(math.log10(float(tick_size)) * -1)
+            step_size = eval(
+                [f for f in s['filters'] if f['filterType'] == 'LOT_SIZE'][0]['stepSize']
+            )
+            size_precision = int(math.log10(step_size) * -1)
+            price_precisions[symbol] = price_precision
+            size_precisions[symbol] = size_precision
+        return price_precisions, size_precisions
+
+    def fetch_exchange_info(self) -> requests.Response:
+        assert self._EXCHANGE_INFO_ENDPOINT is not None
+        resp = requests.get(self._EXCHANGE_INFO_ENDPOINT)
+        if resp.status_code != 200:
+            msg = f"Failed to fetch binance exchange info: {self._EXCHANGE_INFO_ENDPOINT}"
+            logger.error(msg)
+            raise RuntimeError(msg)
+        return resp
+
+    def fetch_precisions(self) -> tuple[dict, dict]:
+        assert self._EXCHANGE_INFO_ENDPOINT is not None
+        resp = self.fetch_exchange_info()
+        return self.get_precisions_from_exchange_info(resp.json())
+
     def load_precisions(self):
         try:
             (
                 self._PRICE_PRECISIONS[self.exchange],
                 self._SIZE_PRECISIONS[self.exchange],
-            ) = _fetch_binance_precisions(
-                self._EXCHANGE_INFO_ENDPOINT
-            )
-
+            ) = self.fetch_precisions()
         except RuntimeError:
             super().load_precisions()
 
