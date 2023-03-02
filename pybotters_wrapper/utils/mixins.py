@@ -1,6 +1,38 @@
+import math
+
+import requests
 from loguru import logger
 
 from .io import read_resource
+
+
+def _fetch_binance_precisions(endpoint: str) -> tuple[dict, dict]:
+    resp = requests.get(endpoint)
+    if resp.status_code != 200:
+        msg = f"Failed to fetch binance exchange info: {endpoint}"
+        logger.error(msg)
+        raise RuntimeError(msg)
+    else:
+        data = resp.json()
+        price_precisions = {}
+        size_precisions = {}
+        for s in data["symbols"]:
+            symbol = s["symbol"]
+            tick_size = eval(
+                [f for f in s['filters'] if f['filterType'] == 'PRICE_FILTER'][
+                    0
+                ]['tickSize']
+            )
+            price_precision = int(math.log10(float(tick_size)) * -1)
+            step_size = eval(
+                [f for f in s['filters'] if f['filterType'] == 'LOT_SIZE'][0][
+                    'stepSize'
+                ]
+            )
+            size_precision = int(math.log10(step_size) * -1)
+            price_precisions[symbol] = price_precision
+            size_precisions[symbol] = size_precision
+        return price_precisions, size_precisions
 
 
 class LoggingMixin:
@@ -28,7 +60,9 @@ class ExchangeMixin:
             self._PRICE_PRECISIONS[self.exchange] = {}
             self._SIZE_PRECISIONS[self.exchange] = {}
 
-    def format_precision(self, symbol: str, value: float, price_or_size: str) -> str:
+    def format_precision(
+        self, symbol: str, value: float, price_or_size: str
+    ) -> str:
         precisions = self._get_precision_resource(price_or_size)
         precision = self._lookup_precision(symbol, precisions)
         return self._format_by_precision(value, precision)
@@ -83,20 +117,40 @@ class ExchangeMixin:
         return self.__module__.split(".")[1]
 
 
-class BinanceSpotMixin(ExchangeMixin):
+class _BinanceExchangeMixin(ExchangeMixin):
+    _EXCHANGE_INFO_ENDPOINT = None
+
+    def load_precisions(self):
+        try:
+            (
+                self._PRICE_PRECISIONS[self.exchange],
+                self._SIZE_PRECISIONS[self.exchange],
+            ) = _fetch_binance_precisions(
+                self._EXCHANGE_INFO_ENDPOINT
+            )
+
+        except RuntimeError:
+            super().load_precisions()
+
+
+class BinanceSpotMixin(_BinanceExchangeMixin):
     _EXCHANGE_NAME = "binancespot"
+    _EXCHANGE_INFO_ENDPOINT = "https://api.binance.com/api/v3/exchangeInfo"
 
 
-class BinanceUSDSMMixin(ExchangeMixin):
+class BinanceUSDSMMixin(_BinanceExchangeMixin):
     _EXCHANGE_NAME = "binanceusdsm"
+    _EXCHANGE_INFO_ENDPOINT = "https://fapi.binance.com/fapi/v1/exchangeInfo"
 
 
-class BinanceUSDSMTESTMixin(ExchangeMixin):
+class BinanceUSDSMTESTMixin(_BinanceExchangeMixin):
     _EXCHANGE_NAME = "binanceusdsm_test"
+    _EXCHANGE_INFO_ENDPOINT = "https://testnet.binancefuture.com/fapi/v1/exchangeInfo"
 
 
-class BinanceCOINMMixin(ExchangeMixin):
+class BinanceCOINMMixin(_BinanceExchangeMixin):
     _EXCHANGE_NAME = "binancecoinm"
+    _EXCHANGE_INFO_ENDPOINT = "https://dapi.binance.com/dapi/v1/exchangeInfo"
 
     def _lookup_precision(self, symbol: str, precisions: dict) -> int | None:
         if symbol in precisions:
@@ -110,8 +164,9 @@ class BinanceCOINMMixin(ExchangeMixin):
                 return None
 
 
-class BinanceCOINMTESTMixin(ExchangeMixin):
+class BinanceCOINMTESTMixin(_BinanceExchangeMixin):
     _EXCHANGE_NAME = "binancecoinm_test"
+    _EXCHANGE_INFO_ENDPOINT = "https://testnet.binancefuture.com/dapi/v1/exchangeInfo"
 
 
 class bitbankMixin(ExchangeMixin):
