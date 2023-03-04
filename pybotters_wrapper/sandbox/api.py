@@ -14,7 +14,6 @@ from pybotters_wrapper.core.api import OrderResponse
 SandboxResponse = namedtuple("SandboxResponse", ("status", "reason"))
 
 
-
 class SandboxAPI(API):
     def __init__(self, simulate_api: API, **kwargs):
         super(SandboxAPI, self).__init__(
@@ -59,8 +58,9 @@ class SandboxAPI(API):
             self._engine.delete_order(symbol, order_id)
             return OrderResponse(order_id, SandboxResponse(200, "ok"), {})
         except RuntimeError:
-            return OrderResponse(order_id, SandboxResponse(500, "cancel failed"))
-
+            return OrderResponse(
+                order_id, SandboxResponse(500, "cancel failed")
+            )
 
     async def stop_market_order(
         self,
@@ -72,7 +72,10 @@ class SandboxAPI(API):
         order_id_key: str = None,
         **kwargs,
     ) -> "OrderResponse":
-        raise NotImplementedError("Unsupported: stop_limit_order")
+        order_id = self._engine.insert_order(
+            symbol, side, None, size, "MARKET", trigger=trigger
+        )
+        return OrderResponse(order_id, SandboxResponse(200, "ok"), {})
 
     async def stop_limit_order(
         self,
@@ -85,7 +88,10 @@ class SandboxAPI(API):
         order_id_key: str = None,
         **kwargs,
     ) -> "OrderResponse":
-        raise NotImplementedError("Unsupported: stop_limit_order")
+        order_id = self._engine.insert_order(
+            symbol, side, price, size, "LIMIT", trigger=trigger
+        )
+        return OrderResponse(order_id, SandboxResponse(200, "ok"), {})
 
     async def request(self, method, url, *, params=None, data=None, **kwargs):
         return await self._simulate_api.request(
