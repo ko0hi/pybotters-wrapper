@@ -98,7 +98,9 @@ async def test_engine_create_execution_item_stop_market(
     )
     store, api = pbw.create_sandbox(EXCHANGE, client)
     engine = store._engine
-    order_item = engine._create_order_item(SYMBOL, "BUY", None, 1, "MARKET", trigger=101)
+    order_item = engine._create_order_item(
+        SYMBOL, "BUY", None, 1, "MARKET", trigger=101
+    )
     execution_item = engine._create_execution_item(order_item)
     testcase.assertDictEqual(
         {
@@ -122,7 +124,9 @@ async def test_engine_create_execution_item_stop_limit(
     mocker.patch("pandas.Timestamp.utcnow", return_value="2022-02-22 02:22:23")
     store, api = pbw.create_sandbox(EXCHANGE, client)
     engine = store._engine
-    order_item = engine._create_order_item(SYMBOL, "BUY", 10, 1, "LIMIT", trigger=10)
+    order_item = engine._create_order_item(
+        SYMBOL, "BUY", 10, 1, "LIMIT", trigger=10
+    )
     execution_item = engine._create_execution_item(order_item)
 
     testcase.assertDictEqual(
@@ -321,9 +325,10 @@ async def test_engine_create_position_item_buy_from_buy_position(
     client: pybotters.Client,
     mocker: pytest_mock.MockerFixture,
 ):
-
     mock_store = pbw.core.PositionStore()
-    mock_store._insert([{"symbol": SYMBOL, "side": "BUY", "price": 10, "size": 1.0}])
+    mock_store._insert(
+        [{"symbol": SYMBOL, "side": "BUY", "price": 10, "size": 1.0}]
+    )
     mocker.patch(
         "pybotters_wrapper.sandbox.store.SandboxDataStoreWrapper.position",
         return_value=mock_store,
@@ -351,9 +356,10 @@ async def test_engine_create_position_item_sell_from_sell_position(
     client: pybotters.Client,
     mocker: pytest_mock.MockerFixture,
 ):
-
     mock_store = pbw.core.PositionStore()
-    mock_store._insert([{"symbol": SYMBOL, "side": "SELL", "price": 10, "size": 1.0}])
+    mock_store._insert(
+        [{"symbol": SYMBOL, "side": "SELL", "price": 10, "size": 1.0}]
+    )
     mocker.patch(
         "pybotters_wrapper.sandbox.store.SandboxDataStoreWrapper.position",
         return_value=mock_store,
@@ -381,9 +387,10 @@ async def test_engine_create_position_item_sell_from_buy_position(
     client: pybotters.Client,
     mocker: pytest_mock.MockerFixture,
 ):
-
     mock_store = pbw.core.PositionStore()
-    mock_store._insert([{"symbol": SYMBOL, "side": "BUY", "price": 10, "size": 1.0}])
+    mock_store._insert(
+        [{"symbol": SYMBOL, "side": "BUY", "price": 10, "size": 1.0}]
+    )
     mocker.patch(
         "pybotters_wrapper.sandbox.store.SandboxDataStoreWrapper.position",
         return_value=mock_store,
@@ -412,7 +419,9 @@ async def test_engine_create_position_item_buy_from_sell_position(
     mocker: pytest_mock.MockerFixture,
 ):
     mock_store = pbw.core.PositionStore()
-    mock_store._insert([{"symbol": SYMBOL, "side": "SELL", "price": 10, "size": 1.0}])
+    mock_store._insert(
+        [{"symbol": SYMBOL, "side": "SELL", "price": 10, "size": 1.0}]
+    )
     mocker.patch(
         "pybotters_wrapper.sandbox.store.SandboxDataStoreWrapper.position",
         return_value=mock_store,
@@ -484,10 +493,18 @@ async def test_engine_is_executed_buy(
     store, api = pbw.create_sandbox(EXCHANGE, client)
     engine = store._engine
     order_item = {"symbol": "a", "price": 10, "side": "BUY"}
-    testcase.assertTrue(engine._is_executed(order_item, {"symbol": "a", "price": 9}))
-    testcase.assertTrue(engine._is_executed(order_item, {"symbol": "a", "price": 10}))
-    testcase.assertFalse(engine._is_executed(order_item, {"symbol": "a", "price": 11}))
-    testcase.assertFalse(engine._is_executed(order_item, {"symbol": "b", "price": 9}))
+    testcase.assertTrue(
+        engine._is_executed(order_item, {"symbol": "a", "price": 9})
+    )
+    testcase.assertTrue(
+        engine._is_executed(order_item, {"symbol": "a", "price": 10})
+    )
+    testcase.assertFalse(
+        engine._is_executed(order_item, {"symbol": "a", "price": 11})
+    )
+    testcase.assertFalse(
+        engine._is_executed(order_item, {"symbol": "b", "price": 9})
+    )
 
 
 @pytest.mark.asyncio
@@ -616,7 +633,21 @@ async def test_engine_handle_trigger_limit(
 
     testcase.assertEqual(0, len(store.execution))
     testcase.assertEqual(0, len(store.order.find({"trigger": 11})))
-    testcase.assertEqual(1, len(store.order.find({"id": order_id, "symbol": SYMBOL, "side": "BUY", "price": 10, "size": 1, "type": "LIMIT"})))
+    testcase.assertEqual(
+        1,
+        len(
+            store.order.find(
+                {
+                    "id": order_id,
+                    "symbol": SYMBOL,
+                    "side": "BUY",
+                    "price": 10,
+                    "size": 1,
+                    "type": "LIMIT",
+                }
+            )
+        ),
+    )
 
 
 @pytest.mark.asyncio
@@ -696,7 +727,9 @@ async def test_api_market_order(
     testcase.assertEqual("uuid", order_resp.order_id)
     testcase.assertEqual(200, order_resp.status)
     testcase.assertEqual(0, len(store.order.find({"id": order_resp.order_id})))
-    testcase.assertEqual(1, len(store.execution.find({"id": order_resp.order_id})))
+    testcase.assertEqual(
+        1, len(store.execution.find({"id": order_resp.order_id}))
+    )
     testcase.assertEqual(1, len(store.position.find({"side": "BUY"})))
     testcase.assertEqual(10, store.position.find()[0]["price"])
 
@@ -712,7 +745,9 @@ async def test_api_stop_limit_order(
     order_resp = await api.stop_limit_order(SYMBOL, "BUY", 10, 1, 10)
     testcase.assertEqual("uuid", order_resp.order_id)
     testcase.assertEqual(200, order_resp.status)
-    testcase.assertEqual(1, len(store.order.find({"id": order_resp.order_id, "trigger": 10})))
+    testcase.assertEqual(
+        1, len(store.order.find({"id": order_resp.order_id, "trigger": 10}))
+    )
 
 
 @pytest.mark.asyncio
@@ -731,7 +766,9 @@ async def test_api_stop_market_order(
     testcase.assertEqual("uuid", order_resp.order_id)
     testcase.assertEqual(200, order_resp.status)
     testcase.assertEqual(1, len(store.order.find({"id": order_resp.order_id})))
-    testcase.assertEqual(0, len(store.execution.find({"id": order_resp.order_id})))
+    testcase.assertEqual(
+        0, len(store.execution.find({"id": order_resp.order_id}))
+    )
     testcase.assertEqual(0, len(store.position))
 
 
