@@ -61,7 +61,6 @@ class SandboxAPI(API):
         except RuntimeError:
             return OrderResponse(order_id, SandboxResponse(500, "cancel failed"))
 
-
     async def stop_market_order(
         self,
         symbol: str,
@@ -72,7 +71,8 @@ class SandboxAPI(API):
         order_id_key: str = None,
         **kwargs,
     ) -> "OrderResponse":
-        raise NotImplementedError("Unsupported: stop_limit_order")
+        order_id = self._engine.insert_order(symbol, side, None, size, "MARKET", trigger=trigger)
+        return OrderResponse(order_id, SandboxResponse(200, "ok"), {})
 
     async def stop_limit_order(
         self,
@@ -85,7 +85,8 @@ class SandboxAPI(API):
         order_id_key: str = None,
         **kwargs,
     ) -> "OrderResponse":
-        raise NotImplementedError("Unsupported: stop_limit_order")
+        order_id = self._engine.insert_order(symbol, side, price, size, "LIMIT", trigger=trigger)
+        return OrderResponse(order_id, SandboxResponse(200, "ok"), {})
 
     async def request(self, method, url, *, params=None, data=None, **kwargs):
         return await self._simulate_api.request(

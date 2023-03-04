@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from datetime import datetime
 from typing import TYPE_CHECKING
 import pandas as pd
 from decimal import Decimal
@@ -35,13 +34,13 @@ class SandboxEngine(LoggingMixin):
         self._api._link_to_engine(self)
 
     def insert_order(
-        self, symbol: str, side: str, price: float, size: float, type: str
+        self, symbol: str, side: str, price: float, size: float, type: str, **kwargs,
     ) -> str:
-        order_item = self._create_order_item(symbol, side, price, size, type)
+        order_item = self._create_order_item(symbol, side, price, size, type, **kwargs)
         self._store.order._insert([order_item])
         self.log(f"new order: {order_item}")
 
-        if type == "MARKET":
+        if type == "MARKET" and "trigger" not in order_item:
             self._handle_execution(order_item)
 
         return order_item["id"]
@@ -67,6 +66,9 @@ class SandboxEngine(LoggingMixin):
                         if self._is_executed(order_item, trade_item):
                             self._handle_execution(order_item)
 
+                        if self._is_triggered(order_item, trade_item):
+                            self._handle_trigger(order_item)
+
     def _is_executed(self, order_item: OrderItem, trade_item: TradesItem) -> bool:
         if order_item["symbol"] != trade_item["symbol"]:
             return False
@@ -75,6 +77,20 @@ class SandboxEngine(LoggingMixin):
             return order_item["price"] >= trade_item["price"]
         else:
             return order_item["price"] <= trade_item["price"]
+
+    def _is_triggered(self, order_item: OrderItem, trade_item: TradesItem) -> bool:
+        if order_item["symbol"] != trade_item["symbol"]:
+            return False
+
+        if "trigger" in order_item:
+            return (
+                order_item["side"] == "BUY" and
+                trade_item["price"] >= order_item["trigger"]  # noqa
+            ) or (
+                order_item["side"] == "SELL" and
+                trade_item["price"] <= order_item["trigger"]  # noqa
+            )
+        return False
 
     def _handle_execution(self, order_item: OrderItem) -> None:
         self.log(f"handle execution")
@@ -98,12 +114,16 @@ class SandboxEngine(LoggingMixin):
         self._store.order._delete([order_item])
         self.log(f"delete order: {order_item}")
 
+    def _handle_trigger(self, order_item: OrderItem) -> None:
+        order_item.pop("trigger")
+        self.insert_order(order_item["symbol"], order_item["side"], order_item["price"], order_item["size"], order_item["type"], order_id=order_item["id"])
+
     def _create_order_item(
-        self, symbol: str, side: str, price: float, size: float, type: str
+        self, symbol: str, side: str, price: float, size: float, type: str, order_id: str = None, **kwargs
     ) -> OrderItem:
-        order_id = str(uuid.uuid4())
+        order_id = order_id or str(uuid.uuid4())
         order_item = self._store.order._itemize(
-            order_id, symbol, side, price, size, type, timestamp=pd.Timestamp.utcnow()
+            order_id, symbol, side, price, size, type, timestamp=pd.Timestamp.utcnow(), **kwargs
         )
         return order_item
 
