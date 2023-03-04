@@ -85,6 +85,9 @@ class SandboxEngine(LoggingMixin):
         if order_item["symbol"] != trade_item["symbol"]:
             return False
 
+        if "trigger" in order_item:
+            return False
+
         if order_item["side"] == "BUY":
             return order_item["price"] >= trade_item["price"]
         else:
