@@ -121,7 +121,7 @@ class bitFlyerPositionStore(PositionStore):
             items.append(item)
         self._insert(items)
 
-    async def watch(self) -> "StoreStream":
+    def watch(self) -> "StoreStream":
         warnings.warn(
             "bitFlyerPositionStore.watch is not recommended to use due to its "
             "ad-hook implementation."
