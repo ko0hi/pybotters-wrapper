@@ -36,7 +36,7 @@ class bitFlyerTradesStore(TradesStore):
         self, store: "DataStore", operation: str, source: dict, data: dict
     ) -> "TradesItem":
         return self._itemize(
-            data["id"],
+            str(data["id"]),
             data["product_code"],
             data["side"],
             float(data["price"]),
