@@ -57,7 +57,7 @@ class GMOCoinOrderStore(OrderStore):
             data["side"].name,
             float(data["price"]),
             float(data["size"]),
-            data["execution_type"],
+            data["execution_type"].name,
         )
 
 
