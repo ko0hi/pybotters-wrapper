@@ -1,4 +1,8 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from pybotters_wrapper._typedefs import Side, RequsetMethod
 
 from pybotters_wrapper.core import API
 from pybotters_wrapper.utils.mixins import bitflyerMixin
@@ -12,7 +16,7 @@ class bitFlyerAPI(bitflyerMixin, API):
     _CANCEL_REQUEST_METHOD = "POST"
 
     def _make_market_order_parameter(
-        self, endpoint: str, symbol: str, side: str, size: float
+        self, endpoint: str, symbol: str, side: Side, size: float
     ) -> dict:
         return {
             "product_code": symbol,
@@ -25,7 +29,7 @@ class bitFlyerAPI(bitflyerMixin, API):
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
     ) -> dict:
@@ -42,8 +46,8 @@ class bitFlyerAPI(bitflyerMixin, API):
     ) -> dict:
         return {"product_code": symbol, "child_order_acceptance_id": order_id}
 
-    async def _make_cancel_request(self, endpoint: str, data=dict, **kwargs):
-        resp = await self.request(
-            self._CANCEL_REQUEST_METHOD, endpoint, data=data, **kwargs
-        )
+    async def _make_cancel_request(
+        self, endpoint: str, params_or_data=Optional[dict], **kwargs
+    ):
+        resp = await self.request("POST", endpoint, data=params_or_data, **kwargs)
         return resp, None

@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+import aiohttp
+
+if TYPE_CHECKING:
+    from pybotters_wrapper._typedefs import Side
+
+
 from pybotters_wrapper.core.api import API, OrderResponse
 from pybotters_wrapper.utils.mixins import GMOCoinMixin
 
@@ -15,36 +23,49 @@ class GMOCoinAPI(GMOCoinMixin, API):
     async def market_order(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         size: float,
         close: bool = False,
+        *,
         request_params: dict = None,
         order_id_key: str = None,
         **kwargs,
     ) -> "OrderResponse":
         return await super().market_order(
-            symbol, side, size, request_params, order_id_key, close=close
+            symbol,
+            side,
+            size,
+            request_params=request_params,
+            order_id_key=order_id_key,
+            close=close,
         )
 
     async def limit_order(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
         close: bool = False,
+        *,
         request_params: dict = None,
         order_id_key: str = None,
         **kwargs,
     ) -> "OrderResponse":
         return await super().limit_order(
-            symbol, side, price, size, request_params, order_id_key, close=close
+            symbol,
+            side,
+            price,
+            size,
+            request_params=request_params,
+            order_id_key=order_id_key,
+            close=close,
         )
 
     async def close_order(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         size: float,
         position_id: int,
         execution_type: str,
@@ -52,7 +73,7 @@ class GMOCoinAPI(GMOCoinMixin, API):
         time_in_force: str = "FAK",
         price: float = None,
         cancel_before: bool = False,
-    ):
+    ) -> aiohttp.ClientResponse:
         params = {
             "symbol": symbol,
             "side": side,
@@ -70,12 +91,12 @@ class GMOCoinAPI(GMOCoinMixin, API):
     async def close_market_order(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         size: float,
         position_id: int,
         time_in_force: str = "FAK",
         cancel_before: bool = False,
-    ):
+    ) -> aiohttp.ClientResponse:
         return await self.close_order(
             symbol,
             side,
@@ -89,13 +110,13 @@ class GMOCoinAPI(GMOCoinMixin, API):
     async def close_limit_order(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
         position_id: int,
         time_in_force: str = "FAS",
         cancel_before: bool = False,
-    ):
+    ) -> aiohttp.ClientResponse:
         return await self.close_order(
             symbol,
             side,
@@ -111,14 +132,14 @@ class GMOCoinAPI(GMOCoinMixin, API):
         return "/private/v1/closeBulkOrder" if close else self._ORDER_ENDPOINT
 
     def _make_market_endpoint(
-        self, symbol: str, side: str, size: float, close: bool = False
+        self, symbol: str, side: Side, size: float, close: bool = False
     ) -> str:
         return self._make_order_endpoint(close)
 
     def _make_limit_endpoint(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
         close: bool = False,
@@ -127,7 +148,7 @@ class GMOCoinAPI(GMOCoinMixin, API):
         return self._make_order_endpoint(close)
 
     def _make_market_order_parameter(
-        self, endpoint: str, symbol: str, side: str, size: float
+        self, endpoint: str, symbol: str, side: Side, size: float
     ) -> dict:
         return {
             "symbol": symbol,
@@ -140,7 +161,7 @@ class GMOCoinAPI(GMOCoinMixin, API):
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
     ) -> dict:
@@ -156,7 +177,7 @@ class GMOCoinAPI(GMOCoinMixin, API):
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         size: float,
         trigger: float,
     ) -> dict:
@@ -172,19 +193,18 @@ class GMOCoinAPI(GMOCoinMixin, API):
     def _make_cancel_order_parameter(
         self, endpoint: str, symbol: str, order_id: str
     ) -> dict:
-        return {"orderId": order_id}
+        return {"orderId": int(order_id)}
 
     async def stop_limit_order(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
         trigger: float,
+        *,
         request_params: dict = None,
         order_id_key: str = None,
         **kwargs,
     ) -> "OrderResponse":
-        raise RuntimeError(
-            "stop_limit_order is not supported for gmocoin officially."
-        )
+        raise RuntimeError("stop_limit_order is not supported for gmocoin officially.")

@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pybotters_wrapper._typedefs import Side
+
 from pybotters_wrapper.core import API
 from pybotters_wrapper.utils.mixins import (
     BinanceCOINMMixin,
@@ -15,7 +20,7 @@ class BinanceAPIBase(API):
     _ORDER_ID_KEY = "orderId"
 
     def _make_market_order_parameter(
-        self, endpoint: str, symbol: str, side: str, size: float
+        self, endpoint: str, symbol: str, side: Side, size: float
     ) -> dict:
         return {
             "symbol": symbol.upper(),
@@ -28,7 +33,7 @@ class BinanceAPIBase(API):
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
     ) -> dict:
@@ -45,7 +50,7 @@ class BinanceAPIBase(API):
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         size: float,
         trigger: float,
     ) -> dict:
@@ -61,7 +66,7 @@ class BinanceAPIBase(API):
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
         trigger: float,
@@ -110,9 +115,10 @@ class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
     async def stop_market_order(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         size: float,
         trigger: float,
+        *,
         request_params: dict = None,
         order_id_key: str = None,
         **kwargs,
@@ -125,7 +131,7 @@ class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
         trigger: float,
