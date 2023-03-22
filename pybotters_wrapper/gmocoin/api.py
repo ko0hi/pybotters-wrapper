@@ -16,6 +16,7 @@ class GMOCoinAPI(GMOCoinMixin, API):
     BASE_URL = "https://api.coin.z.com"
     _ORDER_ENDPOINT = "/private/v1/order"
     _CANCEL_ENDPOINT = "/private/v1/cancelOrder"
+    _CANCEL_REQUEST_METHOD = "POST"
     _ORDER_ID_KEY = "data"
 
     # close引数をsignatureに追加
@@ -31,7 +32,12 @@ class GMOCoinAPI(GMOCoinMixin, API):
         **kwargs,
     ) -> "OrderResponse":
         return await super().market_order(
-            symbol, side, size, request_params, order_id_key, close=close
+            symbol,
+            side,
+            size,
+            request_params=request_params,
+            order_id_key=order_id_key,
+            close=close,
         )
 
     async def limit_order(
@@ -47,7 +53,13 @@ class GMOCoinAPI(GMOCoinMixin, API):
         **kwargs,
     ) -> "OrderResponse":
         return await super().limit_order(
-            symbol, side, price, size, request_params, order_id_key, close=close
+            symbol,
+            side,
+            price,
+            size,
+            request_params=request_params,
+            order_id_key=order_id_key,
+            close=close,
         )
 
     async def close_order(
@@ -181,7 +193,7 @@ class GMOCoinAPI(GMOCoinMixin, API):
     def _make_cancel_order_parameter(
         self, endpoint: str, symbol: str, order_id: str
     ) -> dict:
-        return {"orderId": order_id}
+        return {"orderId": int(order_id)}
 
     async def stop_limit_order(
         self,

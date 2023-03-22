@@ -161,7 +161,9 @@ class API(ExchangeMixin, LoggingMixin):
             endpoint, p_w_kwargs, **request_params
         )
         self.log(f"market order response: {resp} {resp_data}", verbose=self._verbose)
-        order_id = self._make_market_order_id(resp, resp_data, p, order_id_key)
+        order_id = self._make_market_order_id(
+            resp, resp_data, p, order_id_key=order_id_key
+        )
         wrapped_resp = self._make_market_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
@@ -186,7 +188,9 @@ class API(ExchangeMixin, LoggingMixin):
             endpoint, p_w_kwargs, **request_params
         )
         self.log(f"limit order response: {resp} {resp_data}", verbose=self._verbose)
-        order_id = self._make_limit_order_id(resp, resp_data, p, order_id_key)
+        order_id = self._make_limit_order_id(
+            resp, resp_data, p, order_id_key=order_id_key
+        )
         wrapped_resp = self._make_limit_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
@@ -236,7 +240,9 @@ class API(ExchangeMixin, LoggingMixin):
         self.log(
             f"stop market order response: {resp} {resp_data}", verbose=self._verbose
         )
-        order_id = self._make_stop_market_order_id(resp, resp_data, p, order_id_key)
+        order_id = self._make_stop_market_order_id(
+            resp, resp_data, p, order_id_key=order_id_key
+        )
         wrapped_resp = self._make_stop_market_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
@@ -266,7 +272,9 @@ class API(ExchangeMixin, LoggingMixin):
         self.log(
             f"stop limit order response: {resp} {resp_data}", verbose=self._verbose
         )
-        order_id = self._make_stop_limit_order_id(resp, resp_data, p, order_id_key)
+        order_id = self._make_stop_limit_order_id(
+            resp, resp_data, p, order_id_key=order_id_key
+        )
         wrapped_resp = self._make_stop_limit_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
@@ -380,7 +388,7 @@ class API(ExchangeMixin, LoggingMixin):
         *,
         order_id_key: str,
     ) -> str:
-        return self._make_order_id(resp, resp_data, data, order_id_key)
+        return self._make_order_id(resp, resp_data, data, order_id_key=order_id_key)
 
     def _make_limit_order_id(
         self,
@@ -390,7 +398,7 @@ class API(ExchangeMixin, LoggingMixin):
         *,
         order_id_key: str,
     ) -> str:
-        return self._make_order_id(resp, resp_data, data, order_id_key)
+        return self._make_order_id(resp, resp_data, data, order_id_key=order_id_key)
 
     def _make_stop_market_order_id(
         self,
@@ -400,7 +408,7 @@ class API(ExchangeMixin, LoggingMixin):
         *,
         order_id_key: str,
     ) -> str:
-        return self._make_order_id(resp, resp_data, data, order_id_key)
+        return self._make_order_id(resp, resp_data, data, order_id_key=order_id_key)
 
     def _make_stop_limit_order_id(
         self,
@@ -410,7 +418,7 @@ class API(ExchangeMixin, LoggingMixin):
         *,
         order_id_key: str,
     ) -> str:
-        return self._make_order_id(resp, resp_data, data, order_id_key)
+        return self._make_order_id(resp, resp_data, data, order_id_key=order_id_key)
 
     async def _make_request(
         self,
