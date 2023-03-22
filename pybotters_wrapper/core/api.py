@@ -1,19 +1,21 @@
 from __future__ import annotations
 
-from typing import NamedTuple
+from typing import NamedTuple, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pybotters_wrapper._typedefs import RequsetMethod, Side
 
 import aiohttp
 import pybotters
 import requests
 from loguru import logger
-from pybotters_wrapper.utils import read_resource
 from pybotters_wrapper.utils.mixins import ExchangeMixin, LoggingMixin
 
 
 class OrderResponse(NamedTuple):
     order_id: str
     resp: aiohttp.ClientResponse
-    resp_data: any = None
+    resp_data: Optional[dict] = None
 
     @property
     def status(self):
@@ -24,44 +26,58 @@ class OrderResponse(NamedTuple):
 
 
 class API(ExchangeMixin, LoggingMixin):
-    BASE_URL = None
-    _ORDER_ENDPOINT = None
-    _MARKET_ENDPOINT = None
-    _LIMIT_ENDPOINT = None
-    _STOP_MARKET_ENDPOINT = None
-    _STOP_LIMIT_ENDPOINT = None
-    _CANCEL_ENDPOINT = None
-    _ORDER_ID_KEY = None
-    _MARKET_REQUEST_METHOD = "POST"
-    _LIMIT_REQUEST_METHOD = "POST"
-    _CANCEL_REQUEST_METHOD = "DELETE"
-    _STOP_MARKET_REQUEST_METHOD = "POST"
-    _STOP_LIMIT_REQUEST_METHOD = "POST"
+    BASE_URL: str = None
+    _ORDER_ENDPOINT: str = None
+    _MARKET_ENDPOINT: str = None
+    _LIMIT_ENDPOINT: str = None
+    _STOP_MARKET_ENDPOINT: str = None
+    _STOP_LIMIT_ENDPOINT: str = None
+    _CANCEL_ENDPOINT: str = None
+    _ORDER_ID_KEY: str = None
+    _MARKET_REQUEST_METHOD: RequsetMethod = "POST"
+    _LIMIT_REQUEST_METHOD: RequsetMethod = "POST"
+    _CANCEL_REQUEST_METHOD: RequsetMethod = "DELETE"
+    _STOP_MARKET_REQUEST_METHOD: RequsetMethod = "POST"
+    _STOP_LIMIT_REQUEST_METHOD: RequsetMethod = "POST"
 
     def __init__(self, client: pybotters.Client, verbose: bool = False, **kwargs):
         self._client = client
         self._verbose = verbose
 
-    async def request(self, method, url, *, params=None, data=None, **kwargs):
+    async def request(
+        self,
+        method: RequsetMethod,
+        url: str,
+        *,
+        params: Optional[dict] = None,
+        data: Optional[dict] = None,
+        **kwargs,
+    ):
         url = self._attach_base_url(url, kwargs.pop("base_url", True))
         return await self._client.request(
             method, url, params=params, data=data, **kwargs
         )
 
-    async def get(self, url, *, params=None, **kwargs):
+    async def get(self, url: str, *, params: Optional[dict] = None, **kwargs):
         return await self.request("GET", url, params=params, data=None, **kwargs)
 
-    async def post(self, url, *, data=None, **kwargs):
+    async def post(self, url: str, *, data: Optional[dict] = None, **kwargs):
         return await self.request("POST", url, params=None, data=data, **kwargs)
 
-    async def put(self, url, *, data=None, **kwargs):
+    async def put(self, url: str, *, data: Optional[dict] = None, **kwargs):
         return await self.request("PUT", url, params=None, data=data, **kwargs)
 
-    async def delete(self, url, *, data=None, **kwargs):
+    async def delete(self, url: str, *, data: Optional[dict] = None, **kwargs):
         return await self.request("DELETE", url, params=None, data=data, **kwargs)
 
     def srequest(
-        self, method, url, *, params=None, data=None, **kwargs
+        self,
+        method: RequsetMethod,
+        url: str,
+        *,
+        params: Optional[dict] = None,
+        data: Optional[dict] = None,
+        **kwargs,
     ) -> requests.Response:
         # TODO: 網羅的なテスト
         # aiohttp.ClientSession._requestをpybotters.Clientから呼び出した時の処理を抜き出している
@@ -85,24 +101,53 @@ class API(ExchangeMixin, LoggingMixin):
             method=req.method, url=str(req.url), data=data, headers=headers, **kwargs
         )
 
-    def sget(self, url, *, params=None, data=None, **kwargs) -> requests.Response:
+    def sget(
+        self,
+        url: str,
+        *,
+        params: Optional[dict] = None,
+        data: Optional[dict] = None,
+        **kwargs,
+    ) -> requests.Response:
         return self.srequest("GET", url, params=params, data=data, **kwargs)
 
-    def spost(self, url, *, params=None, data=None, **kwargs) -> requests.Response:
+    def spost(
+        self,
+        url: str,
+        *,
+        params: Optional[dict] = None,
+        data: Optional[dict] = None,
+        **kwargs,
+    ) -> requests.Response:
         return self.srequest("POST", url, params=params, data=data, **kwargs)
 
-    def sput(self, url, *, params=None, data=None, **kwargs) -> requests.Response:
+    def sput(
+        self,
+        url: str,
+        *,
+        params: Optional[dict] = None,
+        data: Optional[dict] = None,
+        **kwargs,
+    ) -> requests.Response:
         return self.srequest("PUT", url, params=params, data=data, **kwargs)
 
-    def sdelete(self, url, *, params=None, data=None, **kwargs) -> requests.Response:
+    def sdelete(
+        self,
+        url: str,
+        *,
+        params: Optional[dict] = None,
+        data: Optional[dict] = None,
+        **kwargs,
+    ) -> requests.Response:
         return self.srequest("DELETE", url, params=params, data=data, **kwargs)
 
     @logger.catch
     async def market_order(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         size: float,
+        *,
         request_params: dict = None,
         order_id_key: str = None,
         **kwargs,
@@ -124,9 +169,10 @@ class API(ExchangeMixin, LoggingMixin):
     async def limit_order(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
+        *,
         request_params: dict = None,
         order_id_key: str = None,
         **kwargs,
@@ -149,6 +195,7 @@ class API(ExchangeMixin, LoggingMixin):
         self,
         symbol: str,
         order_id: str,
+        *,
         request_params: dict = None,
         **kwargs,
     ) -> "OrderResponse":
@@ -168,9 +215,10 @@ class API(ExchangeMixin, LoggingMixin):
     async def stop_market_order(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         size: float,
         trigger: float,
+        *,
         request_params: dict = None,
         order_id_key: str = None,
         **kwargs,
@@ -196,10 +244,11 @@ class API(ExchangeMixin, LoggingMixin):
     async def stop_limit_order(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
         trigger: float,
+        *,
         request_params: dict = None,
         order_id_key: str = None,
         **kwargs,
@@ -234,12 +283,12 @@ class API(ExchangeMixin, LoggingMixin):
         return self.BASE_URL
 
     def _make_market_endpoint(
-        self, symbol: str, side: str, size: float, **kwargs
+        self, symbol: str, side: Side, size: float, **kwargs
     ) -> str:
         return self._MARKET_ENDPOINT or self._ORDER_ENDPOINT
 
     def _make_limit_endpoint(
-        self, symbol: str, side: str, price: float, size: float, **kwargs
+        self, symbol: str, side: Side, price: float, size: float, **kwargs
     ) -> str:
         return self._LIMIT_ENDPOINT or self._ORDER_ENDPOINT
 
@@ -247,60 +296,60 @@ class API(ExchangeMixin, LoggingMixin):
         return self._CANCEL_ENDPOINT or self._ORDER_ENDPOINT
 
     def _make_stop_market_endpoint(
-        self, symbol: str, side: str, size: float, trigger: float, **kwargs
+        self, symbol: str, side: Side, size: float, trigger: float, **kwargs
     ) -> str:
         return self._STOP_MARKET_ENDPOINT or self._ORDER_ENDPOINT
 
     def _make_stop_limit_endpoint(
         self,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
         trigger: float,
         **kwargs,
-    ):
+    ) -> str:
         return self._STOP_LIMIT_ENDPOINT or self._ORDER_ENDPOINT
 
     def _make_market_order_parameter(
-        self, endpoint: str, symbol: str, side: str, size: float
-    ) -> dict | None:
+        self, endpoint: str, symbol: str, side: Side, size: float
+    ) -> Optional[dict]:
         raise NotImplementedError
 
     def _make_limit_order_parameter(
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
-    ) -> dict | None:
+    ) -> Optional[dict]:
         raise NotImplementedError
 
     def _make_cancel_order_parameter(
         self, endpoint: str, symbol: str, order_id: str
-    ) -> dict | None:
+    ) -> Optional[dict]:
         raise NotImplementedError
 
     def _make_stop_market_order_parameter(
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         size: float,
         trigger: float,
-    ) -> dict | None:
+    ) -> Optional[dict]:
         raise NotImplementedError
 
     def _make_stop_limit_order_parameter(
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
         trigger: float,
-    ) -> dict | None:
+    ) -> Optional[dict]:
         raise NotImplementedError
 
     def _make_order_id(
@@ -308,9 +357,11 @@ class API(ExchangeMixin, LoggingMixin):
         resp: "aiohttp.ClientResponse",
         resp_data: dict,
         data: dict,
+        *,
         order_id_key: str,
-    ) -> str | None:
+    ) -> Optional[str]:
         if resp.status == 200:
+            # 200が返って来た場合、レスポンスの中にorder_idが含まれるものとする。
             order_id = resp_data
             order_id_key = order_id_key or self._ORDER_ID_KEY
             assert order_id_key is not None
@@ -326,6 +377,7 @@ class API(ExchangeMixin, LoggingMixin):
         resp: "aiohttp.ClientResponse",
         resp_data: dict,
         data: dict,
+        *,
         order_id_key: str,
     ) -> str:
         return self._make_order_id(resp, resp_data, data, order_id_key)
@@ -335,6 +387,7 @@ class API(ExchangeMixin, LoggingMixin):
         resp: "aiohttp.ClientResponse",
         resp_data: dict,
         data: dict,
+        *,
         order_id_key: str,
     ) -> str:
         return self._make_order_id(resp, resp_data, data, order_id_key)
@@ -344,6 +397,7 @@ class API(ExchangeMixin, LoggingMixin):
         resp: "aiohttp.ClientResponse",
         resp_data: dict,
         data: dict,
+        *,
         order_id_key: str,
     ) -> str:
         return self._make_order_id(resp, resp_data, data, order_id_key)
@@ -353,13 +407,18 @@ class API(ExchangeMixin, LoggingMixin):
         resp: "aiohttp.ClientResponse",
         resp_data: dict,
         data: dict,
+        *,
         order_id_key: str,
     ) -> str:
         return self._make_order_id(resp, resp_data, data, order_id_key)
 
     async def _make_request(
-        self, method: str, endpoint: str, params_or_data: dict | None, **kwargs
-    ):
+        self,
+        method: RequsetMethod,
+        endpoint: str,
+        params_or_data: Optional[dict],
+        **kwargs,
+    ) -> tuple[aiohttp.ClientResponse, any]:
         params = {"method": method, "url": endpoint}
         if method == "GET":
             params["params"] = params_or_data
@@ -373,35 +432,35 @@ class API(ExchangeMixin, LoggingMixin):
         return resp, resp_data
 
     async def _make_market_request(
-        self, endpoint: str, params_or_data=dict | None, **kwargs
+        self, endpoint: str, params_or_data=Optional[dict], **kwargs
     ):
         return await self._make_request(
             self._MARKET_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_limit_request(
-        self, endpoint: str, params_or_data=dict | None, **kwargs
+        self, endpoint: str, params_or_data=Optional[dict], **kwargs
     ):
         return await self._make_request(
             self._LIMIT_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_cancel_request(
-        self, endpoint: str, params_or_data=dict | None, **kwargs
+        self, endpoint: str, params_or_data=Optional[dict], **kwargs
     ):
         return await self._make_request(
             self._CANCEL_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_stop_market_request(
-        self, endpoint: str, params_or_data=dict | None, **kwargs
+        self, endpoint: str, params_or_data=Optional[dict], **kwargs
     ):
         return await self._make_request(
             self._STOP_MARKET_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_stop_limit_request(
-            self, endpoint: str, params_or_data=dict | None, **kwargs
+        self, endpoint: str, params_or_data=Optional[dict], **kwargs
     ):
         return await self._make_request(
             self._STOP_LIMIT_REQUEST_METHOD, endpoint, params_or_data, **kwargs
@@ -440,6 +499,7 @@ class API(ExchangeMixin, LoggingMixin):
     ) -> "OrderResponse":
         return self._make_order_response(resp, resp_data, order_id)
 
-    def _add_kwargs_to_data(self, data: dict | None, **kwargs):
+    @classmethod
+    def _add_kwargs_to_data(cls, data: Optional[dict], **kwargs):
         data = data or {}
         return {**data, **kwargs}

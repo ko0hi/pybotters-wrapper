@@ -1,4 +1,8 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pybotters_wrapper._typedefs import Side
 
 import pybotters
 
@@ -12,7 +16,7 @@ class BybitAPI(API):
     _CANCEL_REQUEST_METHOD = "POST"
 
     def _make_market_order_parameter(
-            self, endpoint: str, symbol: str, side: str, size: float
+        self, endpoint: str, symbol: str, side: str, size: float
     ) -> dict:
         return {
             "symbol": symbol,
@@ -25,12 +29,12 @@ class BybitAPI(API):
         }
 
     def _make_limit_order_parameter(
-            self,
-            endpoint: str,
-            symbol: str,
-            side: str,
-            price: float,
-            size: float,
+        self,
+        endpoint: str,
+        symbol: str,
+        side: Side,
+        price: float,
+        size: float,
     ) -> dict:
         return {
             "symbol": symbol,
@@ -44,7 +48,7 @@ class BybitAPI(API):
         }
 
     def _make_cancel_order_parameter(
-            self, endpoint: str, symbol: str, order_id: str
+        self, endpoint: str, symbol: str, order_id: str
     ) -> dict:
         return {"symbol": symbol, "order_id": order_id}
 
@@ -54,25 +58,25 @@ class BybitUSDTAPI(BybitUSDTMixin, BybitAPI):
     _CANCEL_ENDPOINT = "/private/linear/order/cancel"
 
     def __init__(
-            self, client: pybotters.Client, verbose: bool = False, oneway=True, **kwargs
+        self, client: pybotters.Client, verbose: bool = False, oneway=True, **kwargs
     ):
         super(BybitUSDTAPI, self).__init__(client, verbose, **kwargs)
         self._oneway = oneway
 
     def _make_market_order_parameter(
-            self, endpoint: str, symbol: str, side: str, size: float
+        self, endpoint: str, symbol: str, side: Side, size: float
     ) -> dict:
         return self._add_position_idx(
             super()._make_market_order_parameter(endpoint, symbol, side, size)
         )
 
     def _make_limit_order_parameter(
-            self,
-            endpoint: str,
-            symbol: str,
-            side: str,
-            price: float,
-            size: float,
+        self,
+        endpoint: str,
+        symbol: str,
+        side: Side,
+        price: float,
+        size: float,
     ) -> dict:
         return self._add_position_idx(
             super()._make_limit_order_parameter(endpoint, symbol, side, price, size)
@@ -88,5 +92,3 @@ class BybitInverseAPI(BybitInverseMixin, BybitAPI):
     _ORDER_ENDPOINT = "/v2/private/order/create"
     _CANCEL_ENDPOINT = "/v2/private/order/cancel"
 
-    def format_size(self, symbol: str, size: float):
-        return int(super().format_size(symbol, size))

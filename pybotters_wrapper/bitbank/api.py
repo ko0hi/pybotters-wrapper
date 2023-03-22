@@ -1,4 +1,8 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pybotters_wrapper._typedefs import Side
 
 from pybotters_wrapper.core import API
 from pybotters_wrapper.utils.mixins import bitbankMixin
@@ -31,7 +35,7 @@ class bitbankAPI(bitbankMixin, API):
             return "https://public.bitbank.cc"
 
     def _make_market_order_parameter(
-        self, endpoint: str, symbol: str, side: str, size: float
+        self, endpoint: str, symbol: str, side: Side, size: float
     ) -> dict:
         return {
             "pair": symbol,
@@ -44,7 +48,7 @@ class bitbankAPI(bitbankMixin, API):
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
     ) -> dict:

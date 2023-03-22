@@ -1,4 +1,8 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pybotters_wrapper._typedefs import Side
 
 import uuid
 
@@ -11,7 +15,7 @@ class KuCoinAPIBase(API):
     _ORDER_ENDPOINT = "/api/v1/orders"
     _ORDER_ID_KEY = "data.orderId"
 
-    def _make_cancel_endpoint(self, symbol: str, order_id: str, **kwargs):
+    def _make_cancel_endpoint(self, symbol: str, order_id: str, **kwargs) -> str:
         return (
             super()._make_cancel_endpoint(symbol, order_id, **kwargs) + f"/{order_id}"
         )
@@ -26,7 +30,7 @@ class KuCoinSpotAPI(KuCoinSpotMixin, KuCoinAPIBase):
     BASE_URL = "https://api.kucoin.com"
 
     def _make_market_order_parameter(
-        self, endpoint: str, symbol: str, side: str, size: float
+        self, endpoint: str, symbol: str, side: Side, size: float
     ) -> dict:
         return {
             "symbol": symbol,
@@ -40,7 +44,7 @@ class KuCoinSpotAPI(KuCoinSpotMixin, KuCoinAPIBase):
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
     ) -> dict:
@@ -62,7 +66,7 @@ class KuCoinFuturesAPI(KuCoinFuturesMixin, KuCoinAPIBase):
         self._leverage = leverage
 
     def _make_market_order_parameter(
-        self, endpoint: str, symbol: str, side: str, size: float
+        self, endpoint: str, symbol: str, side: Side, size: float
     ) -> dict:
         return {
             "symbol": symbol,
@@ -77,7 +81,7 @@ class KuCoinFuturesAPI(KuCoinFuturesMixin, KuCoinAPIBase):
         self,
         endpoint: str,
         symbol: str,
-        side: str,
+        side: Side,
         price: float,
         size: float,
     ) -> dict:
