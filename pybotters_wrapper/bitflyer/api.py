@@ -1,10 +1,15 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, Optional
 
+import aiohttp
+
 if TYPE_CHECKING:
-    from pybotters_wrapper._typedefs import Side, RequsetMethod
+    from pybotters_wrapper._typedefs import Side
 
 from pybotters_wrapper.core import API
+from pybotters_wrapper.core.api import FetchOrdersResponse
+from pybotters_wrapper.core.store import OrderItem
 from pybotters_wrapper.utils.mixins import bitflyerMixin
 
 
@@ -12,6 +17,7 @@ class bitFlyerAPI(bitflyerMixin, API):
     BASE_URL = "https://api.bitflyer.com"
     _ORDER_ENDPOINT = "/v1/me/sendchildorder"
     _CANCEL_ENDPOINT = "/v1/me/cancelchildorder"
+    _FETCH_ORDERS_ENDPOINT = "/v1/me/getchildorders"
     _ORDER_ID_KEY = "child_order_acceptance_id"
     _CANCEL_REQUEST_METHOD = "POST"
 
@@ -51,3 +57,23 @@ class bitFlyerAPI(bitflyerMixin, API):
     ):
         resp = await self.request("POST", endpoint, data=params_or_data, **kwargs)
         return resp, None
+
+    def _make_fetch_orders_parameter(self, symbol: str) -> Optional[dict]:
+        return {"product_code": symbol, "child_order_state": "ACTIVE"}
+
+    def _make_fetch_orders_response(
+        self, resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> FetchOrdersResponse:
+        orders = [
+            OrderItem(
+                id=i["child_order_acceptance_id"],
+                symbol=i["product_code"],
+                side=i["side"],
+                price=i["price"],
+                size=i["size"],
+                type=i["child_order_type"],
+                info=i,  # noqa
+            )
+            for i in resp_data
+        ]
+        return FetchOrdersResponse(orders, resp, resp_data)

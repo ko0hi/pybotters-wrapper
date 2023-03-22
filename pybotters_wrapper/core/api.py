@@ -4,6 +4,7 @@ from typing import NamedTuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pybotters_wrapper._typedefs import RequsetMethod, Side
+    from pybotters_wrapper.core.store import OrderItem
 
 import aiohttp
 import pybotters
@@ -25,6 +26,12 @@ class OrderResponse(NamedTuple):
         return self.resp.status == 200
 
 
+class FetchOrdersResponse(NamedTuple):
+    orders: list[OrderItem]
+    resp: aiohttp.ClientResponse
+    resp_data: Optional[any] = None
+
+
 class API(ExchangeMixin, LoggingMixin):
     BASE_URL: str = None
     _ORDER_ENDPOINT: str = None
@@ -32,6 +39,7 @@ class API(ExchangeMixin, LoggingMixin):
     _LIMIT_ENDPOINT: str = None
     _STOP_MARKET_ENDPOINT: str = None
     _STOP_LIMIT_ENDPOINT: str = None
+    _FETCH_ORDERS_ENDPOINT: str = None
     _CANCEL_ENDPOINT: str = None
     _ORDER_ID_KEY: str = None
     _MARKET_REQUEST_METHOD: RequsetMethod = "POST"
@@ -39,6 +47,7 @@ class API(ExchangeMixin, LoggingMixin):
     _CANCEL_REQUEST_METHOD: RequsetMethod = "DELETE"
     _STOP_MARKET_REQUEST_METHOD: RequsetMethod = "POST"
     _STOP_LIMIT_REQUEST_METHOD: RequsetMethod = "POST"
+    _FETCH_ORDERS_REQUEST_METHOD: RequsetMethod = "GET"
 
     def __init__(self, client: pybotters.Client, verbose: bool = False, **kwargs):
         self._client = client
@@ -278,6 +287,33 @@ class API(ExchangeMixin, LoggingMixin):
         wrapped_resp = self._make_stop_limit_order_response(resp, resp_data, order_id)
         return wrapped_resp
 
+    @logger.catch
+    async def fetch_orders(
+        self, symbol: str, *, request_params: dict = None, **api_params
+    ) -> "FetchOrdersResponse":
+        """
+        Ordersを取得するためのメソッド。
+
+        Args:
+            symbol (str): 取得するOrdersに関連するpairのsymbol。
+            request_params (dict, optional): リクエスト時に使用するパラメータ。デフォルトはNone。
+            **api_params: 当該APIで使用できるその他のパラメータ。
+
+        Returns:
+            FetchOrdersResponse: 取得したOrdersに関する情報を含むFetchOrdersResponseオブジェクト。
+
+        Raises:
+            なし
+
+        """
+        endpoint = self._make_fetch_orders_endpoint(symbol)
+        parameters = self._make_fetch_orders_parameter(symbol)
+        parameters = self._add_kwargs_to_data(parameters, **api_params)
+        resp, resp_data = await self._make_fetch_orders_request(
+            endpoint, parameters, **(request_params or {})
+        )
+        return self._make_fetch_orders_response(resp, resp_data)
+
     def _attach_base_url(self, url: str, base_url: str = False) -> str:
         if base_url:
             base_url = self._get_base_url(url)
@@ -319,6 +355,9 @@ class API(ExchangeMixin, LoggingMixin):
     ) -> str:
         return self._STOP_LIMIT_ENDPOINT or self._ORDER_ENDPOINT
 
+    def _make_fetch_orders_endpoint(self, symbol: str):
+        return self._FETCH_ORDERS_ENDPOINT
+
     def _make_market_order_parameter(
         self, endpoint: str, symbol: str, side: Side, size: float
     ) -> Optional[dict]:
@@ -358,6 +397,9 @@ class API(ExchangeMixin, LoggingMixin):
         size: float,
         trigger: float,
     ) -> Optional[dict]:
+        raise NotImplementedError
+
+    def _make_fetch_orders_parameter(self, symbol: str) -> Optional[dict]:
         raise NotImplementedError
 
     def _make_order_id(
@@ -474,6 +516,13 @@ class API(ExchangeMixin, LoggingMixin):
             self._STOP_LIMIT_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
+    async def _make_fetch_orders_request(
+        self, endpoint: str, params_or_data=Optional[dict], **kwargs
+    ):
+        return await self._make_request(
+            self._FETCH_ORDERS_REQUEST_METHOD, endpoint, params_or_data, **kwargs
+        )
+
     def _make_order_response(
         self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
     ) -> "OrderResponse":
@@ -506,6 +555,11 @@ class API(ExchangeMixin, LoggingMixin):
         self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
     ) -> "OrderResponse":
         return self._make_order_response(resp, resp_data, order_id)
+
+    def _make_fetch_orders_response(
+        self, resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> "FetchOrdersResponse":
+        raise NotImplementedError
 
     @classmethod
     def _add_kwargs_to_data(cls, data: Optional[dict], **kwargs):
