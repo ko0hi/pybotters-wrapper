@@ -289,17 +289,30 @@ class API(ExchangeMixin, LoggingMixin):
 
     @logger.catch
     async def fetch_orders(
-        self, symbol: str, *, request_params: dict = None, **kwargs
+        self, symbol: str, *, request_params: dict = None, **api_params
     ) -> "FetchOrdersResponse":
-        request_params = request_params or {}
+        """
+        Ordersを取得するためのメソッド。
+
+        Args:
+            symbol (str): 取得するOrdersに関連するpairのsymbol。
+            request_params (dict, optional): リクエスト時に使用するパラメータ。デフォルトはNone。
+            **api_params: 当該APIで使用できるその他のパラメータ。
+
+        Returns:
+            FetchOrdersResponse: 取得したOrdersに関する情報を含むFetchOrdersResponseオブジェクト。
+
+        Raises:
+            なし
+
+        """
         endpoint = self._make_fetch_orders_endpoint(symbol)
-        p = self._make_fetch_orders_parameter(symbol)
-        p_w_kwargs = self._add_kwargs_to_data(p, **kwargs)
+        parameters = self._make_fetch_orders_parameter(symbol)
+        parameters = self._add_kwargs_to_data(parameters, **api_params)
         resp, resp_data = await self._make_fetch_orders_request(
-            endpoint, p_w_kwargs, **request_params
+            endpoint, parameters, **(request_params or {})
         )
-        orders = self._make_fetch_orders_response(resp, resp_data)
-        return orders
+        return self._make_fetch_orders_response(resp, resp_data)
 
     def _attach_base_url(self, url: str, base_url: str = False) -> str:
         if base_url:
