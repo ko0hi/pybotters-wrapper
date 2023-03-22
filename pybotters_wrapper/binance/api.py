@@ -1,11 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+
+import aiohttp
+
+from pybotters_wrapper.core.api import FetchOrdersResponse
 
 if TYPE_CHECKING:
     from pybotters_wrapper._typedefs import Side
 
 from pybotters_wrapper.core import API
+from pybotters_wrapper.core.store import OrderItem
 from pybotters_wrapper.utils.mixins import (
     BinanceCOINMMixin,
     BinanceCOINMTESTMixin,
@@ -86,10 +91,31 @@ class BinanceAPIBase(API):
     ) -> dict:
         return {"symbol": symbol.upper(), "orderId": order_id}
 
+    def _make_fetch_orders_parameter(self, symbol: str) -> Optional[dict]:
+        return {"symbol": symbol}
+
+    def _make_fetch_orders_response(
+        self, resp: aiohttp.ClientResponse, resp_data: list[dict]
+    ) -> FetchOrdersResponse:
+        orders = [
+            OrderItem(
+                id=str(i["orderId"]),
+                symbol=i["symbol"],
+                side=i["side"],
+                price=float(i["price"]),
+                size=float(i["origQty"]) - float(i["executedQty"]),
+                type=i["type"],
+                info=i  # noqa
+
+            ) for i in resp_data
+        ]
+        return FetchOrdersResponse(orders, resp, resp_data)
+
 
 class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
     BASE_URL = "https://api.binance.com"
     _ORDER_ENDPOINT = "/api/v3/order"
+    _FETCH_ORDERS_ENDPOINT = "/api/v3/openOrders"
 
     # binance spotのpublic endpointはauthを付与するとエラーとなる問題の対応
     # https://binance-docs.github.io/apidocs/spot/en/#market-data-endpoints を列挙
@@ -146,18 +172,22 @@ class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
 class BinanceUSDSMAPI(BinanceUSDSMMixin, BinanceAPIBase):
     BASE_URL = "https://fapi.binance.com"
     _ORDER_ENDPOINT = "/fapi/v1/order"
+    _FETCH_ORDERS_ENDPOINT = "/fapi/v1/openOrders"
 
 
 class BinanceUSDSMTESTAPI(BinanceUSDSMTESTMixin, BinanceAPIBase):
     BASE_URL = "https://testnet.binancefuture.com"
     _ORDER_ENDPOINT = "/fapi/v1/order"
+    _FETCH_ORDERS_ENDPOINT = "/fapi/v1/openOrders"
 
 
 class BinanceCOINMAPI(BinanceCOINMMixin, BinanceAPIBase):
     BASE_URL = "https://dapi.binance.com"
     _ORDER_ENDPOINT = "/dapi/v1/order"
+    _FETCH_ORDERS_ENDPOINT = "/dapi/v1/openOrders"
 
 
 class BinanceCOINMTESTAPI(BinanceCOINMTESTMixin, BinanceAPIBase):
     BASE_URL = "https://testnet.binancefuture.com"
     _ORDER_ENDPOINT = "/dapi/v1/order"
+    _FETCH_ORDERS_ENDPOINT = "/dapi/v1/openOrders"
