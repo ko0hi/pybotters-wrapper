@@ -53,6 +53,7 @@ async def main(args):
         while True:
             await store.orderbook.wait()
             position = store.position.summary("FX_BTC_JPY")
+            logger.info(monitor.spread())
 
             # 売り指値
             if (
@@ -76,7 +77,7 @@ async def main(args):
                 for b in bids:
                     if b["spread"] < args.buy_spread:
                         await api.limit_order(
-                            "FX_BTC_JPY", "BUY", a["price"], args.size
+                            "FX_BTC_JPY", "BUY", b["price"], args.size
                         )
                         await asyncio.sleep(1)
                         break
