@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import aiohttp
 
-from pybotters_wrapper.core.api import FetchOrdersResponse
 
 if TYPE_CHECKING:
     from pybotters_wrapper._typedefs import Side
 
 from pybotters_wrapper.core import API
-from pybotters_wrapper.core.store import OrderItem
+from pybotters_wrapper.core.api import FetchOrdersResponse, FetchPositionsResponse
+from pybotters_wrapper.core.store import OrderItem, PositionItem
 from pybotters_wrapper.utils.mixins import (
     BinanceCOINMMixin,
     BinanceCOINMTESTMixin,
@@ -91,26 +91,6 @@ class BinanceAPIBase(API):
     ) -> dict:
         return {"symbol": symbol.upper(), "orderId": order_id}
 
-    def _make_fetch_orders_parameter(self, symbol: str) -> Optional[dict]:
-        return {"symbol": symbol}
-
-    def _make_fetch_orders_response(
-        self, resp: aiohttp.ClientResponse, resp_data: list[dict]
-    ) -> FetchOrdersResponse:
-        orders = [
-            OrderItem(
-                id=str(i["orderId"]),
-                symbol=i["symbol"],
-                side=i["side"],
-                price=float(i["price"]),
-                size=float(i["origQty"]) - float(i["executedQty"]),
-                type=i["type"],
-                info=i  # noqa
-
-            ) for i in resp_data
-        ]
-        return FetchOrdersResponse(orders, resp, resp_data)
-
 
 class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
     BASE_URL = "https://api.binance.com"
@@ -169,25 +149,110 @@ class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
         return params
 
 
-class BinanceUSDSMAPI(BinanceUSDSMMixin, BinanceAPIBase):
+class BinanceUSDSMAPIBase(BinanceAPIBase):
+    _ORDER_ENDPOINT = "/fapi/v1/order"
+    _FETCH_ORDERS_ENDPOINT = "/fapi/v1/openOrders"
+    _FETCH_POSITIONS_ENDPOINT = "/fapi/v2/positionRisk"
+
+    def _make_fetch_orders_parameter(self, symbol: str) -> dict:
+        return {"symbol": symbol}
+
+    def _make_fetch_positions_parameter(self, symbol: str) -> dict:
+        return {"symbol": symbol}
+
+    def _make_fetch_orders_response(
+        self, resp: aiohttp.ClientResponse, resp_data: list[dict]
+    ) -> FetchOrdersResponse:
+        orders = [
+            OrderItem(
+                id=str(i["orderId"]),
+                symbol=i["symbol"],
+                side=i["side"],
+                price=float(i["price"]),
+                size=float(i["origQty"]) - float(i["executedQty"]),
+                type=i["type"],
+                info=i,  # noqa
+            )
+            for i in resp_data
+        ]
+        return FetchOrdersResponse(orders, resp, resp_data)
+
+    def _make_fetch_positions_response(
+        self, resp: aiohttp.ClientResponse, resp_data: list[dict]
+    ) -> "FetchPositionsResponse":
+        positions = [
+            PositionItem(
+                symbol=i["symbol"],
+                side=("BUY" if float(i["positionAmt"]) > 0 else "SELL"),
+                price=float(i["entryPrice"]),
+                size=float(i["positionAmt"]),
+                info=i,  # noqa
+            )
+            for i in resp_data
+        ]
+        return FetchPositionsResponse(positions, resp, resp_data)
+
+
+class BinanceUSDSMAPI(BinanceUSDSMMixin, BinanceUSDSMAPIBase):
     BASE_URL = "https://fapi.binance.com"
-    _ORDER_ENDPOINT = "/fapi/v1/order"
-    _FETCH_ORDERS_ENDPOINT = "/fapi/v1/openOrders"
 
 
-class BinanceUSDSMTESTAPI(BinanceUSDSMTESTMixin, BinanceAPIBase):
+class BinanceUSDSMTESTAPI(BinanceUSDSMTESTMixin, BinanceUSDSMAPI):
     BASE_URL = "https://testnet.binancefuture.com"
-    _ORDER_ENDPOINT = "/fapi/v1/order"
-    _FETCH_ORDERS_ENDPOINT = "/fapi/v1/openOrders"
 
 
-class BinanceCOINMAPI(BinanceCOINMMixin, BinanceAPIBase):
+class BinanceCOINMAPIBase(BinanceAPIBase):
+    _ORDER_ENDPOINT = "/dapi/v1/order"
+    _FETCH_ORDERS_ENDPOINT = "/dapi/v1/openOrders"
+    _FETCH_POSITIONS_ENDPOINT = "/dapi/v1/positionRisk"
+
+    def _make_fetch_orders_parameter(self, symbol: str) -> dict:
+        return {"symbol": symbol}
+
+    def _make_fetch_positions_parameter(self, symbol: str) -> dict:
+        # coinmはsymbol（e.g., BNBUSD_PERP）の指定ができないので、パラメーターにこっそり忍ばせておく。
+        # 一応これでも認証は通ったが、通らなくなった場合どうするかは別途考える。
+        return {"pair": symbol.split("_")[0], "__symbol": symbol}
+
+    def _make_fetch_orders_response(
+        self, resp: aiohttp.ClientResponse, resp_data: list[dict]
+    ) -> FetchOrdersResponse:
+        orders = [
+            OrderItem(
+                id=str(i["orderId"]),
+                symbol=i["symbol"],
+                side=i["side"],
+                price=float(i["price"]),
+                size=float(i["origQty"]) - float(i["executedQty"]),
+                type=i["type"],
+                info=i,  # noqa
+            )
+            for i in resp_data
+        ]
+        return FetchOrdersResponse(orders, resp, resp_data)
+
+    def _make_fetch_positions_response(
+        self, resp: aiohttp.ClientResponse, resp_data: list[dict]
+    ) -> "FetchPositionsResponse":
+        # 忍ばせておいたsymbolを使って取得したいsymbolのポジション情報に絞る。
+        symbol = resp.request_info.url.query["__symbol"]
+        positions = [
+            PositionItem(
+                symbol=i["symbol"],
+                side=("BUY" if float(i["positionAmt"]) > 0 else "SELL"),
+                price=float(i["entryPrice"]),
+                size=float(i["positionAmt"]),
+                info=i,  # noqa
+            )
+            for i in resp_data
+            if i["symbol"] == symbol
+        ]
+        return FetchPositionsResponse(positions, resp, resp_data)
+
+
+class BinanceCOINMAPI(BinanceCOINMMixin, BinanceCOINMAPIBase):
     BASE_URL = "https://dapi.binance.com"
-    _ORDER_ENDPOINT = "/dapi/v1/order"
-    _FETCH_ORDERS_ENDPOINT = "/dapi/v1/openOrders"
 
 
-class BinanceCOINMTESTAPI(BinanceCOINMTESTMixin, BinanceAPIBase):
+class BinanceCOINMTESTAPI(BinanceCOINMTESTMixin, BinanceCOINMAPIBase):
     BASE_URL = "https://testnet.binancefuture.com"
-    _ORDER_ENDPOINT = "/dapi/v1/order"
-    _FETCH_ORDERS_ENDPOINT = "/dapi/v1/openOrders"
