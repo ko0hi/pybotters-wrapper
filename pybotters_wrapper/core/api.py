@@ -4,7 +4,7 @@ from typing import NamedTuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pybotters_wrapper._typedefs import RequsetMethod, Side
-    from pybotters_wrapper.core.store import OrderItem
+    from pybotters_wrapper.core.store import OrderItem, PositionItem
 
 import aiohttp
 import pybotters
@@ -32,6 +32,12 @@ class FetchOrdersResponse(NamedTuple):
     resp_data: Optional[any] = None
 
 
+class FetchPositionsResponse(NamedTuple):
+    positions: list[PositionItem]
+    resp: aiohttp.ClientResponse
+    resp_data: Optional[any] = None
+
+
 class API(ExchangeMixin, LoggingMixin):
     BASE_URL: str = None
     _ORDER_ENDPOINT: str = None
@@ -40,6 +46,7 @@ class API(ExchangeMixin, LoggingMixin):
     _STOP_MARKET_ENDPOINT: str = None
     _STOP_LIMIT_ENDPOINT: str = None
     _FETCH_ORDERS_ENDPOINT: str = None
+    _FETCH_POSITIONS_ENDPOINT: str = None
     _CANCEL_ENDPOINT: str = None
     _ORDER_ID_KEY: str = None
     _MARKET_REQUEST_METHOD: RequsetMethod = "POST"
@@ -48,6 +55,7 @@ class API(ExchangeMixin, LoggingMixin):
     _STOP_MARKET_REQUEST_METHOD: RequsetMethod = "POST"
     _STOP_LIMIT_REQUEST_METHOD: RequsetMethod = "POST"
     _FETCH_ORDERS_REQUEST_METHOD: RequsetMethod = "GET"
+    _FETCH_POSITIONS_REQUEST_METHOD: RequsetMethod = "GET"
 
     def __init__(self, client: pybotters.Client, verbose: bool = False, **kwargs):
         self._client = client
@@ -302,9 +310,6 @@ class API(ExchangeMixin, LoggingMixin):
         Returns:
             FetchOrdersResponse: 取得したOrdersに関する情報を含むFetchOrdersResponseオブジェクト。
 
-        Raises:
-            なし
-
         """
         endpoint = self._make_fetch_orders_endpoint(symbol)
         parameters = self._make_fetch_orders_parameter(symbol)
@@ -313,6 +318,31 @@ class API(ExchangeMixin, LoggingMixin):
             endpoint, parameters, **(request_params or {})
         )
         return self._make_fetch_orders_response(resp, resp_data)
+
+    @logger.catch
+    async def fetch_positions(
+        self, symbol: str, *, request_params: dict = None, **api_params
+    ) -> "FetchPositionsResponse":
+        """
+        `fetch_positions`関数
+        ポジション情報を取得するためのAPIリクエストを送信し、処理結果を返す
+
+        Args:
+            symbol (str): 取得対象のシンボル（銘柄名）
+            request_params (dict, optional): リクエストパラメータを指定するdict。デフォルトはNone。
+            **api_params: 当該APIで使用できるその他のパラメータ。
+
+        Returns:
+            FetchPositionsResponse: ポジション情報を含むAPIレスポンスデータを含む`FetchPositionsResponse`オブジェクト。
+
+        """
+        endpoint = self._make_fetch_positions_endpoint(symbol)
+        parameters = self._make_fetch_positions_parameter(symbol)
+        parameters = self._add_kwargs_to_data(parameters, **api_params)
+        resp, resp_data = await self._make_fetch_positions_request(
+            endpoint, parameters, **(request_params or {})
+        )
+        return self._make_fetch_positions_response(resp, resp_data)
 
     def _attach_base_url(self, url: str, base_url: str = False) -> str:
         if base_url:
@@ -355,8 +385,11 @@ class API(ExchangeMixin, LoggingMixin):
     ) -> str:
         return self._STOP_LIMIT_ENDPOINT or self._ORDER_ENDPOINT
 
-    def _make_fetch_orders_endpoint(self, symbol: str):
+    def _make_fetch_orders_endpoint(self, symbol: str) -> str:
         return self._FETCH_ORDERS_ENDPOINT
+
+    def _make_fetch_positions_endpoint(self, symbol: str) -> str:
+        return self._FETCH_POSITIONS_ENDPOINT
 
     def _make_market_order_parameter(
         self, endpoint: str, symbol: str, side: Side, size: float
@@ -400,6 +433,9 @@ class API(ExchangeMixin, LoggingMixin):
         raise NotImplementedError
 
     def _make_fetch_orders_parameter(self, symbol: str) -> Optional[dict]:
+        raise NotImplementedError
+
+    def _make_fetch_positions_parameter(self, symbol: str) -> Optional[dict]:
         raise NotImplementedError
 
     def _make_order_id(
@@ -482,45 +518,52 @@ class API(ExchangeMixin, LoggingMixin):
         return resp, resp_data
 
     async def _make_market_request(
-        self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
         return await self._make_request(
             self._MARKET_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_limit_request(
-        self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
         return await self._make_request(
             self._LIMIT_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_cancel_request(
-        self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
         return await self._make_request(
             self._CANCEL_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_stop_market_request(
-        self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
         return await self._make_request(
             self._STOP_MARKET_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_stop_limit_request(
-        self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
         return await self._make_request(
             self._STOP_LIMIT_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_fetch_orders_request(
-        self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
         return await self._make_request(
             self._FETCH_ORDERS_REQUEST_METHOD, endpoint, params_or_data, **kwargs
+        )
+
+    async def _make_fetch_positions_request(
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
+        return await self._make_request(
+            self._FETCH_POSITIONS_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     def _make_order_response(
@@ -559,6 +602,11 @@ class API(ExchangeMixin, LoggingMixin):
     def _make_fetch_orders_response(
         self, resp: aiohttp.ClientResponse, resp_data: dict
     ) -> "FetchOrdersResponse":
+        raise NotImplementedError
+
+    def _make_fetch_positions_response(
+        self, resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> "FetchPositionsResponse":
         raise NotImplementedError
 
     @classmethod
