@@ -8,8 +8,8 @@ if TYPE_CHECKING:
     from pybotters_wrapper._typedefs import Side
 
 from pybotters_wrapper.core import API
-from pybotters_wrapper.core.api import FetchOrdersResponse
-from pybotters_wrapper.core.store import OrderItem
+from pybotters_wrapper.core.api import FetchOrdersResponse, FetchPositionsResponse
+from pybotters_wrapper.core.store import OrderItem, PositionItem
 from pybotters_wrapper.utils.mixins import bitflyerMixin
 
 
@@ -18,6 +18,7 @@ class bitFlyerAPI(bitflyerMixin, API):
     _ORDER_ENDPOINT = "/v1/me/sendchildorder"
     _CANCEL_ENDPOINT = "/v1/me/cancelchildorder"
     _FETCH_ORDERS_ENDPOINT = "/v1/me/getchildorders"
+    _FETCH_POSITIONS_ENDPOINT = "/v1/me/getpositions"
     _ORDER_ID_KEY = "child_order_acceptance_id"
     _CANCEL_REQUEST_METHOD = "POST"
 
@@ -54,12 +55,15 @@ class bitFlyerAPI(bitflyerMixin, API):
 
     async def _make_cancel_request(
         self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+    ) -> tuple["aiohttp.ClientResponse", None]:
         resp = await self.request("POST", endpoint, data=params_or_data, **kwargs)
         return resp, None
 
-    def _make_fetch_orders_parameter(self, symbol: str) -> Optional[dict]:
+    def _make_fetch_orders_parameter(self, symbol: str) -> dict:
         return {"product_code": symbol, "child_order_state": "ACTIVE"}
+
+    def _make_fetch_positions_parameter(self, symbol: str) -> dict:
+        return {"product_code": symbol}
 
     def _make_fetch_orders_response(
         self, resp: aiohttp.ClientResponse, resp_data: dict
@@ -77,3 +81,18 @@ class bitFlyerAPI(bitflyerMixin, API):
             for i in resp_data
         ]
         return FetchOrdersResponse(orders, resp, resp_data)
+
+    def _make_fetch_positions_response(
+        self, resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> FetchPositionsResponse:
+        positions = [
+            PositionItem(
+                symbol=i["product_code"],
+                side=i["side"],
+                price=i["price"],
+                size=i["size"],
+                info=i  # noqa
+            )
+            for i in resp_data
+        ]
+        return FetchPositionsResponse(positions, resp, resp_data)
