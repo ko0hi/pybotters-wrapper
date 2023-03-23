@@ -43,6 +43,7 @@ async def main(args):
     async with pbw.create_client() as client:
         store = pbw.create_bitflyer_store()
         api = pbw.create_bitflyer_api(client, verbose=True)
+        await store.initialize_position(client, product_code="FX_BTC_JPY")
         await store.subscribe("all", symbol="FX_BTC_JPY").subscribe(
             "all", symbol="BTC_JPY"
         ).connect(client=client, waits=["trades", "orderbook"])
