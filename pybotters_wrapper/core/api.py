@@ -310,9 +310,6 @@ class API(ExchangeMixin, LoggingMixin):
         Returns:
             FetchOrdersResponse: 取得したOrdersに関する情報を含むFetchOrdersResponseオブジェクト。
 
-        Raises:
-            なし
-
         """
         endpoint = self._make_fetch_orders_endpoint(symbol)
         parameters = self._make_fetch_orders_parameter(symbol)
@@ -326,6 +323,19 @@ class API(ExchangeMixin, LoggingMixin):
     async def fetch_positions(
         self, symbol: str, *, request_params: dict = None, **api_params
     ) -> "FetchPositionsResponse":
+        """
+        `fetch_positions`関数
+        ポジション情報を取得するためのAPIリクエストを送信し、処理結果を返す
+
+        Args:
+            symbol (str): 取得対象のシンボル（銘柄名）
+            request_params (dict, optional): リクエストパラメータを指定するdict。デフォルトはNone。
+            **api_params: 当該APIで使用できるその他のパラメータ。
+
+        Returns:
+            FetchPositionsResponse: ポジション情報を含むAPIレスポンスデータを含む`FetchPositionsResponse`オブジェクト。
+
+        """
         endpoint = self._make_fetch_positions_endpoint(symbol)
         parameters = self._make_fetch_positions_parameter(symbol)
         parameters = self._add_kwargs_to_data(parameters, **api_params)
