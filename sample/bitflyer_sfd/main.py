@@ -43,6 +43,7 @@ async def main(args):
     async with pbw.create_client() as client:
         store = pbw.create_bitflyer_store()
         api = pbw.create_bitflyer_api(client, verbose=True)
+        await store.initialize_position(client, product_code="FX_BTC_JPY")
         await store.subscribe("all", symbol="FX_BTC_JPY").subscribe(
             "all", symbol="BTC_JPY"
         ).connect(client=client, waits=["trades", "orderbook"])
@@ -53,6 +54,7 @@ async def main(args):
         while True:
             await store.orderbook.wait()
             position = store.position.summary("FX_BTC_JPY")
+            logger.info(monitor.spread())
 
             # 売り指値
             if (
@@ -76,7 +78,7 @@ async def main(args):
                 for b in bids:
                     if b["spread"] < args.buy_spread:
                         await api.limit_order(
-                            "FX_BTC_JPY", "BUY", a["price"], args.size
+                            "FX_BTC_JPY", "BUY", b["price"], args.size
                         )
                         await asyncio.sleep(1)
                         break
