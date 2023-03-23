@@ -482,43 +482,43 @@ class API(ExchangeMixin, LoggingMixin):
         return resp, resp_data
 
     async def _make_market_request(
-        self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
         return await self._make_request(
             self._MARKET_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_limit_request(
-        self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
         return await self._make_request(
             self._LIMIT_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_cancel_request(
-        self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
         return await self._make_request(
             self._CANCEL_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_stop_market_request(
-        self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
         return await self._make_request(
             self._STOP_MARKET_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_stop_limit_request(
-        self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
         return await self._make_request(
             self._STOP_LIMIT_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
     async def _make_fetch_orders_request(
-        self, endpoint: str, params_or_data=Optional[dict], **kwargs
-    ):
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
         return await self._make_request(
             self._FETCH_ORDERS_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
