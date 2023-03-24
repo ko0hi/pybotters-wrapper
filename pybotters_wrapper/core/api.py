@@ -4,7 +4,7 @@ from typing import NamedTuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pybotters_wrapper._typedefs import RequsetMethod, Side
-    from pybotters_wrapper.core.store import OrderItem, PositionItem
+    from pybotters_wrapper.core.store import OrderItem, PositionItem, OrderbookItem
 
 import aiohttp
 import pybotters
@@ -25,6 +25,10 @@ class OrderResponse(NamedTuple):
     def is_success(self):
         return self.resp.status == 200
 
+class FetchOrderbookResponse(NamedTuple):
+    orderbook: dict[Side, list[OrderbookItem]]
+    resp: aiohttp.ClientResponse
+    resp_data: Optional[any] = None
 
 class FetchOrdersResponse(NamedTuple):
     orders: list[OrderItem]
@@ -45,6 +49,7 @@ class API(ExchangeMixin, LoggingMixin):
     _LIMIT_ENDPOINT: str = None
     _STOP_MARKET_ENDPOINT: str = None
     _STOP_LIMIT_ENDPOINT: str = None
+    _FETCH_ORDERBOOK_ENDPOINT: str = None
     _FETCH_ORDERS_ENDPOINT: str = None
     _FETCH_POSITIONS_ENDPOINT: str = None
     _CANCEL_ENDPOINT: str = None
@@ -54,6 +59,7 @@ class API(ExchangeMixin, LoggingMixin):
     _CANCEL_REQUEST_METHOD: RequsetMethod = "DELETE"
     _STOP_MARKET_REQUEST_METHOD: RequsetMethod = "POST"
     _STOP_LIMIT_REQUEST_METHOD: RequsetMethod = "POST"
+    _FETCH_ORDERBOOK_REQUEST_METHOD: RequsetMethod = "GET"
     _FETCH_ORDERS_REQUEST_METHOD: RequsetMethod = "GET"
     _FETCH_POSITIONS_REQUEST_METHOD: RequsetMethod = "GET"
 
@@ -296,6 +302,18 @@ class API(ExchangeMixin, LoggingMixin):
         return wrapped_resp
 
     @logger.catch
+    async def fetch_orderbook(
+            self, symbol: str, *, request_params: dict = None, **api_params
+    ) -> "FetchOrderbookResponse":
+        endpoint = self._make_fetch_orderbook_endpoint(symbol)
+        parameters = self._make_fetch_orderbook_parameter(symbol)
+        parameters = self._add_kwargs_to_data(parameters, **api_params)
+        resp, resp_data = await self._make_fetch_orders_request(
+            endpoint, parameters, **(request_params or {})
+        )
+        return self._make_fetch_orderbook_response(resp, resp_data)
+
+    @logger.catch
     async def fetch_orders(
         self, symbol: str, *, request_params: dict = None, **api_params
     ) -> "FetchOrdersResponse":
@@ -385,6 +403,9 @@ class API(ExchangeMixin, LoggingMixin):
     ) -> str:
         return self._STOP_LIMIT_ENDPOINT or self._ORDER_ENDPOINT
 
+    def _make_fetch_orderbook_endpoint(self, symbol: str) -> str:
+        return self._FETCH_ORDERBOOK_ENDPOINT
+
     def _make_fetch_orders_endpoint(self, symbol: str) -> str:
         return self._FETCH_ORDERS_ENDPOINT
 
@@ -430,6 +451,9 @@ class API(ExchangeMixin, LoggingMixin):
         size: float,
         trigger: float,
     ) -> Optional[dict]:
+        raise NotImplementedError
+
+    def _make_fetch_orderbook_parameter(self, symbol: str) -> Optional[dict]:
         raise NotImplementedError
 
     def _make_fetch_orders_parameter(self, symbol: str) -> Optional[dict]:
@@ -598,6 +622,11 @@ class API(ExchangeMixin, LoggingMixin):
         self, resp: aiohttp.ClientResponse, resp_data: dict, order_id: str
     ) -> "OrderResponse":
         return self._make_order_response(resp, resp_data, order_id)
+
+    def _make_fetch_orderbook_response(
+            self, resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> "FetchOrderbookResponse":
+        raise NotImplementedError
 
     def _make_fetch_orders_response(
         self, resp: aiohttp.ClientResponse, resp_data: dict

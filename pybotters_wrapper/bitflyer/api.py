@@ -8,8 +8,12 @@ if TYPE_CHECKING:
     from pybotters_wrapper._typedefs import Side
 
 from pybotters_wrapper.core import API
-from pybotters_wrapper.core.api import FetchOrdersResponse, FetchPositionsResponse
-from pybotters_wrapper.core.store import OrderItem, PositionItem
+from pybotters_wrapper.core.api import (
+    FetchOrderbookResponse,
+    FetchOrdersResponse,
+    FetchPositionsResponse,
+)
+from pybotters_wrapper.core.store import OrderbookItem, OrderItem, PositionItem
 from pybotters_wrapper.utils.mixins import bitflyerMixin
 
 
@@ -17,6 +21,7 @@ class bitFlyerAPI(bitflyerMixin, API):
     BASE_URL = "https://api.bitflyer.com"
     _ORDER_ENDPOINT = "/v1/me/sendchildorder"
     _CANCEL_ENDPOINT = "/v1/me/cancelchildorder"
+    _FETCH_ORDERBOOK_ENDPOINT = "/v1/getboard"
     _FETCH_ORDERS_ENDPOINT = "/v1/me/getchildorders"
     _FETCH_POSITIONS_ENDPOINT = "/v1/me/getpositions"
     _ORDER_ID_KEY = "child_order_acceptance_id"
@@ -59,11 +64,28 @@ class bitFlyerAPI(bitflyerMixin, API):
         resp = await self.request("POST", endpoint, data=params_or_data, **kwargs)
         return resp, None
 
+    def _make_fetch_orderbook_parameter(self, symbol: str) -> dict:
+        return {"product_code": symbol}
+
     def _make_fetch_orders_parameter(self, symbol: str) -> dict:
         return {"product_code": symbol, "child_order_state": "ACTIVE"}
 
     def _make_fetch_positions_parameter(self, symbol: str) -> dict:
         return {"product_code": symbol}
+
+    def _make_fetch_orderbook_response(
+        self, resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> FetchOrderbookResponse:
+        symbol = resp.request_info.url.query["product_code"]
+        asks = [
+            OrderbookItem(symbol=symbol, side="SELL", price=i["price"], size=i["size"])
+            for i in resp_data["asks"]
+        ]
+        bids = [
+            OrderbookItem(symbol=symbol, side="BUY", price=i["price"], size=i["size"])
+            for i in resp_data["bids"]
+        ]
+        return FetchOrderbookResponse({"SELL": asks, "BUY": bids}, resp, resp_data)
 
     def _make_fetch_orders_response(
         self, resp: aiohttp.ClientResponse, resp_data: dict
@@ -91,7 +113,7 @@ class bitFlyerAPI(bitflyerMixin, API):
                 side=i["side"],
                 price=i["price"],
                 size=i["size"],
-                info=i  # noqa
+                info=i,  # noqa
             )
             for i in resp_data
         ]

@@ -1,16 +1,21 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 import aiohttp
-
+import requests
+from yarl import URL
 
 if TYPE_CHECKING:
-    from pybotters_wrapper._typedefs import Side
+    from pybotters_wrapper._typedefs import Side, RequsetMethod
 
 from pybotters_wrapper.core import API
-from pybotters_wrapper.core.api import FetchOrdersResponse, FetchPositionsResponse
-from pybotters_wrapper.core.store import OrderItem, PositionItem
+from pybotters_wrapper.core.api import (
+    FetchOrderbookResponse,
+    FetchOrdersResponse,
+    FetchPositionsResponse,
+)
+from pybotters_wrapper.core.store import OrderbookItem, OrderItem, PositionItem
 from pybotters_wrapper.utils.mixins import (
     BinanceCOINMMixin,
     BinanceCOINMTESTMixin,
@@ -91,10 +96,32 @@ class BinanceAPIBase(API):
     ) -> dict:
         return {"symbol": symbol.upper(), "orderId": order_id}
 
+    def _make_fetch_orderbook_parameter(self, symbol: str) -> dict:
+        return {"symbol": symbol}
+
+    def _make_fetch_orderbook_response(
+        self, resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> "FetchOrderbookResponse":
+        symbol = resp.request_info.url.query["symbol"]
+        asks = [
+            OrderbookItem(
+                symbol=symbol, side="SELL", price=float(i[0]), size=float(i[1])
+            )
+            for i in resp_data["asks"]
+        ]
+        bids = [
+            OrderbookItem(
+                symbol=symbol, side="BUY", price=float(i[0]), size=float(i[1])
+            )
+            for i in resp_data["bids"]
+        ]
+        return FetchOrderbookResponse({"SELL": asks, "BUY": bids}, resp, resp_data)
+
 
 class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
     BASE_URL = "https://api.binance.com"
     _ORDER_ENDPOINT = "/api/v3/order"
+    _FETCH_ORDERBOOK_ENDPOINT = "/api/v3/depth"
     _FETCH_ORDERS_ENDPOINT = "/api/v3/openOrders"
 
     # binance spotのpublic endpointはauthを付与するとエラーとなる問題の対応
@@ -117,6 +144,32 @@ class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
             "ticker",
         ]
     }
+
+    async def request(
+        self,
+        method: RequsetMethod,
+        url: str,
+        *,
+        params: Optional[dict] = None,
+        data: Optional[dict] = None,
+        **kwargs,
+    ):
+        if URL(url).path in self._PUBLIC_ENDPOINTS:
+            kwargs["auth"] = None
+        return await super().request(method, url, params=params, data=data, **kwargs)
+
+    def srequest(
+        self,
+        method: RequsetMethod,
+        url: str,
+        *,
+        params: Optional[dict] = None,
+        data: Optional[dict] = None,
+        **kwargs,
+    ) -> requests.Response:
+        if URL(url).path in self._PUBLIC_ENDPOINTS:
+            kwargs["auth"] = None
+        return super().srequest(method, url, params=params, data=data, **kwargs)
 
     async def stop_market_order(
         self,
@@ -151,6 +204,7 @@ class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
 
 class BinanceUSDSMAPIBase(BinanceAPIBase):
     _ORDER_ENDPOINT = "/fapi/v1/order"
+    _FETCH_ORDERBOOK_ENDPOINT = "/fapi/v1/depth"
     _FETCH_ORDERS_ENDPOINT = "/fapi/v1/openOrders"
     _FETCH_POSITIONS_ENDPOINT = "/fapi/v2/positionRisk"
 
@@ -203,6 +257,7 @@ class BinanceUSDSMTESTAPI(BinanceUSDSMTESTMixin, BinanceUSDSMAPI):
 
 class BinanceCOINMAPIBase(BinanceAPIBase):
     _ORDER_ENDPOINT = "/dapi/v1/order"
+    _FETCH_ORDERBOOK_ENDPOINT = "/dapi/v1/depth"
     _FETCH_ORDERS_ENDPOINT = "/dapi/v1/openOrders"
     _FETCH_POSITIONS_ENDPOINT = "/dapi/v1/positionRisk"
 
