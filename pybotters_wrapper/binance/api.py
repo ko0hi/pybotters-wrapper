@@ -11,11 +11,17 @@ if TYPE_CHECKING:
 
 from pybotters_wrapper.core import API
 from pybotters_wrapper.core.api import (
+    FetchTickerResponse,
     FetchOrderbookResponse,
     FetchOrdersResponse,
     FetchPositionsResponse,
 )
-from pybotters_wrapper.core.store import OrderbookItem, OrderItem, PositionItem
+from pybotters_wrapper.core.store import (
+    TickerItem,
+    OrderbookItem,
+    OrderItem,
+    PositionItem,
+)
 from pybotters_wrapper.utils.mixins import (
     BinanceCOINMMixin,
     BinanceCOINMTESTMixin,
@@ -96,8 +102,24 @@ class BinanceAPIBase(API):
     ) -> dict:
         return {"symbol": symbol.upper(), "orderId": order_id}
 
+    def _make_fetch_ticker_parameter(self, symbol: str) -> dict:
+        return {"symbol": symbol}
+
     def _make_fetch_orderbook_parameter(self, symbol: str) -> dict:
         return {"symbol": symbol}
+
+    def _make_fetch_ticker_response(
+        self, resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> FetchTickerResponse:
+        return FetchTickerResponse(
+            TickerItem(
+                symbol=resp_data["symbol"],
+                price=float(resp_data["price"]),
+                info=resp_data,  # noqa
+            ),
+            resp,
+            resp_data,
+        )
 
     def _make_fetch_orderbook_response(
         self, resp: aiohttp.ClientResponse, resp_data: dict
@@ -121,6 +143,7 @@ class BinanceAPIBase(API):
 class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
     BASE_URL = "https://api.binance.com"
     _ORDER_ENDPOINT = "/api/v3/order"
+    _FETCH_TICKER_ENDPOINT = "/api/v3/ticker/price"
     _FETCH_ORDERBOOK_ENDPOINT = "/api/v3/depth"
     _FETCH_ORDERS_ENDPOINT = "/api/v3/openOrders"
 
@@ -204,6 +227,7 @@ class BinanceSpotAPI(BinanceSpotMixin, BinanceAPIBase):
 
 class BinanceUSDSMAPIBase(BinanceAPIBase):
     _ORDER_ENDPOINT = "/fapi/v1/order"
+    _FETCH_TICKER_ENDPOINT = "/fapi/v1/ticker/price"
     _FETCH_ORDERBOOK_ENDPOINT = "/fapi/v1/depth"
     _FETCH_ORDERS_ENDPOINT = "/fapi/v1/openOrders"
     _FETCH_POSITIONS_ENDPOINT = "/fapi/v2/positionRisk"
@@ -257,6 +281,7 @@ class BinanceUSDSMTESTAPI(BinanceUSDSMTESTMixin, BinanceUSDSMAPI):
 
 class BinanceCOINMAPIBase(BinanceAPIBase):
     _ORDER_ENDPOINT = "/dapi/v1/order"
+    _FETCH_TICKER_ENDPOINT = "/dapi/v1/ticker/price"
     _FETCH_ORDERBOOK_ENDPOINT = "/dapi/v1/depth"
     _FETCH_ORDERS_ENDPOINT = "/dapi/v1/openOrders"
     _FETCH_POSITIONS_ENDPOINT = "/dapi/v1/positionRisk"
@@ -268,6 +293,12 @@ class BinanceCOINMAPIBase(BinanceAPIBase):
         # coinmはsymbol（e.g., BNBUSD_PERP）の指定ができないので、パラメーターにこっそり忍ばせておく。
         # 一応これでも認証は通ったが、通らなくなった場合どうするかは別途考える。
         return {"pair": symbol.split("_")[0], "__symbol": symbol}
+
+    def _make_fetch_ticker_response(
+        self, resp: aiohttp.ClientResponse, resp_data: list[dict]
+    ) -> FetchTickerResponse:
+        # なぜかcoinmだけsymbol指定してもlistで返ってくる
+        return super()._make_fetch_ticker_response(resp, resp_data[0])
 
     def _make_fetch_orders_response(
         self, resp: aiohttp.ClientResponse, resp_data: list[dict]

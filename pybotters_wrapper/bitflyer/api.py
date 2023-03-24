@@ -9,11 +9,17 @@ if TYPE_CHECKING:
 
 from pybotters_wrapper.core import API
 from pybotters_wrapper.core.api import (
+    FetchTickerResponse,
     FetchOrderbookResponse,
     FetchOrdersResponse,
     FetchPositionsResponse,
 )
-from pybotters_wrapper.core.store import OrderbookItem, OrderItem, PositionItem
+from pybotters_wrapper.core.store import (
+    TickerItem,
+    OrderbookItem,
+    OrderItem,
+    PositionItem,
+)
 from pybotters_wrapper.utils.mixins import bitflyerMixin
 
 
@@ -21,6 +27,7 @@ class bitFlyerAPI(bitflyerMixin, API):
     BASE_URL = "https://api.bitflyer.com"
     _ORDER_ENDPOINT = "/v1/me/sendchildorder"
     _CANCEL_ENDPOINT = "/v1/me/cancelchildorder"
+    _FETCH_TICKER_ENDPOINT = "/v1/getticker"
     _FETCH_ORDERBOOK_ENDPOINT = "/v1/getboard"
     _FETCH_ORDERS_ENDPOINT = "/v1/me/getchildorders"
     _FETCH_POSITIONS_ENDPOINT = "/v1/me/getpositions"
@@ -64,6 +71,9 @@ class bitFlyerAPI(bitflyerMixin, API):
         resp = await self.request("POST", endpoint, data=params_or_data, **kwargs)
         return resp, None
 
+    def _make_fetch_ticker_parameter(self, symbol: str) -> dict:
+        return {"product_code": symbol}
+
     def _make_fetch_orderbook_parameter(self, symbol: str) -> dict:
         return {"product_code": symbol}
 
@@ -72,6 +82,19 @@ class bitFlyerAPI(bitflyerMixin, API):
 
     def _make_fetch_positions_parameter(self, symbol: str) -> dict:
         return {"product_code": symbol}
+
+    def _make_fetch_ticker_response(
+        self, resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> FetchTickerResponse:
+        return FetchTickerResponse(
+            TickerItem(
+                symbol=resp_data["product_code"],
+                price=resp_data["ltp"],
+                info=resp_data,  # noqa
+            ),
+            resp,
+            resp_data,
+        )
 
     def _make_fetch_orderbook_response(
         self, resp: aiohttp.ClientResponse, resp_data: dict
