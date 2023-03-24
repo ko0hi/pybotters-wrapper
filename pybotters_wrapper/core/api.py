@@ -4,7 +4,12 @@ from typing import NamedTuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pybotters_wrapper._typedefs import RequsetMethod, Side
-    from pybotters_wrapper.core.store import OrderItem, PositionItem, OrderbookItem
+    from pybotters_wrapper.core.store import (
+        TickerItem,
+        OrderItem,
+        PositionItem,
+        OrderbookItem,
+    )
 
 import aiohttp
 import pybotters
@@ -25,10 +30,18 @@ class OrderResponse(NamedTuple):
     def is_success(self):
         return self.resp.status == 200
 
+
+class FetchTickerResponse(NamedTuple):
+    ticker: TickerItem
+    resp: aiohttp.ClientResponse
+    resp_data: Optional[any] = None
+
+
 class FetchOrderbookResponse(NamedTuple):
     orderbook: dict[Side, list[OrderbookItem]]
     resp: aiohttp.ClientResponse
     resp_data: Optional[any] = None
+
 
 class FetchOrdersResponse(NamedTuple):
     orders: list[OrderItem]
@@ -49,6 +62,7 @@ class API(ExchangeMixin, LoggingMixin):
     _LIMIT_ENDPOINT: str = None
     _STOP_MARKET_ENDPOINT: str = None
     _STOP_LIMIT_ENDPOINT: str = None
+    _FETCH_TICKER_ENDPOINT: str = None
     _FETCH_ORDERBOOK_ENDPOINT: str = None
     _FETCH_ORDERS_ENDPOINT: str = None
     _FETCH_POSITIONS_ENDPOINT: str = None
@@ -59,6 +73,7 @@ class API(ExchangeMixin, LoggingMixin):
     _CANCEL_REQUEST_METHOD: RequsetMethod = "DELETE"
     _STOP_MARKET_REQUEST_METHOD: RequsetMethod = "POST"
     _STOP_LIMIT_REQUEST_METHOD: RequsetMethod = "POST"
+    _FETCH_TICKER_REQUEST_METHOD: RequsetMethod = "GET"
     _FETCH_ORDERBOOK_REQUEST_METHOD: RequsetMethod = "GET"
     _FETCH_ORDERS_REQUEST_METHOD: RequsetMethod = "GET"
     _FETCH_POSITIONS_REQUEST_METHOD: RequsetMethod = "GET"
@@ -302,13 +317,47 @@ class API(ExchangeMixin, LoggingMixin):
         return wrapped_resp
 
     @logger.catch
+    async def fetch_ticker(
+        self, symbol: str, *, request_params: dict = None, **api_params
+    ) -> FetchTickerResponse:
+        """
+        特定のシンボルに関するティッカー情報を取得する。
+
+        Args:
+            symbol (str): 取得対象のシンボル。
+            request_params (dict): リクエストパラメータ。デフォルトはNone。
+            **api_params: 当該APIで使用できるその他のパラメータ。
+
+        Returns:
+            FetchTickerResponse: FetchTickerResponse形式のレスポンス。
+        """
+        endpoint = self._make_fetch_ticker_endpoint(symbol)
+        parameters = self._make_fetch_ticker_parameter(symbol)
+        parameters = self._add_kwargs_to_data(parameters, **api_params)
+        resp, resp_data = await self._make_fetch_orderbook_request(
+            endpoint, parameters, **(request_params or {})
+        )
+        return self._make_fetch_ticker_response(resp, resp_data)
+
+    @logger.catch
     async def fetch_orderbook(
-            self, symbol: str, *, request_params: dict = None, **api_params
-    ) -> "FetchOrderbookResponse":
+        self, symbol: str, *, request_params: dict = None, **api_params
+    ) -> FetchOrderbookResponse:
+        """
+        指定されたシンボルに関するオーダーブック情報を取得するための関数。
+
+        Args:
+            symbol (str): 取得対象のシンボル。
+            request_params (dict): リクエストパラメータ。デフォルトはNone。
+            **api_params: 当該APIで使用できるその他のパラメータ。
+
+        Returns:
+            FetchOrderbookResponse: FetchOrderbookResponse形式のレスポンス。
+        """
         endpoint = self._make_fetch_orderbook_endpoint(symbol)
         parameters = self._make_fetch_orderbook_parameter(symbol)
         parameters = self._add_kwargs_to_data(parameters, **api_params)
-        resp, resp_data = await self._make_fetch_orders_request(
+        resp, resp_data = await self._make_fetch_orderbook_request(
             endpoint, parameters, **(request_params or {})
         )
         return self._make_fetch_orderbook_response(resp, resp_data)
@@ -316,7 +365,7 @@ class API(ExchangeMixin, LoggingMixin):
     @logger.catch
     async def fetch_orders(
         self, symbol: str, *, request_params: dict = None, **api_params
-    ) -> "FetchOrdersResponse":
+    ) -> FetchOrdersResponse:
         """
         Ordersを取得するためのメソッド。
 
@@ -340,7 +389,7 @@ class API(ExchangeMixin, LoggingMixin):
     @logger.catch
     async def fetch_positions(
         self, symbol: str, *, request_params: dict = None, **api_params
-    ) -> "FetchPositionsResponse":
+    ) -> FetchPositionsResponse:
         """
         `fetch_positions`関数
         ポジション情報を取得するためのAPIリクエストを送信し、処理結果を返す
@@ -403,6 +452,9 @@ class API(ExchangeMixin, LoggingMixin):
     ) -> str:
         return self._STOP_LIMIT_ENDPOINT or self._ORDER_ENDPOINT
 
+    def _make_fetch_ticker_endpoint(self, symbol: str) -> str:
+        return self._FETCH_TICKER_ENDPOINT
+
     def _make_fetch_orderbook_endpoint(self, symbol: str) -> str:
         return self._FETCH_ORDERBOOK_ENDPOINT
 
@@ -451,6 +503,9 @@ class API(ExchangeMixin, LoggingMixin):
         size: float,
         trigger: float,
     ) -> Optional[dict]:
+        raise NotImplementedError
+
+    def _make_fetch_ticker_parameter(self, symbol: str) -> Optional[dict]:
         raise NotImplementedError
 
     def _make_fetch_orderbook_parameter(self, symbol: str) -> Optional[dict]:
@@ -576,6 +631,20 @@ class API(ExchangeMixin, LoggingMixin):
             self._STOP_LIMIT_REQUEST_METHOD, endpoint, params_or_data, **kwargs
         )
 
+    async def _make_fetch_ticker_request(
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
+        return await self._make_request(
+            self._FETCH_TICKER_REQUEST_METHOD, endpoint, params_or_data, **kwargs
+        )
+
+    async def _make_fetch_orderbook_request(
+        self, endpoint: str, params_or_data: Optional[dict], **kwargs
+    ) -> tuple["aiohttp.ClientResponse", any]:
+        return await self._make_request(
+            self._FETCH_ORDERBOOK_REQUEST_METHOD, endpoint, params_or_data, **kwargs
+        )
+
     async def _make_fetch_orders_request(
         self, endpoint: str, params_or_data: Optional[dict], **kwargs
     ) -> tuple["aiohttp.ClientResponse", any]:
@@ -623,19 +692,24 @@ class API(ExchangeMixin, LoggingMixin):
     ) -> "OrderResponse":
         return self._make_order_response(resp, resp_data, order_id)
 
+    def _make_fetch_ticker_response(
+        self, resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> FetchTickerResponse:
+        raise NotImplementedError
+
     def _make_fetch_orderbook_response(
-            self, resp: aiohttp.ClientResponse, resp_data: dict
-    ) -> "FetchOrderbookResponse":
+        self, resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> FetchOrderbookResponse:
         raise NotImplementedError
 
     def _make_fetch_orders_response(
         self, resp: aiohttp.ClientResponse, resp_data: dict
-    ) -> "FetchOrdersResponse":
+    ) -> FetchOrdersResponse:
         raise NotImplementedError
 
     def _make_fetch_positions_response(
         self, resp: aiohttp.ClientResponse, resp_data: dict
-    ) -> "FetchPositionsResponse":
+    ) -> FetchPositionsResponse:
         raise NotImplementedError
 
     @classmethod
