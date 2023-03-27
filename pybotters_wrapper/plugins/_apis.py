@@ -106,8 +106,8 @@ def execution_watcher(
     return ExecutionWatcher(store, store_name=store_name, is_target=is_target)
 
 
-def pnl(store: DataStoreWrapper, symbol: str, fee: float = 0.0) -> PnL:
-    return PnL(store, symbol=symbol, fee=fee)
+def pnl(store: DataStoreWrapper, symbol: str, fee: float = 0.0, interval = 10) -> PnL:
+    return PnL(store, symbol=symbol, fee=fee, interval=interval)
 
 
 def watch_csvwriter(
