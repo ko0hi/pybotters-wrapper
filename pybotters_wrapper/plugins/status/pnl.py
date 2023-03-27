@@ -19,7 +19,7 @@ class PnLItem(TypedDict):
     timestamp: pd.Timestamp
 
 class PnL(WatchStoreMixin, Plugin):
-    _POSITION_PRECISION = 16
+    _POSITION_PRECISION = 14
 
     def __init__(
         self, store: DataStoreWrapper, symbol: str, *, fee: float = 0, snapshot_length=9999, interval=10
@@ -45,9 +45,11 @@ class PnL(WatchStoreMixin, Plugin):
 
     async def _auto_ltp_update(self, interval: int = 10) -> None:
         while True:
-            t = self._store.trades.find()[-1]
-            if t["timestamp"] > self._timestamp:
-                self._update_unrealized_pnl(t["price"], t["timestamp"])
+            trades = self._store.trades.find()
+            if trades:
+                t= trades[-1]
+                if t["timestamp"] > self._timestamp:
+                    self._update_unrealized_pnl(t["price"], t["timestamp"])
             await asyncio.sleep(interval)
 
     def _on_watch(
