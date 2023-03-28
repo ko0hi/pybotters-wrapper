@@ -22,7 +22,9 @@ class bitFlyerWebsocketChannels(WebsocketChannels):
         return self.lightning_ticker(symbol)
 
     def orderbook(self, symbol, **kwargs) -> bitFlyerWebsocketChannels:
-        return [self.lightning_board(symbol), self.lightning_board_snapshot(symbol)]
+        self.lightning_board(symbol)
+        self.lightning_board_snapshot(symbol)
+        return self
 
     def trades(self, symbol, **kwargs) -> bitFlyerWebsocketChannels:
         return self.lightning_executions(symbol)
