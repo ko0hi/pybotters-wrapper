@@ -188,7 +188,7 @@ class _BinanceDataStoreWrapper(DataStoreWrapper[T]):
                         new_params.append(p)
                 subscribe_list[endpoint][i]["params"] = new_params
 
-            return subscribe_list
+        return subscribe_list
 
 
 class BinanceSpotDataStoreWrapper(
