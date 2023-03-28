@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
-from typing import Callable, TypeVar
+from typing import Awaitable, Callable, TypeVar, Optional, Literal, Union
 
 import pybotters
 from pybotters.typedefs import WsBytesHandler, WsJsonHandler, WsStrHandler
@@ -15,6 +15,25 @@ TWebsocketChannels = TypeVar("TWebsocketChannels", bound="WebsocketChannels")
 
 
 class WebsocketChannels(LoggingMixin):
+    """ Websocketのチャンネル購読リクエストを生成するクラス。各取引所の実装クラスでは
+
+    - ENDPOINTを設定
+    - `make_subscribe_request`のオーバーライド
+    - `NormalizedDataStore`に対応する５つの購読メソッドを実装（storeがサポートされているもの）
+
+    が必要になる。
+
+    `make_subscribe_request`は任意の引数を取り、取引所に送る形式に変換する関数である。
+
+    トピックによってendpointが変わる場合（例：GMOCoin）は `make_subscribe_endpoint`を
+    オーバーライドして、動的にENDPOINTを定義すること。
+
+    `make_subscribe_request`・`make_subscribe_endpoint`で生成されたリクエストとエンドポイントの
+    ペアは`_subscribe_list`にエンドポイントをキーとして保存される。
+
+    `_subscribe_list`は`get`で習得できる。リクエストの集約等行いたい場合は`get`をオーバーライドする。
+
+    """
     ENDPOINT = None
 
     def __init__(self):
@@ -26,18 +45,15 @@ class WebsocketChannels(LoggingMixin):
         return self._subscribe_list
 
     def make_subscribe_request(self, *args, **kwargs) -> dict:
-        """ 購読リクエスト（i.e., `send_json`）を生成する。引数はsubscribeメソッドに準ずる。
-        """
+        """購読リクエスト（i.e., `send_json`）を生成する。引数はsubscribeメソッドに準ずる。"""
         raise NotImplementedError
 
     def make_subscribe_endpoint(self, *args, **kwargs) -> str:
-        """ エンドポイントを生成する。引数はsubscribeメソッドに準ずる。
-        """
+        """エンドポイントを生成する。引数はsubscribeメソッドに準ずる。"""
         return self.ENDPOINT
 
     def subscribe(self, *args, **kwargs) -> "TWebsocketChannels":
-        """ 購読リストに追加する。引数は各取引所の実装クラスでオーバーロードする。
-        """
+        """購読リストに追加する。引数は各取引所の実装クラスでオーバーロードする。"""
         send = self.make_subscribe_request(*args, **kwargs)
         endpoint = self.make_subscribe_endpoint(*args, **kwargs)
 
@@ -52,22 +68,33 @@ class WebsocketChannels(LoggingMixin):
         return self
 
     def ticker(self, symbol: str, **kwargs) -> "TWebsocketChannels":
+        """TickerStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
     def trades(self, symbol: str, **kwargs) -> "TWebsocketChannels":
+        """TradesStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
     def orderbook(self, symbol: str, **kwargs) -> "TWebsocketChannels":
+        """OrderbookStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
     def order(self, **kwargs) -> "TWebsocketChannels":
+        """OrderStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
     def execution(self, **kwargs) -> "TWebsocketChannels":
+        """ExecutionStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
     def position(self, **kwargs) -> "TWebsocketChannels":
+        """PositionStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
+
+
+WebsocketOnReconnectionCallback = Callable[
+    ["WebsocketConnection", pybotters.Client], Union[None, Awaitable[None]]
+]
 
 
 class WebsocketConnection(LoggingMixin):
