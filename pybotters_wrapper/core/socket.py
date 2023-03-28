@@ -76,10 +76,10 @@ class WebsocketConnection(LoggingMixin):
         endpoint: str,
         send: any,
         hdlr: WsHandler | list[WsHandler],
-        send_type: str = "json",
-        hdlr_type: str = "json",
+        send_type: Literal["json", "str", "byte"] = "json",
+        hdlr_type: Literal["json", "str", "byte"] = "json",
     ):
-        self._ws: WebSocketRunner = None
+        self._ws: Optional[WebSocketRunner] = None
         self._endpoint = endpoint
         self._send = send
         if isinstance(hdlr, list):
@@ -93,36 +93,61 @@ class WebsocketConnection(LoggingMixin):
         self,
         client: "pybotters.Client",
         auto_reconnect: bool = False,
-        on_reconnection: Callable = None,
+        on_reconnection: Optional[WebsocketOnReconnectionCallback] = None,
         **kwargs,
-    ) -> WebSocketRunner:
-        params = {
-            f"send_{self._send_type}": self._send,
-            f"hdlr_{self._hdlr_type}": self._hdlr,
-        }
-        self._ws = await client.ws_connect(self._endpoint, **params, **kwargs)
+    ) -> WebsocketConnection:
+        """
+        WebSocketに接続します。
 
+        Args:
+            client (pybotters.Client): pybottersのクライアントインスタンス。
+            auto_reconnect (bool, optional): 自動再接続を有効にするか。デフォルトは False。
+            on_reconnection (WebsocketOnReconnectionCallback, optional): 再接続時に実行するコールバック。デフォルトは None。
+            **kwargs: `pybotters.WebSocketRunner`の引数。
+
+        Returns:
+            WebsocketConnection: 自分自身のインスタンス。
+        """
+        await self._ws_connect(client, **kwargs)
+
+        # pybotters自動で再接続するのでそれで事足りる？
         if auto_reconnect:
             asyncio.create_task(self._auto_reconnect(client, on_reconnection, **kwargs))
 
         return self
 
     async def _auto_reconnect(
-        self, client: "pybotters.Client", on_reconnection: Callable = None, **kwargs
+        self,
+        client: "pybotters.Client",
+        on_reconnection: Optional[WebsocketOnReconnectionCallback] = None,
+        **kwargs,
     ):
         while True:
             if not self.connected:
                 self.log(f"websocket disconnected: {self._endpoint} {self._send}")
-                self._ws._task.cancel()
-                await self.connect(client, **kwargs)
-                if on_reconnection:
+
+                # 一部の取引所はトークンの更新などをしないといけないので、そういう時に使うはず。
+                if on_reconnection is not None:
                     if asyncio.iscoroutinefunction(on_reconnection):
-                        await on_reconnection()
+                        await on_reconnection(self, client)
                     else:
-                        on_reconnection()
+                        on_reconnection(self, client)
+
+                # pybottersのWebSocketRunnerのタスクを終了する
+                self._ws._task.cancel()
+
+                await self._ws_connect(client, **kwargs)
+
                 self.log(f"websocket recovered: {self._endpoint} {self._send}")
 
             await asyncio.sleep(15)
+
+    async def _ws_connect(self, client: pybotters.Client, **kwargs):
+        params = {
+            f"send_{self._send_type}": self._send,
+            f"hdlr_{self._hdlr_type}": self._hdlr,
+        }
+        self._ws = await client.ws_connect(self._endpoint, **params, **kwargs)
 
     @property
     def connected(self) -> bool:
