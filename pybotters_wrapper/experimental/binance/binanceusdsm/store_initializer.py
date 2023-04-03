@@ -42,26 +42,14 @@ class BinanceUSDSMStoreInitializer:
     async def initialize_token(self, client: "pybotters.Client", **params):
         return await self._initializer.initialize([("token", params)], client)
 
-    async def initialize_token_public(self, client: "pybotters.Client", **params):
-        return await self._initializer.initialize([("token_public", params)], client)
-
     async def initialize_token_private(self, client: "pybotters.Client", **params):
         return await self._initializer.initialize([("token_private", params)], client)
-
-    async def initialize_ticker(self, client: "pybotters.Client", **params):
-        return await self._initializer.initialize([("ticker", params)], client)
-
-    async def initialize_trades(self, client: "pybotters.Client", **params):
-        return await self._initializer.initialize([("trades", params)], client)
 
     async def initialize_orderbook(self, client: "pybotters.Client", **params):
         return await self._initializer.initialize([("orderbook", params)], client)
 
     async def initialize_order(self, client: "pybotters.Client", **params):
         return await self._initializer.initialize([("order", params)], client)
-
-    async def initialize_execution(self, client: "pybotters.Client", **params):
-        return await self._initializer.initialize([("execution", params)], client)
 
     async def initialize_position(self, client: "pybotters.Client", **params):
         return await self._initializer.initialize([("position", params)], client)
