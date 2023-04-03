@@ -7,7 +7,7 @@ from typing import Generic, Awaitable, NamedTuple, Optional
 import aiohttp
 import pybotters
 
-from pybotters_wrapper._typedefs import TDataStoreManager, RequsetMethod
+from .._typedefs import TDataStoreManager, RequsetMethod
 
 
 class InitializeRequestItem(NamedTuple):
