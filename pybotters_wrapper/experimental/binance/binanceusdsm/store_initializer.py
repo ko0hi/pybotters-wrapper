@@ -4,8 +4,8 @@ import aiohttp
 import pybotters
 from pybotters.models.binance import BinanceUSDSMDataStore
 
-from ..exchange_property import BinanceUSDSMExchangeProperty
-from ....core.store.initializer import StoreInitializer
+from .exchange_property import BinanceUSDSMExchangeProperty
+from ...core.store_initializer import StoreInitializer
 
 
 class BinanceUSDSMStoreInitializer:

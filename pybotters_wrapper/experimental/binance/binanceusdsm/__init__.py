@@ -1,2 +1,2 @@
 from .exchange_property import BinanceUSDSMExchangeProperty
-from .store.initializer import BinanceUSDSMStoreInitializer
+from pybotters_wrapper.experimental.binance.binanceusdsm.store_initializer import BinanceUSDSMStoreInitializer
