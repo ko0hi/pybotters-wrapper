@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from abc import ABCMeta
+from json import JSONDecodeError
 from typing import Generic, Awaitable, NamedTuple, Optional
 
 import aiohttp
@@ -47,16 +48,27 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
 
     .. code-block:: python
 
-    from pybotters.models.binance import BinanceUSDSMDataStore
+    class BinanceUSDSMStoreInitializer:
+        def __init__(self, store: BinanceUSDSMDataStore):
+            self._eprop = BinanceUSDSMExchangeProperty()
+            self._initializer = StoreInitializer(store)
+            self._initializer.register_token_config(
+                "POST", f"{self._eprop.base_url}/fapi/v1/listenKey"
+            )
+            self._initializer.register_token_private_config(
+                "POST", f"{self._eprop.base_url}/fapi/v1/listenKey"
+            )
+            self._initializer.register_orderbook_config(
+                "GET", f"{self._eprop.base_url}/fapi/v1/depth", {"symbol"}
+            )
+            self._initializer.register_order_config(
+                "GET", f"{self._eprop.base_url}/fapi/v1/openOrders"
+            )
+            self._initializer.register_position_config(
+                "GET", f"{self._eprop.base_url}/fapi/v2/positionRisk"
+            )
 
-    class BinanceUSDSMStoreInitializer(StoreInitializer[BinanceUSDSMDataStore]):
-        _DEFAULT_INITIALIZE_CONFIG = {
-            "token": ("POST", "https://fapi.binance.com/fapi/v1/listenKey", None),
-            "token_private": ("POST", "https://fapi.binance.com/fapi/v1/listenKey", None),
-            "orderbook": ("GET", "https://fapi.binance.com/fapi/v1/depth", {"symbol"}),
-            "order": ("GET", "https://fapi.binance.com/fapi/v1/openOrders", None),
-            "position": ("GET", "https://fapi.binance.com/fapi/v2/positionRisk", None),
-        }
+        ...
 
     """
 
@@ -200,18 +212,6 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
             )
         return InitializeRequestItem(*self._config[key])
 
-    def _request_with_initialize_request_item(
-        self,
-        client: "pybotters.Client",
-        item: InitializeRequestItem,
-        params_or_data: Optional[dict] = None,
-    ) -> Awaitable:
-        method = item.method
-        url = item.url
-        params = dict(method=method, url=url)
-        params["params" if method == "GET" else "data"] = params_or_data
-        return client.request(**params)
-
     def _to_initialize_awaitable_from_config(
         self,
         client: pybotters.Client,
@@ -222,34 +222,6 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
         item = self._get_initialize_request_item(key)
         self._validate_required_params(item, params)
         return self._request_with_initialize_request_item(client, item, params)
-
-    def _validate_required_params(
-        self, item: InitializeRequestItem, params: dict | None
-    ):
-        if item.required_params:
-            if params is None:
-                raise f"Missing required parameters for {item.url}: {item.required_params}"
-
-            missing_params = item.required_params.difference(params.keys())
-            if len(missing_params):
-                raise ValueError(
-                    f"Missing required parameters for {item.url}: {missing_params}"
-                )
-
-    async def _validate_initialize_response(self, task: asyncio.Task):
-        result: aiohttp.ClientResponse = task.result()
-
-        if not isinstance(result, aiohttp.ClientResponse):
-            raise TypeError(
-                f"Unsupported response type for initialize request: {result}"
-            )
-
-        if result.status != 200:
-            try:
-                data = await result.json()
-            except Exception:
-                data = None
-            raise RuntimeError(f"Initialization request failed: {result.url} {data}")
 
     async def _initialize_with_validation(self, *aws: list[Awaitable]):
         # awaitableの結果をvalidation時に参照したいのでTaskで囲む
@@ -264,3 +236,46 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
             # APIレスポンスが成功していたかチェック
             for task in aws_tasks:
                 await self._validate_initialize_response(task)
+
+    @classmethod
+    def _request_with_initialize_request_item(
+        cls,
+        client: "pybotters.Client",
+        item: InitializeRequestItem,
+        params_or_data: Optional[dict] = None,
+    ) -> Awaitable:
+        method = item.method
+        url = item.url
+        params = dict(method=method, url=url)
+        params["params" if method == "GET" else "data"] = params_or_data
+        return client.request(**params)
+
+    @classmethod
+    def _validate_required_params(
+        cls, item: InitializeRequestItem, params: dict | None
+    ):
+        if item.required_params:
+            if params is None:
+                raise f"Missing required parameters for {item.url}: {item.required_params}"
+
+            missing_params = item.required_params.difference(params.keys())
+            if len(missing_params):
+                raise ValueError(
+                    f"Missing required parameters for {item.url}: {missing_params}"
+                )
+
+    @classmethod
+    async def _validate_initialize_response(cls, task: asyncio.Task):
+        result: aiohttp.ClientResponse = task.result()
+
+        if not isinstance(result, aiohttp.ClientResponse):
+            raise TypeError(
+                f"Unsupported response type for initialize request: {result}"
+            )
+
+        if result.status != 200:
+            try:
+                data = await result.json()
+            except JSONDecodeError:
+                data = None
+            raise RuntimeError(f"Initialization request failed: {result.url} {data}")
