@@ -74,18 +74,19 @@ class DataStoreWrapperBuilder(Generic[T]):
             normalized_store_builder=self._normalized_store_builder,
             store_initializer=self._store_initializer,
             websocket_request_builder=self._websocket_request_builder,
-            websocket_request_customizer=self._websocket_request_customizer
+            websocket_request_customizer=self._websocket_request_customizer,
         )
 
     def validate(self) -> None:
-        if (
-                self._store is None
-                or self._exchange_property is None
-                or self._store_initializer is None
-                or self._normalized_store_builder is None
-                or self._websocket_request_builder is None
-                or self._websocket_request_customizer is None
-        ):
-            raise ValueError("All member variables must be initialized")
-
-
+        required_fields = [
+            "store",
+            "exchange_property",
+            "store_initializer",
+            "normalized_store_builder",
+            "websocket_request_builder",
+        ]
+        missing_fields = [
+            field for field in required_fields if getattr(self, f"_{field}") is None
+        ]
+        if missing_fields:
+            raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")
