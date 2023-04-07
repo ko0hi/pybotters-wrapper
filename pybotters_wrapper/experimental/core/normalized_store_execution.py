@@ -3,13 +3,13 @@ from typing import TypedDict
 import pandas as pd
 
 from .normalized_store import NormalizedDataStore
-from .._typedefs import Side
+from .._typedefs import TSide
 
 
 class ExecutionItem(TypedDict):
     id: str
     symbol: str
-    side: Side
+    side: TSide
     price: float
     size: float
     timestamp: pd.Timestamp

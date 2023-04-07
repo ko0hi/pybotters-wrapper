@@ -1,13 +1,13 @@
 from typing import TypedDict
 
 from .normalized_store import NormalizedDataStore
-from .._typedefs import Side
+from .._typedefs import TSide
 
 
 class OrderItem(TypedDict):
     id: str
     symbol: str
-    side: Side
+    side: TSide
     price: float
     size: float
     type: str

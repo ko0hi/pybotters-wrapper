@@ -3,12 +3,12 @@ from typing import TypedDict
 from pybotters.typedefs import Item
 
 from .normalized_store import NormalizedDataStore
-from .._typedefs import Side
+from .._typedefs import TSide
 
 
 class OrderbookItem(TypedDict):
     symbol: str
-    side: Side
+    side: TSide
     price: float
     size: float
 
@@ -22,7 +22,7 @@ class OrderbookStore(NormalizedDataStore):
         self._mid = None
 
     def _itemize(
-        self, symbol: str, side: Side, price: float, size: float, **extra
+        self, symbol: str, side: TSide, price: float, size: float, **extra
     ) -> OrderbookItem:
         return OrderbookItem(
             symbol=symbol, side=side, price=price, size=size, **extra  # noqa
@@ -35,10 +35,10 @@ class OrderbookStore(NormalizedDataStore):
             bb = buys[0]["price"]
             self._mid = (ba + bb) / 2
 
-    def sorted(self, query: Item = None) -> dict[Side, list[Item]]:
+    def sorted(self, query: Item = None) -> dict[TSide, list[Item]]:
         if query is None:
             query = {}
-        result: dict[Side, list[Item]] = {"SELL": [], "BUY": []}
+        result: dict[TSide, list[Item]] = {"SELL": [], "BUY": []}
         for item in self:
             if all(k in item and query[k] == item[k] for k in query):
                 result[item["side"]].append(item)
