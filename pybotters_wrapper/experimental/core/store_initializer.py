@@ -77,10 +77,10 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
     def __init__(
         self,
         store: TDataStoreManager,
-        config: dict[str, tuple[str, str, Optional[dict]]] = None,
+        config: dict[str, tuple[str, str, set | None]] = None,
     ):
         self._store: TDataStoreManager = store
-        self._config: dict[str, tuple[str, str, Optional[dict]]] = (
+        self._config: dict[str, tuple[str, str, set | None]] = (
             config or self._DEFAULT_INITIALIZE_CONFIG
         )
 
