@@ -19,6 +19,7 @@ from ...core import (
     CancelOrderAPI,
     StopLimitOrderAPI,
     StopMarketOrderAPI,
+    PriceSizeFormatter,
 )
 
 _EXCHANGE_PROPERTIES_BINANCEUSDSM = {
@@ -62,6 +63,9 @@ def create_binanceusdsm_websockt_request_customizer() -> (
         _EXCHANGE_PROPERTIES_BINANCEUSDSM["exchange"]
     )
 
+
+def create_binanceusdsm_price_size_formater() -> PriceSizeFormatter:
+    raise NotImplementedError
 
 def create_binanceusdsm_store(store: BinanceUSDSMDataStore | None = None):
     store = store or BinanceUSDSMDataStore()
@@ -112,6 +116,9 @@ def create_binanceusdsm_limit_order_api(
                 "timeInForce": "GTC",
             }
         )
+        .set_price_size_formatter(create_binanceusdsm_price_size_formater())
+        .set_price_format_keys("price")
+        .set_size_format_keys("quantity")
         .get()
     )
 
@@ -134,6 +141,8 @@ def create_binanceusdsm_market_order_api(
                 "quantity": size,
             }
         )
+        .set_price_size_formatter(create_binanceusdsm_price_size_formater())
+        .set_size_format_keys("quantity")
         .get()
     )
 
@@ -179,6 +188,9 @@ def create_binanceusdsm_stop_limit_order_api(
                 "timeInForce": "GTC",
             }
         )
+        .set_price_size_formatter(create_binanceusdsm_price_size_formater())
+        .set_price_format_keys("price", "stopPrice")
+        .set_size_format_keys("quantity")
         .get()
     )
 
@@ -203,5 +215,8 @@ def create_binanceusdsm_stop_market_order_api(
                 "timeInForce": "GTC",
             }
         )
+        .set_price_size_formatter(create_binanceusdsm_price_size_formater())
+        .set_price_format_keys("stopPrice")
+        .set_size_format_keys("quantity")
         .get()
     )
