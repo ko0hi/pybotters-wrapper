@@ -102,11 +102,11 @@ class OrderAPIBuilder(Generic[T]):
         self._price_size_formatter = price_size_formatter
         return self
 
-    def set_price_format_keys(self, price_format_keys: list[str]) -> OrderAPIBuilder:
+    def set_price_format_keys(self, *price_format_keys: str) -> OrderAPIBuilder:
         self._price_format_keys = price_format_keys
         return self
 
-    def set_size_format_keys(self, size_format_keys: list[str]) -> OrderAPIBuilder:
+    def set_size_format_keys(self, *size_format_keys: str) -> OrderAPIBuilder:
         self._size_format_keys = size_format_keys
         return self
 
