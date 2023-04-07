@@ -57,18 +57,18 @@ async def main(args):
             logger.info(monitor.spread())
 
             # 売り指値
-            if (
-                position["SELL_size"] == 0
-                and len(store.order.find({"symbol": "FX_BTC_JPY", "side": "SELL"})) == 0
-            ):
-                asks = monitor.spread_orderbook()["ask"]
-                for a in asks:
-                    if a["spread"] > args.sell_spread:
-                        await api.limit_order(
-                            "FX_BTC_JPY", "SELL", a["price"], args.size
-                        )
-                        await asyncio.sleep(1)
-                        break
+            # if (
+            #     position["SELL_size"] == 0
+            #     and len(store.order.find({"symbol": "FX_BTC_JPY", "side": "SELL"})) == 0
+            # ):
+            #     asks = monitor.spread_orderbook()["ask"]
+            #     for a in asks:
+            #         if a["spread"] > args.sell_spread:
+            #             await api.limit_order(
+            #                 "FX_BTC_JPY", "SELL", a["price"], args.size
+            #             )
+            #             await asyncio.sleep(1)
+            #             break
             # 買い指値
             if (
                 position["SELL_size"] > 0
@@ -95,9 +95,9 @@ async def main(args):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--size", default=0.01, type=float)
-    parser.add_argument("--sell_spread", default=0.051, type=float)
-    parser.add_argument("--buy_spread", default=0.049, type=float)
+    parser.add_argument("--size", default=0.02805143, type=float)
+    parser.add_argument("--sell_spread", default=0.0101, type=float)
+    parser.add_argument("--buy_spread", default=0.0999, type=float)
     parser.add_argument("--cancel_gap", default=0.0001, type=float)
     args = parser.parse_args()
 

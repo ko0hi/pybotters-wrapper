@@ -1,2 +1,3 @@
 from .exchange_property import BinanceUSDSMExchangeProperty
+from .websocket_channels_binanceusdsm import BinanceUSDSMWebsocketChannels
 from pybotters_wrapper.experimental.binance.binanceusdsm.store_initializer import BinanceUSDSMStoreInitializer
