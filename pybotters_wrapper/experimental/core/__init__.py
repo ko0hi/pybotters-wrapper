@@ -1,7 +1,7 @@
 from .api import API
 from .api_client import APIClient
 from .api_client_builder import APIClientBuilder
-from .api_order import OrderAPI
+from .api_order import OrderAPI, OrderAPIResponse
 from .api_order_builder import OrderAPIBuilder
 from .api_order_cancel import CancelOrderAPI
 from .api_order_limit import LimitOrderAPI
@@ -9,6 +9,7 @@ from .api_order_market import MarketOrderAPI
 from .api_order_stop_limit import StopLimitOrderAPI
 from .api_order_stop_market import StopMarketOrderAPI
 from .exchange_property import ExchangeProperty
+from .formatter_precision import PrecisionFormatter, PriceSizeFormatter
 from .normalized_store import AbstractItemNormalizer, NormalizedDataStore
 from .normalized_store_builder import NormalizedStoreBuilder
 from .normalized_store_execution import ExecutionItem, ExecutionStore
