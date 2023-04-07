@@ -1,6 +1,7 @@
 from .api import API
 from .api_client import APIClient
 from .api_client_builder import APIClientBuilder
+from .api_fetch import FetchAPI
 from .api_order import OrderAPI, OrderAPIResponse
 from .api_order_builder import OrderAPIBuilder
 from .api_order_cancel import CancelOrderAPI
@@ -9,6 +10,7 @@ from .api_order_market import MarketOrderAPI
 from .api_order_stop_limit import StopLimitOrderAPI
 from .api_order_stop_market import StopMarketOrderAPI
 from .exchange_property import ExchangeProperty
+from .fetcher_price_size_precisions import PriceSizePrecisionFetcher
 from .formatter_precision import PrecisionFormatter, PriceSizeFormatter
 from .normalized_store import AbstractItemNormalizer, NormalizedDataStore
 from .normalized_store_builder import NormalizedStoreBuilder
@@ -19,7 +21,6 @@ from .normalized_store_position import PositionItem, PositionStore
 from .normalized_store_ticker import TickerItem, TickerStore
 from .normalized_store_trades import TradesItem, TradesStore
 from .store_initializer import StoreInitializer
-from .fetcher_price_size_precisions import PriceSizePrecisionFetcher
 from .store_wrapper import DataStoreWrapper
 from .store_wrapper_builder import DataStoreWrapperBuilder
 from .websocket_channels import WebSocketChannels
