@@ -3,9 +3,8 @@ from typing import Callable, Awaitable
 
 from aiohttp.client import ClientResponse
 
-from .api_client import APIClient
-from .api_order import OrderAPI, OrderAPIResponse
 from .._typedefs import TEndpoint, TSymbol, TSide, TSize, TTrigger, TRequsetMethod
+from ..core import APIClient, OrderAPI, OrderAPIResponse, PriceSizeFormatter
 
 
 class StopMarketOrderAPI(OrderAPI):
@@ -27,6 +26,8 @@ class StopMarketOrderAPI(OrderAPI):
         | None = None,
         order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
         | None = None,
+        price_size_formatter: PriceSizeFormatter | None = None,
+        size_formatter_keys: list[str] | None = None,
     ):
         super(StopMarketOrderAPI, self).__init__(
             api_client,
@@ -37,6 +38,8 @@ class StopMarketOrderAPI(OrderAPI):
         self._endpoint = endpoint
         self._parameter_mapper = parameter_mapper
         self._response_decoder = response_decoder
+        self._price_size_formatter = price_size_formatter
+        self._size_formatter_keys = size_formatter_keys or []
 
     def _generate_endpoint(
         self,
@@ -66,6 +69,14 @@ class StopMarketOrderAPI(OrderAPI):
             endpoint, symbol, side, size, trigger, extra_params
         )
 
+    def _format_size(self, parameters: dict, symbol: TSymbol) -> dict:
+        if self._price_size_formatter:
+            for k in self._size_formatter_keys:
+                parameters[k] = self._price_size_formatter.format(
+                    symbol, parameters[k], "size"
+                )
+        return parameters
+
     async def _decode_response(self, resp: ClientResponse) -> dict | list:
         if self._response_decoder is None:
             return await resp.json()
@@ -92,6 +103,7 @@ class StopMarketOrderAPI(OrderAPI):
             endpoint, symbol, side, size, trigger, extra_params
         )
         parameters = {**parameters, **extra_params}
+        parameters = self._format_size(parameters, symbol)
         resp = await self.request(endpoint, parameters, **request_params)
         resp_data = await self._decode_response(resp)
         order_id = self._extract_order_id(resp, resp_data)

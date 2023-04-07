@@ -3,17 +3,16 @@ from typing import Callable, Awaitable
 
 from aiohttp.client import ClientResponse
 
-from .api_client import APIClient
-from .api_order import OrderAPI, OrderAPIResponse
 from .._typedefs import (
     TEndpoint,
     TSymbol,
     TSide,
     TPrice,
     TSize,
-    TTrigger,
     TRequsetMethod,
+    TTrigger,
 )
+from ..core import APIClient, OrderAPI, OrderAPIResponse, PriceSizeFormatter
 
 
 class StopLimitOrderAPI(OrderAPI):
@@ -35,6 +34,9 @@ class StopLimitOrderAPI(OrderAPI):
         | None = None,
         order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
         | None = None,
+        price_size_formatter: PriceSizeFormatter | None = None,
+        price_formatter_keys: list[str] | None = None,
+        size_formatter_keys: list[str] | None = None,
     ):
         super(StopLimitOrderAPI, self).__init__(
             api_client,
@@ -45,6 +47,9 @@ class StopLimitOrderAPI(OrderAPI):
         self._endpoint = endpoint
         self._parameter_mapper = parameter_mapper
         self._response_decoder = response_decoder
+        self._price_size_formatter = price_size_formatter
+        self._price_formatter_keys = price_formatter_keys or []
+        self._size_formatter_keys = size_formatter_keys or []
 
     def _generate_endpoint(
         self,
@@ -76,6 +81,22 @@ class StopLimitOrderAPI(OrderAPI):
             endpoint, symbol, side, price, size, trigger, extra_params
         )
 
+    def _format_price(self, parameters: dict, symbol: TSymbol) -> dict:
+        if self._price_size_formatter:
+            for k in self._price_formatter_keys:
+                parameters[k] = self._price_size_formatter.format(
+                    symbol, parameters[k], "price"
+                )
+        return parameters
+
+    def _format_size(self, parameters: dict, symbol: TSymbol) -> dict:
+        if self._price_size_formatter:
+            for k in self._size_formatter_keys:
+                parameters[k] = self._price_size_formatter.format(
+                    symbol, parameters[k], "size"
+                )
+        return parameters
+
     async def _decode_response(self, resp: ClientResponse) -> dict | list:
         if self._response_decoder is None:
             return await resp.json()
@@ -105,6 +126,8 @@ class StopLimitOrderAPI(OrderAPI):
             endpoint, symbol, side, price, size, trigger, extra_params
         )
         parameters = {**parameters, **extra_params}
+        parameters = self._format_price(parameters, symbol)
+        parameters = self._format_size(parameters, symbol)
         resp = await self.request(endpoint, parameters, **request_params)
         resp_data = await self._decode_response(resp)
         order_id = self._extract_order_id(resp, resp_data)
