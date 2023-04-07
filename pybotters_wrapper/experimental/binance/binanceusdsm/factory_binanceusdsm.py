@@ -2,7 +2,11 @@ import pybotters
 from pybotters.models.binance import BinanceUSDSMDataStore
 
 from .websocket_channels_binanceusdsm import BinanceUSDSMWebsocketChannels
-from ..common import BinanceNormalizedStoreBuilder, BinanceWebSocketRequestCustomizer
+from ..common import (
+    BinanceNormalizedStoreBuilder,
+    BinanceWebSocketRequestCustomizer,
+    BinancePriceSizePrecisionsFetcher,
+)
 from ...core import (
     DataStoreWrapperBuilder,
     StoreInitializer,
@@ -62,7 +66,10 @@ def create_binanceusdsm_websockt_request_customizer() -> (
 
 
 def create_binanceusdsm_price_size_formater() -> PriceSizeFormatter:
-    raise NotImplementedError
+    price_precisions, size_precisions = BinancePriceSizePrecisionsFetcher(
+        _EXCHANGE_PROPERTIES_BINANCEUSDSM["exchange"]
+    ).fetch_precisions()
+    return PriceSizeFormatter(price_precisions, size_precisions)
 
 
 def create_binanceusdsm_store(store: BinanceUSDSMDataStore | None = None):
