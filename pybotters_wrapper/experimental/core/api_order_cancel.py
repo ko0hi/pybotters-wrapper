@@ -15,13 +15,13 @@ class CancelOrderAPI(OrderAPI):
         method: TRequsetMethod,
         order_id_key: str,
         endpoint: TEndpoint | Callable[[TSymbol, TOrderId, dict], str] | None = None,
-        parameter_mapper: Callable[[TEndpoint, TSymbol, TOrderId, dict], dict]
+        parameter_translater: Callable[[TEndpoint, TSymbol, TOrderId, dict], dict]
+                              | None = None,
+        order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
         | None = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]
-        | None = None,
-        order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
         | None = None,
     ):
         super(CancelOrderAPI, self).__init__(
@@ -29,10 +29,10 @@ class CancelOrderAPI(OrderAPI):
             method,
             order_id_key=order_id_key,
             order_id_extractor=order_id_extractor,
+            response_decoder=response_decoder
         )
         self._endpoint = endpoint
-        self._parameter_mapper = parameter_mapper
-        self._response_decoder = response_decoder
+        self._parameter_translater = parameter_translater
 
     def _generate_endpoint(
         self,
@@ -53,17 +53,8 @@ class CancelOrderAPI(OrderAPI):
         order_id: TOrderId,
         extra_params: dict,
     ) -> dict:
-        assert self._parameter_mapper is not None
-        return self._parameter_mapper(endpoint, symbol, order_id, extra_params)
-
-    async def _decode_response(self, resp: ClientResponse) -> dict | list:
-        if self._response_decoder is None:
-            return await resp.json()
-        else:
-            if asyncio.iscoroutinefunction(self._response_decoder):
-                return await self._response_decoder(resp)
-            else:
-                return self._response_decoder(resp)
+        assert self._parameter_translater is not None
+        return self._parameter_translater(endpoint, symbol, order_id, extra_params)
 
     async def cancel_order(
         self,

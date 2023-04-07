@@ -16,30 +16,32 @@ class StopMarketOrderAPI(OrderAPI):
         endpoint: TEndpoint
         | Callable[[TSymbol, TSide, TSize, TTrigger, dict], str]
         | None = None,
-        parameter_mapper: Callable[
+        parameter_translater: Callable[
             [TEndpoint, TSymbol, TSide, TSize, TTrigger, dict], dict
         ]
+                              | None = None,
+        order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
         | None = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]
         | None = None,
-        order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
-        | None = None,
         price_size_formatter: PriceSizeFormatter | None = None,
-        size_formatter_keys: list[str] | None = None,
+        price_format_keys: list[str] | None = None,
+        size_format_keys: list[str] | None = None,
     ):
         super(StopMarketOrderAPI, self).__init__(
             api_client,
             method,
             order_id_key=order_id_key,
             order_id_extractor=order_id_extractor,
+            response_decoder=response_decoder,
+            price_size_formatter=price_size_formatter,
+            price_format_keys=price_format_keys,
+            size_format_keys=size_format_keys,
         )
         self._endpoint = endpoint
-        self._parameter_mapper = parameter_mapper
-        self._response_decoder = response_decoder
-        self._price_size_formatter = price_size_formatter
-        self._size_formatter_keys = size_formatter_keys or []
+        self._parameter_translater = parameter_translater
 
     def _generate_endpoint(
         self,
@@ -64,27 +66,10 @@ class StopMarketOrderAPI(OrderAPI):
         trigger: TTrigger,
         extra_params: dict,
     ) -> dict:
-        assert self._parameter_mapper is not None
-        return self._parameter_mapper(
+        assert self._parameter_translater is not None
+        return self._parameter_translater(
             endpoint, symbol, side, size, trigger, extra_params
         )
-
-    def _format_size(self, parameters: dict, symbol: TSymbol) -> dict:
-        if self._price_size_formatter:
-            for k in self._size_formatter_keys:
-                parameters[k] = self._price_size_formatter.format(
-                    symbol, parameters[k], "size"
-                )
-        return parameters
-
-    async def _decode_response(self, resp: ClientResponse) -> dict | list:
-        if self._response_decoder is None:
-            return await resp.json()
-        else:
-            if asyncio.iscoroutinefunction(self._response_decoder):
-                return await self._response_decoder(resp)
-            else:
-                return self._response_decoder(resp)
 
     async def stop_market_order(
         self,
