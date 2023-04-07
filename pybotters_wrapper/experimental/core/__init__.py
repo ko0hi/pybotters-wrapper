@@ -19,6 +19,7 @@ from .normalized_store_position import PositionItem, PositionStore
 from .normalized_store_ticker import TickerItem, TickerStore
 from .normalized_store_trades import TradesItem, TradesStore
 from .store_initializer import StoreInitializer
+from .fetcher_price_size_precisions import PriceSizePrecisionFetcher
 from .store_wrapper import DataStoreWrapper
 from .store_wrapper_builder import DataStoreWrapperBuilder
 from .websocket_channels import WebSocketChannels
