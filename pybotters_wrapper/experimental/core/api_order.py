@@ -1,9 +1,8 @@
-import asyncio
 from typing import NamedTuple, Callable, Awaitable
 
 from aiohttp.client import ClientResponse
-from requests import Response
 
+from . import ExchangeAPI
 from .._typedefs import TSymbol, TRequsetMethod
 from ..core import APIClient, PriceSizeFormatter
 
@@ -21,7 +20,7 @@ class OrderAPIResponse(NamedTuple):
             return self.resp.status
 
 
-class OrderAPI:
+class OrderAPI(ExchangeAPI):
     def __init__(
         self,
         api_client: APIClient,
@@ -38,30 +37,16 @@ class OrderAPI:
         price_format_keys: list[str] | None = None,
         size_format_keys: list[str] | None = None,
     ):
+        super(OrderAPI, self).__init__(
+            api_client, method, response_decoder=response_decoder
+        )
         self._api_client = api_client
         self._method = method
         self._order_id_key = order_id_key
         self._order_id_extractor = order_id_extractor
-        self._response_decoder = response_decoder
         self._price_size_formatter = price_size_formatter
         self._price_format_keys = price_format_keys or []
         self._size_format_keys = size_format_keys or []
-
-    async def request(
-        self, url: str, params_or_data: dict = None, **kwargs
-    ) -> ClientResponse:
-        if self._method == "GET":
-            kwargs["params"] = params_or_data
-        else:
-            kwargs["data"] = params_or_data
-        return await self._api_client.request(self._method, url, **kwargs)
-
-    def srequest(self, url: str, params_or_data: dict = None, **kwargs) -> Response:
-        if self._method == "GET":
-            kwargs["params"] = params_or_data
-        else:
-            kwargs["data"] = params_or_data
-        return self._api_client.srequest(self._method, url, **kwargs)
 
     def _format_price(self, parameters: dict, symbol: TSymbol) -> dict:
         if self._price_size_formatter:
@@ -78,15 +63,6 @@ class OrderAPI:
                     symbol, parameters[k], "size"
                 )
         return parameters
-
-    async def _decode_response(self, resp: ClientResponse) -> dict | list:
-        if self._response_decoder is None:
-            return await resp.json()
-        else:
-            if asyncio.iscoroutinefunction(self._response_decoder):
-                return await self._response_decoder(resp)
-            else:
-                return self._response_decoder(resp)
 
     def _extract_order_id(
         self,

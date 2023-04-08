@@ -1,6 +1,7 @@
 from .api import API
 from .api_client import APIClient
 from .api_client_builder import APIClientBuilder
+from .api_exchange import ExchangeAPI
 from .api_fetch import FetchAPI
 from .api_fetch_ticker import TickerFetchAPI
 from .api_fetch_orderbook import OrderbookFetchAPI
