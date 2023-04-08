@@ -14,10 +14,10 @@ TResponseWrapper = TypeVar("TResponseWrapper")
 
 class OrderAPI(
     Generic[
+        TResponseWrapper,
         TGenerateEndpointParameters,
         TTranslateParametersParameters,
         TWrapResponseParameters,
-        TResponseWrapper,
     ],
     ExchangeAPI,
 ):

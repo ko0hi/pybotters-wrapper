@@ -1,9 +1,9 @@
-from typing import Callable, Awaitable, NamedTuple
+from typing import NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
-from .._typedefs import TEndpoint, TSymbol, TSide, TSize, TTrigger, TRequsetMethod
-from ..core import APIClient, OrderAPI, PriceSizeFormatter
+from .._typedefs import TEndpoint, TSymbol, TSide, TSize, TPrice
+from ..core import OrderAPI
 
 
 class StopMarketOrderAPIResponse(NamedTuple):
@@ -12,94 +12,75 @@ class StopMarketOrderAPIResponse(NamedTuple):
     resp_data: dict | None = None
 
 
-class StopMarketOrderAPI(OrderAPI):
-    def __init__(
-        self,
-        api_client: APIClient,
-        method: TRequsetMethod,
-        order_id_key: str,
-        endpoint: TEndpoint
-        | Callable[[TSymbol, TSide, TSize, TTrigger, dict], str]
-        | None = None,
-        parameter_translater: Callable[
-            [TEndpoint, TSymbol, TSide, TSize, TTrigger, dict], dict
-        ]
-        | None = None,
-        order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
-        | None = None,
-        response_decoder: Callable[
-            [ClientResponse], dict | list | Awaitable[dict | list]
-        ]
-        | None = None,
-        price_size_formatter: PriceSizeFormatter | None = None,
-        price_format_keys: list[str] | None = None,
-        size_format_keys: list[str] | None = None,
-    ):
-        super(StopMarketOrderAPI, self).__init__(
-            api_client,
-            method,
-            order_id_key=order_id_key,
-            order_id_extractor=order_id_extractor,
-            response_decoder=response_decoder,
-            price_size_formatter=price_size_formatter,
-            price_format_keys=price_format_keys,
-            size_format_keys=size_format_keys,
-        )
-        self._endpoint = endpoint
-        self._parameter_translater = parameter_translater
+class StopMarketOrderAPIGenerateEndpointParameters(TypedDict):
+    symbol: TSymbol
+    side: TSide
+    size: TSize
+    trigger: TPrice
+    extra_params: dict
 
-    def _generate_endpoint(
-        self,
-        symbol: TSymbol,
-        side: TSide,
-        size: TSize,
-        trigger: TSize,
-        extra_params: dict,
-    ) -> TEndpoint:
-        assert self._endpoint is not None
-        if isinstance(self._endpoint, str):
-            return self._endpoint
-        elif callable(self._endpoint):
-            return self._endpoint(symbol, side, size, trigger, extra_params)
 
-    def _translate_parameters(
-        self,
-        endpoint: TEndpoint,
-        symbol: TSymbol,
-        side: TSide,
-        size: TSize,
-        trigger: TTrigger,
-        extra_params: dict,
-    ) -> dict:
-        assert self._parameter_translater is not None
-        return self._parameter_translater(
-            endpoint, symbol, side, size, trigger, extra_params
-        )
+class StopMarketOrderAPITranslateParametersParameters(TypedDict):
+    endpoint: TEndpoint
+    symbol: TSymbol
+    side: TSide
+    size: TSize
+    trigger: TPrice
+    extra_params: dict
 
-    def _wrap_response(
-        self, order_id: str, resp: ClientResponse, resp_data: dict
-    ) -> StopMarketOrderAPIResponse:
-        return StopMarketOrderAPIResponse(order_id, resp, resp_data)
 
+class StopMarketOrderAPIWrapResponseParameters(TypedDict):
+    order_id: str
+    resp: ClientResponse
+    resp_data: dict
+
+
+class StopMarketOrderAPI(
+    OrderAPI[
+        StopMarketOrderAPIResponse,
+        StopMarketOrderAPIGenerateEndpointParameters,
+        StopMarketOrderAPITranslateParametersParameters,
+        StopMarketOrderAPIWrapResponseParameters,
+    ]
+):
     async def stop_market_order(
         self,
         symbol: TSymbol,
         side: TSide,
         size: TSize,
-        trigger: TTrigger,
+        trigger: TPrice,
         *,
         extra_params: dict = None,
         request_params: dict = None,
     ) -> StopMarketOrderAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
-        endpoint = self._generate_endpoint(symbol, side, size, trigger, extra_params)
+        endpoint = self._generate_endpoint(
+            StopMarketOrderAPIGenerateEndpointParameters(
+                symbol=symbol,
+                side=side,
+                size=size,
+                trigger=trigger,
+                extra_params=extra_params,
+            )
+        )
         parameters = self._translate_parameters(
-            endpoint, symbol, side, size, trigger, extra_params
+            StopMarketOrderAPITranslateParametersParameters(
+                endpoint=endpoint,
+                symbol=symbol,
+                side=side,
+                size=size,
+                trigger=trigger,
+                extra_params=extra_params,
+            )
         )
         parameters = {**parameters, **extra_params}
         parameters = self._format_size(parameters, symbol)
         resp = await self.request(endpoint, parameters, **request_params)
         resp_data = await self._decode_response(resp)
         order_id = self._extract_order_id(resp, resp_data)
-        return self._wrap_response(order_id, resp, resp_data)
+        return self._wrap_response(
+            StopMarketOrderAPIWrapResponseParameters(
+                order_id=order_id, resp=resp, resp_data=resp_data
+            )
+        )

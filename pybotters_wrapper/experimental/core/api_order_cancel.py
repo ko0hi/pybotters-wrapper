@@ -1,4 +1,4 @@
-from typing import Callable, Awaitable, NamedTuple
+from typing import Callable, Awaitable, NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
@@ -13,7 +13,33 @@ class CancelOrderAPIResponse(NamedTuple):
     resp_data: dict | None = None
 
 
-class CancelOrderAPI(OrderAPI):
+class CancelOrderAPIGenerateEndpointParameters(TypedDict):
+    symbol: TSymbol
+    order_id: str
+    extra_params: dict
+
+
+class CancelOrderAPITranslateParametersParameters(TypedDict):
+    endpoint: TEndpoint
+    symbol: TSymbol
+    order_id: str
+    extra_params: dict
+
+
+class CancelOrderAPIWrapResponseParameters(TypedDict):
+    order_id: str
+    resp: ClientResponse
+    resp_data: dict
+
+
+class CancelOrderAPI(
+    OrderAPI[
+        CancelOrderAPIResponse,
+        CancelOrderAPIGenerateEndpointParameters,
+        CancelOrderAPITranslateParametersParameters,
+        CancelOrderAPIWrapResponseParameters,
+    ]
+):
     def __init__(
         self,
         api_client: APIClient,
@@ -39,33 +65,6 @@ class CancelOrderAPI(OrderAPI):
         self._endpoint = endpoint
         self._parameter_translater = parameter_translater
 
-    def _generate_endpoint(
-        self,
-        symbol: TSymbol,
-        order_id: TOrderId,
-        extra_params: dict,
-    ) -> TEndpoint:
-        assert self._endpoint is not None
-        if isinstance(self._endpoint, str):
-            return self._endpoint
-        elif callable(self._endpoint):
-            return self._endpoint(symbol, order_id, extra_params)
-
-    def _translate_parameters(
-        self,
-        endpoint: TEndpoint,
-        symbol: TSymbol,
-        order_id: TOrderId,
-        extra_params: dict,
-    ) -> dict:
-        assert self._parameter_translater is not None
-        return self._parameter_translater(endpoint, symbol, order_id, extra_params)
-
-    def _wrap_response(
-        self, order_id: str, resp: ClientResponse, resp_data: dict
-    ) -> CancelOrderAPIResponse:
-        return CancelOrderAPIResponse(order_id, resp, resp_data)
-
     async def cancel_order(
         self,
         symbol: TSymbol,
@@ -76,12 +75,25 @@ class CancelOrderAPI(OrderAPI):
     ) -> CancelOrderAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
-        endpoint = self._generate_endpoint(symbol, order_id, extra_params)
+        endpoint = self._generate_endpoint(
+            CancelOrderAPIGenerateEndpointParameters(
+                symbol=symbol, order_id=order_id, extra_params=extra_params
+            )
+        )
         parameters = self._translate_parameters(
-            endpoint, symbol, order_id, extra_params
+            CancelOrderAPITranslateParametersParameters(
+                endpoint=endpoint,
+                symbol=symbol,
+                order_id=order_id,
+                extra_params=extra_params,
+            )
         )
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)
         resp_data = await self._decode_response(resp)
         order_id = self._extract_order_id(resp, resp_data)
-        return self._wrap_response(order_id, resp, resp_data)
+        return self._wrap_response(
+            CancelOrderAPIWrapResponseParameters(
+                order_id=order_id, resp=resp, resp_data=resp_data
+            )
+        )
