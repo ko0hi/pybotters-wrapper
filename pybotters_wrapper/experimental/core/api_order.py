@@ -1,13 +1,26 @@
-from typing import Callable, Awaitable
+from typing import Callable, Awaitable, TypeVar, Generic, NamedTuple, Type
 
 from aiohttp.client import ClientResponse
 
 from . import ExchangeAPI
-from .._typedefs import TSymbol, TRequsetMethod
+from .._typedefs import TEndpoint, TSymbol, TRequsetMethod
 from ..core import APIClient, PriceSizeFormatter
 
+TGenerateEndpointParameters = TypeVar("TGenerateEndpointParameters")
+TTranslateParametersParameters = TypeVar("TTranslateParametersParameters")
+TWrapResponseParameters = TypeVar("TWrapResponseParameters")
+TResponseWrapper = TypeVar("TResponseWrapper")
 
-class OrderAPI(ExchangeAPI):
+
+class OrderAPI(
+    Generic[
+        TGenerateEndpointParameters,
+        TTranslateParametersParameters,
+        TWrapResponseParameters,
+        TResponseWrapper,
+    ],
+    ExchangeAPI,
+):
     def __init__(
         self,
         api_client: APIClient,
@@ -16,6 +29,12 @@ class OrderAPI(ExchangeAPI):
         order_id_key: str,
         order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
         | None = None,
+        endpoint_generator: TEndpoint
+        | Callable[[TGenerateEndpointParameters], str]
+        | None = None,
+        parameters_translater: Callable[[TTranslateParametersParameters], dict]
+        | None = None,
+        response_wrapper_cls: Type[NamedTuple] = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]
@@ -31,9 +50,28 @@ class OrderAPI(ExchangeAPI):
         self._method = method
         self._order_id_key = order_id_key
         self._order_id_extractor = order_id_extractor
+        self._endpoint_generator = endpoint_generator
+        self._parameters_translater = parameters_translater
+        self._response_wrapper_cls = response_wrapper_cls
         self._price_size_formatter = price_size_formatter
         self._price_format_keys = price_format_keys or []
         self._size_format_keys = size_format_keys or []
+
+    def _generate_endpoint(self, params: TGenerateEndpointParameters) -> TEndpoint:
+        assert self._endpoint_generator is not None
+        if isinstance(self._endpoint_generator, str):
+            return self._endpoint_generator
+        elif callable(self._endpoint_generator):
+            return self._endpoint_generator(params)
+        else:
+            raise TypeError(f"Unsupported: {self._endpoint_generator}")
+
+    def _translate_parameters(self, params: TTranslateParametersParameters) -> dict:
+        assert self._parameters_translater is not None
+        return self._parameters_translater(params)
+
+    def _wrap_response(self, params: TWrapResponseParameters) -> TResponseWrapper:
+        raise self._response_wrapper_cls(params)
 
     def _format_price(self, parameters: dict, symbol: TSymbol) -> dict:
         if self._price_size_formatter:
