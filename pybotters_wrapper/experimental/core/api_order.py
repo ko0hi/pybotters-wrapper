@@ -87,7 +87,7 @@ class OrderAPI(ExchangeAPI):
             return None
 
     @classmethod
-    def _wrap_response(
+    def _convert_response(
         cls, order_id: str, resp: ClientResponse, resp_data: dict
     ) -> OrderAPIResponse:
         return OrderAPIResponse(order_id, resp, resp_data)

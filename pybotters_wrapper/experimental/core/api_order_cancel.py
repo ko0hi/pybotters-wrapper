@@ -74,4 +74,4 @@ class CancelOrderAPI(OrderAPI):
         resp = await self.request(endpoint, parameters, **request_params)
         resp_data = await self._decode_response(resp)
         order_id = self._extract_order_id(resp, resp_data)
-        return self._wrap_response(order_id, resp, resp_data)
+        return self._convert_response(order_id, resp, resp_data)
