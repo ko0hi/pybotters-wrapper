@@ -1,4 +1,5 @@
 import asyncio
+from abc import ABCMeta
 from typing import Callable, Awaitable
 
 from aiohttp.client import ClientResponse
@@ -8,7 +9,7 @@ from . import APIClient
 from .._typedefs import TRequsetMethod
 
 
-class ExchangeAPI:
+class ExchangeAPI(metaclass=ABCMeta):
     """取引所API実装用のベースクラス。APIClientの合成クラスで、request/srequestの
     ラッパーメソッドとresponseのdecodeメソッドを提供する。以下のようの実装になる。
 
