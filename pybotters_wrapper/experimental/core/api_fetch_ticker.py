@@ -6,7 +6,7 @@ from . import TickerItem, FetchAPI, APIClient
 from .._typedefs import TEndpoint, TSymbol, TRequsetMethod
 
 
-class FetchTickerResponse(NamedTuple):
+class TickerFetchAPIResponse(NamedTuple):
     ticker: TickerItem
     resp: ClientResponse | None = None
     resp_data: dict | None = None
@@ -23,14 +23,14 @@ class TickerFetchAPI(FetchAPI):
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]
         | None = None,
-        response_converter: Callable[[ClientResponse, any], TickerItem] | None = None,
+        response_itemizer: Callable[[ClientResponse, any], TickerItem] | None = None,
     ):
         super(TickerFetchAPI, self).__init__(
             api_client, method, response_decoder=response_decoder
         )
         self._endpoint = endpoint
         self._parameter_translater = parameter_translater
-        self._response_itemizer = response_converter
+        self._response_itemizer = response_itemizer
 
     def _generate_endpoint(self, symbol: TSymbol, extra_params: dict) -> TEndpoint:
         assert self._endpoint is not None
@@ -51,9 +51,14 @@ class TickerFetchAPI(FetchAPI):
         assert self._response_itemizer is not None
         return self._response_itemizer(resp, resp_data)
 
+    def _wrap_response(
+        self, item: TickerItem, resp: ClientResponse, resp_data: dict
+    ) -> TickerFetchAPIResponse:
+        return TickerFetchAPIResponse(item, resp, resp_data)
+
     def fetch_ticker(
         self, symbol: TSymbol, *, extra_params: dict = None, request_params: dict = None
-    ) -> FetchTickerResponse:
+    ) -> TickerFetchAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
         endpoint = self._generate_endpoint(symbol, extra_params)
@@ -62,4 +67,4 @@ class TickerFetchAPI(FetchAPI):
         resp = await self.request(endpoint, parameters, **request_params)
         resp_data = await self._decode_response(resp)
         item = self._itemize_response(resp, resp_data)
-        return FetchTickerResponse(item, resp, resp_data)
+        return self._wrap_response(item, resp, resp_data)
