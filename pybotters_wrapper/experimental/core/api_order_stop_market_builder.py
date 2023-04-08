@@ -11,6 +11,7 @@ from .api_order_stop_market import (
 
 class StopMarketOrderAPIBuilder(
     OrderAPIBuilder[
+        StopMarketOrderAPI,
         StopMarketOrderAPIGenerateEndpointParameters,
         StopMarketOrderAPITranslateParametersParameters,
         StopMarketOrderAPIWrapResponseParameters,

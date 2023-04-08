@@ -11,6 +11,7 @@ from .api_order_cancel import (
 
 class CancelOrderAPIBuilder(
     OrderAPIBuilder[
+        CancelOrderAPI,
         CancelOrderAPIGenerateEndpointParameters,
         CancelOrderAPITranslateParametersParameters,
         CancelOrderAPIWrapResponseParameters,

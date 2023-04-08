@@ -11,6 +11,7 @@ from .api_order_limit import (
 
 class LimitOrderAPIBuilder(
     OrderAPIBuilder[
+        LimitOrderAPI,
         LimitOrderAPIGenerateEndpointParameters,
         LimitOrderAPITranslateParametersParameters,
         LimitOrderAPIWrapResponseParameters,

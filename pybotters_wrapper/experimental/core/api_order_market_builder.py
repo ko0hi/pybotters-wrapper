@@ -11,6 +11,7 @@ from .api_order_market import (
 
 class MarketOrderAPIBuilder(
     OrderAPIBuilder[
+        MarketOrderAPI,
         MarketOrderAPIGenerateEndpointParameters,
         MarketOrderAPITranslateParametersParameters,
         MarketOrderAPIWrapResponseParameters,

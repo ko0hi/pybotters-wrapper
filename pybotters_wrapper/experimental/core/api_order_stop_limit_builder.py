@@ -11,6 +11,7 @@ from .api_order_stop_limit import (
 
 class StopLimitOrderAPIBuilder(
     OrderAPIBuilder[
+        StopLimitOrderAPI,
         StopLimitOrderAPIGenerateEndpointParameters,
         StopLimitOrderAPITranslateParametersParameters,
         StopLimitOrderAPIWrapResponseParameters,
