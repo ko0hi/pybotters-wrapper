@@ -1,23 +1,10 @@
-from typing import NamedTuple, Callable, Awaitable
+from typing import Callable, Awaitable
 
 from aiohttp.client import ClientResponse
 
 from . import ExchangeAPI
 from .._typedefs import TSymbol, TRequsetMethod
 from ..core import APIClient, PriceSizeFormatter
-
-
-class OrderAPIResponse(NamedTuple):
-    order_id: str
-    resp: ClientResponse | None = None
-    resp_data: dict | None = None
-
-    @property
-    def status(self) -> int:
-        if self.resp is None:
-            return -1
-        else:
-            return self.resp.status
 
 
 class OrderAPI(ExchangeAPI):
@@ -85,9 +72,3 @@ class OrderAPI(ExchangeAPI):
             return str(order_id)
         else:
             return None
-
-    @classmethod
-    def _convert_response(
-        cls, order_id: str, resp: ClientResponse, resp_data: dict
-    ) -> OrderAPIResponse:
-        return OrderAPIResponse(order_id, resp, resp_data)

@@ -7,7 +7,6 @@ from .api_fetch_ticker import TickerFetchAPI
 from .api_fetch_orderbook import OrderbookFetchAPI
 from .api_fetch_order import OrdersFetchAPI
 from .api_fetch_position import PositionFetchAPI
-from .api_order import OrderAPI, OrderAPIResponse
 from .api_order_builder import OrderAPIBuilder
 from .api_order_cancel import CancelOrderAPI
 from .api_order_limit import LimitOrderAPI

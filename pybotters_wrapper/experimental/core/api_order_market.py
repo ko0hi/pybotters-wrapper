@@ -1,10 +1,15 @@
-import asyncio
-from typing import Callable, Awaitable
+from typing import Callable, Awaitable, NamedTuple
 
 from aiohttp.client import ClientResponse
 
 from .._typedefs import TEndpoint, TSymbol, TSide, TSize, TRequsetMethod
-from ..core import APIClient, OrderAPI, OrderAPIResponse, PriceSizeFormatter
+from ..core import APIClient, OrderAPI, PriceSizeFormatter
+
+
+class MarketOrderAPIResponse(NamedTuple):
+    order_id: str
+    resp: ClientResponse | None = None
+    resp_data: dict | None = None
 
 
 class MarketOrderAPI(OrderAPI):
@@ -17,7 +22,7 @@ class MarketOrderAPI(OrderAPI):
         | Callable[[TSymbol, TSide, TSize, dict], str]
         | None = None,
         parameter_translater: Callable[[TEndpoint, TSymbol, TSide, TSize, dict], dict]
-                              | None = None,
+        | None = None,
         order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
         | None = None,
         response_decoder: Callable[
@@ -65,6 +70,11 @@ class MarketOrderAPI(OrderAPI):
         assert self._parameter_translater is not None
         return self._parameter_translater(endpoint, symbol, side, size, extra_params)
 
+    def _wrap_response(
+        self, order_id: str, resp: ClientResponse, resp_data: dict
+    ) -> MarketOrderAPIResponse:
+        return MarketOrderAPIResponse(order_id, resp, resp_data)
+
     async def market_order(
         self,
         symbol: TSymbol,
@@ -73,7 +83,7 @@ class MarketOrderAPI(OrderAPI):
         *,
         extra_params: dict = None,
         request_params: dict = None,
-    ) -> OrderAPIResponse:
+    ) -> MarketOrderAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
         endpoint = self._generate_endpoint(symbol, side, size, extra_params)
@@ -85,4 +95,4 @@ class MarketOrderAPI(OrderAPI):
         resp = await self.request(endpoint, parameters, **request_params)
         resp_data = await self._decode_response(resp)
         order_id = self._extract_order_id(resp, resp_data)
-        return self._convert_response(order_id, resp, resp_data)
+        return self._wrap_response(order_id, resp, resp_data)

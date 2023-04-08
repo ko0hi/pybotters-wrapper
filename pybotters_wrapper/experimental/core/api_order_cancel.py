@@ -1,11 +1,16 @@
-import asyncio
-from typing import Callable, Awaitable
+from typing import Callable, Awaitable, NamedTuple
 
 from aiohttp.client import ClientResponse
 
 from .api_client import APIClient
-from .api_order import OrderAPI, OrderAPIResponse
+from .api_order import OrderAPI
 from .._typedefs import TEndpoint, TOrderId, TSymbol, TRequsetMethod
+
+
+class CancelOrderAPIResponse(NamedTuple):
+    order_id: str
+    resp: ClientResponse | None = None
+    resp_data: dict | None = None
 
 
 class CancelOrderAPI(OrderAPI):
@@ -16,7 +21,7 @@ class CancelOrderAPI(OrderAPI):
         order_id_key: str,
         endpoint: TEndpoint | Callable[[TSymbol, TOrderId, dict], str] | None = None,
         parameter_translater: Callable[[TEndpoint, TSymbol, TOrderId, dict], dict]
-                              | None = None,
+        | None = None,
         order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
         | None = None,
         response_decoder: Callable[
@@ -29,7 +34,7 @@ class CancelOrderAPI(OrderAPI):
             method,
             order_id_key=order_id_key,
             order_id_extractor=order_id_extractor,
-            response_decoder=response_decoder
+            response_decoder=response_decoder,
         )
         self._endpoint = endpoint
         self._parameter_translater = parameter_translater
@@ -56,6 +61,11 @@ class CancelOrderAPI(OrderAPI):
         assert self._parameter_translater is not None
         return self._parameter_translater(endpoint, symbol, order_id, extra_params)
 
+    def _wrap_response(
+        self, order_id: str, resp: ClientResponse, resp_data: dict
+    ) -> CancelOrderAPIResponse:
+        return CancelOrderAPIResponse(order_id, resp, resp_data)
+
     async def cancel_order(
         self,
         symbol: TSymbol,
@@ -63,7 +73,7 @@ class CancelOrderAPI(OrderAPI):
         *,
         extra_params: dict = None,
         request_params: dict = None,
-    ) -> OrderAPIResponse:
+    ) -> CancelOrderAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
         endpoint = self._generate_endpoint(symbol, order_id, extra_params)
@@ -74,4 +84,4 @@ class CancelOrderAPI(OrderAPI):
         resp = await self.request(endpoint, parameters, **request_params)
         resp_data = await self._decode_response(resp)
         order_id = self._extract_order_id(resp, resp_data)
-        return self._convert_response(order_id, resp, resp_data)
+        return self._wrap_response(order_id, resp, resp_data)

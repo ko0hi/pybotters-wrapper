@@ -1,5 +1,4 @@
-import asyncio
-from typing import Callable, Awaitable
+from typing import Callable, Awaitable, NamedTuple
 
 from aiohttp.client import ClientResponse
 
@@ -12,7 +11,13 @@ from .._typedefs import (
     TRequsetMethod,
     TTrigger,
 )
-from ..core import APIClient, OrderAPI, OrderAPIResponse, PriceSizeFormatter
+from ..core import APIClient, OrderAPI, PriceSizeFormatter
+
+
+class StopLimitOrderAPIResponse(NamedTuple):
+    order_id: str
+    resp: ClientResponse | None = None
+    resp_data: dict | None = None
 
 
 class StopLimitOrderAPI(OrderAPI):
@@ -81,6 +86,11 @@ class StopLimitOrderAPI(OrderAPI):
             endpoint, symbol, side, price, size, trigger, extra_params
         )
 
+    def _wrap_response(
+        self, order_id: str, resp: ClientResponse, resp_data: dict
+    ) -> StopLimitOrderAPIResponse:
+        return StopLimitOrderAPIResponse(order_id, resp, resp_data)
+
     async def stop_limit_order(
         self,
         symbol: TSymbol,
@@ -91,7 +101,7 @@ class StopLimitOrderAPI(OrderAPI):
         *,
         extra_params: dict = None,
         request_params: dict = None,
-    ) -> OrderAPIResponse:
+    ) -> StopLimitOrderAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
         endpoint = self._generate_endpoint(
@@ -106,4 +116,4 @@ class StopLimitOrderAPI(OrderAPI):
         resp = await self.request(endpoint, parameters, **request_params)
         resp_data = await self._decode_response(resp)
         order_id = self._extract_order_id(resp, resp_data)
-        return self._convert_response(order_id, resp, resp_data)
+        return self._wrap_response(order_id, resp, resp_data)
