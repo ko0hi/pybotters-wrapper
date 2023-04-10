@@ -71,7 +71,7 @@ class OrderAPI(
         return self._parameters_translater(params)
 
     def _wrap_response(self, params: TWrapResponseParameters) -> TResponseWrapper:
-        raise self._response_wrapper_cls(params)
+        raise self._response_wrapper_cls(**params)
 
     def _format_price(self, parameters: dict, symbol: TSymbol) -> dict:
         if self._price_size_formatter:
