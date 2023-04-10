@@ -1,15 +1,28 @@
 import asyncio
 from abc import ABCMeta
-from typing import Callable, Awaitable
+from typing import Callable, Awaitable, TypeVar, Generic, Type, NamedTuple
 
 from aiohttp.client import ClientResponse
 from requests import Response
 
 from . import APIClient
-from .._typedefs import TRequsetMethod
+from .._typedefs import TEndpoint, TRequsetMethod
+
+TGenerateEndpointParameters = TypeVar("TGenerateEndpointParameters")
+TTranslateParametersParameters = TypeVar("TTranslateParametersParameters")
+TWrapResponseParameters = TypeVar("TWrapResponseParameters")
+TResponseWrapper = TypeVar("TResponseWrapper")
 
 
-class ExchangeAPI(metaclass=ABCMeta):
+class ExchangeAPI(
+    Generic[
+        TResponseWrapper,
+        TGenerateEndpointParameters,
+        TTranslateParametersParameters,
+        TWrapResponseParameters,
+    ],
+    metaclass=ABCMeta,
+):
     """取引所API実装用のベースクラス。APIClientの合成クラスで、request/srequestの
     ラッパーメソッドとresponseのdecodeメソッドを提供する。以下のようの実装になる。
 
@@ -36,6 +49,12 @@ class ExchangeAPI(metaclass=ABCMeta):
         api_client: APIClient,
         method: TRequsetMethod,
         *,
+        endpoint_generator: TEndpoint
+        | Callable[[TGenerateEndpointParameters], str]
+        | None = None,
+        parameters_translater: Callable[[TTranslateParametersParameters], dict]
+        | None = None,
+        response_wrapper_cls: Type[NamedTuple] = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]
@@ -43,6 +62,9 @@ class ExchangeAPI(metaclass=ABCMeta):
     ):
         self._api_client = api_client
         self._method = method
+        self._endpoint_generator = endpoint_generator
+        self._parameters_translater = parameters_translater
+        self._response_wrapper_cls = response_wrapper_cls
         self._response_decoder = response_decoder
 
     async def request(
@@ -60,6 +82,22 @@ class ExchangeAPI(metaclass=ABCMeta):
         else:
             kwargs["data"] = params_or_data
         return self._api_client.srequest(self._method, url, **kwargs)
+
+    def _generate_endpoint(self, params: TGenerateEndpointParameters) -> TEndpoint:
+        assert self._endpoint_generator is not None
+        if isinstance(self._endpoint_generator, str):
+            return self._endpoint_generator
+        elif callable(self._endpoint_generator):
+            return self._endpoint_generator(params)
+        else:
+            raise TypeError(f"Unsupported: {self._endpoint_generator}")
+
+    def _translate_parameters(self, params: TTranslateParametersParameters) -> dict:
+        assert self._parameters_translater is not None
+        return self._parameters_translater(params)
+
+    def _wrap_response(self, params: TWrapResponseParameters) -> TResponseWrapper:
+        raise self._response_wrapper_cls(**params)
 
     async def _decode_response(self, resp: ClientResponse) -> dict | list:
         if self._response_decoder is None:

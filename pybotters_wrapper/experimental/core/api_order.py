@@ -29,6 +29,9 @@ class OrderAPI(
         order_id_key: str,
         order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
         | None = None,
+        price_size_formatter: PriceSizeFormatter | None = None,
+        price_format_keys: list[str] | None = None,
+        size_format_keys: list[str] | None = None,
         endpoint_generator: TEndpoint
         | Callable[[TGenerateEndpointParameters], str]
         | None = None,
@@ -39,39 +42,30 @@ class OrderAPI(
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]
         | None = None,
-        price_size_formatter: PriceSizeFormatter | None = None,
-        price_format_keys: list[str] | None = None,
-        size_format_keys: list[str] | None = None,
     ):
         super(OrderAPI, self).__init__(
-            api_client, method, response_decoder=response_decoder
+            api_client,
+            method,
+            endpoint_generator=endpoint_generator,
+            parameters_translater=parameters_translater,
+            response_wrapper_cls=response_wrapper_cls,
+            response_decoder=response_decoder,
         )
-        self._api_client = api_client
-        self._method = method
         self._order_id_key = order_id_key
         self._order_id_extractor = order_id_extractor
-        self._endpoint_generator = endpoint_generator
-        self._parameters_translater = parameters_translater
-        self._response_wrapper_cls = response_wrapper_cls
         self._price_size_formatter = price_size_formatter
         self._price_format_keys = price_format_keys or []
         self._size_format_keys = size_format_keys or []
 
-    def _generate_endpoint(self, params: TGenerateEndpointParameters) -> TEndpoint:
-        assert self._endpoint_generator is not None
-        if isinstance(self._endpoint_generator, str):
-            return self._endpoint_generator
-        elif callable(self._endpoint_generator):
-            return self._endpoint_generator(params)
+    def _extract_order_id(
+        self,
+        resp: ClientResponse,
+        resp_data: dict,
+    ) -> str | None:
+        if self._order_id_extractor is not None:
+            return self._order_id_extractor(resp, resp_data, self._order_id_key)
         else:
-            raise TypeError(f"Unsupported: {self._endpoint_generator}")
-
-    def _translate_parameters(self, params: TTranslateParametersParameters) -> dict:
-        assert self._parameters_translater is not None
-        return self._parameters_translater(params)
-
-    def _wrap_response(self, params: TWrapResponseParameters) -> TResponseWrapper:
-        raise self._response_wrapper_cls(**params)
+            return self._default_order_id_extractor(resp, resp_data, self._order_id_key)
 
     def _format_price(self, parameters: dict, symbol: TSymbol) -> dict:
         if self._price_size_formatter:
@@ -88,16 +82,6 @@ class OrderAPI(
                     symbol, parameters[k], "size"
                 )
         return parameters
-
-    def _extract_order_id(
-        self,
-        resp: ClientResponse,
-        resp_data: dict,
-    ) -> str | None:
-        if self._order_id_extractor is not None:
-            return self._order_id_extractor(resp, resp_data, self._order_id_key)
-        else:
-            return self._default_order_id_extractor(resp, resp_data, self._order_id_key)
 
     @classmethod
     def _default_order_id_extractor(
