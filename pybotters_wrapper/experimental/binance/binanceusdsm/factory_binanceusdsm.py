@@ -16,14 +16,19 @@ from ...core import (
     APIClientBuilder,
     LimitOrderAPI,
     LimitOrderAPIBuilder,
+    LimitOrderAPITranslateParametersParameters,
     MarketOrderAPI,
     MarketOrderAPIBuilder,
+    MarketOrderAPITranslateParametersParameters,
     CancelOrderAPI,
     CancelOrderAPIBuilder,
+    CancelOrderAPITranslateParametersParameters,
     StopLimitOrderAPI,
     StopLimitOrderAPIBuilder,
+    StopLimitOrderAPITranslateParametersParameters,
     StopMarketOrderAPI,
     StopMarketOrderAPIBuilder,
+    StopMarketOrderAPITranslateParametersParameters,
     PriceSizeFormatter,
 )
 
@@ -108,22 +113,25 @@ def create_binanceusdsm_apiclient(
 def create_binanceusdsm_limit_order_api(
     client: pybotters.Client, verbose: bool = False
 ) -> LimitOrderAPI:
+    def parameter_translater(
+        params: LimitOrderAPITranslateParametersParameters,
+    ) -> dict:
+        return {
+            "symbol": params["symbol"].upper(),
+            "side": params["side"].upper(),
+            "type": "LIMIT",
+            "price": params["price"],
+            "quantity": params["size"],
+            "timeInForce": "GTC",
+        }
+
     return (
         LimitOrderAPIBuilder()
         .set_api_client(create_binanceusdsm_apiclient(client, verbose))
         .set_method("POST")
         .set_order_id_key("orderId")
         .set_endpoint_generator("/fapi/v1/order")
-        .set_parameter_translater(
-            lambda symbol, side, price, size, extra: {
-                "symbol": symbol.upper(),
-                "side": side.upper(),
-                "type": "LIMIT",
-                "price": price,
-                "quantity": size,
-                "timeInForce": "GTC",
-            }
-        )
+        .set_parameter_translater(parameter_translater)
         .set_price_size_formatter(create_binanceusdsm_price_size_formater())
         .set_price_format_keys("price")
         .set_size_format_keys("quantity")
@@ -134,20 +142,23 @@ def create_binanceusdsm_limit_order_api(
 def create_binanceusdsm_market_order_api(
     client: pybotters.Client, verbose: bool = False
 ) -> MarketOrderAPI:
+    def parameter_translater(
+        params: MarketOrderAPITranslateParametersParameters,
+    ) -> dict:
+        return {
+            "symbol": params["symbol"].upper(),
+            "side": params["side"].upper(),
+            "type": "MARKET",
+            "quantity": params["size"],
+        }
+
     return (
         MarketOrderAPIBuilder()
         .set_api_client(create_binanceusdsm_apiclient(client, verbose))
         .set_method("POST")
         .set_order_id_key("orderId")
         .set_endpoint_generator("/fapi/v1/order")
-        .set_parameter_translater(
-            lambda symbol, side, size, extra: {
-                "symbol": symbol.upper(),
-                "side": side.upper(),
-                "type": "MARKET",
-                "quantity": size,
-            }
-        )
+        .set_parameter_translater(parameter_translater)
         .set_price_size_formatter(create_binanceusdsm_price_size_formater())
         .set_size_format_keys("quantity")
         .get()
@@ -157,18 +168,18 @@ def create_binanceusdsm_market_order_api(
 def create_binanceusdsm_cancel_order_api(
     client: pybotters.Client, verbose: bool = False
 ) -> CancelOrderAPI:
+    def parameter_translater(
+        params: CancelOrderAPITranslateParametersParameters,
+    ) -> dict:
+        return {"symbol": params["symbol"].upper(), "orderId": params["order_id"]}
+
     return (
         CancelOrderAPIBuilder()
         .set_api_client(create_binanceusdsm_apiclient(client, verbose))
         .set_method("DELETE")
         .set_order_id_key("orderId")
         .set_endpoint_generator("/fapi/v1/order")
-        .set_parameter_translater(
-            lambda symbol, order_id, extra: {
-                "symbol": symbol.upper(),
-                "orderId": order_id,
-            }
-        )
+        .set_parameter_translater(parameter_translater)
         .get()
     )
 
@@ -176,23 +187,26 @@ def create_binanceusdsm_cancel_order_api(
 def create_binanceusdsm_stop_limit_order_api(
     client: pybotters.Client, verbose: bool = False
 ) -> StopLimitOrderAPI:
+    def parameter_translater(
+        params: StopLimitOrderAPITranslateParametersParameters,
+    ) -> dict:
+        return {
+            "symbol": params["symbol"].upper(),
+            "side": params["side"].upper(),
+            "type": "STOP",
+            "price": params["price"],
+            "quantity": params["size"],
+            "stopPrice": params["trigger"],
+            "timeInForce": "GTC",
+        }
+
     return (
         StopLimitOrderAPIBuilder()
         .set_api_client(create_binanceusdsm_apiclient(client, verbose))
         .set_method("POST")
         .set_order_id_key("orderId")
         .set_endpoint_generator("/fapi/v1/order")
-        .set_parameter_translater(
-            lambda symbol, side, price, size, trigger, extra: {
-                "symbol": symbol.upper(),
-                "side": side.upper(),
-                "type": "STOP",
-                "price": price,
-                "quantity": size,
-                "stopPrice": trigger,
-                "timeInForce": "GTC",
-            }
-        )
+        .set_parameter_translater(parameter_translater)
         .set_price_size_formatter(create_binanceusdsm_price_size_formater())
         .set_price_format_keys("price", "stopPrice")
         .set_size_format_keys("quantity")
@@ -203,22 +217,24 @@ def create_binanceusdsm_stop_limit_order_api(
 def create_binanceusdsm_stop_market_order_api(
     client: pybotters.Client, verbose: bool = False
 ) -> StopMarketOrderAPI:
+    def parameter_translater(
+        params: StopMarketOrderAPITranslateParametersParameters,
+    ) -> dict:
+        return {
+            "symbol": params["symbol"].upper(),
+            "side": params["side"].upper(),
+            "type": "STOP_MARKET",
+            "quantity": params["size"],
+            "stopPrice": params["trigger"],
+        }
+
     return (
         StopMarketOrderAPIBuilder()
         .set_api_client(create_binanceusdsm_apiclient(client, verbose))
         .set_method("POST")
         .set_order_id_key("orderId")
         .set_endpoint_generator("/fapi/v1/order")
-        .set_parameter_translater(
-            lambda symbol, side, size, trigger, extra: {
-                "symbol": symbol.upper(),
-                "side": side.upper(),
-                "type": "STOP_MARKET",
-                "quantity": size,
-                "stopPrice": trigger,
-                "timeInForce": "GTC",
-            }
-        )
+        .set_parameter_translater(parameter_translater)
         .set_price_size_formatter(create_binanceusdsm_price_size_formater())
         .set_price_format_keys("stopPrice")
         .set_size_format_keys("quantity")
