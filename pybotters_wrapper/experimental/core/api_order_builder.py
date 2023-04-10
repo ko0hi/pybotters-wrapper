@@ -85,12 +85,14 @@ class OrderAPIBuilder(
         self._order_id_key = order_id_key
         return self
 
-    def set_endpoint_generator(self, endpoint_generator: TEndpoint) -> OrderAPIBuilder:
+    def set_endpoint_generator(
+        self, endpoint_generator: str | Callable[[TGenerateEndpointParameters], str]
+    ) -> OrderAPIBuilder:
         self._endpoint_generator = endpoint_generator
         return self
 
     def set_parameter_translater(
-        self, parameter_translater: Callable[[TEndpoint, TSymbol, TOrderId, dict], dict]
+        self, parameter_translater: Callable[[TTranslateParametersParameters], dict]
     ) -> OrderAPIBuilder:
         self._parameter_translater = parameter_translater
         return self
