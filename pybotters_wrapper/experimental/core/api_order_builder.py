@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from typing import Callable, Awaitable, Literal, Generic, TypeVar, NamedTuple, Type
+from typing import Callable, NamedTuple, Type
 
 from aiohttp import ClientResponse
 
 from . import (
     OrderAPI,
-    APIClient,
     LimitOrderAPI,
     MarketOrderAPI,
     CancelOrderAPI,
@@ -14,24 +13,10 @@ from . import (
     StopLimitOrderAPI,
     PriceSizeFormatter,
 )
-from .api_exchange import (
-    TGenerateEndpointParameters,
-    TTranslateParametersParameters,
-    TWrapResponseParameters,
-)
-from .._typedefs import TRequsetMethod, TEndpoint
-
-T = TypeVar("T", bound=OrderAPI)
+from .api_exchange_builder import ExchangeAPIBuilder
 
 
-class OrderAPIBuilder(
-    Generic[
-        T,
-        TGenerateEndpointParameters,
-        TTranslateParametersParameters,
-        TWrapResponseParameters,
-    ]
-):
+class OrderAPIBuilder(ExchangeAPIBuilder):
     _ORDER_API_CLASSES = {
         "limit": LimitOrderAPI,
         "market": MarketOrderAPI,
@@ -42,74 +27,24 @@ class OrderAPIBuilder(
 
     def __init__(
         self,
-        order_api_class: Type[T],
+        order_api_class: Type[OrderAPI],
         order_api_response_wrapper_class: Type[NamedTuple],
     ):
-        self._order_api_class: Type[T] = order_api_class
-        self._response_wrapper_cls: Type[NamedTuple] = order_api_response_wrapper_class
+        super(OrderAPIBuilder, self).__init__(
+            order_api_class,
+            order_api_response_wrapper_class,
+        )
 
-        self._api_client: APIClient | None = None
-        self._method: TRequsetMethod | None = None
         self._order_id_key: str | None = None
         self._order_id_extractor: Callable[
             [ClientResponse, dict, str], str | None
-        ] | None = None
-        self._endpoint_generator: TEndpoint | Callable[
-            [TGenerateEndpointParameters], str
-        ] | None = None
-        self._parameter_translater: Callable[
-            [TTranslateParametersParameters], dict
-        ] | None = None
-        self._response_decoder: Callable[
-            [ClientResponse], dict | list | Awaitable[dict | list]
         ] | None = None
         self._price_size_formatter: PriceSizeFormatter | None = None
         self._price_format_keys: list[str] | None = None
         self._size_format_keys: list[str] | None = None
 
-    def set_type(
-        self, type: Literal["limit", "market", "stop_limit", "stop_market", "cancel"]
-    ) -> OrderAPIBuilder:
-        self._type = type
-        return self
-
-    def set_api_client(self, api_client: APIClient) -> OrderAPIBuilder:
-        self._api_client = api_client
-        return self
-
-    def set_method(self, method: TRequsetMethod) -> OrderAPIBuilder:
-        self._method = method
-        return self
-
     def set_order_id_key(self, order_id_key: str) -> OrderAPIBuilder:
         self._order_id_key = order_id_key
-        return self
-
-    def set_endpoint_generator(
-        self, endpoint_generator: str | Callable[[TGenerateEndpointParameters], str]
-    ) -> OrderAPIBuilder:
-        self._endpoint_generator = endpoint_generator
-        return self
-
-    def set_parameter_translater(
-        self, parameter_translater: Callable[[TTranslateParametersParameters], dict]
-    ) -> OrderAPIBuilder:
-        self._parameter_translater = parameter_translater
-        return self
-
-    def set_response_wrapper_cls(
-        self, response_wrapper_cls: Type[NamedTuple]
-    ) -> OrderAPIBuilder:
-        self._response_wrapper_cls = response_wrapper_cls
-        return self
-
-    def set_response_decoder(
-        self,
-        response_decoder: Callable[
-            [ClientResponse], dict | list | Awaitable[dict | list]
-        ],
-    ) -> OrderAPIBuilder:
-        self._response_decoder = response_decoder
         return self
 
     def set_order_id_extractor(
@@ -134,9 +69,9 @@ class OrderAPIBuilder(
         self._size_format_keys = size_format_keys
         return self
 
-    def get(self) -> T:
+    def get(self) -> OrderAPI:
         self.validate()
-        return self._order_api_class(
+        return self._exchange_api_class(
             api_client=self._api_client,
             method=self._method,
             order_id_key=self._order_id_key,
