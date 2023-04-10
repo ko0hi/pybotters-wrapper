@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Callable, Awaitable, Literal, Generic, TypeVar, NamedTuple, Type
 
 from aiohttp import ClientResponse
+
 from . import (
     OrderAPI,
     APIClient,
@@ -13,13 +14,12 @@ from . import (
     StopLimitOrderAPI,
     PriceSizeFormatter,
 )
-from .api_order import (
+from .api_exchange import (
     TGenerateEndpointParameters,
     TTranslateParametersParameters,
     TWrapResponseParameters,
 )
-from .._typedefs import TRequsetMethod, TEndpoint, TSymbol, TOrderId
-
+from .._typedefs import TRequsetMethod, TEndpoint
 
 T = TypeVar("T", bound=OrderAPI)
 

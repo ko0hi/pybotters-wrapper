@@ -1,4 +1,4 @@
-from typing import Callable, Awaitable, TypeVar, Generic, NamedTuple, Type
+from typing import Callable, Awaitable, NamedTuple, Type
 
 from aiohttp.client import ClientResponse
 
@@ -6,21 +6,8 @@ from . import ExchangeAPI
 from .._typedefs import TEndpoint, TSymbol, TRequsetMethod
 from ..core import APIClient, PriceSizeFormatter
 
-TGenerateEndpointParameters = TypeVar("TGenerateEndpointParameters")
-TTranslateParametersParameters = TypeVar("TTranslateParametersParameters")
-TWrapResponseParameters = TypeVar("TWrapResponseParameters")
-TResponseWrapper = TypeVar("TResponseWrapper")
 
-
-class OrderAPI(
-    Generic[
-        TResponseWrapper,
-        TGenerateEndpointParameters,
-        TTranslateParametersParameters,
-        TWrapResponseParameters,
-    ],
-    ExchangeAPI,
-):
+class OrderAPI(ExchangeAPI):
     def __init__(
         self,
         api_client: APIClient,
