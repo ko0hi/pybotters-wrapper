@@ -3,6 +3,7 @@ from typing import Callable, Awaitable, NamedTuple, Type
 from aiohttp.client import ClientResponse
 
 from . import ExchangeAPI
+from .api_exchange import TGenerateEndpointParameters, TTranslateParametersParameters
 from .._typedefs import TEndpoint, TSymbol, TRequsetMethod
 from ..core import APIClient, PriceSizeFormatter
 
