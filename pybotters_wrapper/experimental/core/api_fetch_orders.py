@@ -6,43 +6,41 @@ from . import PositionItem, FetchAPI, APIClient
 from .._typedefs import TEndpoint, TSymbol, TRequsetMethod
 
 
-class PositionFetchAPIResponse(NamedTuple):
+class OrdersFetchAPIResponse(NamedTuple):
     positions: list[PositionItem]
     resp: ClientResponse | None = None
     resp_data: dict | None = None
 
 
-class PositionFetchAPIGenerateEndpointParameters(TypedDict):
-    symbol: TSymbol
+class OrdersFetchAPIGenerateEndpointParameters(TypedDict):
     extra_params: dict
 
 
-class PositionFetchAPITranslateParametersParameters(TypedDict):
+class OrdersFetchAPITranslateParametersParameters(TypedDict):
     endpoint: TEndpoint
-    symbol: TSymbol
     extra_params: dict
 
 
-class PositionFetchAPIWrapResponseParameters(TypedDict):
+class OrdersFetchAPIWrapResponseParameters(TypedDict):
     item: list[PositionItem]
     resp: ClientResponse
     resp_data: dict
 
 
-class PositionFetchAPI(
+class OrdersFetchAPI(
     FetchAPI[
-        PositionFetchAPIResponse,
-        PositionFetchAPIGenerateEndpointParameters,
-        PositionFetchAPITranslateParametersParameters,
-        PositionFetchAPIWrapResponseParameters,
+        OrdersFetchAPIResponse,
+        OrdersFetchAPIGenerateEndpointParameters,
+        OrdersFetchAPITranslateParametersParameters,
+        OrdersFetchAPIWrapResponseParameters,
     ]
 ):
     def __init__(
         self,
         api_client: APIClient,
         method: TRequsetMethod,
-        endpoint_generator: TEndpoint | Callable[[TSymbol, dict], str] | None = None,
-        parameter_translater: Callable[[TEndpoint, TSymbol, dict], dict] | None = None,
+        endpoint_generator: TEndpoint | Callable[[dict], str] | None = None,
+        parameter_translater: Callable[[TEndpoint, dict], dict] | None = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]
@@ -50,12 +48,12 @@ class PositionFetchAPI(
         response_itemizer: Callable[[ClientResponse, any], list[PositionItem]]
         | None = None,
     ):
-        super(PositionFetchAPI, self).__init__(
+        super(OrdersFetchAPI, self).__init__(
             api_client,
             method,
             endpoint_generator=endpoint_generator,
             parameters_translater=parameter_translater,
-            response_wrapper_cls=PositionFetchAPIResponse,
+            response_wrapper_cls=OrdersFetchAPIResponse,
             response_decoder=response_decoder,
         )
         self._response_itemizer = response_itemizer
@@ -67,26 +65,22 @@ class PositionFetchAPI(
         return self._response_itemizer(resp, resp_data)
 
     def fetch_positions(
-        self, symbol: TSymbol, *, extra_params: dict = None, request_params: dict = None
-    ) -> PositionFetchAPIResponse:
+        self, *, extra_params: dict = None, request_params: dict = None
+    ) -> OrdersFetchAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
         endpoint = self._generate_endpoint(
-            PositionFetchAPIGenerateEndpointParameters(
-                symbol=symbol, extra_params=extra_params
-            )
+            OrdersFetchAPIGenerateEndpointParameters(extra_params)
         )
         parameters = self._translate_parameters(
-            PositionFetchAPITranslateParametersParameters(
-                endpoint=endpoint, symbol=symbol, extra_params=extra_params
-            )
+            OrdersFetchAPITranslateParametersParameters(endpoint, extra_params)
         )
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)
         resp_data = await self._decode_response(resp)
         item = self._itemize_response(resp, resp_data)
         return self._wrap_response(
-            PositionFetchAPIWrapResponseParameters(
+            OrdersFetchAPIWrapResponseParameters(
                 item=item, resp=resp, resp_data=resp_data
             )
         )

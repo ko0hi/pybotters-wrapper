@@ -13,11 +13,13 @@ class PositionsFetchAPIResponse(NamedTuple):
 
 
 class PositionsFetchAPIGenerateEndpointParameters(TypedDict):
+    symbol: TSymbol
     extra_params: dict
 
 
 class PositionsFetchAPITranslateParametersParameters(TypedDict):
     endpoint: TEndpoint
+    symbol: TSymbol
     extra_params: dict
 
 
@@ -39,8 +41,8 @@ class PositionsFetchAPI(
         self,
         api_client: APIClient,
         method: TRequsetMethod,
-        endpoint_generator: TEndpoint | Callable[[dict], str] | None = None,
-        parameter_translater: Callable[[TEndpoint, dict], dict] | None = None,
+        endpoint_generator: TEndpoint | Callable[[TSymbol, dict], str] | None = None,
+        parameter_translater: Callable[[TEndpoint, TSymbol, dict], dict] | None = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]
@@ -65,15 +67,19 @@ class PositionsFetchAPI(
         return self._response_itemizer(resp, resp_data)
 
     def fetch_positions(
-        self, *, extra_params: dict = None, request_params: dict = None
+        self, symbol: TSymbol, *, extra_params: dict = None, request_params: dict = None
     ) -> PositionsFetchAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
         endpoint = self._generate_endpoint(
-            PositionsFetchAPIGenerateEndpointParameters(extra_params)
+            PositionsFetchAPIGenerateEndpointParameters(
+                symbol=symbol, extra_params=extra_params
+            )
         )
         parameters = self._translate_parameters(
-            PositionsFetchAPITranslateParametersParameters(endpoint, extra_params)
+            PositionsFetchAPITranslateParametersParameters(
+                endpoint=endpoint, symbol=symbol, extra_params=extra_params
+            )
         )
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)

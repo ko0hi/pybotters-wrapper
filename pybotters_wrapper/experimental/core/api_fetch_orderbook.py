@@ -25,7 +25,7 @@ class OrderbookFetchAPITranslateParametersParameters(TypedDict):
 
 
 class OrderbookFetchAPIWrapResponseParameters(TypedDict):
-    item: list[OrderbookItem]
+    item: dict[TSide, list[OrderbookItem]]
     resp: ClientResponse
     resp_data: dict
 
