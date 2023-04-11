@@ -1,13 +1,25 @@
-from typing import Callable, Awaitable, Type, NamedTuple
+from typing import Callable, Awaitable, Type, NamedTuple, Generic
 
 from aiohttp.client import ClientResponse
 
 from . import APIClient, ExchangeAPI
-from .api_exchange import TGenerateEndpointParameters, TTranslateParametersParameters
+from .api_exchange import (
+    TResponseWrapper,
+    TGenerateEndpointParameters,
+    TTranslateParametersParameters,
+    TWrapResponseParameters,
+)
 from _typedefs import TEndpoint, TRequsetMethod
 
 
-class FetchAPI(ExchangeAPI):
+class FetchAPI(
+    ExchangeAPI[
+        TResponseWrapper,
+        TGenerateEndpointParameters,
+        TTranslateParametersParameters,
+        TWrapResponseParameters,
+    ],
+):
     """取引所Fetch API実装用のベースクラス。"""
 
     def __init__(

@@ -1,8 +1,11 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..core import ExchangeProperty, APIClient
 
 import pybotters
 
-from ..core import ExchangeProperty, APIClient
 
 
 class APIClientBuilder:

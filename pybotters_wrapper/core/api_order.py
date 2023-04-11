@@ -2,13 +2,26 @@ from typing import Callable, Awaitable, NamedTuple, Type
 
 from aiohttp.client import ClientResponse
 
-from . import ExchangeAPI
-from .api_exchange import TGenerateEndpointParameters, TTranslateParametersParameters
-from _typedefs import TEndpoint, TSymbol, TRequsetMethod
-from ..core import APIClient, PriceSizeFormatter
+from .api_client import APIClient
+from .api_exchange import (
+    ExchangeAPI,
+    TResponseWrapper,
+    TGenerateEndpointParameters,
+    TTranslateParametersParameters,
+    TWrapResponseParameters,
+)
+from .formatter_precision import PriceSizeFormatter
+from .._typedefs import TEndpoint, TSymbol, TRequsetMethod
 
 
-class OrderAPI(ExchangeAPI):
+class OrderAPI(
+    ExchangeAPI[
+        TResponseWrapper,
+        TGenerateEndpointParameters,
+        TTranslateParametersParameters,
+        TWrapResponseParameters,
+    ]
+):
     def __init__(
         self,
         api_client: APIClient,

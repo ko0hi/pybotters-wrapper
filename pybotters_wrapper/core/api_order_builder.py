@@ -1,30 +1,29 @@
 from __future__ import annotations
 
-from typing import Callable, NamedTuple, Type
+from typing import Callable, NamedTuple, TYPE_CHECKING, Type
 
 from aiohttp import ClientResponse
 
-from . import (
-    OrderAPI,
-    LimitOrderAPI,
-    MarketOrderAPI,
-    CancelOrderAPI,
-    StopMarketOrderAPI,
-    StopLimitOrderAPI,
-    PriceSizeFormatter,
+from .api_exchange import (
+    TGenerateEndpointParameters,
+    TTranslateParametersParameters,
+    TWrapResponseParameters,
 )
-from .api_exchange_builder import ExchangeAPIBuilder
+from .api_exchange_builder import ExchangeAPIBuilder, TExchangeAPI
+
+if TYPE_CHECKING:
+    from .api_order import OrderAPI
+    from .formatter_precision import PriceSizeFormatter
 
 
-class OrderAPIBuilder(ExchangeAPIBuilder):
-    _ORDER_API_CLASSES = {
-        "limit": LimitOrderAPI,
-        "market": MarketOrderAPI,
-        "stop_limit": StopLimitOrderAPI,
-        "stop_market": StopMarketOrderAPI,
-        "cancel": CancelOrderAPI,
-    }
-
+class OrderAPIBuilder(
+    ExchangeAPIBuilder[
+        TExchangeAPI,
+        TGenerateEndpointParameters,
+        TTranslateParametersParameters,
+        TWrapResponseParameters,
+    ]
+):
     def __init__(
         self,
         order_api_class: Type[OrderAPI],

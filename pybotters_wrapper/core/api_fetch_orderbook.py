@@ -1,10 +1,10 @@
-from typing import NamedTuple, Callable, Awaitable, TypedDict
+from typing import NamedTuple, Callable, Awaitable, TypedDict, Any
 
 from aiohttp.client import ClientResponse
 
 from . import FetchAPI, APIClient
-from _typedefs import TEndpoint, TSymbol, TSide, TRequsetMethod
-from ..core import OrderbookItem
+from .normalized_store_orderbook import OrderbookItem
+from .._typedefs import TEndpoint, TSymbol, TSide, TRequsetMethod
 
 
 class OrderbookFetchAPIResponse(NamedTuple):
@@ -64,12 +64,12 @@ class OrderbookFetchAPI(
         self._response_itemizer = response_itemizer
 
     def _itemize_response(
-        self, resp: ClientResponse, resp_data: any | None = None
+        self, resp: ClientResponse, resp_data: Any | None = None
     ) -> dict[TSide, list[OrderbookItem]]:
         assert self._response_itemizer is not None
         return self._response_itemizer(resp, resp_data)
 
-    def fetch_orderbook(
+    async def fetch_orderbook(
         self, symbol: TSymbol, *, extra_params: dict = None, request_params: dict = None
     ) -> OrderbookFetchAPIResponse:
         extra_params = extra_params or {}

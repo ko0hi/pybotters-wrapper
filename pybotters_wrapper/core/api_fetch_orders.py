@@ -1,9 +1,11 @@
-from typing import NamedTuple, Callable, Awaitable, TypedDict
+from typing import NamedTuple, Callable, Awaitable, TypedDict, Any
 
 from aiohttp.client import ClientResponse
 
-from . import PositionItem, FetchAPI, APIClient
-from _typedefs import TEndpoint, TRequsetMethod
+from .api_client import APIClient
+from .api_fetch import FetchAPI
+from .normalized_store_position import PositionItem
+from .._typedefs import TEndpoint, TRequsetMethod
 
 
 class OrdersFetchAPIResponse(NamedTuple):
@@ -59,12 +61,12 @@ class OrdersFetchAPI(
         self._response_itemizer = response_itemizer
 
     def _itemize_response(
-        self, resp: ClientResponse, resp_data: any | None = None
+        self, resp: ClientResponse, resp_data: Any | None = None
     ) -> list[PositionItem]:
         assert self._response_itemizer is not None
         return self._response_itemizer(resp, resp_data)
 
-    def fetch_positions(
+    async def fetch_positions(
         self, *, extra_params: dict = None, request_params: dict = None
     ) -> OrdersFetchAPIResponse:
         extra_params = extra_params or {}

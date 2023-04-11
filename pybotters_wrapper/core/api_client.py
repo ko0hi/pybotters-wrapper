@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import NamedTuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from . import ExchangeProperty
     from pybotters_wrapper._typedefs import RequsetMethod, Side
     from legacy.core import (
         TickerItem,
@@ -17,7 +18,6 @@ import pybotters
 import requests
 from requests import Response
 
-from . import ExchangeProperty
 
 
 class OrderResponse(NamedTuple):

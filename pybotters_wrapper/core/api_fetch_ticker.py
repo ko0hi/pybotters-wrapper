@@ -1,9 +1,13 @@
-from typing import NamedTuple, Callable, Awaitable, TypedDict
+from typing import Any, NamedTuple, Callable, Awaitable, TypedDict, TYPE_CHECKING
+
+
+from .normalized_store_ticker import TickerItem
+from .api_fetch import FetchAPI
+from .api_client import APIClient
+
+from .._typedefs import TEndpoint, TSymbol, TRequsetMethod
 
 from aiohttp.client import ClientResponse
-
-from . import TickerItem, FetchAPI, APIClient
-from _typedefs import TEndpoint, TSymbol, TRequsetMethod
 
 
 class TickerFetchAPIResponse(NamedTuple):
@@ -60,12 +64,12 @@ class TickerFetchAPI(
         self._response_itemizer = response_itemizer
 
     def _itemize_response(
-        self, resp: ClientResponse, resp_data: any | None = None
+        self, resp: ClientResponse, resp_data: Any | None = None
     ) -> TickerItem:
         assert self._response_itemizer is not None
         return self._response_itemizer(resp, resp_data)
 
-    def fetch_ticker(
+    async def fetch_ticker(
         self, symbol: TSymbol, *, extra_params: dict = None, request_params: dict = None
     ) -> TickerFetchAPIResponse:
         extra_params = extra_params or {}
