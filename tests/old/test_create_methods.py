@@ -5,7 +5,7 @@ import pytest
 import pybotters
 import pybotters_wrapper as pbw
 
-from pybotters_wrapper._apis import EXCHANGE2STORE, EXCHANGE2API
+from pybotters_wrapper.factory import EXCHANGE2STORE, EXCHANGE2API
 from pybotters_wrapper.sandbox import SandboxDataStoreWrapper, SandboxAPI
 
 
