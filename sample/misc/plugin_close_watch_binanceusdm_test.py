@@ -1,7 +1,7 @@
 import asyncio
 from argparse import ArgumentParser
 import pybotters_wrapper as pbw
-from pybotters_wrapper.binance.plugins.binanceusdsm_test import CloseWatcher
+from legacy.binance import CloseWatcher
 
 
 # 約定するギリギリの価格に注文をopen. 1か2をテストできる。
