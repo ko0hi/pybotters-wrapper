@@ -68,7 +68,7 @@ class OrderAPIBuilder(
         self._size_format_keys = size_format_keys
         return self
 
-    def get(self) -> OrderAPI:
+    def get(self) -> TExchangeAPI:
         self.validate()
         return self._exchange_api_class(
             api_client=self._api_client,
