@@ -2,28 +2,18 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from abc import ABCMeta, abstractmethod
-from typing import Iterator, Hashable, Generic, TypeVar, TypedDict, Callable
+from typing import Callable, Generic, Hashable, Iterator, TypeVar, TypedDict
 
 import pybotters
-from pybotters.store import DataStore, Item, StoreChange, DataStoreManager
+from pybotters.store import DataStore, Item, StoreChange
 
 TNormalizedItem = TypeVar("TNormalizedItem", bound=TypedDict)
-
-
-class AbstractItemNormalizer(Generic[TNormalizedItem], metaclass=ABCMeta):
-    @abstractmethod
-    def _normalize(
-        self, store: DataStore, operation: str, source: dict, data: dict
-    ) -> TNormalizedItem:
-        raise NotImplementedError
 
 
 class NormalizedDataStore(Generic[TNormalizedItem]):
     _BASE_STORE_NAME: str | None = None
     _NAME: str | None = None
     _KEYS: list[str] | None = []
-    _NORMALIZER: AbstractItemNormalizer | None = None
 
     def __init__(
         self,
@@ -34,7 +24,7 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
         keys: list[str] | None = None,
         data: list[Item] | None = None,
         auto_cast=False,
-        normalizer: AbstractItemNormalizer | None = None,
+        normalizer: Callable[[DataStore, str, dict, dict], dict] | None = None,
         target_operations: tuple[str] = ("insert", "update", "delete"),
         on_wait: Callable[[NormalizedDataStore], None] | None = None,
         on_msg: Callable[[NormalizedDataStore, Item], None] | None = None,
@@ -51,7 +41,7 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
         )
 
         self._mapper = mapper
-        self._normalizer: AbstractItemNormalizer = normalizer
+        self._normalizer = normalizer
         self._target_operations: tuple[str] = target_operations
 
         self._wait_task: asyncio.Task | None = None
@@ -132,7 +122,7 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
                 values[k] = fn(store, operation, source, data)
             return self._itemize(**values)
         else:
-            return self._normalizer._normalize(store, operation, source, data)
+            return self._normalizer(store, operation, source, data)
 
     def _itemize(self, *args, **kwargs) -> "TNormalizedItem":
         raise NotImplementedError
@@ -161,40 +151,6 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
             raise RuntimeError(
                 f"Unsupported operation '{operation}' for {self.__class__.__name__}"
             )
-
-    @classmethod
-    def from_store_manager(
-        cls,
-        store_mgr: DataStoreManager,
-        *,
-        name: str | None = None,
-        keys: list[str] | None = None,
-        data: list[Item] | None = None,
-        auto_cast=False,
-        normalizer: AbstractItemNormalizer | None = None,
-        target_operations: tuple[str] = ("insert", "update", "delete"),
-        on_wait: Callable[[NormalizedDataStore], None] | None = None,
-        on_msg: Callable[[NormalizedDataStore, Item], None] | None = None,
-        on_watch_get_operation: Callable[[StoreChange], str] | None = None,
-        on_watch_make_item: Callable[[TNormalizedItem, StoreChange], dict]
-        | None = None,
-    ) -> NormalizedDataStore:
-        if cls._BASE_STORE_NAME is None:
-            store = None
-        else:
-            store = getattr(store_mgr, cls._BASE_STORE_NAME)
-        return cls(
-            store,
-            name=name,
-            keys=keys,
-            data=data,
-            auto_cast=auto_cast,
-            target_operations=target_operations,
-            on_wait=on_wait,
-            on_msg=on_msg,
-            on_watch_get_operation=on_watch_get_operation,
-            on_watch_make_item=on_watch_make_item,
-        )
 
     # ラップメソッド
     def __repr__(self):
