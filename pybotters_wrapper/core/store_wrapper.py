@@ -1,44 +1,37 @@
 from __future__ import annotations
 
-from collections import namedtuple
-from typing import TYPE_CHECKING, Awaitable, Callable, Generic, TypeVar, Literal
+from typing import TYPE_CHECKING, Awaitable, Callable, Generic, Literal
 
 import aiohttp
 import pybotters
 from loguru import logger
-from pybotters.store import DataStore, DataStoreManager
+from pybotters.store import DataStore
 
+from .._typedefs import TDataStoreManager
 from . import (
-    TickerStore,
-    TradesStore,
-    OrderbookStore,
     ExecutionStore,
+    OrderbookStore,
     OrderStore,
     PositionStore,
+    TickerStore,
+    TradesStore,
 )
 from .exchange_property import ExchangeProperty
 from .normalized_store_builder import NormalizedStoreBuilder
 from .store_initializer import StoreInitializer
 from .websocket_connection import WebSocketConnection
 from .websocket_request_builder import WebSocketRequestBuilder
-from .websocket_resquest_customizer import (
-    WebSocketRequestCustomizer,
-)
+from .websocket_resquest_customizer import WebSocketRequestCustomizer
 
 if TYPE_CHECKING:
     from pybotters import Item
     from pybotters.typedefs import WsBytesHandler, WsStrHandler
 
-T = TypeVar("T", bound=DataStoreManager)
-InitializeRequestConfig = namedtuple(
-    "InitializeRequestConf", ("method", "url", "params")
-)
 
-
-class DataStoreWrapper(Generic[T]):
+class DataStoreWrapper(Generic[TDataStoreManager]):
     def __init__(
         self,
-        store: T,
+        store: TDataStoreManager,
         *,
         exchange_property: ExchangeProperty,
         store_initializer: StoreInitializer,
@@ -152,7 +145,7 @@ class DataStoreWrapper(Generic[T]):
         return store
 
     @property
-    def store(self) -> T:
+    def store(self) -> TDataStoreManager:
         return self._store
 
     # common stores
