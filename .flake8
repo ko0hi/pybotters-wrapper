@@ -2,7 +2,7 @@
 # 最大行の長さ
 max-line-length = 88
 # 行末の空白と空行を無視
-ignore = W291, W293
+ignore = W291, W292, W293, W391
 # モジュールレベルの抽象クラスの定義を許可
 accept-encodings = utf-8
 # F文字列を許可
