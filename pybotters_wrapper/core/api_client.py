@@ -1,23 +1,19 @@
 from __future__ import annotations
 
-from typing import NamedTuple, Optional, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from . import ExchangeProperty
-    from pybotters_wrapper._typedefs import RequsetMethod, Side
-    from legacy.core import (
-        TickerItem,
-        OrderItem,
-        PositionItem,
-        OrderbookItem,
-    )
+from typing import NamedTuple, Optional
 
 import aiohttp
-from aiohttp.client import ClientResponse
 import pybotters
 import requests
+from aiohttp.client import ClientResponse
 from requests import Response
 
+from .exchange_property import ExchangeProperty
+from .normalized_store_ticker import TickerItem
+from .normalized_store_orderbook import OrderbookItem
+from .normalized_store_order import OrderItem
+from .normalized_store_position import PositionItem
+from .._typedefs import TSide, TRequsetMethod
 
 
 class OrderResponse(NamedTuple):
@@ -40,7 +36,7 @@ class FetchTickerResponse(NamedTuple):
 
 
 class FetchOrderbookResponse(NamedTuple):
-    orderbook: dict[Side, list[OrderbookItem]]
+    orderbook: dict[TSide, list[OrderbookItem]]
     resp: aiohttp.ClientResponse
     resp_data: Optional[any] = None
 
@@ -71,7 +67,7 @@ class APIClient:
 
     async def request(
         self,
-        method: RequsetMethod,
+        method: TRequsetMethod,
         url: str,
         *,
         params_or_data: dict | None = None,
@@ -106,7 +102,7 @@ class APIClient:
 
     def srequest(
         self,
-        method: RequsetMethod,
+        method: TRequsetMethod,
         url: str,
         *,
         params_or_data: dict | None = None,
