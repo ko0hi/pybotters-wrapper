@@ -1,36 +1,18 @@
 import pybotters
 from pybotters.models.binance import BinanceUSDSMDataStore
 
+from ...core import APIClient, APIClientBuilder, CancelOrderAPI, \
+    CancelOrderAPIBuilder, CancelOrderAPITranslateParametersParameters, \
+    DataStoreWrapperBuilder, ExchangeProperty, LimitOrderAPI, LimitOrderAPIBuilder, \
+    LimitOrderAPITranslateParametersParameters, MarketOrderAPI, MarketOrderAPIBuilder, \
+    MarketOrderAPITranslateParametersParameters, PriceSizeFormatter, \
+    StopLimitOrderAPI, StopLimitOrderAPIBuilder, \
+    StopLimitOrderAPITranslateParametersParameters, StopMarketOrderAPI, \
+    StopMarketOrderAPIBuilder, StopMarketOrderAPITranslateParametersParameters, \
+    StoreInitializer, WebSocketRequestBuilder
+from ..common import BinanceNormalizedStoreBuilder, BinancePriceSizePrecisionsFetcher, \
+    BinanceWebSocketRequestCustomizer
 from .websocket_channels_binanceusdsm import BinanceUSDSMWebsocketChannels
-from ..common import (
-    BinanceNormalizedStoreBuilder,
-    BinanceWebSocketRequestCustomizer,
-    BinancePriceSizePrecisionsFetcher,
-)
-from ...core import (
-    DataStoreWrapperBuilder,
-    StoreInitializer,
-    ExchangeProperty,
-    WebSocketRequestBuilder,
-    APIClient,
-    APIClientBuilder,
-    LimitOrderAPI,
-    LimitOrderAPIBuilder,
-    LimitOrderAPITranslateParametersParameters,
-    MarketOrderAPI,
-    MarketOrderAPIBuilder,
-    MarketOrderAPITranslateParametersParameters,
-    CancelOrderAPI,
-    CancelOrderAPIBuilder,
-    CancelOrderAPITranslateParametersParameters,
-    StopLimitOrderAPI,
-    StopLimitOrderAPIBuilder,
-    StopLimitOrderAPITranslateParametersParameters,
-    StopMarketOrderAPI,
-    StopMarketOrderAPIBuilder,
-    StopMarketOrderAPITranslateParametersParameters,
-    PriceSizeFormatter,
-)
 
 _EXCHANGE_PROPERTIES_BINANCEUSDSM = {
     "base_url": "https://fapi.binance.com",
@@ -75,10 +57,10 @@ def create_binanceusdsm_websockt_request_customizer() -> (
 
 
 def create_binanceusdsm_price_size_formater() -> PriceSizeFormatter:
-    price_precisions, size_precisions = BinancePriceSizePrecisionsFetcher(
+    precisions = BinancePriceSizePrecisionsFetcher(
         _EXCHANGE_PROPERTIES_BINANCEUSDSM["exchange"]
     ).fetch_precisions()
-    return PriceSizeFormatter(price_precisions, size_precisions)
+    return PriceSizeFormatter(precisions["price"], precisions["size"])
 
 
 def create_binanceusdsm_store(store: BinanceUSDSMDataStore | None = None):
@@ -103,7 +85,8 @@ def create_binanceusdsm_apiclient(
     client: pybotters.Client, verbose: bool = False
 ) -> APIClient:
     return (
-        APIClientBuilder.set_client(client)
+        APIClientBuilder()
+        .set_client(client)
         .set_verbose(verbose)
         .set_exchange_property(create_binanceusdsm_exchange_property())
         .get()

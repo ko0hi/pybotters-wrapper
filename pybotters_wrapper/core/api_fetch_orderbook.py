@@ -1,10 +1,10 @@
-from typing import NamedTuple, Callable, Awaitable, TypedDict, Any
+from typing import Any, Awaitable, Callable, NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
-from . import FetchAPI, APIClient
+from .._typedefs import TEndpoint, TRequsetMethod, TSide, TSymbol
+from . import APIClient, FetchAPI
 from .normalized_store_orderbook import OrderbookItem
-from .._typedefs import TEndpoint, TSymbol, TSide, TRequsetMethod
 
 
 class OrderbookFetchAPIResponse(NamedTuple):
@@ -57,7 +57,7 @@ class OrderbookFetchAPI(
             api_client,
             method,
             endpoint_generator=endpoint_generator,
-            parameters_translater=parameter_translater,
+            parameter_translater=parameter_translater,
             response_wrapper_cls=OrderbookFetchAPIResponse,
             response_decoder=response_decoder,
         )

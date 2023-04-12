@@ -2,10 +2,11 @@ from typing import Any, Awaitable, Callable, NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
+from pybotters_wrapper._typedefs import TEndpoint, TRequsetMethod, TSymbol
+
 from .api_client import APIClient
 from .api_fetch import FetchAPI
 from .normalized_store_ticker import TickerItem
-from pybotters_wrapper._typedefs import TEndpoint, TRequsetMethod, TSymbol
 
 
 class TickerFetchAPIResponse(NamedTuple):
@@ -55,7 +56,7 @@ class TickerFetchAPI(
             api_client,
             method,
             endpoint_generator=endpoint_generator,
-            parameters_translater=parameter_translater,
+            parameter_translater=parameter_translater,
             response_wrapper_cls=TickerFetchAPIResponse,
             response_decoder=response_decoder,
         )

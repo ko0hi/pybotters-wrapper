@@ -1,11 +1,11 @@
-from typing import NamedTuple, Callable, Awaitable, TypedDict, Any
+from typing import Any, Awaitable, Callable, NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
+from .._typedefs import TEndpoint, TRequsetMethod
 from .api_client import APIClient
 from .api_fetch import FetchAPI
 from .normalized_store_position import PositionItem
-from .._typedefs import TEndpoint, TRequsetMethod
 
 
 class OrdersFetchAPIResponse(NamedTuple):
@@ -54,7 +54,7 @@ class OrdersFetchAPI(
             api_client,
             method,
             endpoint_generator=endpoint_generator,
-            parameters_translater=parameter_translater,
+            parameter_translater=parameter_translater,
             response_wrapper_cls=OrdersFetchAPIResponse,
             response_decoder=response_decoder,
         )

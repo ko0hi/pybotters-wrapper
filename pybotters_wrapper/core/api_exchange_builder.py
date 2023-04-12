@@ -1,17 +1,14 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import NamedTuple, Type, TypeVar, Generic, Callable, Awaitable
+from typing import Awaitable, Callable, Generic, NamedTuple, Type, TypeVar
 
 from aiohttp import ClientResponse
 
+from .._typedefs import TEndpoint, TRequsetMethod
 from . import APIClient
-from .api_exchange import (
-    TGenerateEndpointParameters,
-    TTranslateParametersParameters,
-    TWrapResponseParameters,
-)
-from .._typedefs import TRequsetMethod, TEndpoint
+from .api_exchange import TGenerateEndpointParameters, TTranslateParametersParameters, \
+    TWrapResponseParameters
 
 TExchangeAPI = TypeVar("TExchangeAPI")
 

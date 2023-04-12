@@ -1,17 +1,12 @@
-from typing import Callable, Awaitable, NamedTuple, Type
+from typing import Awaitable, Callable, NamedTuple, Type
 
 from aiohttp.client import ClientResponse
 
+from .._typedefs import TEndpoint, TRequsetMethod, TSymbol
 from .api_client import APIClient
-from .api_exchange import (
-    ExchangeAPI,
-    TResponseWrapper,
-    TGenerateEndpointParameters,
-    TTranslateParametersParameters,
-    TWrapResponseParameters,
-)
+from .api_exchange import ExchangeAPI, TGenerateEndpointParameters, TResponseWrapper, \
+    TTranslateParametersParameters, TWrapResponseParameters
 from .formatter_precision import PriceSizeFormatter
-from .._typedefs import TEndpoint, TSymbol, TRequsetMethod
 
 
 class OrderAPI(
@@ -36,8 +31,8 @@ class OrderAPI(
         endpoint_generator: TEndpoint
         | Callable[[TGenerateEndpointParameters], str]
         | None = None,
-        parameters_translater: Callable[[TTranslateParametersParameters], dict]
-        | None = None,
+        parameter_translater: Callable[[TTranslateParametersParameters], dict]
+                              | None = None,
         response_wrapper_cls: Type[NamedTuple] = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
@@ -48,7 +43,7 @@ class OrderAPI(
             api_client,
             method,
             endpoint_generator=endpoint_generator,
-            parameters_translater=parameters_translater,
+            parameter_translater=parameter_translater,
             response_wrapper_cls=response_wrapper_cls,
             response_decoder=response_decoder,
         )

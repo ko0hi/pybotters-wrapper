@@ -2,10 +2,10 @@ from typing import Any, Awaitable, Callable, NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
+from .._typedefs import TEndpoint, TRequsetMethod, TSymbol
 from .api_client import APIClient
 from .api_fetch import FetchAPI
 from .normalized_store_position import PositionItem
-from .._typedefs import TEndpoint, TRequsetMethod, TSymbol
 
 
 class PositionsFetchAPIResponse(NamedTuple):
@@ -56,7 +56,7 @@ class PositionsFetchAPI(
             api_client,
             method,
             endpoint_generator=endpoint_generator,
-            parameters_translater=parameter_translater,
+            parameter_translater=parameter_translater,
             response_wrapper_cls=PositionsFetchAPIResponse,
             response_decoder=response_decoder,
         )

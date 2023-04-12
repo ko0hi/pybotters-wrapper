@@ -1,12 +1,12 @@
 import asyncio
 from abc import ABCMeta
-from typing import Callable, Awaitable, TypeVar, Generic, Type, NamedTuple
+from typing import Awaitable, Callable, Generic, NamedTuple, Type, TypeVar
 
 from aiohttp.client import ClientResponse
 from requests import Response
 
-from . import APIClient
 from .._typedefs import TEndpoint, TRequsetMethod
+from . import APIClient
 
 TGenerateEndpointParameters = TypeVar("TGenerateEndpointParameters")
 TTranslateParametersParameters = TypeVar("TTranslateParametersParameters")
@@ -52,7 +52,7 @@ class ExchangeAPI(
         endpoint_generator: TEndpoint
         | Callable[[TGenerateEndpointParameters], str]
         | None = None,
-        parameters_translater: Callable[[TTranslateParametersParameters], dict]
+        parameter_translater: Callable[[TTranslateParametersParameters], dict]
         | None = None,
         response_wrapper_cls: Type[NamedTuple] = None,
         response_decoder: Callable[
@@ -63,18 +63,16 @@ class ExchangeAPI(
         self._api_client = api_client
         self._method = method
         self._endpoint_generator = endpoint_generator
-        self._parameters_translater = parameters_translater
+        self._parameter_translater = parameter_translater
         self._response_wrapper_cls = response_wrapper_cls
         self._response_decoder = response_decoder
 
     async def request(
         self, url: str, params_or_data: dict = None, **kwargs
     ) -> ClientResponse:
-        if self._method == "GET":
-            kwargs["params"] = params_or_data
-        else:
-            kwargs["data"] = params_or_data
-        return await self._api_client.request(self._method, url, **kwargs)
+        return await self._api_client.request(
+            self._method, url, params_or_data=params_or_data, **kwargs
+        )
 
     def srequest(self, url: str, params_or_data: dict = None, **kwargs) -> Response:
         if self._method == "GET":
@@ -93,11 +91,11 @@ class ExchangeAPI(
             raise TypeError(f"Unsupported: {self._endpoint_generator}")
 
     def _translate_parameters(self, params: TTranslateParametersParameters) -> dict:
-        assert self._parameters_translater is not None
-        return self._parameters_translater(params)
+        assert self._parameter_translater is not None
+        return self._parameter_translater(params)
 
     def _wrap_response(self, params: TWrapResponseParameters) -> TResponseWrapper:
-        raise self._response_wrapper_cls(**params)
+        return self._response_wrapper_cls(**params)
 
     async def _decode_response(self, resp: ClientResponse) -> dict | list:
         if self._response_decoder is None:

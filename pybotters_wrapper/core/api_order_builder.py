@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from typing import Callable, NamedTuple, TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Callable, NamedTuple, Type
 
 from aiohttp import ClientResponse
 
-from .api_exchange import (
-    TGenerateEndpointParameters,
-    TTranslateParametersParameters,
-    TWrapResponseParameters,
-)
+from .api_exchange import TGenerateEndpointParameters, TTranslateParametersParameters, \
+    TWrapResponseParameters
 from .api_exchange_builder import ExchangeAPIBuilder, TExchangeAPI
 
 if TYPE_CHECKING:
@@ -76,6 +73,7 @@ class OrderAPIBuilder(
             order_id_key=self._order_id_key,
             order_id_extractor=self._order_id_extractor,
             endpoint_generator=self._endpoint_generator,
+            parameter_translater=self._parameter_translater,
             response_wrapper_cls=self._response_wrapper_cls,
             response_decoder=self._response_decoder,
             price_size_formatter=self._price_size_formatter,
