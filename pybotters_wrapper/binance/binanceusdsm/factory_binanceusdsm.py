@@ -7,7 +7,7 @@ from ..common import (
     BinanceWebSocketRequestCustomizer,
     BinancePriceSizePrecisionsFetcher,
 )
-from core import (
+from ...core import (
     DataStoreWrapperBuilder,
     StoreInitializer,
     ExchangeProperty,

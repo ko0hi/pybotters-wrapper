@@ -3,7 +3,7 @@ from typing import TypedDict
 from pybotters.typedefs import Item
 
 from .normalized_store import NormalizedDataStore
-from _typedefs import TSide
+from .._typedefs import TSide
 
 
 class OrderbookItem(TypedDict):

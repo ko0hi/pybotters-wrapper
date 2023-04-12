@@ -1,7 +1,7 @@
 from typing import Literal
 
 from ..common.listenkey_fetcher import DUMMY_LISTEN_KEY
-from core.websocket_channels import WebSocketChannels
+from ...core import WebSocketChannels
 
 
 class BinanceUSDSMWebsocketChannels(

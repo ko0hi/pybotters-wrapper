@@ -1,7 +1,7 @@
 from typing import TypedDict
 
 from .normalized_store import NormalizedDataStore
-from _typedefs import TSide
+from .._typedefs import TSide
 
 
 class OrderItem(TypedDict):

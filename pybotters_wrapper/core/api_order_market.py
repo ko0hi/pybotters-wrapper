@@ -2,8 +2,8 @@ from typing import NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
-from _typedefs import TEndpoint, TSymbol, TSide, TSize
-from ..core import OrderAPI
+from pybotters_wrapper._typedefs import TEndpoint, TSide, TSize, TSymbol
+from pybotters_wrapper.core.api_order import OrderAPI
 
 
 class MarketOrderAPIResponse(NamedTuple):

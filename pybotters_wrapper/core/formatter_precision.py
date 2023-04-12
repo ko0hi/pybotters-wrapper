@@ -1,6 +1,7 @@
 from typing import Literal
+
 from .formatter import Formatter
-from _typedefs import TSymbol
+from .._typedefs import TSymbol
 
 
 class PrecisionFormatter(Formatter):

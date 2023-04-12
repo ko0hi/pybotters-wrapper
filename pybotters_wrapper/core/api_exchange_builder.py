@@ -11,7 +11,7 @@ from .api_exchange import (
     TTranslateParametersParameters,
     TWrapResponseParameters,
 )
-from _typedefs import TRequsetMethod, TEndpoint
+from .._typedefs import TRequsetMethod, TEndpoint
 
 TExchangeAPI = TypeVar("TExchangeAPI")
 

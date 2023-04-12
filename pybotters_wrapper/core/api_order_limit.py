@@ -2,7 +2,7 @@ from typing import NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
-from _typedefs import TEndpoint, TSymbol, TSide, TPrice, TSize
+from .._typedefs import TEndpoint, TSymbol, TSide, TPrice, TSize
 from ..core import OrderAPI
 
 

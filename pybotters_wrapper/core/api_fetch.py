@@ -9,7 +9,7 @@ from .api_exchange import (
     TTranslateParametersParameters,
     TWrapResponseParameters,
 )
-from _typedefs import TEndpoint, TRequsetMethod
+from .._typedefs import TEndpoint, TRequsetMethod
 
 
 class FetchAPI(

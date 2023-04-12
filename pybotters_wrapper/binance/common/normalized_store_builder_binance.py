@@ -1,7 +1,7 @@
 import pandas as pd
 from pybotters.models.binance import BinanceUSDSMDataStore
 
-from core import (
+from ...core import (
     TickerStore,
     TradesStore,
     OrderbookStore,

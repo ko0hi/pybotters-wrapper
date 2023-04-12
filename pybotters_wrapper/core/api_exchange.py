@@ -6,7 +6,7 @@ from aiohttp.client import ClientResponse
 from requests import Response
 
 from . import APIClient
-from _typedefs import TEndpoint, TRequsetMethod
+from .._typedefs import TEndpoint, TRequsetMethod
 
 TGenerateEndpointParameters = TypeVar("TGenerateEndpointParameters")
 TTranslateParametersParameters = TypeVar("TTranslateParametersParameters")

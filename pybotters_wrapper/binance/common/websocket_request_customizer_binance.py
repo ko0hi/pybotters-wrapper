@@ -2,7 +2,7 @@ import time
 
 import pybotters
 
-from core import WebSocketRequestCustomizer
+from ...core import WebSocketRequestCustomizer
 from .listenkey_fetcher import BinanceListenKeyFetcher, DUMMY_LISTEN_KEY
 
 

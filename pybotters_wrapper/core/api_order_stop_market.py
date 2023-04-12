@@ -2,8 +2,8 @@ from typing import NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
-from _typedefs import TEndpoint, TSymbol, TSide, TSize, TPrice
-from ..core import OrderAPI
+from .._typedefs import TEndpoint, TSymbol, TSide, TSize, TPrice
+from .api_order import OrderAPI
 
 
 class StopMarketOrderAPIResponse(NamedTuple):

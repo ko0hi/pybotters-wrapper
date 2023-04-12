@@ -3,7 +3,7 @@ from typing import TypedDict
 import pandas as pd
 
 from .normalized_store import NormalizedDataStore
-from _typedefs import TSide
+from .._typedefs import TSide
 
 
 class ExecutionItem(TypedDict):

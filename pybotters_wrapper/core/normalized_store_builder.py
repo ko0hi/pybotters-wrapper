@@ -7,7 +7,7 @@ from .normalized_store_orderbook import OrderbookStore
 from .normalized_store_position import PositionStore
 from .normalized_store_ticker import TickerStore
 from .normalized_store_trades import TradesStore
-from _typedefs import TDataStoreManager
+from .._typedefs import TDataStoreManager
 
 
 class NormalizedStoreBuilder(Generic[TDataStoreManager], metaclass=ABCMeta):

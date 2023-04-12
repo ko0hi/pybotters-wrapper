@@ -8,7 +8,7 @@ from typing import Generic, Awaitable, NamedTuple, Optional
 import aiohttp
 import pybotters
 
-from _typedefs import TDataStoreManager, TRequsetMethod
+from .._typedefs import TDataStoreManager, TRequsetMethod
 
 
 class InitializeRequestItem(NamedTuple):
@@ -267,11 +267,10 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
     @classmethod
     async def _validate_initialize_response(cls, task: asyncio.Task):
         result: aiohttp.ClientResponse = task.result()
-
-        if not isinstance(result, aiohttp.ClientResponse):
-            raise TypeError(
-                f"Unsupported response type for initialize request: {result}"
-            )
+        # if not isinstance(result, aiohttp.ClientResponse):
+        #     raise TypeError(
+        #         f"Unsupported response type for initialize request: {result}"
+        #     )
 
         if result.status != 200:
             try:
