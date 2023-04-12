@@ -1,6 +1,5 @@
-from pybotters_wrapper.binance.binanceusdsm.factory_binanceusdsm import (
-    create_binanceusdsm_exchange_property,
-)
+from pybotters_wrapper.binance.binanceusdsm.factory_binanceusdsm import \
+    create_binanceusdsm_exchange_property
 
 
 def test_exchange_property_biananceusdsm():
