@@ -8,12 +8,12 @@ import requests
 from aiohttp.client import ClientResponse
 from requests import Response
 
+from .._typedefs import TRequsetMethod, TSide
 from .exchange_property import ExchangeProperty
-from .normalized_store_ticker import TickerItem
-from .normalized_store_orderbook import OrderbookItem
 from .normalized_store_order import OrderItem
+from .normalized_store_orderbook import OrderbookItem
 from .normalized_store_position import PositionItem
-from .._typedefs import TSide, TRequsetMethod
+from .normalized_store_ticker import TickerItem
 
 
 class OrderResponse(NamedTuple):
@@ -64,6 +64,7 @@ class APIClient:
         self._client = client
         self._verbose = verbose
         self._eprop = exchange_property
+        self._validate()
 
     async def request(
         self,
@@ -151,4 +152,8 @@ class APIClient:
         return self.srequest("DELETE", url, params_or_data=data, **kwargs)
 
     def _attach_base_url(self, url: str) -> str:
-        return url if self._client._base_url else self._eprop.base_url + url
+        return self._eprop.base_url + url
+
+    def _validate(self):
+        if self._client._base_url != "":
+            raise ValueError("Client should not have base_url")
