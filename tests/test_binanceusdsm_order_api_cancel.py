@@ -1,7 +1,6 @@
 import pytest
 import pytest_mock
 from aioresponses import aioresponses
-from conftest import MockAsyncResponse
 
 from pybotters_wrapper import create_client
 from pybotters_wrapper.binance.binanceusdsm import create_binanceusdsm_cancel_order_api
@@ -77,13 +76,16 @@ class TestOrderApiLimitBinanceUSDSM:
             assert actual == expected
 
     @pytest.mark.asyncio
-    async def test_extract_order_id(self, patch_price_size_precision_fetcher):
+    async def test_extract_order_id(
+        self, patch_price_size_precision_fetcher, async_response_mocker
+    ):
         expected = "283194212"
 
         async with create_client() as client:
             api = create_binanceusdsm_cancel_order_api(client, verbose=True)
             actual = api._extract_order_id(
-                MockAsyncResponse(self.DUMMY_RESPONSE, 200), self.DUMMY_RESPONSE  # noqa
+                async_response_mocker(self.DUMMY_RESPONSE, 200),
+                self.DUMMY_RESPONSE,  # noqa
             )
 
             assert actual == expected

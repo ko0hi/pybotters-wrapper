@@ -85,13 +85,15 @@ class TestOrderApiLimitBinanceUSDSM:
             assert actual == expected
 
     @pytest.mark.asyncio
-    async def test_extract_order_id(self, patch_price_size_precision_fetcher):
+    async def test_extract_order_id(
+        self, patch_price_size_precision_fetcher, async_response_mocker
+    ):
         expected = "139634730353"
 
         async with create_client() as client:
             api = create_binanceusdsm_market_order_api(client, verbose=True)
             actual = api._extract_order_id(
-                MockAsyncResponse(self.DUMMY_RESPONSE, 200), self.DUMMY_RESPONSE  # noqa
+                async_response_mocker(self.DUMMY_RESPONSE, 200), self.DUMMY_RESPONSE  # noqa
             )
 
             assert actual == expected
