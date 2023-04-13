@@ -1,17 +1,41 @@
+import aiohttp
 import pybotters
 from pybotters.models.binance import BinanceUSDSMDataStore
 
-from ...core import APIClient, APIClientBuilder, CancelOrderAPI, \
-    CancelOrderAPIBuilder, CancelOrderAPITranslateParametersParameters, \
-    DataStoreWrapperBuilder, ExchangeProperty, LimitOrderAPI, LimitOrderAPIBuilder, \
-    LimitOrderAPITranslateParametersParameters, MarketOrderAPI, MarketOrderAPIBuilder, \
-    MarketOrderAPITranslateParametersParameters, PriceSizeFormatter, \
-    StopLimitOrderAPI, StopLimitOrderAPIBuilder, \
-    StopLimitOrderAPITranslateParametersParameters, StopMarketOrderAPI, \
-    StopMarketOrderAPIBuilder, StopMarketOrderAPITranslateParametersParameters, \
-    StoreInitializer, WebSocketRequestBuilder
-from ..common import BinanceNormalizedStoreBuilder, BinancePriceSizePrecisionsFetcher, \
-    BinanceWebSocketRequestCustomizer
+from ..._typedefs import TSide
+from ...core import (
+    APIClient,
+    APIClientBuilder,
+    CancelOrderAPI,
+    CancelOrderAPIBuilder,
+    CancelOrderAPITranslateParametersParameters,
+    DataStoreWrapperBuilder,
+    ExchangeProperty,
+    LimitOrderAPI,
+    LimitOrderAPIBuilder,
+    LimitOrderAPITranslateParametersParameters,
+    MarketOrderAPI,
+    MarketOrderAPIBuilder,
+    MarketOrderAPITranslateParametersParameters,
+    PriceSizeFormatter,
+    StopLimitOrderAPI,
+    StopLimitOrderAPIBuilder,
+    StopLimitOrderAPITranslateParametersParameters,
+    StopMarketOrderAPI,
+    StopMarketOrderAPIBuilder,
+    StopMarketOrderAPITranslateParametersParameters,
+    StoreInitializer,
+    WebSocketRequestBuilder,
+    OrderbookFetchAPI,
+    OrderbookFetchAPIBuilder,
+    OrderbookFetchAPITranslateParametersParameters,
+    OrderbookItem,
+)
+from ..common import (
+    BinanceNormalizedStoreBuilder,
+    BinancePriceSizePrecisionsFetcher,
+    BinanceWebSocketRequestCustomizer,
+)
 from .websocket_channels_binanceusdsm import BinanceUSDSMWebsocketChannels
 
 _EXCHANGE_PROPERTIES_BINANCEUSDSM = {
@@ -221,5 +245,42 @@ def create_binanceusdsm_stop_market_order_api(
         .set_price_size_formatter(create_binanceusdsm_price_size_formater())
         .set_price_format_keys("stopPrice")
         .set_size_format_keys("quantity")
+        .get()
+    )
+
+
+def create_binanceusdsm_fetch_orderbook_api(
+    client: pybotters.Client, verbose: bool = False
+) -> OrderbookFetchAPI:
+    def parameter_translater(
+        params: OrderbookFetchAPITranslateParametersParameters,
+    ) -> dict:
+        return {"symbol": params["symbol"].upper()}
+
+    def response_itemizer(
+        resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> dict[TSide, list[OrderbookItem]]:
+        symbol = resp.request_info.url.query["symbol"]
+        asks = [
+            OrderbookItem(
+                symbol=symbol, side="SELL", price=float(i[0]), size=float(i[1])
+            )
+            for i in resp_data["asks"]
+        ]
+        bids = [
+            OrderbookItem(
+                symbol=symbol, side="BUY", price=float(i[0]), size=float(i[1])
+            )
+            for i in resp_data["bids"]
+        ]
+        return {"SELL": asks, "BUY": bids}
+
+    return (
+        OrderbookFetchAPIBuilder()
+        .set_api_client(create_binanceusdsm_apiclient(client, verbose))
+        .set_method("GET")
+        .set_endpoint_generator("/fapi/v1/depth")
+        .set_parameter_translater(parameter_translater)
+        .set_response_itemizer(response_itemizer)
         .get()
     )
