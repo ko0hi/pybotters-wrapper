@@ -40,31 +40,6 @@ class CancelOrderAPI(
         CancelOrderAPIWrapResponseParameters,
     ]
 ):
-    def __init__(
-        self,
-        api_client: APIClient,
-        method: TRequsetMethod,
-        order_id_key: str,
-        endpoint: TEndpoint | Callable[[TSymbol, TOrderId, dict], str] | None = None,
-        parameter_translater: Callable[[TEndpoint, TSymbol, TOrderId, dict], dict]
-        | None = None,
-        order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
-        | None = None,
-        response_decoder: Callable[
-            [ClientResponse], dict | list | Awaitable[dict | list]
-        ]
-        | None = None,
-    ):
-        super(CancelOrderAPI, self).__init__(
-            api_client,
-            method,
-            order_id_key=order_id_key,
-            order_id_extractor=order_id_extractor,
-            response_decoder=response_decoder,
-        )
-        self._endpoint = endpoint
-        self._parameter_translater = parameter_translater
-
     async def cancel_order(
         self,
         symbol: TSymbol,

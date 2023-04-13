@@ -46,7 +46,7 @@ from .api_order_stop_market_builder import StopMarketOrderAPIBuilder
 from .exchange_property import ExchangeProperty
 from .fetcher_price_size_precisions import PriceSizePrecisionFetcher
 from .formatter_precision import PrecisionFormatter, PriceSizeFormatter
-from .normalized_store import AbstractItemNormalizer, NormalizedDataStore
+from .normalized_store import NormalizedDataStore
 from .normalized_store_builder import NormalizedStoreBuilder
 from .normalized_store_execution import ExecutionItem, ExecutionStore
 from .normalized_store_order import OrderItem, OrderStore
