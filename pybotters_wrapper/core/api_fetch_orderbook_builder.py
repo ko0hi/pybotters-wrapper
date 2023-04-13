@@ -11,7 +11,7 @@ from .api_fetch_builder import FetchAPIBuilder
 
 class OrderbookFetchAPIBuilder(
     FetchAPIBuilder[
-        OrderbookFetchAPIResponse,
+        OrderbookFetchAPI,
         OrderbookFetchAPIGenerateEndpointParameters,
         OrderbookFetchAPITranslateParametersParameters,
         OrderbookFetchAPIWrapResponseParameters,

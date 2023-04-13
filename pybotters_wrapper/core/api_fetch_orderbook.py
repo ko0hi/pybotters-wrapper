@@ -1,10 +1,10 @@
-from typing import Any, Awaitable, Callable, NamedTuple, TypedDict
+from typing import NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
-from .._typedefs import TEndpoint, TRequsetMethod, TSide, TSymbol
-from . import APIClient, FetchAPI
+from . import FetchAPI
 from .normalized_store_orderbook import OrderbookItem
+from .._typedefs import TEndpoint, TSide, TSymbol
 
 
 class OrderbookFetchAPIResponse(NamedTuple):
@@ -25,7 +25,7 @@ class OrderbookFetchAPITranslateParametersParameters(TypedDict):
 
 
 class OrderbookFetchAPIWrapResponseParameters(TypedDict):
-    item: dict[TSide, list[OrderbookItem]]
+    orderbook: dict[TSide, list[OrderbookItem]]
     resp: ClientResponse
     resp_data: dict
 
@@ -38,37 +38,6 @@ class OrderbookFetchAPI(
         OrderbookFetchAPIWrapResponseParameters,
     ]
 ):
-    def __init__(
-        self,
-        api_client: APIClient,
-        method: TRequsetMethod,
-        endpoint_generator: TEndpoint | Callable[[TSymbol, dict], str] | None = None,
-        parameter_translater: Callable[[TEndpoint, TSymbol, dict], dict] | None = None,
-        response_decoder: Callable[
-            [ClientResponse], dict | list | Awaitable[dict | list]
-        ]
-        | None = None,
-        response_itemizer: Callable[
-            [ClientResponse, any], dict[TSide, list[OrderbookItem]]
-        ]
-        | None = None,
-    ):
-        super(OrderbookFetchAPI, self).__init__(
-            api_client,
-            method,
-            endpoint_generator=endpoint_generator,
-            parameter_translater=parameter_translater,
-            response_wrapper_cls=OrderbookFetchAPIResponse,
-            response_decoder=response_decoder,
-        )
-        self._response_itemizer = response_itemizer
-
-    def _itemize_response(
-        self, resp: ClientResponse, resp_data: Any | None = None
-    ) -> dict[TSide, list[OrderbookItem]]:
-        assert self._response_itemizer is not None
-        return self._response_itemizer(resp, resp_data)
-
     async def fetch_orderbook(
         self, symbol: TSymbol, *, extra_params: dict = None, request_params: dict = None
     ) -> OrderbookFetchAPIResponse:
@@ -90,6 +59,6 @@ class OrderbookFetchAPI(
         item = self._itemize_response(resp, resp_data)
         return self._wrap_response(
             OrderbookFetchAPIWrapResponseParameters(
-                item=item, resp=resp, resp_data=resp_data
+                orderbook=item, resp=resp, resp_data=resp_data
             )
         )
