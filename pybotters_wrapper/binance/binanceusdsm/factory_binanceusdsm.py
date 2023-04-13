@@ -26,6 +26,10 @@ from ...core import (
     StopMarketOrderAPITranslateParametersParameters,
     StoreInitializer,
     WebSocketRequestBuilder,
+    TickerFetchAPI,
+    TickerFetchAPIBuilder,
+    TickerFetchAPITranslateParametersParameters,
+    TickerItem,
     OrderbookFetchAPI,
     OrderbookFetchAPIBuilder,
     OrderbookFetchAPITranslateParametersParameters,
@@ -245,6 +249,28 @@ def create_binanceusdsm_stop_market_order_api(
         .set_price_size_formatter(create_binanceusdsm_price_size_formater())
         .set_price_format_keys("stopPrice")
         .set_size_format_keys("quantity")
+        .get()
+    )
+
+
+def create_binanceusdsm_fetch_ticker_api(
+    client: pybotters.Client, verbose: bool = False
+) -> TickerFetchAPI:
+    def parameter_translater(
+        params: TickerFetchAPITranslateParametersParameters,
+    ) -> dict:
+        return {"symbol": params["symbol"].upper()}
+
+    def response_itemizer(resp: aiohttp.ClientResponse, resp_data: dict) -> TickerItem:
+        return {"symbol": resp_data["symbol"], "price": float(resp_data["price"])}
+
+    return (
+        TickerFetchAPIBuilder()
+        .set_api_client(create_binanceusdsm_apiclient(client, verbose))
+        .set_method("GET")
+        .set_endpoint_generator("/fapi/v1/ticker/price")
+        .set_parameter_translater(parameter_translater)
+        .set_response_itemizer(response_itemizer)
         .get()
     )
 

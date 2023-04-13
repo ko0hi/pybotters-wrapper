@@ -11,7 +11,7 @@ from .api_fetch_builder import FetchAPIBuilder
 
 class TickerFetchAPIBuilder(
     FetchAPIBuilder[
-        TickerFetchAPIResponse,
+        TickerFetchAPI,
         TickerFetchAPIGenerateEndpointParameters,
         TickerFetchAPITranslateParametersParameters,
         TickerFetchAPIWrapResponseParameters,
