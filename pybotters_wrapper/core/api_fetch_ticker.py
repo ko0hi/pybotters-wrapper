@@ -2,9 +2,9 @@ from typing import NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
-from pybotters_wrapper._typedefs import TEndpoint, TSymbol
 from .api_fetch import FetchAPI
 from .normalized_store_ticker import TickerItem
+from .._typedefs import TEndpoint, TSymbol
 
 
 class TickerFetchAPIResponse(NamedTuple):
@@ -25,7 +25,7 @@ class TickerFetchAPITranslateParametersParameters(TypedDict):
 
 
 class TickerFetchAPIWrapResponseParameters(TypedDict):
-    item: TickerItem
+    ticker: TickerItem
     resp: ClientResponse
     resp_data: dict
 

@@ -12,7 +12,7 @@ from .api_fetch_builder import FetchAPIBuilder
 
 class OrdersFetchAPIBuilder(
     FetchAPIBuilder[
-        OrdersFetchAPIResponse,
+        OrdersFetchAPI,
         OrdersFetchAPIGenerateEndpointParameters,
         OrdersFetchAPITranslateParametersParameters,
         OrdersFetchAPIWrapResponseParameters,

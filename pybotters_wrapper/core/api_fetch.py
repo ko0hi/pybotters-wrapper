@@ -57,6 +57,6 @@ class FetchAPI(
 
     def _itemize_response(
         self, resp: ClientResponse, resp_data: Any | None = None
-    ) -> dict[TSide, list[OrderbookItem]]:
+    ) -> Any:
         assert self._response_itemizer is not None
         return self._response_itemizer(resp, resp_data)

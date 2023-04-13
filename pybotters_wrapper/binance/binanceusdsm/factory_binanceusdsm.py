@@ -34,6 +34,10 @@ from ...core import (
     OrderbookFetchAPIBuilder,
     OrderbookFetchAPITranslateParametersParameters,
     OrderbookItem,
+    OrdersFetchAPI,
+    OrdersFetchAPIBuilder,
+    OrdersFetchAPITranslateParametersParameters,
+    OrderItem,
 )
 from ..common import (
     BinanceNormalizedStoreBuilder,
@@ -306,6 +310,42 @@ def create_binanceusdsm_fetch_orderbook_api(
         .set_api_client(create_binanceusdsm_apiclient(client, verbose))
         .set_method("GET")
         .set_endpoint_generator("/fapi/v1/depth")
+        .set_parameter_translater(parameter_translater)
+        .set_response_itemizer(response_itemizer)
+        .get()
+    )
+
+
+def create_binanceusdsm_fetch_orders_api(
+    client: pybotters.Client, verbose: bool = False
+) -> OrdersFetchAPI:
+    def parameter_translater(
+        params: OrdersFetchAPITranslateParametersParameters,
+    ) -> dict:
+        return {"symbol": params["symbol"].upper()}
+
+    def response_itemizer(
+        resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> list[OrderItem]:
+        orders = [
+            OrderItem(
+                id=str(i["orderId"]),
+                symbol=i["symbol"],
+                side=i["side"],
+                price=float(i["price"]),
+                size=float(i["origQty"]) - float(i["executedQty"]),
+                type=i["type"],
+                info=i,  # noqa
+            )
+            for i in resp_data
+        ]
+        return orders
+
+    return (
+        OrdersFetchAPIBuilder()
+        .set_api_client(create_binanceusdsm_apiclient(client, verbose))
+        .set_method("GET")
+        .set_endpoint_generator("/fapi/v1/openOrders")
         .set_parameter_translater(parameter_translater)
         .set_response_itemizer(response_itemizer)
         .get()

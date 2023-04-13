@@ -1,30 +1,31 @@
-from typing import Any, Awaitable, Callable, NamedTuple, TypedDict
+from typing import NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
-from .._typedefs import TEndpoint, TRequsetMethod
-from .api_client import APIClient
 from .api_fetch import FetchAPI
-from .normalized_store_position import PositionItem
+from .normalized_store_order import OrderItem
+from .._typedefs import TEndpoint
 
 
 class OrdersFetchAPIResponse(NamedTuple):
-    positions: list[PositionItem]
+    orders: list[OrderItem]
     resp: ClientResponse | None = None
     resp_data: dict | None = None
 
 
 class OrdersFetchAPIGenerateEndpointParameters(TypedDict):
+    symbol: str
     extra_params: dict
 
 
 class OrdersFetchAPITranslateParametersParameters(TypedDict):
     endpoint: TEndpoint
+    symbol: str
     extra_params: dict
 
 
 class OrdersFetchAPIWrapResponseParameters(TypedDict):
-    item: list[PositionItem]
+    orders: list[OrderItem]
     resp: ClientResponse
     resp_data: dict
 
@@ -37,45 +38,18 @@ class OrdersFetchAPI(
         OrdersFetchAPIWrapResponseParameters,
     ]
 ):
-    def __init__(
-        self,
-        api_client: APIClient,
-        method: TRequsetMethod,
-        endpoint_generator: TEndpoint | Callable[[dict], str] | None = None,
-        parameter_translater: Callable[[TEndpoint, dict], dict] | None = None,
-        response_decoder: Callable[
-            [ClientResponse], dict | list | Awaitable[dict | list]
-        ]
-        | None = None,
-        response_itemizer: Callable[[ClientResponse, any], list[PositionItem]]
-        | None = None,
-    ):
-        super(OrdersFetchAPI, self).__init__(
-            api_client,
-            method,
-            endpoint_generator=endpoint_generator,
-            parameter_translater=parameter_translater,
-            response_wrapper_cls=OrdersFetchAPIResponse,
-            response_decoder=response_decoder,
-        )
-        self._response_itemizer = response_itemizer
-
-    def _itemize_response(
-        self, resp: ClientResponse, resp_data: Any | None = None
-    ) -> list[PositionItem]:
-        assert self._response_itemizer is not None
-        return self._response_itemizer(resp, resp_data)
-
-    async def fetch_positions(
-        self, *, extra_params: dict = None, request_params: dict = None
+    async def fetch_orders(
+        self, symbol: str, *, extra_params: dict = None, request_params: dict = None
     ) -> OrdersFetchAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
         endpoint = self._generate_endpoint(
-            OrdersFetchAPIGenerateEndpointParameters(extra_params)
+            OrdersFetchAPIGenerateEndpointParameters(symbol=symbol)
         )
         parameters = self._translate_parameters(
-            OrdersFetchAPITranslateParametersParameters(endpoint, extra_params)
+            OrdersFetchAPITranslateParametersParameters(
+                endpoint=endpoint, symbol=symbol, extra_params=extra_params
+            )
         )
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)
@@ -83,6 +57,6 @@ class OrdersFetchAPI(
         item = self._itemize_response(resp, resp_data)
         return self._wrap_response(
             OrdersFetchAPIWrapResponseParameters(
-                item=item, resp=resp, resp_data=resp_data
+                orders=item, resp=resp, resp_data=resp_data
             )
         )
