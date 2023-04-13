@@ -7,7 +7,7 @@ from pybotters_wrapper.binance.binanceusdsm import create_binanceusdsm_cancel_or
 from pybotters_wrapper.core.api_order_cancel import CancelOrderAPI
 
 
-class TestOrderApiLimitBinanceUSDSM:
+class TestBinanceUSDSMOrderAPICancel:
     URL = "https://fapi.binance.com/fapi/v1/order"
     SYMBOL = "BTCUSDT"
     ORDER_ID = "283194212"

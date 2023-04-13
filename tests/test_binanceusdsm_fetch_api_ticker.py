@@ -9,7 +9,7 @@ from pybotters_wrapper.binance.binanceusdsm import (
 )
 
 
-class TestBinanceUSDSMFetchAPIOrderbook:
+class TestBinanceUSDSMFetchAPITicker:
     SYMBOL = "BTCUSDT"
     DUMMY_RESPONSE = {"symbol": "BTCUSDT", "price": "6000.01", "time": 1589437530011}
 

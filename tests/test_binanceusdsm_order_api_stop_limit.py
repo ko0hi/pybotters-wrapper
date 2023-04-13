@@ -2,7 +2,6 @@ import pytest
 import pytest_mock
 from aioresponses import aioresponses
 
-from conftest import MockAsyncResponse
 from pybotters_wrapper import create_client
 from pybotters_wrapper.binance.binanceusdsm import (
     create_binanceusdsm_stop_limit_order_api,
@@ -10,7 +9,7 @@ from pybotters_wrapper.binance.binanceusdsm import (
 from pybotters_wrapper.core.api_order_stop_limit import StopLimitOrderAPI
 
 
-class TestOrderApiStopLimitBinanceUSDSM:
+class TestBinanceUSDSMOrderApiStopLimit:
     URL = "https://fapi.binance.com/fapi/v1/order"
     SYMBOL = "BTCUSDT"
     SIDE = "BUY"

@@ -6,7 +6,7 @@ import pybotters_wrapper as pbw
 from pybotters_wrapper.core.api_order_limit import LimitOrderAPI
 
 
-class TestOrderApiLimitBinanceUSDSM:
+class TestBinanceUSDSMOrderAPILimit:
     URL = "https://fapi.binance.com/fapi/v1/order"
     SYMBOL = "BTCUSDT"
     SIDE = "BUY"
