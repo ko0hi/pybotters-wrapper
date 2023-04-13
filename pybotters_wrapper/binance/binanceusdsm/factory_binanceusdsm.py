@@ -69,22 +69,24 @@ def create_binanceusdsm_exchange_property() -> ExchangeProperty:
 
 
 def create_binanceusdsm_store_initializer(
-    store: BinanceUSDSMDataStore,
+    store: BinanceUSDSMDataStore | None = None,
 ) -> StoreInitializer:
-    return StoreInitializer(store, _STORE_INITIALIZER_CONFIG_BINANCEUSDSM)
+    return StoreInitializer(
+        store or BinanceUSDSMDataStore(), _STORE_INITIALIZER_CONFIG_BINANCEUSDSM
+    )
 
 
 def create_binanceusdsm_normalized_store_builder(
-    store: BinanceUSDSMDataStore,
+    store: BinanceUSDSMDataStore | None = None,
 ) -> BinanceNormalizedStoreBuilder:
-    return BinanceNormalizedStoreBuilder(store)
+    return BinanceNormalizedStoreBuilder(store or BinanceUSDSMDataStore())
 
 
 def create_binanceusdsm_websocket_request_builder() -> WebSocketRequestBuilder:
     return WebSocketRequestBuilder(BinanceUSDSMWebsocketChannels())
 
 
-def create_binanceusdsm_websockt_request_customizer() -> BinanceWebSocketRequestCustomizer:
+def create_binanceusdsm_websocket_request_customizer() -> BinanceWebSocketRequestCustomizer:
     return BinanceWebSocketRequestCustomizer(
         _EXCHANGE_PROPERTIES_BINANCEUSDSM["exchange"]
     )
@@ -109,7 +111,7 @@ def create_binanceusdsm_store(store: BinanceUSDSMDataStore | None = None):
         )
         .set_websocket_request_builder(create_binanceusdsm_websocket_request_builder())
         .set_websocket_request_customizer(
-            create_binanceusdsm_websockt_request_customizer()
+            create_binanceusdsm_websocket_request_customizer()
         )
         .get()
     )

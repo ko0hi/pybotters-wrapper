@@ -27,7 +27,7 @@ class BinanceNormalizedStoreBuilder(NormalizedStoreBuilder[BinanceUSDSMDataStore
             self._store.trade,
             mapper={
                 "id": lambda store, o, s, d: str(d["a"]),
-                "symbol": lambda store, o, s, d: str(d["s"]).upper,
+                "symbol": lambda store, o, s, d: str(d["s"]).upper(),
                 "side": lambda store, o, s, d: "SELL" if d["m"] else "BUY",
                 "price": lambda store, o, s, d: float(d["p"]),
                 "size": lambda store, o, s, d: float(d["q"]),
@@ -63,7 +63,7 @@ class BinanceNormalizedStoreBuilder(NormalizedStoreBuilder[BinanceUSDSMDataStore
 
     def execution(self) -> ExecutionStore:
         # 対応ストアがないのでmsgをオーバーライド
-        def _on_msg(store, msg):
+        def _on_msg(self, msg):
             if "e" in msg:
                 item = None
                 if msg["e"] == "ORDER_TRADE_UPDATE":
@@ -72,13 +72,13 @@ class BinanceNormalizedStoreBuilder(NormalizedStoreBuilder[BinanceUSDSMDataStore
                 elif msg["e"] == "executionReport":
                     item = msg
                 if item and item["X"] in ("TRADE", "PARTIALLY_FILLED", "FILLED"):
-                    item = store._normalize(
-                        store._base_store,
+                    item = self._normalize(
+                        self._base_store,
                         "insert",
                         {},
                         item,
                     )
-                    store._insert([{**item, "info": {"data": msg, "source": None}}])
+                    self._insert([{**item, "info": {"data": msg, "source": None}}])
 
         return ExecutionStore(
             None,

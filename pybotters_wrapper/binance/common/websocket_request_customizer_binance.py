@@ -12,9 +12,15 @@ class BinanceWebSocketRequestCustomizer(WebSocketRequestCustomizer):
         self._exchange = exchange
         self._listenkey_fetcher = BinanceListenKeyFetcher(client)
 
-    def customize(self, endpoint: str, request_list: dict) -> tuple[str, dict]:
+    def customize(self, endpoint: str, request_list: list[dict]) -> tuple[str, dict]:
+        old_params = []
         new_params = []
-        for p in request_list["params"]:
+        for rl in request_list:
+            for p in rl["params"]:
+                if p not in old_params:
+                    old_params.append(p)
+
+        for p in old_params:
             if p == DUMMY_LISTEN_KEY:
                 new_params.append(self._listenkey_fetcher.get_listenkey(self._exchange))
             else:
@@ -31,3 +37,7 @@ class BinanceWebSocketRequestCustomizer(WebSocketRequestCustomizer):
     @property
     def listenkey(self):
         return self.listenkey
+
+    def set_client(self, client: pybotters.Client):
+        super().set_client(client)
+        self._listenkey_fetcher = BinanceListenKeyFetcher(client)
