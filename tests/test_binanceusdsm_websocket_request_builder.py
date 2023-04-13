@@ -1,6 +1,5 @@
 import pytest
 import pytest_mock
-from aioresponses import aioresponses
 
 from pybotters_wrapper import create_client
 from pybotters_wrapper.binance.binanceusdsm import (

@@ -27,5 +27,5 @@ class BinanceListenKeyFetcher:
     def get_listenkey(self, exchange=None) -> str:
         if self._listenkey is None:
             assert exchange is not None
-            self.fetch_listenkey(exchange)
+            return self.fetch_listenkey(exchange)
         return self._listenkey
