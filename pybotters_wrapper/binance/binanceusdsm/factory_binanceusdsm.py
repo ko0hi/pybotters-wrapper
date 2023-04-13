@@ -38,6 +38,10 @@ from ...core import (
     OrdersFetchAPIBuilder,
     OrdersFetchAPITranslateParametersParameters,
     OrderItem,
+    PositionsFetchAPI,
+    PositionsFetchAPIBuilder,
+    PositionsFetchAPITranslateParametersParameters,
+    PositionItem,
 )
 from ..common import (
     BinanceNormalizedStoreBuilder,
@@ -80,9 +84,7 @@ def create_binanceusdsm_websocket_request_builder() -> WebSocketRequestBuilder:
     return WebSocketRequestBuilder(BinanceUSDSMWebsocketChannels())
 
 
-def create_binanceusdsm_websockt_request_customizer() -> (
-    BinanceWebSocketRequestCustomizer
-):
+def create_binanceusdsm_websockt_request_customizer() -> BinanceWebSocketRequestCustomizer:
     return BinanceWebSocketRequestCustomizer(
         _EXCHANGE_PROPERTIES_BINANCEUSDSM["exchange"]
     )
@@ -327,7 +329,7 @@ def create_binanceusdsm_fetch_orders_api(
     def response_itemizer(
         resp: aiohttp.ClientResponse, resp_data: dict
     ) -> list[OrderItem]:
-        orders = [
+        return [
             OrderItem(
                 id=str(i["orderId"]),
                 symbol=i["symbol"],
@@ -339,13 +341,45 @@ def create_binanceusdsm_fetch_orders_api(
             )
             for i in resp_data
         ]
-        return orders
 
     return (
         OrdersFetchAPIBuilder()
         .set_api_client(create_binanceusdsm_apiclient(client, verbose))
         .set_method("GET")
         .set_endpoint_generator("/fapi/v1/openOrders")
+        .set_parameter_translater(parameter_translater)
+        .set_response_itemizer(response_itemizer)
+        .get()
+    )
+
+
+def create_binanceusdsm_fetch_positions_api(
+    client: pybotters.Client, verbose: bool = False
+) -> PositionsFetchAPI:
+    def parameter_translater(
+        params: PositionsFetchAPITranslateParametersParameters,
+    ) -> dict:
+        return {"symbol": params["symbol"].upper()}
+
+    def response_itemizer(
+        resp: aiohttp.ClientResponse, resp_data: dict
+    ) -> list[PositionItem]:
+        return [
+            PositionItem(
+                symbol=i["symbol"],
+                side=("BUY" if float(i["positionAmt"]) > 0 else "SELL"),
+                price=float(i["entryPrice"]),
+                size=float(i["positionAmt"]),
+                info=i,  # noqa
+            )
+            for i in resp_data
+        ]
+
+    return (
+        PositionsFetchAPIBuilder()
+        .set_api_client(create_binanceusdsm_apiclient(client, verbose))
+        .set_method("GET")
+        .set_endpoint_generator("/fapi/v2/positionRisk")
         .set_parameter_translater(parameter_translater)
         .set_response_itemizer(response_itemizer)
         .get()

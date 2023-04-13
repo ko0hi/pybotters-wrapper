@@ -8,5 +8,6 @@ from .factory_binanceusdsm import (
     create_binanceusdsm_fetch_ticker_api,
     create_binanceusdsm_fetch_orderbook_api,
     create_binanceusdsm_fetch_orders_api,
+    create_binanceusdsm_fetch_positions_api,
 )
 from .websocket_channels_binanceusdsm import BinanceUSDSMWebsocketChannels

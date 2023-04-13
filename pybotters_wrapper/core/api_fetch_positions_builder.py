@@ -11,7 +11,7 @@ from .api_fetch_builder import FetchAPIBuilder
 
 class PositionsFetchAPIBuilder(
     FetchAPIBuilder[
-        PositionsFetchAPIResponse,
+        PositionsFetchAPI,
         PositionsFetchAPIGenerateEndpointParameters,
         PositionsFetchAPITranslateParametersParameters,
         PositionsFetchAPIWrapResponseParameters,
