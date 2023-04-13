@@ -3,30 +3,24 @@ from typing import TypedDict
 from pybotters.typedefs import Item
 
 from .normalized_store import NormalizedDataStore
-from .._typedefs import TSide
+from .._typedefs import TPrice, TSide, TSize, TSymbol
 
 
 class OrderbookItem(TypedDict):
-    symbol: str
+    symbol: TSymbol
     side: TSide
-    price: float
-    size: float
+    price: TPrice
+    size: TSize
 
 
-class OrderbookStore(NormalizedDataStore):
+class OrderbookStore(NormalizedDataStore[OrderbookItem]):
     _NAME = "orderbook"
     _KEYS = ["symbol", "side", "price"]
+    _NORMALIZED_ITEM_CLASS = OrderbookItem
 
     def __init__(self, *args, **kwargs):
         super(OrderbookStore, self).__init__(*args, **kwargs)
         self._mid = None
-
-    def _itemize(
-        self, symbol: str, side: TSide, price: float, size: float, **extra
-    ) -> OrderbookItem:
-        return OrderbookItem(
-            symbol=symbol, side=side, price=price, size=size, **extra  # noqa
-        )
 
     def _on_wait(self):
         sells, buys = self.sorted().values()

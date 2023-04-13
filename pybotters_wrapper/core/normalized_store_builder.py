@@ -48,10 +48,14 @@ class NormalizedStoreBuilder(Generic[TDataStoreManager], metaclass=ABCMeta):
         | OrderbookStore
         | ExecutionStore
         | PositionStore,
-    ]:
+    ] | TickerStore | TradesStore | OrderbookStore | OrderbookStore | ExecutionStore | PositionStore:
         if len(names) == 0:
             names = ["ticker", "trades", "orderbook", "execution", "position"]
-        rtn = {}
-        for name in names:
-            rtn[name] = getattr(self, name)()
-        return rtn
+
+        if len(names) == 1:
+            return getattr(self, names[0])()
+        else:
+            rtn = {}
+            for name in names:
+                rtn[name] = getattr(self, name)()
+            return rtn

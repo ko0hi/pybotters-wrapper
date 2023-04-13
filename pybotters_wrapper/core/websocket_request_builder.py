@@ -32,9 +32,11 @@ class WebSocketRequestBuilder:
         if request_customizer is not None:
             new_lists = {}
             for endpoint, request_list in request_lists.items():
-                new_lists[endpoint] = request_customizer(endpoint, request_list)
-            request_lists = new_lists
-        return request_lists
+                new_endpoint, new_request_list = request_customizer(endpoint, request_list)
+                new_lists[new_endpoint] = new_request_list
+            return new_lists
+        else:
+            return request_lists
 
     def subscribe(
         self,

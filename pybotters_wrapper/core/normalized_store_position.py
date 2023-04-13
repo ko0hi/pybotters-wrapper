@@ -1,17 +1,17 @@
 from typing import TypedDict
 
 from .normalized_store import NormalizedDataStore
-from .._typedefs import TSide
+from .._typedefs import TPrice, TSide, TSize, TSymbol
 
 
 class PositionItem(TypedDict):
-    symbol: str
+    symbol: TSymbol
     side: TSide
-    price: float
-    size: float
+    price: TPrice
+    size: TSize
 
 
-class PositionStore(NormalizedDataStore):
+class PositionStore(NormalizedDataStore[PositionItem]):
     _NAME = "position"
     _KEYS = ["symbol"]
 

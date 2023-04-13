@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from typing import Callable, Generic, Hashable, Iterator, TypeVar, TypedDict
+from typing import Callable, Generic, Hashable, Iterator, Type, TypeVar, TypedDict
 
 import pybotters
 from pybotters.store import DataStore, Item, StoreChange
@@ -14,17 +14,18 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
     _BASE_STORE_NAME: str | None = None
     _NAME: str | None = None
     _KEYS: list[str] | None = []
+    _NORMALIZED_ITEM_CLASS: Type[TypedDict] | None = None
 
     def __init__(
         self,
-        store: DataStore = None,
+        store: DataStore | None,
         *,
-        mapper: dict[str, any] = None,
+        mapper: dict[str, str | Callable[[DataStore, str, dict, dict], any]]
+        | Callable[[DataStore, str, dict, dict], dict] = None,
         name: str | None = None,
         keys: list[str] | None = None,
         data: list[Item] | None = None,
         auto_cast=False,
-        normalizer: Callable[[DataStore, str, dict, dict], dict] | None = None,
         target_operations: tuple[str] = ("insert", "update", "delete"),
         on_wait: Callable[[NormalizedDataStore], None] | None = None,
         on_msg: Callable[[NormalizedDataStore, Item], None] | None = None,
@@ -41,7 +42,6 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
         )
 
         self._mapper = mapper
-        self._normalizer = normalizer
         self._target_operations: tuple[str] = target_operations
 
         self._wait_task: asyncio.Task | None = None
@@ -94,7 +94,6 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
     def _on_msg(self, msg: "Item"):
         if self._on_msg_fn is not None:
             self._on_msg_fn(self, msg)
-        ...
 
     async def _watch_store(self):
         with self._base_store.watch() as stream:
@@ -116,16 +115,20 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
     def _normalize(
         self, store: "DataStore", operation: str, source: dict, data: dict
     ) -> "TNormalizedItem":
-        if self._mapper is not None:
+        assert self._mapper is not None
+        if callable(self._mapper):
+            return self._mapper(store, operation, source, data)
+        elif isinstance(self._mapper, dict):
             values = {}
             for k, fn in self._mapper.items():
                 values[k] = fn(store, operation, source, data)
             return self._itemize(**values)
         else:
-            return self._normalizer(store, operation, source, data)
+            raise TypeError(f"Unsupported mapper: {self._mapper}")
 
     def _itemize(self, *args, **kwargs) -> "TNormalizedItem":
-        raise NotImplementedError
+        assert self._NORMALIZED_ITEM_CLASS is not None
+        return self._NORMALIZED_ITEM_CLASS(*args, **kwargs)
 
     def _get_operation(self, change: "StoreChange") -> str | None:
         if self._on_watch_get_operation is not None:
