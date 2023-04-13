@@ -2,11 +2,15 @@ from .api_client import APIClient
 from .api_client_builder import APIClientBuilder
 from .api_exchange import ExchangeAPI
 from .api_fetch import FetchAPI
-from .api_fetch_ticker import TickerFetchAPI
 from .api_fetch_orderbook import OrderbookFetchAPI
+from .api_fetch_orderbook_builder import OrderbookFetchAPIBuilder
 from .api_fetch_orders import OrdersFetchAPI
-from .api_order import OrderAPI
+from .api_fetch_orders_builder import OrdersFetchAPIBuilder
 from .api_fetch_positions import PositionsFetchAPI
+from .api_fetch_positions_builder import PositionsFetchAPIBuilder
+from .api_fetch_ticker import TickerFetchAPI
+from .api_fetch_ticker_builder import TickerFetchAPIBuilder
+from .api_order import OrderAPI
 from .api_order_builder import OrderAPIBuilder
 from .api_order_cancel import (
     CancelOrderAPI,
