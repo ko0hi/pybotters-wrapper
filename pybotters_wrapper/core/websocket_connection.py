@@ -20,7 +20,7 @@ class WebSocketConnection:
     def __init__(
         self,
         endpoint: str,
-        send: any,
+        send: dict | list[dict] | str,
         hdlr: WsHandler | list[WsHandler],
         send_type: Literal["json", "str", "byte"] = "json",
         hdlr_type: Literal["json", "str", "byte"] = "json",
