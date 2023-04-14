@@ -67,9 +67,7 @@ class WebSocketRequestBuilder:
             channel = ["order", "execution", "position"]
 
         if isinstance(channel, str):
-            self._subscribe_by_channel_name(channel)
-            item = self._channels.channel(channel, **kwargs)
-            return self._register(item.endpoint, item.parameter)
+            return self._subscribe_by_channel_name(channel, **kwargs)
         elif isinstance(channel, list):
             for _channel in channel:
                 if isinstance(_channel, str):
