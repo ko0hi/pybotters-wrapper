@@ -54,7 +54,7 @@ class BinanceNormalizedStoreBuilder(NormalizedStoreBuilder[BinanceUSDSMDataStore
             mapper={
                 "id": lambda store, o, s, d: str(d["i"]),
                 "symbol": lambda store, o, s, d: d["s"].upper(),
-                "side": lambda store, o, s, d: float(d["S"]),
+                "side": lambda store, o, s, d: d["S"],
                 "price": lambda store, o, s, d: float(d["p"]),
                 "size": lambda store, o, s, d: float(d["q"]),
                 "type": lambda store, o, s, d: d["o"],
