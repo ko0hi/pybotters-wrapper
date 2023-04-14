@@ -19,7 +19,7 @@ from . import (
 from .exchange_property import ExchangeProperty
 from .normalized_store_builder import NormalizedStoreBuilder
 from .store_initializer import StoreInitializer
-from .websocket_connection import WebSocketConnection
+from .websocket_connection import WebSocketConnection, WebsocketOnReconnectionCallback
 from .websocket_request_builder import WebSocketRequestBuilder
 from .websocket_resquest_customizer import WebSocketRequestCustomizer
 
@@ -72,11 +72,11 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         send_type: Literal["json", "str", "byte"] = "json",
         hdlr_type: Literal["json", "str", "byte"] = "json",
         auto_reconnect: bool = False,
-        on_reconnection: Callable = None,
+        on_reconnection: WebsocketOnReconnectionCallback | None = None,
         **kwargs,
     ) -> DataStoreWrapper:
         self._websocket_request_customizer.set_client(client)
-        request_lists = self._ws_request_builder.get(
+        ws_requests = self._ws_request_builder.get(
             request_customizer=self._websocket_request_customizer
         )
 
@@ -88,7 +88,7 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
             else:
                 hdlr = [hdlr, self.onmessage]
 
-        for _endpoint, _send in request_lists.items():
+        for _endpoint, _send in ws_requests:
             conn = WebSocketConnection(_endpoint, _send, hdlr, send_type, hdlr_type)
             await conn.connect(client, auto_reconnect, on_reconnection, **kwargs)
             self._ws_connections.append(conn)

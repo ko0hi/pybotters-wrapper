@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TypeVar, Literal, Callable, Type
+from typing import TypeVar, Literal, NamedTuple, Type
 
 TWebsocketRequestBuilder = TypeVar(
     "TWebsocketRequestBuilder", bound="WebsocketRequestBuilder"
 )
 from .websocket_channels import WebSocketChannels
 from .websocket_resquest_customizer import WebSocketRequestCustomizer
+
+
+class WebsocketRequest(NamedTuple):
+    endpoint: str
+    send: str | dict | list[dict]
 
 
 class WebSocketRequestBuilder:
@@ -27,16 +32,17 @@ class WebSocketRequestBuilder:
         self,
         *,
         request_customizer: WebSocketRequestCustomizer = None,
-    ) -> dict[str, list[dict | str]]:
+    ) -> list[WebsocketRequest]:
         request_lists = self._request_lists
         if request_customizer is not None:
             new_lists = {}
             for endpoint, request_list in request_lists.items():
-                new_endpoint, new_request_list = request_customizer(endpoint, request_list)
+                new_endpoint, new_request_list = request_customizer(
+                    endpoint, request_list
+                )
                 new_lists[new_endpoint] = new_request_list
-            return new_lists
-        else:
-            return request_lists
+            request_lists = new_lists
+        return [WebsocketRequest(k, v) for (k, v) in request_lists.items()]
 
     def subscribe(
         self,
@@ -88,4 +94,3 @@ class WebSocketRequestBuilder:
     def _register(self, endpoint: str, parameter: any) -> TWebsocketRequestBuilder:
         self._request_lists[endpoint].append(parameter)
         return self
-
