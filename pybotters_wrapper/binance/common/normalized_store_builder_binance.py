@@ -88,32 +88,32 @@ class BinanceNormalizedStoreBuilder(NormalizedStoreBuilder[BinanceUSDSMDataStore
                 "side": lambda store, o, s, d: d["S"],
                 "price": lambda store, o, s, d: float(d["L"]),
                 "size": lambda store, o, s, d: float(d["l"]),
-                "timestamp": lambda store, o, s, d: pd.to_datetime(d["T"], unit="ms", utc=True)
+                "timestamp": lambda store, o, s, d: pd.to_datetime(
+                    d["T"], unit="ms", utc=True
+                ),
             },
             on_msg=_on_msg,
         )
 
     def position(self) -> PositionStore:
-        def _get_operation(change: "StoreChange") -> str:
-            """binanceは常に"""
-            if change.data["ps"] == "BOTH":
-                # one-way
-                if float(change.data["pa"]) == 0:
-                    return "_delete"
-                else:
-                    return f"_{change.operation}"
-            else:
-                # two-way
-                return f"_{change.operation}"
+        def mapper(store, operation, source, data) -> dict:
+            size = float(data["pa"])
 
-        return PositionStore(
-            self._store.position,
-            on_watch_get_operation=_get_operation,
-            mapper={
-                "symbol": lambda store, o, s, d: d["s"].upper(),
-                "side": lambda store, o, s, d: float(d["S"]),
-                "price": lambda store, o, s, d: float(d["p"]),
-                "size": lambda store, o, s, d: float(d["q"]),
-                "ps": lambda store, o, s, d: d["ps"],
-            },
-        )
+            if data["ps"] == "BOTH":
+                if size == 0:
+                    side = None
+                elif size > 0:
+                    side = "BUY"
+                else:
+                    side = "SELL"
+            else:
+                side = "BUY" if data["ps"] == "LONG" else "SELL"
+            return {
+                "symbol": data["s"].upper(),
+                "side": side,
+                "price": float(data["ep"]),
+                "size": abs(size),
+                "ps": data["ps"],
+            }
+
+        return PositionStore(self._store.position, mapper=mapper)
