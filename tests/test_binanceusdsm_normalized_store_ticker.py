@@ -41,7 +41,7 @@ def dummy_change() -> StoreChange:
     )
 
 
-def test_normalized_store_ticker_binanceusdsm_on_watch(trades_store, dummy_change):
+def test_on_watch(trades_store, dummy_change):
     trades_store._on_watch(dummy_change)
 
     assert len(trades_store) == 1
@@ -52,7 +52,7 @@ def test_normalized_store_ticker_binanceusdsm_on_watch(trades_store, dummy_chang
     }
 
 
-def test_normalized_store_ticker_binanceusdsm_single_item_per_symbol1(
+def test_single_item_per_symbol1(
         trades_store, dummy_change
 ):
     trades_store._on_watch(dummy_change)
@@ -60,7 +60,7 @@ def test_normalized_store_ticker_binanceusdsm_single_item_per_symbol1(
     assert len(trades_store) == 1
 
 
-def test_normalized_store_ticker_binanceusdsm_single_item_per_symbol2(
+def test_single_item_per_symbol2(
         trades_store, dummy_change
 ):
     trades_store._on_watch(dummy_change)

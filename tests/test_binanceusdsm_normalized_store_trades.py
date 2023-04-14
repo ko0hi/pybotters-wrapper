@@ -55,7 +55,7 @@ def dummy_change2() -> StoreChange:
     )
 
 
-def test_normalized_store_ticker_binanceusdsm_on_watch(trades_store, dummy_change):
+def test_on_watch(trades_store, dummy_change):
     trades_store._on_watch(dummy_change)
 
     assert len(trades_store) == 1
@@ -70,7 +70,7 @@ def test_normalized_store_ticker_binanceusdsm_on_watch(trades_store, dummy_chang
     }
 
 
-def test_normalized_store_ticker_binanceusdsm_keys_duplicated(
+def test_duplicated_keys(
     trades_store, dummy_change
 ):
     trades_store._on_watch(dummy_change)
@@ -78,7 +78,7 @@ def test_normalized_store_ticker_binanceusdsm_keys_duplicated(
     assert len(trades_store) == 1
 
 
-def test_normalized_store_ticker_binanceusdsm_keys_different(
+def test_different_keys(
     trades_store, dummy_change
 ):
     trades_store._on_watch(dummy_change)

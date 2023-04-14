@@ -96,7 +96,7 @@ def dummy_partially_filled_msg() -> dict:
     }
 
 
-def test_normalized_store_ticker_binanceusdsm_on_msg_filled(
+def test_on_msg_filled(
         execution_store, dummy_filled_msg
 ):
     execution_store._on_msg(dummy_filled_msg)
@@ -112,7 +112,7 @@ def test_normalized_store_ticker_binanceusdsm_on_msg_filled(
     }
 
 
-def test_normalized_store_ticker_binanceusdsm_on_msg_partially_filled(
+def test_on_msg_partially_filled(
         execution_store, dummy_partially_filled_msg
 ):
     execution_store._on_msg(dummy_partially_filled_msg)

@@ -129,7 +129,7 @@ def dummy_change_delete() -> StoreChange:
     )
 
 
-def test_normalized_store_order_binanceusdsm_on_watch_insert(
+def test_on_watch_insert(
     order_store, dummy_change_insert
 ):
     order_store._on_watch(dummy_change_insert)
@@ -148,7 +148,7 @@ def test_normalized_store_order_binanceusdsm_on_watch_insert(
     }
 
 
-def test_normalized_store_order_binanceusdsm_on_msg_partially_filled(
+def test_on_watch_insert_and_delete(
     order_store, dummy_change_insert, dummy_change_delete
 ):
     order_store._on_watch(dummy_change_insert)
