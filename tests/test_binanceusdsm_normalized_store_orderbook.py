@@ -32,8 +32,8 @@ def dummy_change_delete_btc() -> StoreChange:
     )
 
 
-def test_normalized_store_ticker_binanceusdsm_on_watch_update(
-    orderbook_store, dummy_change_update_btc
+def test_normalized_store_orderbook_binanceusdsm_on_watch_update(
+        orderbook_store, dummy_change_update_btc
 ):
     orderbook_store._on_watch(dummy_change_update_btc)
     assert len(orderbook_store) == 1
@@ -46,8 +46,8 @@ def test_normalized_store_ticker_binanceusdsm_on_watch_update(
     }
 
 
-def test_normalized_store_ticker_binanceusdsm_on_watch_delete(
-    orderbook_store, dummy_change_update_btc, dummy_change_delete_btc
+def test_normalized_store_orderbook_binanceusdsm_on_watch_delete(
+        orderbook_store, dummy_change_update_btc, dummy_change_delete_btc
 ):
     orderbook_store._on_watch(dummy_change_update_btc)
     orderbook_store._on_watch(dummy_change_delete_btc)
