@@ -1,5 +1,25 @@
 import pytest
 from typing import Any
+import os
+import json
+
+
+@pytest.fixture
+def resources_dir():
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "./resources")
+
+
+@pytest.fixture
+def resource_loader(resources_dir):
+    def wrapper(filename: str) -> any:
+        filepath = os.path.join(resources_dir, filename)
+        if filepath.endswith(".json"):
+            with open(filepath) as f:
+                return json.load(f)
+        else:
+            raise RuntimeError(f"Unsupported file type: {filename}")
+
+    return wrapper
 
 
 @pytest.fixture
