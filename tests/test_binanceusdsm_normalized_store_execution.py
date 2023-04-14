@@ -8,7 +8,7 @@ from pybotters_wrapper.core import ExecutionStore
 
 
 @pytest.fixture
-def orderbook_store() -> ExecutionStore:
+def execution_store() -> ExecutionStore:
     return create_binanceusdsm_normalized_store_builder().get("execution")
 
 
@@ -97,11 +97,11 @@ def dummy_partially_filled_msg() -> dict:
 
 
 def test_normalized_store_ticker_binanceusdsm_on_msg_filled(
-        orderbook_store, dummy_filled_msg
+        execution_store, dummy_filled_msg
 ):
-    orderbook_store._on_msg(dummy_filled_msg)
-    assert len(orderbook_store) == 1
-    assert orderbook_store.find()[0] == {
+    execution_store._on_msg(dummy_filled_msg)
+    assert len(execution_store) == 1
+    assert execution_store.find()[0] == {
         "id": "1402203845",
         "symbol": "APTBUSD",
         "side": "BUY",
@@ -113,11 +113,11 @@ def test_normalized_store_ticker_binanceusdsm_on_msg_filled(
 
 
 def test_normalized_store_ticker_binanceusdsm_on_msg_partially_filled(
-        orderbook_store, dummy_partially_filled_msg
+        execution_store, dummy_partially_filled_msg
 ):
-    orderbook_store._on_msg(dummy_partially_filled_msg)
-    assert len(orderbook_store) == 1
-    assert orderbook_store.find()[0] == {
+    execution_store._on_msg(dummy_partially_filled_msg)
+    assert len(execution_store) == 1
+    assert execution_store.find()[0] == {
         "id": "1402203845",
         "symbol": "APTBUSD",
         "side": "BUY",
