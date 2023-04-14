@@ -2,7 +2,16 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from typing import Callable, Generic, Hashable, Iterator, Type, TypeVar, TypedDict
+from typing import (
+    Callable,
+    Generic,
+    Hashable,
+    Iterator,
+    Type,
+    TypeVar,
+    TypedDict,
+    Union,
+)
 
 import pybotters
 from pybotters.store import DataStore, Item, StoreChange
@@ -20,8 +29,11 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
         self,
         store: DataStore | None,
         *,
-        mapper: dict[str, str | Callable[[DataStore, str, dict, dict], any]]
-        | Callable[[DataStore, str, dict, dict], dict] = None,
+        mapper: Union[
+            dict[str, str | Callable[[DataStore, str, dict, dict], any]],
+            Callable[[DataStore, str, dict, dict], dict],
+            None,
+        ] = None,
         name: str | None = None,
         keys: list[str] | None = None,
         data: list[Item] | None = None,
