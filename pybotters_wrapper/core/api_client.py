@@ -8,7 +8,7 @@ import requests
 from aiohttp.client import ClientResponse
 from requests import Response
 
-from .._typedefs import TRequsetMethod, TSide
+from .._typedefs import TRequestMethod, TSide
 from .exchange_property import ExchangeProperty
 from .normalized_store_order import OrderItem
 from .normalized_store_orderbook import OrderbookItem
@@ -68,7 +68,7 @@ class APIClient:
 
     async def request(
         self,
-        method: TRequsetMethod,
+        method: TRequestMethod,
         url: str,
         *,
         params_or_data: dict | None = None,
@@ -103,7 +103,7 @@ class APIClient:
 
     def srequest(
         self,
-        method: TRequsetMethod,
+        method: TRequestMethod,
         url: str,
         *,
         params_or_data: dict | None = None,

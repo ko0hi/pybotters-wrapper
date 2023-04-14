@@ -8,11 +8,11 @@ from typing import Generic, Awaitable, NamedTuple, Optional
 import aiohttp
 import pybotters
 
-from .._typedefs import TDataStoreManager, TRequsetMethod
+from .._typedefs import TDataStoreManager, TRequestMethod
 
 
 class InitializeRequestItem(NamedTuple):
-    method: TRequsetMethod
+    method: TRequestMethod
     url: str
     required_params: set = None
 

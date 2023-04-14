@@ -5,7 +5,7 @@ from typing import Awaitable, Callable, Generic, NamedTuple, Type, TypeVar
 from aiohttp.client import ClientResponse
 from requests import Response
 
-from .._typedefs import TEndpoint, TRequsetMethod
+from .._typedefs import TEndpoint, TRequestMethod
 from . import APIClient
 
 TGenerateEndpointParameters = TypeVar("TGenerateEndpointParameters")
@@ -47,7 +47,7 @@ class ExchangeAPI(
     def __init__(
         self,
         api_client: APIClient,
-        method: TRequsetMethod,
+        method: TRequestMethod,
         *,
         endpoint_generator: TEndpoint
         | Callable[[TGenerateEndpointParameters], str]

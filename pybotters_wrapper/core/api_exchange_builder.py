@@ -5,7 +5,7 @@ from typing import Awaitable, Callable, Generic, NamedTuple, Type, TypeVar
 
 from aiohttp import ClientResponse
 
-from .._typedefs import TEndpoint, TRequsetMethod
+from .._typedefs import TEndpoint, TRequestMethod
 from . import APIClient
 from .api_exchange import TGenerateEndpointParameters, TTranslateParametersParameters, \
     TWrapResponseParameters
@@ -35,7 +35,7 @@ class ExchangeAPIBuilder(
         ] = exchange_api_response_wrapper_class
 
         self._api_client: APIClient | None = None
-        self._method: TRequsetMethod | None = None
+        self._method: TRequestMethod | None = None
         self._endpoint_generator: TEndpoint | Callable[
             [TGenerateEndpointParameters], str
         ] | None = None
@@ -50,7 +50,7 @@ class ExchangeAPIBuilder(
         self._api_client = api_client
         return self
 
-    def set_method(self, method: TRequsetMethod) -> ExchangeAPIBuilder:
+    def set_method(self, method: TRequestMethod) -> ExchangeAPIBuilder:
         self._method = method
         return self
 

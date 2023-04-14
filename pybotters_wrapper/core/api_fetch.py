@@ -2,7 +2,7 @@ from typing import Any, Awaitable, Callable, Generic, NamedTuple, Type
 
 from aiohttp.client import ClientResponse
 
-from .._typedefs import TEndpoint, TRequsetMethod, TSide
+from .._typedefs import TEndpoint, TRequestMethod, TSide
 from .api_exchange import (
     ExchangeAPI,
     TGenerateEndpointParameters,
@@ -27,7 +27,7 @@ class FetchAPI(
     def __init__(
         self,
         api_client: APIClient,
-        method: TRequsetMethod,
+        method: TRequestMethod,
         *,
         response_itemizer: Callable[
             [ClientResponse, any], dict[TSide, list[OrderbookItem]]

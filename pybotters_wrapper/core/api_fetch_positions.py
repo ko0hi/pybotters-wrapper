@@ -2,7 +2,7 @@ from typing import Any, Awaitable, Callable, NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
-from .._typedefs import TEndpoint, TRequsetMethod, TSymbol
+from .._typedefs import TEndpoint, TRequestMethod, TSymbol
 from .api_client import APIClient
 from .api_fetch import FetchAPI
 from .normalized_store_position import PositionItem

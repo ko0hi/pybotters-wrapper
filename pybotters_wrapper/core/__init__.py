@@ -84,6 +84,7 @@ from .store_wrapper_builder import DataStoreWrapperBuilder
 from .websocket_channels import WebSocketChannels
 from .websocket_request_builder import WebSocketRequestBuilder
 from .websocket_resquest_customizer import WebSocketRequestCustomizer
+from .websocket_connection import WebSocketConnection
 
 __all__ = (
     "API",

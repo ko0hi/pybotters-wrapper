@@ -2,7 +2,7 @@ from typing import Awaitable, Callable, NamedTuple, Type
 
 from aiohttp.client import ClientResponse
 
-from .._typedefs import TEndpoint, TRequsetMethod, TSymbol
+from .._typedefs import TEndpoint, TRequestMethod, TSymbol
 from .api_client import APIClient
 from .api_exchange import ExchangeAPI, TGenerateEndpointParameters, TResponseWrapper, \
     TTranslateParametersParameters, TWrapResponseParameters
@@ -20,7 +20,7 @@ class OrderAPI(
     def __init__(
         self,
         api_client: APIClient,
-        method: TRequsetMethod,
+        method: TRequestMethod,
         *,
         order_id_key: str,
         order_id_extractor: Callable[[ClientResponse, dict, str], str | None]

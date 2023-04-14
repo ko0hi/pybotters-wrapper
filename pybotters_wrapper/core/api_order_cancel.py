@@ -4,7 +4,7 @@ from aiohttp.client import ClientResponse
 
 from .api_client import APIClient
 from .api_order import OrderAPI
-from .._typedefs import TEndpoint, TOrderId, TSymbol, TRequsetMethod
+from .._typedefs import TEndpoint, TOrderId, TSymbol, TRequestMethod
 
 
 class CancelOrderAPIResponse(NamedTuple):
