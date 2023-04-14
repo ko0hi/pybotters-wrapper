@@ -18,17 +18,6 @@ class OrderbookStore(NormalizedDataStore[OrderbookItem]):
     _KEYS = ["symbol", "side", "price"]
     _NORMALIZED_ITEM_CLASS = OrderbookItem
 
-    def __init__(self, *args, **kwargs):
-        super(OrderbookStore, self).__init__(*args, **kwargs)
-        self._mid = None
-
-    def _on_wait(self):
-        sells, buys = self.sorted().values()
-        if len(sells) != 0 and len(buys) != 0:
-            ba = sells[0]["price"]
-            bb = buys[0]["price"]
-            self._mid = (ba + bb) / 2
-
     def sorted(self, query: Item = None) -> dict[TSide, list[Item]]:
         if query is None:
             query = {}
@@ -39,7 +28,3 @@ class OrderbookStore(NormalizedDataStore[OrderbookItem]):
         result["SELL"].sort(key=lambda x: x["price"])
         result["BUY"].sort(key=lambda x: x["price"], reverse=True)
         return result
-
-    @property
-    def mid(self):
-        return self._mid
