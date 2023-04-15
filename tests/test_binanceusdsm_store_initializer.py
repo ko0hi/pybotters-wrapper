@@ -3,11 +3,24 @@ import pytest
 import pytest_mock
 from aioresponses import aioresponses
 
-import pybotters_wrapper as pbw
+from pybotters_wrapper import create_client
+from pybotters_wrapper.binance.binanceusdsm import create_binanceusdsm_store_initializer
+
+
+@pytest.fixture
+def store():
+    return pybotters.BinanceUSDSMDataStore()
+
+
+@pytest.fixture
+def initializer_factory():
+    return create_binanceusdsm_store_initializer
 
 
 @pytest.mark.asyncio
-async def test_binanceusdsm_token(mocker: pytest_mock.MockerFixture):
+async def test_initialize_token(
+    mocker: pytest_mock.MockerFixture, store, initializer_factory
+):
     url = "https://fapi.binance.com/fapi/v1/listenKey"
     dummy_response = {
         "listenKey": "pqia91ma19a5s61cv6a81va65sdf19v8a65a1a5s61cv6a81va65sdf19v8a65a1"
@@ -15,9 +28,8 @@ async def test_binanceusdsm_token(mocker: pytest_mock.MockerFixture):
     patch = mocker.patch(
         "pybotters.models.binance.BinanceDataStoreBase._initialize_listenkey"
     )
-    async with pbw.create_client() as client:
-        store = pybotters.BinanceUSDSMDataStore()
-        initializer = pbw.create_binanceusdsm_store_initializer(store)
+    async with create_client() as client:
+        initializer = initializer_factory(store)
         with aioresponses() as m:
             m.post(url, payload=dummy_response)
             await initializer.initialize_token(client)
@@ -25,7 +37,7 @@ async def test_binanceusdsm_token(mocker: pytest_mock.MockerFixture):
 
 
 @pytest.mark.asyncio
-async def test_binanceusdsm_initializer_orderbook():
+async def test_initialize_orderbook(store, initializer_factory):
     url = "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT"
     dummy_response = {
         "lastUpdateId": 2730989998908,
@@ -34,9 +46,8 @@ async def test_binanceusdsm_initializer_orderbook():
         "bids": [["29928.70", "15.268"], ["29928.60", "0.339"], ["29928.50", "0.636"]],
         "asks": [["29928.80", "0.783"], ["29928.90", "0.028"], ["29929.00", "0.212"]],
     }
-    async with pbw.create_client() as client:
-        store = pybotters.BinanceUSDSMDataStore()
-        initializer = pbw.create_binanceusdsm_store_initializer(store)
+    async with create_client() as client:
+        initializer = initializer_factory(store)
         with aioresponses() as m:
             m.get(url, payload=dummy_response)
             await initializer.initialize_orderbook(client, symbol="BTCUSDT")
@@ -48,7 +59,7 @@ async def test_binanceusdsm_initializer_orderbook():
 
 
 @pytest.mark.asyncio
-async def test_binanceusdsm_initializer_order():
+async def test_initialize_order(store, initializer_factory):
     url = "https://fapi.binance.com/fapi/v1/openOrders"
     dummy_response = [
         {
@@ -99,9 +110,8 @@ async def test_binanceusdsm_initializer_order():
         },
     ]
 
-    async with pbw.create_client() as client:
-        store = pybotters.BinanceUSDSMDataStore()
-        initializer = pbw.create_binanceusdsm_store_initializer(store)
+    async with create_client() as client:
+        initializer = initializer_factory(store)
         with aioresponses() as m:
             m.get(url, payload=dummy_response)
             await initializer.initialize_order(client)
@@ -114,7 +124,7 @@ async def test_binanceusdsm_initializer_order():
 
 
 @pytest.mark.asyncio
-async def test_binanceusdsm_initializer_position():
+async def test_initialize_position(store, initializer_factory):
     url = "https://fapi.binance.com/fapi/v2/positionRisk"
     dummy_response = [
         {
@@ -153,9 +163,8 @@ async def test_binanceusdsm_initializer_position():
         },
     ]
 
-    async with pbw.create_client() as client:
-        store = pybotters.BinanceUSDSMDataStore()
-        initializer = pbw.create_binanceusdsm_store_initializer(store)
+    async with create_client() as client:
+        initializer = initializer_factory(store)
         with aioresponses() as m:
             m.get(url, payload=dummy_response)
             await initializer.initialize_position(client)
