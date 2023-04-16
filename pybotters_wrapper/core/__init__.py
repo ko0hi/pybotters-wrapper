@@ -86,7 +86,7 @@ from .websocket_connection import WebSocketConnection
 from .websocket_request_builder import WebSocketRequestBuilder, WebsocketRequest
 from .websocket_resquest_customizer import WebSocketRequestCustomizer
 
-all = (
+__all__ = (
     "APIClient",
     "APIClientBuilder",
     "ExchangeAPI",
