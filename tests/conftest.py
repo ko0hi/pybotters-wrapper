@@ -1,13 +1,16 @@
 import pybotters
 import pytest
 import pytest_mock
-from typing import Any, Callable, Type
+from typing import Any, Callable, Literal, Type
 import os
 import json
+
+from pybotters.store import StoreChange
 
 from pybotters_wrapper import create_client
 from pybotters_wrapper.core import (
     FetchAPI,
+    NormalizedStoreBuilder,
     TickerFetchAPI,
     OrderbookFetchAPI,
     OrdersFetchAPI,
@@ -307,3 +310,94 @@ def stop_market_order_tester():
         _ORDER_METHOD = "stop_market_order"
 
     return StopMarketOrderAPITester
+
+
+class NormalizedStoreTester:
+    _STORE_NAME = None
+
+    def __init__(
+        self,
+        *,
+        builder_factory_method: Callable[[], NormalizedStoreBuilder],
+        dummy_data_insert: dict,
+        dummy_data_update: dict,
+        dummy_data_delete: dict,
+        expected_item: dict,
+    ):
+        self.builder_factory_method = builder_factory_method
+        self.dummy_change_insert = StoreChange(None, "insert", {}, dummy_data_insert)
+        self.dummy_change_update = StoreChange(None, "update", {}, dummy_data_update)
+        self.dummy_change_delete = StoreChange(None, "delete", {}, dummy_data_delete)
+        self.expected_item = expected_item
+
+    def get_store(self):
+        return self.builder_factory_method().get(self._STORE_NAME)
+
+    def test_insert(self):
+        store = self.get_store()
+        store._on_watch(self.dummy_change_insert)
+        assert len(store) == 1
+
+    def test_update(self):
+        store = self.get_store()
+        store._on_watch(self.dummy_change_update)
+        assert len(store) == 1
+
+    def test_delete(self):
+        store = self.get_store()
+        store._on_watch(self.dummy_change_insert)
+        store._on_watch(self.dummy_change_delete)
+        assert len(store) == 0
+
+    def test_item(self):
+        store = self.get_store()
+        store._on_watch(self.dummy_change_insert)
+        assert store.find()[0] == self.expected_item
+
+
+@pytest.fixture
+def ticker_normalized_store_tester():
+    class TickerNormalizedStoreTester(NormalizedStoreTester):
+        _STORE_NAME = "ticker"
+
+    return TickerNormalizedStoreTester
+
+
+@pytest.fixture
+def trades_normalized_store_tester():
+    class TradesNormalizedStoreTester(NormalizedStoreTester):
+        _STORE_NAME = "trades"
+
+    return TradesNormalizedStoreTester
+
+
+@pytest.fixture
+def orderbook_normalized_store_tester():
+    class OrderbookNormalizedStoreTester(NormalizedStoreTester):
+        _STORE_NAME = "orderbook"
+
+    return OrderbookNormalizedStoreTester
+
+
+@pytest.fixture
+def order_normalized_store_tester():
+    class OrderNormalizedStoreTester(NormalizedStoreTester):
+        _STORE_NAME = "order"
+
+    return OrderNormalizedStoreTester
+
+
+@pytest.fixture
+def position_normalized_store_tester():
+    class PositionNormalizedStoreTester(NormalizedStoreTester):
+        _STORE_NAME = "position"
+
+    return PositionNormalizedStoreTester
+
+
+@pytest.fixture
+def execution_normalized_store_tester():
+    class ExecutionNormalizedStoreTester(NormalizedStoreTester):
+        _STORE_NAME = "execution"
+
+    return ExecutionNormalizedStoreTester

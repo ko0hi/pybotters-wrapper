@@ -8,7 +8,7 @@ class BinanceListenKeyFetcher:
     _ENDPOINTS = {
         "binancespot": "/api/v3/userDataStream",
         "binanceusdsm": "/fapi/v1/listenKey",
-        "bianancecoinm": "/dapi/v1/listenKey",
+        "binancecoinm": "/dapi/v1/listenKey",
     }
 
     def __init__(self, client: pybotters.Client | None = None):
