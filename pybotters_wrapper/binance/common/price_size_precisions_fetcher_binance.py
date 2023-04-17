@@ -12,8 +12,8 @@ class BinancePriceSizePrecisionsFetcher(PriceSizePrecisionFetcher):
         "binancespot": "https://api.binance.com/api/v3/exchangeInfo",
         "binanceusdsm": "https://fapi.binance.com/fapi/v1/exchangeInfo",
         "binanceusdsm_test": "https://testnet.binancefuture.com/fapi/v1/exchangeInfo",
-        "bianancecoinm": "https://dapi.binance.com/dapi/v1/exchangeInfo",
-        "bianancecoinm_test": "https://testnet.binancefuture.com/dapi/v1/exchangeInfo",
+        "binancecoinm": "https://dapi.binance.com/dapi/v1/exchangeInfo",
+        "binancecoinm_test": "https://testnet.binancefuture.com/dapi/v1/exchangeInfo",
     }
 
     def __init__(self, exchange: str):
