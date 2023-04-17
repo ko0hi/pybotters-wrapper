@@ -14,9 +14,12 @@ def builder() -> WebSocketRequestBuilder:
     return create_binanceusdsm_websocket_request_builder()
 
 
-def test_binanceusdsm_websocket_request_builder_public(
-    builder, mocker: pytest_mock.MockerFixture
-):
+@pytest.fixture
+def customizer():
+    return create_binanceusdsm_websocket_request_customizer()
+
+
+def test_public(builder, mocker: pytest_mock.MockerFixture):
     mocker.patch("time.monotonic", return_value=1)
     symbol = "BTCUSDT"
     expected = {
@@ -42,9 +45,7 @@ def test_binanceusdsm_websocket_request_builder_public(
     assert subscribe_list == expected
 
 
-def test_binanceusdsm_websocket_request_builder_private(
-    builder, mocker: pytest_mock.MockerFixture
-):
+def test_private(builder, mocker: pytest_mock.MockerFixture):
     mocker.patch("time.monotonic", return_value=1)
     symbol = "BTCUSDT"
     expected = {
@@ -71,9 +72,7 @@ def test_binanceusdsm_websocket_request_builder_private(
     assert actual == expected
 
 
-def test_binanceusdsm_websocket_request_builder_all(
-    builder, mocker: pytest_mock.MockerFixture
-):
+def test_all(builder, mocker: pytest_mock.MockerFixture):
     mocker.patch("time.monotonic", return_value=1)
     symbol = "BTCUSDT"
     expected = {
@@ -117,9 +116,7 @@ def test_binanceusdsm_websocket_request_builder_all(
 
 
 @pytest.mark.asyncio
-async def test_binanceusdsm_websocket_builder_with_customizer(
-    builder, mocker: pytest_mock.MockerFixture
-):
+async def test_with_customizer(builder, customizer, mocker: pytest_mock.MockerFixture):
     mocker.patch("time.monotonic", return_value=1)
     mocker.patch(
         "pybotters_wrapper.binance.common.listenkey_fetcher.BinanceListenKeyFetcher.get_listenkey",
@@ -139,7 +136,6 @@ async def test_binanceusdsm_websocket_builder_with_customizer(
         },
     }
     async with create_client() as client:
-        customizer = create_binanceusdsm_websocket_request_customizer()
         customizer.set_client(client)
         actual = builder.subscribe("all", symbol=symbol).get(
             request_customizer=customizer
