@@ -10,4 +10,4 @@ from .factory import (
     create_and_connect_websocket_connection,
 )
 
-from .binance import binanceusdsm
+from .binance import binanceusdsm, binancecoinm

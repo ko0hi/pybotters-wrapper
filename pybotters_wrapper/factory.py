@@ -3,8 +3,15 @@ from typing import Literal
 import pybotters
 
 from .binance.binanceusdsm import create_binanceusdsm_apiclient
+from .binance.binancecoinm import create_binancecoinm_apiclient
 from .core import APIClient, WebSocketConnection
 from .core.websocket_connection import WebsocketOnReconnectionCallback, WsHandler
+
+
+_EXCHANGE2API = {
+    "binanceusdsm": create_binanceusdsm_apiclient,
+    "binancecoinm": create_binancecoinm_apiclient,
+}
 
 
 def create_client(
@@ -16,7 +23,7 @@ def create_client(
 
 
 def create_api(exchange: str, client: pybotters.Client) -> APIClient:
-    return create_binanceusdsm_apiclient(client)
+    return _EXCHANGE2API[exchange](client)
 
 
 def create_websocket_connection(
