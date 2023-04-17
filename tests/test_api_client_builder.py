@@ -31,4 +31,4 @@ async def test_api_client_builder_fail():
         with pytest.raises(ValueError) as e:
             builder.set_client(client).set_verbose(True).get()
 
-        assert "Missing required fields: exchange_property" == str(e)
+        assert "Missing required fields: exchange_property" == str(e.value)
