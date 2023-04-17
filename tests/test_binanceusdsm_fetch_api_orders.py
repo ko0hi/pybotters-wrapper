@@ -1,17 +1,14 @@
 import pytest
 import pytest_mock
-from aioresponses import aioresponses
 
-from pybotters_wrapper import create_client
-from pybotters_wrapper.core import OrdersFetchAPI
 from pybotters_wrapper.binance.binanceusdsm import (
     create_binanceusdsm_fetch_orders_api,
 )
 
 
-class TestBinanceUSDSMFetchAPIOrders:
-    SYMBOL = "ETHBUSD"
-    DUMMY_RESPONSE = [
+@pytest.fixture
+def tester(orders_fetch_api_tester):
+    dummy_responses = [
         {
             "orderId": 26799019660,
             "symbol": "ETHBUSD",
@@ -60,34 +57,14 @@ class TestBinanceUSDSMFetchAPIOrders:
         },
     ]
 
-    @pytest.mark.asyncio
-    async def test_generate_endpoint(self):
-        expected = "/fapi/v1/openOrders"
-        async with create_client() as client:
-            api = create_binanceusdsm_fetch_orders_api(client, verbose=True)
-            actual = api._generate_endpoint({"symbol": self.SYMBOL, "extra_params": {}})
-            assert actual == expected
-
-    @pytest.mark.asyncio
-    async def test_translate_parameters(self):
-        expected = {"symbol": "ETHBUSD"}
-
-        async with create_client() as client:
-            api = create_binanceusdsm_fetch_orders_api(client, verbose=True)
-            actual = api._translate_parameters(
-                {
-                    "endpoint": "/fapi/v1/openOrders",
-                    "symbol": self.SYMBOL,
-                    "extra_params": {},
-                }
-            )
-
-            assert actual == expected
-
-    @pytest.mark.asyncio
-    async def test_itemize_response(self, async_response_mocker):
-        url = f"https://fapi.binance.com/fapi/v1/openOrders?symbol={self.SYMBOL}"
-        expected = [
+    return orders_fetch_api_tester(
+        url="https://fapi.binance.com/fapi/v1/openOrders?symbol=ETHBUSD",
+        symbol="ETHBUSD",
+        factory_method=create_binanceusdsm_fetch_orders_api,
+        dummy_response=dummy_responses,
+        expected_generate_endpoint="/fapi/v1/openOrders",
+        expected_translate_parameters={"symbol": "ETHBUSD"},
+        expected_itemize_response=[
             {
                 "id": "26799019660",
                 "symbol": "ETHBUSD",
@@ -95,7 +72,7 @@ class TestBinanceUSDSMFetchAPIOrders:
                 "price": 1978.02,
                 "size": 0.33,
                 "type": "STOP",
-                "info": self.DUMMY_RESPONSE[0],
+                "info": dummy_responses[0],
             },
             {
                 "id": "26807427868",
@@ -104,56 +81,34 @@ class TestBinanceUSDSMFetchAPIOrders:
                 "price": 1988.01,
                 "size": 0.33,
                 "type": "STOP",
-                "info": self.DUMMY_RESPONSE[1],
+                "info": dummy_responses[1],
             },
-        ]
-        async with create_client() as client:
-            with aioresponses() as m:
-                m.get(url, payload=self.DUMMY_RESPONSE)
-                resp = await client.get(url)
-                resp_data = await resp.json()
-                api = create_binanceusdsm_fetch_orders_api(client, verbose=True)
+        ],
+    )
 
-                actual = api._itemize_response(resp, resp_data)
 
-                assert actual == expected
+@pytest.mark.asyncio
+@pytest.mark.skip
+async def test_fetch(tester):
+    resp, data = await tester.test_fetch()
+    print(data)
 
-    @pytest.mark.asyncio
-    async def test_combined(self, mocker: pytest_mock.MockerFixture):
-        url = f"https://fapi.binance.com/fapi/v1/openOrders?symbol={self.SYMBOL}"
-        spy_generate_endpoint = mocker.spy(OrdersFetchAPI, "_generate_endpoint")
-        spy_translate_parameters = mocker.spy(OrdersFetchAPI, "_translate_parameters")
-        spy_itemize_response = mocker.spy(OrdersFetchAPI, "_itemize_response")
-        expected_generate_endpoint = "/fapi/v1/openOrders"
-        expected_translate_parameters = {"symbol": "ETHBUSD"}
-        expected_itemize_response = [
-            {
-                "id": "26799019660",
-                "symbol": "ETHBUSD",
-                "side": "SELL",
-                "price": 1978.02,
-                "size": 0.33,
-                "type": "STOP",
-                "info": self.DUMMY_RESPONSE[0],
-            },
-            {
-                "id": "26807427868",
-                "symbol": "ETHBUSD",
-                "side": "SELL",
-                "price": 1988.01,
-                "size": 0.33,
-                "type": "STOP",
-                "info": self.DUMMY_RESPONSE[1],
-            },
-        ]
-        async with create_client() as client:
-            api = create_binanceusdsm_fetch_orders_api(client, verbose=True)
-            with aioresponses() as m:
-                m.get(url, payload=self.DUMMY_RESPONSE)
-                await api.fetch_orders(self.SYMBOL)
 
-                assert spy_generate_endpoint.spy_return == expected_generate_endpoint
-                assert (
-                    spy_translate_parameters.spy_return == expected_translate_parameters
-                )
-                assert spy_itemize_response.spy_return == expected_itemize_response
+@pytest.mark.asyncio
+async def test_generate_endpoint(tester):
+    await tester.test_generate_endpoint()
+
+
+@pytest.mark.asyncio
+async def test_translate_parameters(tester):
+    await tester.test_translate_parameters()
+
+
+@pytest.mark.asyncio
+async def test_itemize_response(tester):
+    await tester.test_itemize_response()
+
+
+@pytest.mark.asyncio
+async def test_combined(tester, mocker: pytest_mock.MockerFixture):
+    await tester.test_combined(mocker)

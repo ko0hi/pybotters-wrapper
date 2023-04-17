@@ -1,17 +1,14 @@
 import pytest
 import pytest_mock
-from aioresponses import aioresponses
 
-from pybotters_wrapper import create_client
 from pybotters_wrapper.binance.binanceusdsm import (
     create_binanceusdsm_fetch_positions_api,
 )
-from pybotters_wrapper.core import PositionsFetchAPI
 
 
-class TestBinanceUSDSMFetchAPIPositions:
-    SYMBOL = "ETHBUSD"
-    DUMMY_RESPONSE = [
+@pytest.fixture
+def tester(positions_fetch_api_tester):
+    dummy_responses = [
         {
             "symbol": "ETHBUSD",
             "positionAmt": "-0.330",
@@ -30,81 +27,47 @@ class TestBinanceUSDSMFetchAPIPositions:
             "updateTime": 1681393911012,
         }
     ]
-
-    @pytest.mark.asyncio
-    async def test_generate_endpoint(self):
-        expected = "/fapi/v2/positionRis˚k"
-        async with create_client() as client:
-            api = create_binanceusdsm_fetch_positions_api(client, verbose=True)
-            actual = api._generate_endpoint({"symbol": self.SYMBOL, "extra_params": {}})
-            assert actual == expected
-
-    @pytest.mark.asyncio
-    async def test_translate_parameters(self):
-        expected = {"symbol": "ETHBUSD"}
-
-        async with create_client() as client:
-            api = create_binanceusdsm_fetch_positions_api(client, verbose=True)
-            actual = api._translate_parameters(
-                {
-                    "endpoint": "/fapi/v1/positionRisk",
-                    "symbol": self.SYMBOL,
-                    "extra_params": {},
-                }
-            )
-
-            assert actual == expected
-
-    @pytest.mark.asyncio
-    async def test_itemize_response(self, async_response_mocker):
-        url = f"https://fapi.binance.com/fapi/v2/positionRisk?symbol={self.SYMBOL}"
-        expected = [
+    return positions_fetch_api_tester(
+        symbol="ETHBUSD",
+        url="https://fapi.binance.com/fapi/v2/positionRisk?symbol=ETHBUSD",
+        factory_method=create_binanceusdsm_fetch_positions_api,
+        dummy_response=dummy_responses,
+        expected_generate_endpoint="/fapi/v2/positionRisk",
+        expected_translate_parameters={"symbol": "ETHBUSD"},
+        expected_itemize_response=[
             {
                 "symbol": "ETHBUSD",
                 "side": "SELL",
                 "price": 1995.0,
                 "size": -0.330,
-                "info": self.DUMMY_RESPONSE[0],
+                "info": dummy_responses[0],
             }
-        ]
-        async with create_client() as client:
-            with aioresponses() as m:
-                m.get(url, payload=self.DUMMY_RESPONSE)
-                resp = await client.get(url)
-                resp_data = await resp.json()
-                api = create_binanceusdsm_fetch_positions_api(client, verbose=True)
+        ],
+    )
 
-                actual = api._itemize_response(resp, resp_data)
 
-                assert actual == expected
+@pytest.mark.asyncio
+@pytest.mark.skip
+async def test_fetch(tester):
+    resp, data = await tester.test_fetch()
+    print(data)
 
-    @pytest.mark.asyncio
-    async def test_combined(self, mocker: pytest_mock.MockerFixture):
-        url = f"https://fapi.binance.com/fapi/v2/positionRisk?symbol={self.SYMBOL}"
-        spy_generate_endpoint = mocker.spy(PositionsFetchAPI, "_generate_endpoint")
-        spy_translate_parameters = mocker.spy(
-            PositionsFetchAPI, "_translate_parameters"
-        )
-        spy_itemize_response = mocker.spy(PositionsFetchAPI, "_itemize_response")
-        expected_generate_endpoint = "/fapi/v2/positionRisk"
-        expected_translate_parameters = {"symbol": "ETHBUSD"}
-        expected_itemize_response = [
-            {
-                "symbol": "ETHBUSD",
-                "side": "SELL",
-                "price": 1995.0,
-                "size": -0.330,
-                "info": self.DUMMY_RESPONSE[0],
-            }
-        ]
-        async with create_client() as client:
-            api = create_binanceusdsm_fetch_positions_api(client, verbose=True)
-            with aioresponses() as m:
-                m.get(url, payload=self.DUMMY_RESPONSE)
-                await api.fetch_positions(self.SYMBOL)
 
-                assert spy_generate_endpoint.spy_return == expected_generate_endpoint
-                assert (
-                    spy_translate_parameters.spy_return == expected_translate_parameters
-                )
-                assert spy_itemize_response.spy_return == expected_itemize_response
+@pytest.mark.asyncio
+async def test_generate_endpoint(tester):
+    await tester.test_generate_endpoint()
+
+
+@pytest.mark.asyncio
+async def test_translate_parameters(tester):
+    await tester.test_translate_parameters()
+
+
+@pytest.mark.asyncio
+async def test_itemize_response(tester):
+    await tester.test_itemize_response()
+
+
+@pytest.mark.asyncio
+async def test_combined(tester, mocker: pytest_mock.MockerFixture):
+    await tester.test_combined(mocker)
