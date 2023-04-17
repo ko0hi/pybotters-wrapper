@@ -210,6 +210,11 @@ class OrderAPITester:
         self.expected_translate_parameters = expected_translate_parameters
         self.expected_order_id = expected_order_id
 
+    async def test_order(self):
+        async with create_client() as client:
+            api = self.factory_method(client)
+            return await getattr(api, self._ORDER_METHOD)(**self.dummy_order_parameters)
+
     async def test_generate_endpoint(self):
         async with create_client() as client:
             api = self.factory_method(client)
