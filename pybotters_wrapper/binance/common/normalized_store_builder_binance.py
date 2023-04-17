@@ -1,5 +1,9 @@
 import pandas as pd
-from pybotters.models.binance import BinanceUSDSMDataStore
+from pybotters.models.binance import (
+    BinanceSpotDataStore,
+    BinanceUSDSMDataStore,
+    BinanceCOINMDataStore,
+)
 
 from ...core import (
     TickerStore,
@@ -12,7 +16,11 @@ from ...core import (
 )
 
 
-class BinanceNormalizedStoreBuilder(NormalizedStoreBuilder[BinanceUSDSMDataStore]):
+class BinanceNormalizedStoreBuilder(
+    NormalizedStoreBuilder[
+        BinanceSpotDataStore | BinanceUSDSMDataStore | BinanceCOINMDataStore
+    ]
+):
     def ticker(self) -> TickerStore:
         return TickerStore(
             self._store.ticker,
