@@ -9,7 +9,7 @@ def tester(orderbook_fetch_api_tester):
     return orderbook_fetch_api_tester(
         symbol="BTCUSD_PERP",
         url="https://dapi.binance.com/dapi/v1/depth?symbol=BTCUSD_PERP",
-        factory_method=BinanceCOINMWrapperFactory.create_fetch_orderbook_api,
+        factory_method=BinanceCOINMWrapperFactory.create_orderbook_fetch_api,
         dummy_response={
             "lastUpdateId": 1027024,
             "E": 1589436922972,

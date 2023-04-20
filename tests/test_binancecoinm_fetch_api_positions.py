@@ -9,7 +9,7 @@ def tester(positions_fetch_api_tester):
     return positions_fetch_api_tester(
         symbol="BTCUSD_PERP",
         url="https://dapi.binance.com/dapi/v1/positionRisk?symbol=BTCUSD_PERP",
-        factory_method=BinanceCOINMWrapperFactory.create_fetch_positions_api,
+        factory_method=BinanceCOINMWrapperFactory.create_positions_fetch_api,
         dummy_response=[
             {
                 "symbol": "BTCUSD_PERP",

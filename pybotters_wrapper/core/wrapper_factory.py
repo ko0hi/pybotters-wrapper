@@ -114,28 +114,28 @@ class WrapperFactory(metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def create_fetch_ticker_api(
+    def create_ticker_fetch_api(
         cls, client: pybotters.Client, verbose: bool = False
     ) -> TickerFetchAPI:
         raise NotImplementedError
 
     @classmethod
     @abstractmethod
-    def create_fetch_orderbook_api(
+    def create_orderbook_fetch_api(
         cls, client: pybotters.Client, verbose: bool = False
     ) -> OrderbookFetchAPI:
         raise NotImplementedError
 
     @classmethod
     @abstractmethod
-    def create_fetch_orders_api(
+    def create_orders_fetch_api(
         cls, client: pybotters.Client, verbose: bool = False
     ) -> OrdersFetchAPI:
         raise NotImplementedError
 
     @classmethod
     @abstractmethod
-    def create_fetch_positions_api(
+    def create_positions_fetch_api(
         cls, client: pybotters.Client, verbose: bool = False
     ) -> PositionsFetchAPI:
         raise NotImplementedError

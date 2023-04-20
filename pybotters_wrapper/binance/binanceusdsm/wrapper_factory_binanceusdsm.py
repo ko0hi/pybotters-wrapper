@@ -53,6 +53,8 @@ from ...core import (
     PositionItem,
     PositionsFetchAPIBuilder,
     TickerItem,
+    APIWrapper,
+    APIWrapperBuilder,
 )
 
 
@@ -123,6 +125,25 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
             .set_normalized_store_builder(cls.create_normalized_store_builder(store))
             .set_websocket_request_builder(cls.create_websocket_request_builder())
             .set_websocket_request_customizer(cls.create_websocket_request_customizer())
+            .get()
+        )
+
+    @classmethod
+    def create_api(cls, client: pybotters.Client, verbose: bool = False) -> APIWrapper:
+        return (
+            APIWrapperBuilder()
+            .set_api_client(cls.create_api_client(client, verbose))
+            .set_limit_order_api(cls.create_limit_order_api(client, verbose))
+            .set_market_order_api(cls.create_market_order_api(client, verbose))
+            .set_cancel_order_api(cls.create_cancel_order_api(client, verbose))
+            .set_stop_limit_order_api(cls.create_stop_limit_order_api(client, verbose))
+            .set_stop_market_order_api(
+                cls.create_stop_market_order_api(client, verbose)
+            )
+            .set_ticker_fetch_api(cls.create_ticker_fetch_api(client, verbose))
+            .set_orderbook_fetch_api(cls.create_orderbook_fetch_api(client, verbose))
+            .set_orders_fetch_api(cls.create_orders_fetch_api(client, verbose))
+            .set_positions_fetch_api(cls.create_positions_fetch_api(client, verbose))
             .get()
         )
 
@@ -274,7 +295,7 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
         )
 
     @classmethod
-    def create_fetch_ticker_api(
+    def create_ticker_fetch_api(
         cls, client: pybotters.Client, verbose: bool = False
     ) -> TickerFetchAPI:
         def parameter_translater(
@@ -298,7 +319,7 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
         )
 
     @classmethod
-    def create_fetch_orderbook_api(
+    def create_orderbook_fetch_api(
         cls, client: pybotters.Client, verbose: bool = False
     ) -> OrderbookFetchAPI:
         def parameter_translater(
@@ -335,7 +356,7 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
         )
 
     @classmethod
-    def create_fetch_orders_api(
+    def create_orders_fetch_api(
         cls, client: pybotters.Client, verbose: bool = False
     ) -> OrdersFetchAPI:
         def parameter_translater(
@@ -370,7 +391,7 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
         )
 
     @classmethod
-    def create_fetch_positions_api(
+    def create_positions_fetch_api(
         cls, client: pybotters.Client, verbose: bool = False
     ) -> PositionsFetchAPI:
         def parameter_translater(

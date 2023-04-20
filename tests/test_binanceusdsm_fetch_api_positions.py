@@ -28,7 +28,7 @@ def tester(positions_fetch_api_tester):
     return positions_fetch_api_tester(
         symbol="ETHBUSD",
         url="https://fapi.binance.com/fapi/v2/positionRisk?symbol=ETHBUSD",
-        factory_method=BinanceUSDSMWrapperFactory.create_fetch_positions_api,
+        factory_method=BinanceUSDSMWrapperFactory.create_positions_fetch_api,
         dummy_response=dummy_responses,
         expected_generate_endpoint="/fapi/v2/positionRisk",
         expected_translate_parameters={"symbol": "ETHBUSD"},

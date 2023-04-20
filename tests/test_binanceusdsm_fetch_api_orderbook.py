@@ -9,7 +9,7 @@ def tester(orderbook_fetch_api_tester):
     return orderbook_fetch_api_tester(
         symbol="BTCUSDT",
         url="https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT",
-        factory_method=BinanceUSDSMWrapperFactory.create_fetch_orderbook_api,
+        factory_method=BinanceUSDSMWrapperFactory.create_orderbook_fetch_api,
         dummy_response={
             "lastUpdateId": 1027024,
             "E": 1589436922972,

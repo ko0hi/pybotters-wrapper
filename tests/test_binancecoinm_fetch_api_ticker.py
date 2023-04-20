@@ -9,7 +9,7 @@ def tester(ticker_fetch_api_tester):
     return ticker_fetch_api_tester(
         symbol="BTCUSD_PERP",
         url="https://dapi.binance.com/dapi/v1/ticker/price?symbol=BTCUSD_PERP",
-        factory_method=BinanceCOINMWrapperFactory.create_fetch_ticker_api,
+        factory_method=BinanceCOINMWrapperFactory.create_ticker_fetch_api,
         dummy_response={
             "symbol": "BTCUSD_PERP",
             "price": "6000.01",

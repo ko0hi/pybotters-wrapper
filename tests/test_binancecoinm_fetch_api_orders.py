@@ -9,7 +9,7 @@ def tester(orders_fetch_api_tester):
     return orders_fetch_api_tester(
         symbol="BTCUSD_PERP",
         url="https://dapi.binance.com/dapi/v1/openOrders?symbol=BTCUSD_PERP",
-        factory_method=BinanceCOINMWrapperFactory.create_fetch_orders_api,
+        factory_method=BinanceCOINMWrapperFactory.create_orders_fetch_api,
         dummy_response=[
             {
                 "orderId": 83013837647,
