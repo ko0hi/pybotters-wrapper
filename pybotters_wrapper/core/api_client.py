@@ -1,56 +1,13 @@
 from __future__ import annotations
 
-from typing import NamedTuple, Optional
-
 import aiohttp
 import pybotters
 import requests
 from aiohttp.client import ClientResponse
 from requests import Response
 
-from .._typedefs import TRequestMethod, TSide
 from .exchange_property import ExchangeProperty
-from .normalized_store_order import OrderItem
-from .normalized_store_orderbook import OrderbookItem
-from .normalized_store_position import PositionItem
-from .normalized_store_ticker import TickerItem
-
-
-class OrderResponse(NamedTuple):
-    order_id: str
-    resp: aiohttp.ClientResponse
-    resp_data: dict | None = None
-
-    @property
-    def status(self):
-        return self.resp.status
-
-    def is_success(self):
-        return self.resp.status == 200
-
-
-class FetchTickerResponse(NamedTuple):
-    ticker: TickerItem
-    resp: aiohttp.ClientResponse
-    resp_data: Optional[any] = None
-
-
-class FetchOrderbookResponse(NamedTuple):
-    orderbook: dict[TSide, list[OrderbookItem]]
-    resp: aiohttp.ClientResponse
-    resp_data: Optional[any] = None
-
-
-class FetchOrdersResponse(NamedTuple):
-    orders: list[OrderItem]
-    resp: aiohttp.ClientResponse
-    resp_data: Optional[any] = None
-
-
-class FetchPositionsResponse(NamedTuple):
-    positions: list[PositionItem]
-    resp: aiohttp.ClientResponse
-    resp_data: Optional[any] = None
+from .._typedefs import TRequestMethod
 
 
 class APIClient:

@@ -12,6 +12,7 @@ from .api_order_limit import LimitOrderAPI
 from .api_order_market import MarketOrderAPI
 from .api_order_stop_limit import StopLimitOrderAPI
 from .api_order_stop_market import StopMarketOrderAPI
+from .api_wrapper import APIWrapper
 from .exchange_property import ExchangeProperty
 from .formatter_precision import PriceSizeFormatter
 from .normalized_store_builder import NormalizedStoreBuilder
@@ -62,6 +63,10 @@ class WrapperFactory(metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def create_store(cls, store: TDataStoreManager | None = None) -> DataStoreWrapper:
+        raise NotImplementedError
+
+    @classmethod
+    def create_api(cls, client: pybotters.Client, verbose: bool = False) -> APIWrapper:
         raise NotImplementedError
 
     @classmethod

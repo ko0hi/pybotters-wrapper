@@ -67,6 +67,8 @@ from .api_order_stop_market import (
     StopMarketOrderAPIWrapResponseParameters,
 )
 from .api_order_stop_market_builder import StopMarketOrderAPIBuilder
+from .api_wrapper import APIWrapper
+from .api_wrapper_builder import APIWrapperBuilder
 from .exchange_property import ExchangeProperty
 from .fetcher_price_size_precisions import PriceSizePrecisionFetcher
 from .formatter_precision import PrecisionFormatter, PriceSizeFormatter
