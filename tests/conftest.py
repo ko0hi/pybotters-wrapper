@@ -1,10 +1,9 @@
+from typing import Any, Callable
+
 import pybotters
 import pytest
 import pytest_mock
-from typing import Any, Callable, Literal, Type
-import os
-import json
-
+from aioresponses import aioresponses
 from pybotters.store import StoreChange
 
 from pybotters_wrapper import create_client
@@ -22,25 +21,6 @@ from pybotters_wrapper.core import (
     StopLimitOrderAPI,
     StopMarketOrderAPI,
 )
-from aioresponses import aioresponses
-
-
-@pytest.fixture
-def resources_dir():
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "./resources")
-
-
-@pytest.fixture
-def resource_loader(resources_dir):
-    def wrapper(filename: str) -> any:
-        filepath = os.path.join(resources_dir, filename)
-        if filepath.endswith(".json"):
-            with open(filepath) as f:
-                return json.load(f)
-        else:
-            raise RuntimeError(f"Unsupported file type: {filename}")
-
-    return wrapper
 
 
 class MockAsyncResponse:
