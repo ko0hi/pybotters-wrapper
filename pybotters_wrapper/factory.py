@@ -2,9 +2,23 @@ from typing import Literal
 
 import pybotters
 
-from .core import APIClient, WebSocketConnection
+from ._typedefs import TDataStoreManager
+from .binance.binancecoinm import BinanceCOINMWrapperFactory
+from .binance.binanceusdsm import BinanceUSDSMWrapperFactory
+from .core import (
+    APIWrapper,
+    DataStoreWrapper,
+    WebSocketConnection,
+    WrapperFactory,
+    StoreInitializer,
+    WebSocketRequestBuilder,
+)
 from .core.websocket_connection import WebsocketOnReconnectionCallback, WsHandler
 
+_EXCHANGE2FACTORY: dict[str, WrapperFactory] = {
+    "binancecoinm": BinanceCOINMWrapperFactory,
+    "binanceusdsm": BinanceUSDSMWrapperFactory,
+}
 
 
 def create_client(
@@ -15,8 +29,36 @@ def create_client(
     return pybotters.Client(apis, base_url, **kwargs)
 
 
-def create_api(exchange: str, client: pybotters.Client) -> APIClient:
-    return _EXCHANGE2API[exchange](client)
+def create_api(
+    exchange: str, client: pybotters.Client, verbose: bool = False
+) -> APIWrapper:
+    return _EXCHANGE2FACTORY[exchange].create_api(client, verbose)
+
+
+def create_store(
+    exchange: str, store: TDataStoreManager | None = None
+) -> DataStoreWrapper:
+    return _EXCHANGE2FACTORY[exchange].create_store(store)
+
+
+def create_store_and_api(
+    exchange: str,
+    client: pybotters.Client,
+    *,
+    store: TDataStoreManager | None = None,
+    verbose: bool = False,
+) -> tuple[DataStoreWrapper, APIWrapper]:
+    return create_store(exchange, store), create_api(exchange, client, verbose)
+
+
+def create_store_initializer(
+    exchange: str, store: TDataStoreManager
+) -> StoreInitializer:
+    return _EXCHANGE2FACTORY[exchange].create_store_initializer(store)
+
+
+def create_websocket_request_builder(exchange: str) -> WebSocketRequestBuilder:
+    return _EXCHANGE2FACTORY[exchange].create_websocket_request_builder()
 
 
 def create_websocket_connection(
