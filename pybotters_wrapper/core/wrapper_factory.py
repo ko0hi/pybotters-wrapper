@@ -66,6 +66,7 @@ class WrapperFactory(metaclass=ABCMeta):
         raise NotImplementedError
 
     @classmethod
+    @abstractmethod
     def create_api(cls, client: pybotters.Client, verbose: bool = False) -> APIWrapper:
         raise NotImplementedError
 
