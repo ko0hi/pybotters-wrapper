@@ -1,7 +1,7 @@
 import pytest
 import pytest_mock
 
-from pybotters_wrapper.binance.binancecoinm import create_binancecoinm_market_order_api
+from pybotters_wrapper.binance.binancecoinm import BinanceCOINMWrapperFactory
 
 
 @pytest.fixture
@@ -17,7 +17,7 @@ def tester(market_order_tester):
     return market_order_tester(
         url="https://dapi.binance.com/dapi/v1/order",
         request_method="POST",
-        factory_method=create_binancecoinm_market_order_api,
+        factory_method=BinanceCOINMWrapperFactory.create_market_order_api,
         dummy_order_parameters={
             "symbol": "BNBUSD_230929",
             "side": "SELL",

@@ -1,9 +1,7 @@
 import pytest
 import pytest_mock
 
-from pybotters_wrapper.binance.binancecoinm import (
-    create_binancecoinm_stop_market_order_api,
-)
+from pybotters_wrapper.binance.binancecoinm import BinanceCOINMWrapperFactory
 
 
 @pytest.fixture
@@ -19,7 +17,7 @@ def tester(stop_market_order_tester):
     return stop_market_order_tester(
         url="https://dapi.binance.com/dapi/v1/order",
         request_method="POST",
-        factory_method=create_binancecoinm_stop_market_order_api,
+        factory_method=BinanceCOINMWrapperFactory.create_stop_market_order_api,
         dummy_order_parameters={
             "symbol": "BTCUSD_PERP",
             "side": "BUY",

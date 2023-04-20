@@ -4,7 +4,7 @@ import pytest_mock
 from aioresponses import aioresponses
 
 from pybotters_wrapper import create_client
-from pybotters_wrapper.binance.binancecoinm import create_binancecoinm_store_initializer
+from pybotters_wrapper.binance.binancecoinm import BinanceCOINMWrapperFactory
 
 
 @pytest.fixture
@@ -14,7 +14,7 @@ def store():
 
 @pytest.fixture
 def initializer_factory():
-    return create_binancecoinm_store_initializer
+    return BinanceCOINMWrapperFactory.create_store_initializer
 
 
 @pytest.mark.asyncio

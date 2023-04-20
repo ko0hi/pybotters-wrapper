@@ -1,15 +1,13 @@
 import pandas as pd
 import pytest
 
-from pybotters_wrapper.binance.binancecoinm import (
-    create_binancecoinm_normalized_store_builder,
-)
+from pybotters_wrapper.binance.binancecoinm import BinanceCOINMWrapperFactory
 from pybotters_wrapper.core import ExecutionStore
 
 
 @pytest.fixture
 def execution_store() -> ExecutionStore:
-    return create_binancecoinm_normalized_store_builder().get("execution")
+    return BinanceCOINMWrapperFactory.create_normalized_store_builder().get("execution")
 
 
 @pytest.fixture

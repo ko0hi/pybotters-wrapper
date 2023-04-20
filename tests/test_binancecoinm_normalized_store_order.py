@@ -1,9 +1,6 @@
-import pandas as pd
 import pytest
 
-from pybotters_wrapper.binance.binancecoinm import (
-    create_binancecoinm_normalized_store_builder,
-)
+from pybotters_wrapper.binance.binancecoinm import BinanceCOINMWrapperFactory
 
 
 @pytest.fixture
@@ -41,7 +38,7 @@ def tester(order_normalized_store_tester):
         "ss": 0,
     }
     return order_normalized_store_tester(
-        builder_factory_method=create_binancecoinm_normalized_store_builder,
+        builder_factory_method=BinanceCOINMWrapperFactory.create_normalized_store_builder,
         dummy_data_insert=dummy_data,
         dummy_data_update=dummy_data,
         dummy_data_delete=dummy_data,

@@ -2,21 +2,18 @@ import pytest
 import pytest_mock
 
 from pybotters_wrapper import create_client
-from pybotters_wrapper.binance.binancecoinm import (
-    create_binancecoinm_websocket_request_builder,
-    create_binancecoinm_websocket_request_customizer,
-)
+from pybotters_wrapper.binance.binancecoinm import BinanceCOINMWrapperFactory
 from pybotters_wrapper.core import WebSocketRequestBuilder, WebsocketRequest
 
 
 @pytest.fixture
 def builder() -> WebSocketRequestBuilder:
-    return create_binancecoinm_websocket_request_builder()
+    return BinanceCOINMWrapperFactory.create_websocket_request_builder()
 
 
 @pytest.fixture
 def customizer():
-    return create_binancecoinm_websocket_request_customizer()
+    return BinanceCOINMWrapperFactory.create_websocket_request_customizer()
 
 
 def test_public(builder, mocker: pytest_mock.MockerFixture):

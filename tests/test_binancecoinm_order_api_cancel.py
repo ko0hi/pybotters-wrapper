@@ -1,7 +1,7 @@
 import pytest
 import pytest_mock
 
-from pybotters_wrapper.binance.binancecoinm import create_binancecoinm_cancel_order_api
+from pybotters_wrapper.binance.binancecoinm import BinanceCOINMWrapperFactory
 
 
 @pytest.fixture
@@ -9,7 +9,7 @@ def tester(cancel_order_tester):
     return cancel_order_tester(
         url="https://dapi.binance.com/dapi/v1/order",
         request_method="DELETE",
-        factory_method=create_binancecoinm_cancel_order_api,
+        factory_method=BinanceCOINMWrapperFactory.create_cancel_order_api,
         dummy_order_parameters={
             "symbol": "BTCUSD_PERP",
             "order_id": "83055510190",
