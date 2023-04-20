@@ -171,8 +171,6 @@ def create_binancecoinm_market_order_api(
             "quantity": params["size"],
         }
 
-    print()
-
     return (
         MarketOrderAPIBuilder()
         .set_api_client(create_binancecoinm_apiclient(client, verbose))
