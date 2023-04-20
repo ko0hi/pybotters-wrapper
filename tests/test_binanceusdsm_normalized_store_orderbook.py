@@ -1,17 +1,13 @@
 import pytest
-from pybotters.store import StoreChange
 
-from pybotters_wrapper.binance.binanceusdsm import (
-    create_binanceusdsm_normalized_store_builder,
-)
-from pybotters_wrapper.core import OrderbookStore
+from pybotters_wrapper.binance.binanceusdsm import BinanceUSDSMWrapperFactory
 
 
 @pytest.fixture
 def tester(orderbook_normalized_store_tester):
     dummy_data = {"s": "BTCUSDT", "S": "SELL", "p": "30895.10", "q": "0.015"}
     return orderbook_normalized_store_tester(
-        builder_factory_method=create_binanceusdsm_normalized_store_builder,
+        builder_factory_method=BinanceUSDSMWrapperFactory.create_normalized_store_builder,
         dummy_data_insert=dummy_data,
         dummy_data_update=dummy_data,
         dummy_data_delete=dummy_data,

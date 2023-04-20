@@ -1,7 +1,7 @@
 import pytest
 import pytest_mock
 
-from pybotters_wrapper.binance.binanceusdsm import create_binanceusdsm_cancel_order_api
+from pybotters_wrapper.binance.binanceusdsm import BinanceUSDSMWrapperFactory
 
 
 @pytest.fixture
@@ -17,7 +17,7 @@ def tester(cancel_order_tester):
     return cancel_order_tester(
         url="https://fapi.binance.com/fapi/v1/order",
         request_method="DELETE",
-        factory_method=create_binanceusdsm_cancel_order_api,
+        factory_method=BinanceUSDSMWrapperFactory.create_cancel_order_api,
         dummy_order_parameters={
             "symbol": "BTCUSDT",
             "order_id": "283194212",

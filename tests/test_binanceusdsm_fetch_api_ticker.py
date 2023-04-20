@@ -1,9 +1,7 @@
 import pytest
 import pytest_mock
 
-from pybotters_wrapper.binance.binanceusdsm import (
-    create_binanceusdsm_fetch_ticker_api,
-)
+from pybotters_wrapper.binance.binanceusdsm import BinanceUSDSMWrapperFactory
 
 
 @pytest.fixture
@@ -11,7 +9,7 @@ def tester(ticker_fetch_api_tester):
     return ticker_fetch_api_tester(
         symbol="BTCUSDT",
         url="https://fapi.binance.com/fapi/v1/ticker/price?symbol=BTCUSDT",
-        factory_method=create_binanceusdsm_fetch_ticker_api,
+        factory_method=BinanceUSDSMWrapperFactory.create_fetch_ticker_api,
         dummy_response={
             "symbol": "BTCUSDT",
             "price": "6000.01",

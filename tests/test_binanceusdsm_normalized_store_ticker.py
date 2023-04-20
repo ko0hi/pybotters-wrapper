@@ -1,8 +1,6 @@
 import pytest
 
-from pybotters_wrapper.binance.binanceusdsm import (
-    create_binanceusdsm_normalized_store_builder,
-)
+from pybotters_wrapper.binance.binanceusdsm import BinanceUSDSMWrapperFactory
 
 
 @pytest.fixture
@@ -28,7 +26,7 @@ def tester(ticker_normalized_store_tester):
         "n": 18151,
     }
     return ticker_normalized_store_tester(
-        builder_factory_method=create_binanceusdsm_normalized_store_builder,
+        builder_factory_method=BinanceUSDSMWrapperFactory.create_normalized_store_builder,
         dummy_data_insert=dummy_data,
         dummy_data_update=dummy_data,
         dummy_data_delete=dummy_data,

@@ -1,12 +1,7 @@
 import pytest
 import pytest_mock
-from aioresponses import aioresponses
 
-from pybotters_wrapper import create_client
-from pybotters_wrapper.binance.binanceusdsm import (
-    create_binanceusdsm_stop_market_order_api,
-)
-from pybotters_wrapper.core.api_order_stop_market import StopMarketOrderAPI
+from pybotters_wrapper.binance.binanceusdsm import BinanceUSDSMWrapperFactory
 
 
 @pytest.fixture
@@ -22,7 +17,7 @@ def tester(stop_market_order_tester):
     return stop_market_order_tester(
         url="https://fapi.binance.com/fapi/v1/order",
         request_method="POST",
-        factory_method=create_binanceusdsm_stop_market_order_api,
+        factory_method=BinanceUSDSMWrapperFactory.create_stop_market_order_api,
         dummy_order_parameters={
             "symbol": "BTCUSDT",
             "side": "BUY",
