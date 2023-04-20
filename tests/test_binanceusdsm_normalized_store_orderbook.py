@@ -8,47 +8,34 @@ from pybotters_wrapper.core import OrderbookStore
 
 
 @pytest.fixture
-def orderbook_store() -> OrderbookStore:
-    return create_binanceusdsm_normalized_store_builder().get("orderbook")
-
-
-@pytest.fixture
-def dummy_change_update_btc() -> StoreChange:
-    return StoreChange(
-        None,
-        "update",
-        {},
-        {"s": "BTCUSDT", "S": "SELL", "p": "30895.10", "q": "0.015"},
+def tester(orderbook_normalized_store_tester):
+    dummy_data = {"s": "BTCUSDT", "S": "SELL", "p": "30895.10", "q": "0.015"}
+    return orderbook_normalized_store_tester(
+        builder_factory_method=create_binanceusdsm_normalized_store_builder,
+        dummy_data_insert=dummy_data,
+        dummy_data_update=dummy_data,
+        dummy_data_delete=dummy_data,
+        expected_item={
+            "symbol": "BTCUSDT",
+            "side": "SELL",
+            "price": 30895.10,
+            "size": 0.015,
+            "info": {"data": dummy_data, "source": {}},
+        },
     )
 
 
-@pytest.fixture
-def dummy_change_delete_btc() -> StoreChange:
-    return StoreChange(
-        None,
-        "delete",
-        {},
-        {"s": "BTCUSDT", "S": "SELL", "p": "30895.10", "q": "0.015"},
-    )
+def test_insert(tester):
+    tester.test_insert()
 
 
-def test_on_watch_update(
-        orderbook_store, dummy_change_update_btc
-):
-    orderbook_store._on_watch(dummy_change_update_btc)
-    assert len(orderbook_store) == 1
-    assert orderbook_store.find()[0] == {
-        "symbol": "BTCUSDT",
-        "side": "SELL",
-        "price": 30895.1,
-        "size": 0.015,
-        "info": {"data": dummy_change_update_btc.data, "source": {}},
-    }
+def test_update(tester):
+    tester.test_update()
 
 
-def test_on_watch_delete(
-        orderbook_store, dummy_change_update_btc, dummy_change_delete_btc
-):
-    orderbook_store._on_watch(dummy_change_update_btc)
-    orderbook_store._on_watch(dummy_change_delete_btc)
-    assert len(orderbook_store) == 0
+def test_delete(tester):
+    tester.test_delete()
+
+
+def test_item(tester):
+    tester.test_item()
