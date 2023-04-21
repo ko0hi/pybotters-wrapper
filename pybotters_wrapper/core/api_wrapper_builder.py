@@ -98,7 +98,7 @@ class APIWrapperBuilder:
         )
 
     def validate(self) -> None:
-        required_fields = ["_api_client"]
+        required_fields = ["api_client"]
         missing_fields = [
             field for field in required_fields if getattr(self, f"_{field}") is None
         ]

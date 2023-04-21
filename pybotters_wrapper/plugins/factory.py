@@ -1,6 +1,8 @@
 from typing import Callable
 
-from ..core import DataStoreWrapper
+import pybotters
+
+from ..core import DataStoreWrapper, APIWrapper
 import pandas as pd
 from .market import (
     BinningBook,
@@ -8,6 +10,7 @@ from .market import (
     VolumeBarStreamDataFrame,
     BookTicker,
 )
+from .periodic import Poller
 
 
 def timebar(
@@ -71,3 +74,16 @@ def binningbook(
 
 def bookticker(store: DataStoreWrapper, symbol: str) -> BookTicker:
     return BookTicker(store, symbol)
+
+
+def poller(
+    api: APIWrapper,
+    *,
+    url: str,
+    interval: int,
+    params: dict | Callable = None,
+    handler: Callable = None,
+    history: int = 999,
+    method: str = "GET",
+) -> Poller:
+    return Poller(api, url, interval, params, handler, history, method)

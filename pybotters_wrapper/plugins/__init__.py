@@ -1,4 +1,4 @@
-from .factory import timebar, volumebar, binningbook, bookticker
+from .factory import timebar, volumebar, binningbook, bookticker, poller
 
 __all__ = (
     "timebar",

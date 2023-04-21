@@ -1,14 +1,14 @@
 import asyncio
 import random
 
-import pandas
-import pybotters_wrapper as pbw
 from loguru import logger
+
+import pybotters_wrapper as pbw
 
 
 async def main1():
     async with pbw.create_client() as client:
-        api = pbw.create_binanceusdsm_api(client)
+        api = pbw.create_api("binanceusdsm", client)
         # apiの場合、base_urlが自動付与されるのでurlにhost等が入らないことに注意
 
         params = {"symbol": "BTCUSDT"}
