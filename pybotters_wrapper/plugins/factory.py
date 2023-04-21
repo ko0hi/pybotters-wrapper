@@ -11,6 +11,7 @@ from .market import (
 )
 from .periodic import Poller
 from .status import PnL
+from .watcher import ExecutionWatcher
 
 
 def timebar(
@@ -91,3 +92,12 @@ def poller(
 
 def pnl(store: DataStoreWrapper, symbol: str, fee: float = 0.0, interval=10) -> PnL:
     return PnL(store, symbol=symbol, fee=fee, interval=interval)
+
+
+def execution_watcher(
+    store: DataStoreWrapper,
+    *,
+    store_name: str = None,
+    is_target: Callable[["DataStore", str, dict, dict], bool] = None,
+) -> ExecutionWatcher:
+    return ExecutionWatcher(store, store_name=store_name, is_target=is_target)
