@@ -66,7 +66,8 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
         self._on_watch_get_operation = on_watch_get_operation
         self._on_watch_make_item = on_watch_make_item
 
-    def start_synchronize(self):
+    def start(self) -> NormalizedDataStore:
+        """元ストアとの同期を開始する"""
         if self._base_store is not None:
             self._wait_task = asyncio.create_task(self._wait_store())
             self._watch_task = asyncio.create_task(self._watch_store())
@@ -75,8 +76,10 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
             self._watch_task = None
         self._queue = pybotters.WebSocketQueue()
         self._queue_task = asyncio.create_task(self._wait_msg())
+        return self
 
     def synchronize(self):
+        """元ストアと強制同期する"""
         self._clear()
         items = []
         for i in self._base_store.find():
