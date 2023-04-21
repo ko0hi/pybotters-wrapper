@@ -10,7 +10,7 @@ class WaitStoreMixin:
     __break: bool
     __wait_task: asyncio.Task
 
-    _checker = generate_attribute_checker("init_wait_store", "__store")
+    _checker = generate_attribute_checker("init_wait_store", "__WaitStoreMixin_store")
 
     def init_wait_store(self, store: pybotters.store.DataStore):
         self.__store = store
@@ -74,14 +74,14 @@ class WaitMultipleStoreMixin:
     __break: bool
     __wait_tasks: list[asyncio.Task]
 
-    _checker = generate_attribute_checker("init_wait_multiple_storse",
-                                          "__store")
+    _checker = generate_attribute_checker("init_wait_multiple_storse", "__store")
 
     def init_wait_multiple_stores(self, *stores: pybotters.store.DataStore):
         self.__stores = stores
         self.__break = False
-        self.__wait_tasks = [asyncio.create_task(self.__run_wait_task_one(s))
-                             for s in stores]
+        self.__wait_tasks = [
+            asyncio.create_task(self.__run_wait_task_one(s)) for s in stores
+        ]
 
     async def __run_wait_task_one(self, store: pybotters.store.DataStore):
         while True:
