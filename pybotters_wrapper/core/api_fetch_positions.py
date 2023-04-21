@@ -1,17 +1,16 @@
-from typing import Any, Awaitable, Callable, NamedTuple, TypedDict
+from typing import NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
-from .._typedefs import TEndpoint, TRequestMethod, TSymbol
-from .api_client import APIClient
 from .api_fetch import FetchAPI
 from .normalized_store_position import PositionItem
+from .._typedefs import TEndpoint, TSymbol
 
 
 class PositionsFetchAPIResponse(NamedTuple):
     positions: list[PositionItem]
     resp: ClientResponse | None = None
-    resp_data: dict | None = None
+    data: dict | None = None
 
 
 class PositionsFetchAPIGenerateEndpointParameters(TypedDict):
@@ -28,7 +27,7 @@ class PositionsFetchAPITranslateParametersParameters(TypedDict):
 class PositionsFetchAPIWrapResponseParameters(TypedDict):
     positions: list[PositionItem]
     resp: ClientResponse
-    resp_data: dict
+    data: dict
 
 
 class PositionsFetchAPI(
@@ -56,10 +55,10 @@ class PositionsFetchAPI(
         )
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)
-        resp_data = await self._decode_response(resp)
-        item = self._itemize_response(resp, resp_data)
+        data = await self._decode_response(resp)
+        item = self._itemize_response(resp, data)
         return self._wrap_response(
             PositionsFetchAPIWrapResponseParameters(
-                positions=item, resp=resp, resp_data=resp_data
+                positions=item, resp=resp, data=data
             )
         )

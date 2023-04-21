@@ -9,7 +9,7 @@ from .api_order import OrderAPI
 class StopMarketOrderAPIResponse(NamedTuple):
     order_id: str
     resp: ClientResponse | None = None
-    resp_data: dict | None = None
+    data: dict | None = None
 
 
 class StopMarketOrderAPIGenerateEndpointParameters(TypedDict):
@@ -32,7 +32,7 @@ class StopMarketOrderAPITranslateParametersParameters(TypedDict):
 class StopMarketOrderAPIWrapResponseParameters(TypedDict):
     order_id: str
     resp: ClientResponse
-    resp_data: dict
+    data: dict
 
 
 class StopMarketOrderAPI(
@@ -77,10 +77,10 @@ class StopMarketOrderAPI(
         parameters = {**parameters, **extra_params}
         parameters = self._format_size(parameters, symbol)
         resp = await self.request(endpoint, parameters, **request_params)
-        resp_data = await self._decode_response(resp)
-        order_id = self._extract_order_id(resp, resp_data)
+        data = await self._decode_response(resp)
+        order_id = self._extract_order_id(resp, data)
         return self._wrap_response(
             StopMarketOrderAPIWrapResponseParameters(
-                order_id=order_id, resp=resp, resp_data=resp_data
+                order_id=order_id, resp=resp, data=data
             )
         )

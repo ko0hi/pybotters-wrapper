@@ -10,7 +10,7 @@ from .._typedefs import TEndpoint, TSymbol
 class TickerFetchAPIResponse(NamedTuple):
     ticker: TickerItem
     resp: ClientResponse | None = None
-    resp_data: dict | None = None
+    data: dict | None = None
 
 
 class TickerFetchAPIGenerateEndpointParameters(TypedDict):
@@ -27,7 +27,7 @@ class TickerFetchAPITranslateParametersParameters(TypedDict):
 class TickerFetchAPIWrapResponseParameters(TypedDict):
     ticker: TickerItem
     resp: ClientResponse
-    resp_data: dict
+    data: dict
 
 
 class TickerFetchAPI(
@@ -55,10 +55,10 @@ class TickerFetchAPI(
         )
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)
-        resp_data = await self._decode_response(resp)
-        item = self._itemize_response(resp, resp_data)
+        data = await self._decode_response(resp)
+        item = self._itemize_response(resp, data)
         return self._wrap_response(
             TickerFetchAPIWrapResponseParameters(
-                ticker=item, resp=resp, resp_data=resp_data
+                ticker=item, resp=resp, data=data
             )
         )

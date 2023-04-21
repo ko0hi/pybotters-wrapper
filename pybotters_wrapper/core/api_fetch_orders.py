@@ -10,7 +10,7 @@ from .._typedefs import TEndpoint
 class OrdersFetchAPIResponse(NamedTuple):
     orders: list[OrderItem]
     resp: ClientResponse | None = None
-    resp_data: dict | None = None
+    data: dict | None = None
 
 
 class OrdersFetchAPIGenerateEndpointParameters(TypedDict):
@@ -27,7 +27,7 @@ class OrdersFetchAPITranslateParametersParameters(TypedDict):
 class OrdersFetchAPIWrapResponseParameters(TypedDict):
     orders: list[OrderItem]
     resp: ClientResponse
-    resp_data: dict
+    data: dict
 
 
 class OrdersFetchAPI(
@@ -53,10 +53,10 @@ class OrdersFetchAPI(
         )
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)
-        resp_data = await self._decode_response(resp)
-        item = self._itemize_response(resp, resp_data)
+        data = await self._decode_response(resp)
+        item = self._itemize_response(resp, data)
         return self._wrap_response(
             OrdersFetchAPIWrapResponseParameters(
-                orders=item, resp=resp, resp_data=resp_data
+                orders=item, resp=resp, data=data
             )
         )

@@ -4,8 +4,13 @@ from aiohttp.client import ClientResponse
 
 from .._typedefs import TEndpoint, TRequestMethod, TSymbol
 from .api_client import APIClient
-from .api_exchange import ExchangeAPI, TGenerateEndpointParameters, TResponseWrapper, \
-    TTranslateParametersParameters, TWrapResponseParameters
+from .api_exchange import (
+    ExchangeAPI,
+    TGenerateEndpointParameters,
+    TResponseWrapper,
+    TTranslateParametersParameters,
+    TWrapResponseParameters,
+)
 from .formatter_precision import PriceSizeFormatter
 
 
@@ -32,7 +37,7 @@ class OrderAPI(
         | Callable[[TGenerateEndpointParameters], str]
         | None = None,
         parameter_translater: Callable[[TTranslateParametersParameters], dict]
-                              | None = None,
+        | None = None,
         response_wrapper_cls: Type[NamedTuple] = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
@@ -56,12 +61,12 @@ class OrderAPI(
     def _extract_order_id(
         self,
         resp: ClientResponse,
-        resp_data: dict,
+        data: dict,
     ) -> str | None:
         if self._order_id_extractor is not None:
-            return self._order_id_extractor(resp, resp_data, self._order_id_key)
+            return self._order_id_extractor(resp, data, self._order_id_key)
         else:
-            return self._default_order_id_extractor(resp, resp_data, self._order_id_key)
+            return self._default_order_id_extractor(resp, data, self._order_id_key)
 
     def _format_price(self, parameters: dict, symbol: TSymbol) -> dict:
         if self._price_size_formatter:
@@ -81,10 +86,10 @@ class OrderAPI(
 
     @classmethod
     def _default_order_id_extractor(
-        cls, resp: ClientResponse, resp_data: dict, order_id_key: str
+        cls, resp: ClientResponse, data: dict, order_id_key: str
     ) -> str | None:
         if resp.status == 200:
-            order_id = resp_data
+            order_id = data
             for k in order_id_key.split("."):
                 order_id = order_id[k]
             return str(order_id)

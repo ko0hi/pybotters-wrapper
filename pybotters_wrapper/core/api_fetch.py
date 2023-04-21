@@ -56,7 +56,7 @@ class FetchAPI(
         self._response_itemizer = response_itemizer
 
     def _itemize_response(
-        self, resp: ClientResponse, resp_data: Any | None = None
+        self, resp: ClientResponse, data: Any | None = None
     ) -> Any:
         assert self._response_itemizer is not None
-        return self._response_itemizer(resp, resp_data)
+        return self._response_itemizer(resp, data)

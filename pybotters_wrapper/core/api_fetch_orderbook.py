@@ -10,7 +10,7 @@ from .._typedefs import TEndpoint, TSide, TSymbol
 class OrderbookFetchAPIResponse(NamedTuple):
     orderbook: dict[TSide, list[OrderbookItem]]
     resp: ClientResponse | None = None
-    resp_data: dict | None = None
+    data: dict | None = None
 
 
 class OrderbookFetchAPIGenerateEndpointParameters(TypedDict):
@@ -27,7 +27,7 @@ class OrderbookFetchAPITranslateParametersParameters(TypedDict):
 class OrderbookFetchAPIWrapResponseParameters(TypedDict):
     orderbook: dict[TSide, list[OrderbookItem]]
     resp: ClientResponse
-    resp_data: dict
+    data: dict
 
 
 class OrderbookFetchAPI(
@@ -55,10 +55,10 @@ class OrderbookFetchAPI(
         )
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)
-        resp_data = await self._decode_response(resp)
-        item = self._itemize_response(resp, resp_data)
+        data = await self._decode_response(resp)
+        item = self._itemize_response(resp, data)
         return self._wrap_response(
             OrderbookFetchAPIWrapResponseParameters(
-                orderbook=item, resp=resp, resp_data=resp_data
+                orderbook=item, resp=resp, data=data
             )
         )
