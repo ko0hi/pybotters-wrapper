@@ -1,6 +1,5 @@
 from typing import Callable
 
-import pybotters
 
 from ..core import DataStoreWrapper, APIWrapper
 import pandas as pd
@@ -11,6 +10,7 @@ from .market import (
     BookTicker,
 )
 from .periodic import Poller
+from .status import PnL
 
 
 def timebar(
@@ -87,3 +87,7 @@ def poller(
     method: str = "GET",
 ) -> Poller:
     return Poller(api, url, interval, params, handler, history, method)
+
+
+def pnl(store: DataStoreWrapper, symbol: str, fee: float = 0.0, interval=10) -> PnL:
+    return PnL(store, symbol=symbol, fee=fee, interval=interval)
