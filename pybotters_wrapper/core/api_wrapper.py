@@ -63,22 +63,22 @@ class APIWrapper:
     async def get(
         self, url: str, *, params: dict | None = None, **kwargs
     ) -> ClientResponse:
-        return await self._api_client.get(url, params_or_data=params, **kwargs)
+        return await self._api_client.get(url, params=params, **kwargs)
 
     async def post(
         self, url: str, *, data: dict | None = None, **kwargs
     ) -> ClientResponse:
-        return await self._api_client.post(url, params_or_data=data, **kwargs)
+        return await self._api_client.post(url, data=data, **kwargs)
 
     async def put(
         self, url: str, *, data: dict | None = None, **kwargs
     ) -> ClientResponse:
-        return await self._api_client.put(url, params_or_data=data, **kwargs)
+        return await self._api_client.put(url, data=data, **kwargs)
 
     async def delete(
         self, url: str, *, data: dict | None = None, **kwargs
     ) -> ClientResponse:
-        return await self._api_client.delete(url, params_or_data=data, **kwargs)
+        return await self._api_client.delete(url, data=data, **kwargs)
 
     def srequest(
         self,
@@ -93,16 +93,16 @@ class APIWrapper:
         )
 
     def sget(self, url: str, *, params: dict | None = None, **kwargs) -> Response:
-        return self._api_client.sget(url, params_or_data=params, **kwargs)
+        return self._api_client.sget(url, params=params, **kwargs)
 
     def spost(self, url: str, *, data: dict | None = None, **kwargs) -> Response:
-        return self._api_client.spost(url, params_or_data=data, **kwargs)
+        return self._api_client.spost(url, data=data, **kwargs)
 
     def sput(self, url: str, *, data: dict | None = None, **kwargs) -> Response:
-        return self._api_client.sput(url, params_or_data=data, **kwargs)
+        return self._api_client.sput(url, data=data, **kwargs)
 
     def sdelete(self, url: str, *, data: dict | None = None, **kwargs) -> Response:
-        return self._api_client.sdelete(url, params_or_data=data, **kwargs)
+        return self._api_client.sdelete(url, data=data, **kwargs)
 
     async def limit_order(
         self,
