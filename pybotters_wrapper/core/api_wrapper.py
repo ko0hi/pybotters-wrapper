@@ -1,16 +1,18 @@
 from aiohttp.client import ClientResponse
 from requests import Response
 
+from . import ExchangeProperty
 from .api_client import APIClient
+from .api_fetch_orderbook import OrderbookFetchAPI, OrderbookFetchAPIResponse
+from .api_fetch_orders import OrdersFetchAPI, OrdersFetchAPIResponse
+from .api_fetch_positions import PositionsFetchAPI, PositionsFetchAPIResponse
+from .api_fetch_ticker import TickerFetchAPI, TickerFetchAPIResponse
+from .api_order_cancel import CancelOrderAPI, CancelOrderAPIResponse
 from .api_order_limit import LimitOrderAPI, LimitOrderAPIResponse
 from .api_order_market import MarketOrderAPI, MarketOrderAPIResponse
 from .api_order_stop_limit import StopLimitOrderAPI, StopLimitOrderAPIResponse
 from .api_order_stop_market import StopMarketOrderAPI, StopMarketOrderAPIResponse
-from .api_order_cancel import CancelOrderAPI, CancelOrderAPIResponse
-from .api_fetch_ticker import TickerFetchAPI, TickerFetchAPIResponse
-from .api_fetch_orderbook import OrderbookFetchAPI, OrderbookFetchAPIResponse
-from .api_fetch_orders import OrdersFetchAPI, OrdersFetchAPIResponse
-from .api_fetch_positions import PositionsFetchAPI, PositionsFetchAPIResponse
+from .formatter_precision import PriceSizeFormatter
 from .._typedefs import (
     TRequestMethod,
     TSymbol,
@@ -236,3 +238,11 @@ class APIWrapper:
         return await self._positions_fetch_api.fetch_positions(
             symbol, extra_params=extra_params, request_params=request_params
         )
+
+    @property
+    def price_size_formatter(self) -> PriceSizeFormatter:
+        return self._limit_order_api._price_size_formatter  # noqa
+
+    @property
+    def exchange_property(self) -> ExchangeProperty:
+        return self._limit_order_api._api_client._eprop  # noqa
