@@ -1,6 +1,6 @@
 from typing import Callable
 
-
+from .writer import DataStoreWatchCSVWriter, DataStoreWaitCSVWriter
 from ..core import DataStoreWrapper, APIWrapper
 import pandas as pd
 from .market import (
@@ -101,3 +101,43 @@ def execution_watcher(
     is_target: Callable[["DataStore", str, dict, dict], bool] = None,
 ) -> ExecutionWatcher:
     return ExecutionWatcher(store, store_name=store_name, is_target=is_target)
+
+def watch_csvwriter(
+    store: DataStoreWrapper,
+    store_name: str,
+    path: str,
+    *,
+    per_day: bool = False,
+    columns: list[str] = None,
+    flush: bool = False,
+    operations: list[str] = None,
+) -> DataStoreWatchCSVWriter:
+    return DataStoreWatchCSVWriter(
+        store,
+        store_name=store_name,
+        path=path,
+        per_day=per_day,
+        columns=columns,
+        flush=flush,
+        operations=operations,
+    )
+
+
+def wait_csvwriter(
+    store: DataStoreWrapper,
+    store_name: str,
+    path: str,
+    *,
+    per_day: bool = False,
+    columns: list[str] = None,
+    flush: bool = False,
+) -> DataStoreWaitCSVWriter:
+    return DataStoreWaitCSVWriter(
+        store,
+        store_name=store_name,
+        path=path,
+        per_day=per_day,
+        columns=columns,
+        flush=flush,
+    )
+
