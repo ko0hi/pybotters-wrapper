@@ -4,21 +4,19 @@ import pybotters_wrapper as pbw
 
 
 async def main():
-    exchange = "bybitusdt"
+    exchange = "binanceusdsm"
     configs = {
         "binanceusdsm": {
             "symbol": "BTCUSDT",
             "initialize": [("orderbook", {"symbol": "BTCUSDT"})],
         },
-        "bitflyer": {"symbol": "FX_BTC_JPY"},
-        "bybitusdt": {"symbol": "BTCUSDT"},
     }
 
     async with pbw.create_client() as client:
         conf = configs[exchange]
         store = pbw.create_store(exchange)
 
-        book_ticker = pbw.plugins.bookticker(store)
+        book_ticker = pbw.plugins.bookticker(store, conf["symbol"])
 
         if "initialize" in conf:
             await store.initialize(conf["initialize"], client)

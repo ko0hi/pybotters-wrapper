@@ -8,18 +8,19 @@ def open_double_cb(df):
 
 
 async def main():
-    exchange = "binanceusdsm"
+    exchange = "binancecoinm"
     configs = {
         "binanceusdsm": {"symbol": "BTCUSDT"},
-        "bitflyer": {"symbol": "FX_BTC_JPY"},
-        "bybitusdt": {"symbol": "BTCUSDT"},
+        "binancecoinm": {"symbol": "BTCUSD_PERP"}
     }
 
     async with pbw.create_client() as client:
         conf = configs[exchange]
         store = pbw.create_store(exchange)
 
-        tbar = pbw.plugins.timebar(store, seconds=1, callback=[open_double_cb])
+        tbar = pbw.plugins.timebar(
+            store, conf["symbol"], seconds=1, callback=[open_double_cb]
+        )
         queue = tbar.subscribe()
 
         await store.subscribe("trades", symbol=conf["symbol"]).connect(client)

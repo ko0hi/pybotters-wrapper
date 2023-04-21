@@ -33,13 +33,6 @@ async def main():
             "pips": 20,
             "initialize": [("orderbook", {"symbol": "BTCUSDT"})],
         },
-        "bitflyer": {
-            "symbol": "FX_BTC_JPY",
-            "min": 1000000,
-            "max": 5000000,
-            "pips": 1000,
-        },
-        "bybitusdt": {"symbol": "BTCUSDT", "min": 0, "max": 40000, "pips": 10},
     }
 
     async with pbw.create_client() as client:
@@ -49,6 +42,7 @@ async def main():
         # DataStoreに挿入する前に初期化する必要がある
         binning_book = pbw.plugins.binningbook(
             store,
+            conf["symbol"],
             min_bin=conf["min"],
             max_bin=conf["max"],
             pips=conf["pips"],
