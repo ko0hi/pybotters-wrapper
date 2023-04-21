@@ -1,7 +1,6 @@
 from aiohttp.client import ClientResponse
 from requests import Response
 
-from . import ExchangeProperty
 from .api_client import APIClient
 from .api_fetch_orderbook import OrderbookFetchAPI, OrderbookFetchAPIResponse
 from .api_fetch_orders import OrdersFetchAPI, OrdersFetchAPIResponse
@@ -12,6 +11,7 @@ from .api_order_limit import LimitOrderAPI, LimitOrderAPIResponse
 from .api_order_market import MarketOrderAPI, MarketOrderAPIResponse
 from .api_order_stop_limit import StopLimitOrderAPI, StopLimitOrderAPIResponse
 from .api_order_stop_market import StopMarketOrderAPI, StopMarketOrderAPIResponse
+from .exchange_property import ExchangeProperty
 from .formatter_precision import PriceSizeFormatter
 from .._typedefs import (
     TRequestMethod,
