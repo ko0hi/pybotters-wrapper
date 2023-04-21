@@ -80,6 +80,9 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
             request_customizer=self._websocket_request_customizer
         )
 
+        for k, v in self._normalized_stores.items():
+            v.start()
+
         if hdlr is None:
             hdlr = self.onmessage
         else:

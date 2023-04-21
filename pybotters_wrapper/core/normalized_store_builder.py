@@ -53,9 +53,9 @@ class NormalizedStoreBuilder(Generic[TDataStoreManager], metaclass=ABCMeta):
             names = ["ticker", "trades", "orderbook", "execution", "position"]
 
         if len(names) == 1:
-            return getattr(self, names[0])().start()
+            return getattr(self, names[0])()
         else:
             rtn = {}
             for name in names:
-                rtn[name] = getattr(self, name)().start()
+                rtn[name] = getattr(self, name)()
             return rtn

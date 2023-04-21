@@ -145,16 +145,3 @@ async def test_no_update_with_different_symbol():
         "buy_size": 1,
         "sell_size": 0,
     } == timebar.cur_bar
-
-
-@pytest.mark.asyncio
-async def test_run_timebar():
-    async with pbw.create_client() as client:
-        store = pbw.create_store("binanceusdsm")
-        timebar = pbw.plugins.timebar(store, "BTCUSDT", seconds=1, maxlen=999)
-
-        await store.subscribe("trades", symbol="BTCUSDT").connect(client)
-
-        while True:
-
-            await asyncio.sleep(1)
