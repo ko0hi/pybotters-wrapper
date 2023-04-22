@@ -15,6 +15,7 @@ from . import (
     PositionStore,
     TickerStore,
     TradesStore,
+    NormalizedDataStore,
 )
 from .exchange_property import ExchangeProperty
 from .normalized_store_builder import NormalizedStoreBuilder
@@ -44,7 +45,7 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         self._eprop = exchange_property
         self._initializer = store_initializer
         self._normalized_store_builder = normalized_store_builder
-        self._normalized_stores = self._normalized_store_builder.get()
+        self._normalized_stores = self._build_normalized_stores()
         self._ws_request_builder = websocket_request_builder
         self._websocket_request_customizer = websocket_request_customizer
 
@@ -85,9 +86,6 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         ws_requests = self._ws_request_builder.get(
             request_customizer=self._websocket_request_customizer
         )
-
-        for k, v in self._normalized_stores.items():
-            v.start()
 
         if hdlr is None:
             hdlr = self.onmessage
@@ -144,6 +142,13 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
             if all(is_done):
                 break
 
+    def _build_normalized_stores(self) -> dict[str, NormalizedDataStore]:
+        stores = {}
+        for name, store in self._normalized_store_builder.get().items():
+            store.start()
+            stores[name] = store
+        return stores
+
     def _get_normalized_store(
         self, name: str
     ) -> (
@@ -157,7 +162,7 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         store = self._normalized_stores[name]
         if store is None:
             raise RuntimeError(
-                f"Unsupported normalized store: {name} ({self.exchange})"
+                f"Unsupported normalized store for {self._eprop.exchange}: {name}"
             )
         return store
 
