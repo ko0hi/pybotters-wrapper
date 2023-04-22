@@ -62,6 +62,33 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
     ) -> "DataStoreWrapper":
         return await self._initializer.initialize(aws_or_names, client)
 
+    async def initialize_token(self, client: "pybotters.Client", **params):
+        return await self._initializer.initialize_token(client, **params)
+
+    async def initialize_token_public(self, client: "pybotters.Client", **params):
+        return await self._initializer.initialize_token_public(client, **params)
+
+    async def initialize_token_private(self, client: "pybotters.Client", **params):
+        return await self._initializer.initialize_token_private(client, **params)
+
+    async def initialize_ticker(self, client: "pybotters.Client", **params):
+        return await self._initializer.initialize_ticker(client, **params)
+
+    async def initialize_trades(self, client: "pybotters.Client", **params):
+        return await self._initializer.initialize_trades(client, **params)
+
+    async def initialize_orderbook(self, client: "pybotters.Client", **params):
+        return await self._initializer.initialize_orderbook(client, **params)
+
+    async def initialize_order(self, client: "pybotters.Client", **params):
+        return await self._initializer.initialize_order(client, **params)
+
+    async def initialize_execution(self, client: "pybotters.Client", **params):
+        return await self._initializer.initialize_execution(client, **params)
+
+    async def initialize_position(self, client: "pybotters.Client", **params):
+        return await self._initializer.initialize_position(client, **params)
+
     def subscribe(
         self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
     ) -> "DataStoreWrapper":
