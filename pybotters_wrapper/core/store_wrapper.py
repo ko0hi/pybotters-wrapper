@@ -48,6 +48,12 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         self._ws_request_builder = websocket_request_builder
         self._websocket_request_customizer = websocket_request_customizer
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.close()
+
     async def initialize(
         self,
         aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
@@ -108,6 +114,14 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
 
     async def wait(self):
         await self._store.wait()
+
+    async def close(self):
+        for conn in self._ws_connections:
+            await conn.close()
+
+        for k, store in self._normalized_stores.items():
+            if store is not None:
+                await store.close()
 
     def onmessage(self, msg: "Item", ws: "ClientWebSocketResponse") -> None:
         self._store.onmessage(msg, ws)

@@ -62,6 +62,15 @@ class WebSocketConnection:
 
         return self
 
+    async def close(self):
+        if self._ws is not None:
+            self._ws._task.cancel()
+            try:
+                await self._ws._task
+            except asyncio.CancelledError:
+                ...
+        del self._ws
+
     async def _auto_reconnect(
         self,
         client: "pybotters.Client",
@@ -80,7 +89,7 @@ class WebSocketConnection:
                         on_reconnection(self, client)
 
                 # pybottersのWebSocketRunnerのタスクを終了する
-                self._ws._task.cancel()
+                await self.close()
 
                 await self._ws_connect(client, **kwargs)
 

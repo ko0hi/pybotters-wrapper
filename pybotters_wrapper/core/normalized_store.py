@@ -78,6 +78,28 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
         self._queue_task = asyncio.create_task(self._wait_msg())
         return self
 
+    async def close(self):
+        if self._wait_task:
+            try:
+                self._wait_task.cancel()
+                await self._wait_task
+            except asyncio.CancelledError:
+                ...
+
+        if self._watch_task:
+            try:
+                self._watch_task.cancel()
+                await self._watch_task
+            except asyncio.CancelledError:
+                ...
+
+        if self._queue_task:
+            try:
+                self._queue_task.cancel()
+                await self._queue_task
+            except asyncio.CancelledError:
+                ...
+
     def synchronize(self):
         """元ストアと強制同期する"""
         self._clear()
@@ -241,3 +263,12 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
 
     def watch(self) -> "StoreStream":
         return self._normalized_store.watch()
+
+
+class A:
+    def __init__(self):
+        self._task = asyncio.create_task(self._run_forever())
+
+    async def _run_forever(self):
+        while True:
+            await asyncio.sleep(1)
