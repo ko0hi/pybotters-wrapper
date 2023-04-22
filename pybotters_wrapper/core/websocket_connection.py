@@ -69,7 +69,7 @@ class WebSocketConnection:
                 await self._ws._task
             except asyncio.CancelledError:
                 ...
-        del self._ws
+        self._ws = None
 
     async def _auto_reconnect(
         self,
