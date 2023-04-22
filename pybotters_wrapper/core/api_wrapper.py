@@ -1,3 +1,4 @@
+import pybotters
 from aiohttp.client import ClientResponse
 from requests import Response
 
@@ -238,6 +239,10 @@ class APIWrapper:
         return await self._positions_fetch_api.fetch_positions(
             symbol, extra_params=extra_params, request_params=request_params
         )
+
+    @property
+    def client(self) -> pybotters.Client:
+        return self._api_client._client
 
     @property
     def price_size_formatter(self) -> PriceSizeFormatter:
