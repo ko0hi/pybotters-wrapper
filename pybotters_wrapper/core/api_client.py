@@ -1,13 +1,42 @@
 from __future__ import annotations
 
+from json import JSONDecodeError
+
 import aiohttp
 import pybotters
 import requests
 from aiohttp.client import ClientResponse
 from requests import Response
+from loguru import logger
 
 from .exchange_property import ExchangeProperty
 from .._typedefs import TRequestMethod
+
+
+async def format_aiohttp_response(
+    resp: ClientResponse, method: str, url: str, params: dict
+) -> str:
+    if resp.status == 200:
+        return f"Request: [{resp.status}] {method} {url} with {params}"
+    else:
+        try:
+            data = await resp.json()
+        except JSONDecodeError:
+            data = None
+        return f"Request failed: [{resp.status}] {method} {url} with {params} -> {data}"
+
+
+def format_requests_response(
+    resp: Response, method: str, url: str, params: dict
+) -> str:
+    if resp.status_code == 200:
+        return f"Request: [{resp.status_code}] {method} {url} with {params}"
+    else:
+        try:
+            data = resp.json()
+        except JSONDecodeError:
+            data = None
+        return f"Request failed: [{resp.status_code}] {method} {url} with {params} -> {data}"
 
 
 class APIClient:
@@ -36,7 +65,10 @@ class APIClient:
             kwargs["params"] = params_or_data
         else:
             kwargs["data"] = params_or_data
-        return await self._client.request(method, url, **kwargs)
+
+        resp = await self._client.request(method, url, **kwargs)
+        await self._log_aiohttp_response(resp, method, url, kwargs)
+        return resp
 
     async def get(
         self, url: str, *, params: dict | None = None, **kwargs
@@ -92,9 +124,12 @@ class APIClient:
         else:
             data = req.body
         # paramsはurlに埋め込まれている
-        return requests.request(
+        resp = requests.request(
             method=req.method, url=str(req.url), data=data, headers=headers, **kwargs
         )
+
+        self._log_request_response(resp, req.method, str(req.url), data)
+        return resp
 
     def sget(self, url: str, *, params: dict | None = None, **kwargs) -> Response:
         return self.srequest("GET", url, params_or_data=params, **kwargs)
@@ -114,3 +149,19 @@ class APIClient:
     def _validate(self):
         if self._client._base_url != "":
             raise ValueError("Client should not have base_url")
+
+    def _log(self, msg: str, level: str = "DEBUG"):
+        if self._verbose:
+            logger.log(level, msg)
+
+    async def _log_aiohttp_response(
+        self, resp: ClientResponse, method: str, url: str, params: dict
+    ):
+        msg = await format_aiohttp_response(resp, method, url, params)
+        self._log(msg) if resp.status == 200 else logger.error(msg)
+
+    def _log_request_response(
+        self, resp: Response, method: str, url: str, params: dict
+    ):
+        msg = format_requests_response(resp, method, url, params)
+        self._log(msg) if resp.status_code == 200 else logger.error(msg)
