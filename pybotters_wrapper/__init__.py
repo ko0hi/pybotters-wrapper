@@ -7,4 +7,4 @@ from .factory import (
 )
 
 from .binance import binanceusdsm, binancecoinm
-from . import plugins
+from . import plugins, utils
