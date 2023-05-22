@@ -6,17 +6,17 @@ import io
 import os
 from datetime import datetime
 
+from .base_writers import DataStoreWaitWriter, DataStoreWatchWriter, WriterMixin
 from ..base_plugin import Plugin
 from ..market.bar import BarStreamDataFrame
-from .base_writers import DataStoreWaitWriter, DataStoreWatchWriter, WriterMixin
-
 from ..mixins import CSVWriterMixin
 from ...core import DataStoreWrapper
 
 
 class _CSVWriter:
     def __init__(
-        self, path: str, per_day: bool, columns: list[str] = None, flush: bool = False
+            self, path: str, per_day: bool, columns: list[str] = None,
+            flush: bool = False
     ):
         self._path = path
         self._columns = columns
@@ -61,15 +61,15 @@ class _CSVWriter:
 
 class DataStoreWatchCSVWriter(CSVWriterMixin, DataStoreWatchWriter):
     def __init__(
-        self,
-        store: DataStoreWrapper,
-        store_name: str,
-        path: str,
-        *,
-        per_day: bool = False,
-        columns: list[str] = None,
-        flush: bool = False,
-        operations: list[str] = None,
+            self,
+            store: DataStoreWrapper,
+            store_name: str,
+            path: str,
+            *,
+            per_day: bool = False,
+            columns: list[str] = None,
+            flush: bool = False,
+            operations: list[str] = None,
     ):
         super(DataStoreWatchCSVWriter, self).__init__(
             store, store_name, operations=operations
@@ -77,7 +77,7 @@ class DataStoreWatchCSVWriter(CSVWriterMixin, DataStoreWatchWriter):
         self.init_csv_writer(path, per_day, columns, flush)
 
     def _on_watch_first(
-        self, store: "DataStore", operation: str, source: dict, data: dict
+            self, store: "DataStore", operation: str, source: dict, data: dict
     ):
         super()._on_watch_first(store, operation, source, data)
         if self.get_columns() is None:
@@ -85,7 +85,7 @@ class DataStoreWatchCSVWriter(CSVWriterMixin, DataStoreWatchWriter):
         self.new_writer()
 
     async def _on_watch(
-        self, store: "DataStore", operation: str, source: dict, data: dict
+            self, store: "DataStore", operation: str, source: dict, data: dict
     ):
         await super()._on_watch(store, operation, source, data)
         # 日付が変わっていた場合writerを更新
@@ -94,14 +94,14 @@ class DataStoreWatchCSVWriter(CSVWriterMixin, DataStoreWatchWriter):
 
 class DataStoreWaitCSVWriter(CSVWriterMixin, DataStoreWaitWriter):
     def __init__(
-        self,
-        store: DataStoreWrapper,
-        store_name: str,
-        path: str,
-        *,
-        per_day: bool = False,
-        columns: list[str] = None,
-        flush: bool = False,
+            self,
+            store: DataStoreWrapper,
+            store_name: str,
+            path: str,
+            *,
+            per_day: bool = False,
+            columns: list[str] = None,
+            flush: bool = False,
     ):
         if columns is not None and "wrote_at" not in columns:
             columns.append("wrote_at")
@@ -122,12 +122,12 @@ class DataStoreWaitCSVWriter(CSVWriterMixin, DataStoreWaitWriter):
 
 class BarCSVWriter(Plugin, WriterMixin):
     def __init__(
-        self,
-        bar: BarStreamDataFrame,
-        path: str,
-        *,
-        per_day: bool = False,
-        flush: bool = False,
+            self,
+            bar: BarStreamDataFrame,
+            path: str,
+            *,
+            per_day: bool = False,
+            flush: bool = False,
     ):
         super(BarCSVWriter)
         self._bar = bar

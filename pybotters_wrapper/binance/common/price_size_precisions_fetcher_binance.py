@@ -2,6 +2,7 @@ import math
 
 import requests
 from loguru import logger
+
 from pybotters_wrapper.core.fetcher_price_size_precisions import (
     PriceSizePrecisionFetcher,
 )

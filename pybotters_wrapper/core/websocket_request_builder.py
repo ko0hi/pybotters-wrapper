@@ -20,8 +20,8 @@ class WebSocketRequestBuilder:
     _DEFAULT_WEBSOCKET_CHANNELS_CLASS: Type[WebSocketChannels] = None
 
     def __init__(
-        self,
-        channels: WebSocketChannels | None = None,
+            self,
+            channels: WebSocketChannels | None = None,
     ):
         if channels is None:
             assert self._DEFAULT_WEBSOCKET_CHANNELS_CLASS is not None
@@ -29,9 +29,9 @@ class WebSocketRequestBuilder:
         self._request_lists = defaultdict(list)
 
     def get(
-        self,
-        *,
-        request_customizer: WebSocketRequestCustomizer = None,
+            self,
+            *,
+            request_customizer: WebSocketRequestCustomizer = None,
     ) -> list[WebsocketRequest]:
         request_lists = self._request_lists
         if request_customizer is not None:
@@ -45,11 +45,11 @@ class WebSocketRequestBuilder:
         return [WebsocketRequest(k, v) for (k, v) in request_lists.items()]
 
     def subscribe(
-        self,
-        channel: str
-        | list[str | tuple[str, dict]]
-        | Literal["all", "public", "private"],
-        **kwargs,
+            self,
+            channel: str
+                     | list[str | tuple[str, dict]]
+                     | Literal["all", "public", "private"],
+            **kwargs,
     ):
         if channel == "all":
             channel = [
@@ -79,12 +79,12 @@ class WebSocketRequestBuilder:
             return self
 
     def subscribe_specific(
-        self, endpoint: str, parameter: any
+            self, endpoint: str, parameter: any
     ) -> TWebsocketRequestBuilder:
         return self._register(endpoint, parameter)
 
     def _subscribe_by_channel_name(
-        self, channel_name: str, **kwargs
+            self, channel_name: str, **kwargs
     ) -> TWebsocketRequestBuilder:
         item = self._channels.channel(channel_name, **kwargs)
         return self._register(item.endpoint, item.parameter)

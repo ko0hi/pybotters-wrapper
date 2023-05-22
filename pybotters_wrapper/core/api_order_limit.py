@@ -44,14 +44,14 @@ class LimitOrderAPI(
     ]
 ):
     async def limit_order(
-        self,
-        symbol: TSymbol,
-        side: TSide,
-        price: TPrice,
-        size: TSize,
-        *,
-        extra_params: dict = None,
-        request_params: dict = None,
+            self,
+            symbol: TSymbol,
+            side: TSide,
+            price: TPrice,
+            size: TSize,
+            *,
+            extra_params: dict = None,
+            request_params: dict = None,
     ) -> LimitOrderAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}

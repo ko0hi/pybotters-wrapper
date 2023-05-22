@@ -19,7 +19,7 @@ from ...core import (
 class BinanceNormalizedStoreBuilder(
     NormalizedStoreBuilder[
         BinanceSpotDataStore | BinanceUSDSMDataStore | BinanceCOINMDataStore
-    ]
+        ]
 ):
     def ticker(self) -> TickerStore:
         return TickerStore(

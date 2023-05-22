@@ -10,11 +10,11 @@ from ...core import DataStoreWrapper, ExecutionItem
 
 class ExecutionWatcher(WatchStoreMixin, Plugin):
     def __init__(
-        self,
-        store: "DataStoreWrapper",
-        *,
-        store_name: str = None,
-        is_target: Callable[["DataStore", str, dict, dict], bool] = None,
+            self,
+            store: "DataStoreWrapper",
+            *,
+            store_name: str = None,
+            is_target: Callable[["DataStore", str, dict, dict], bool] = None,
     ):
         # ExecutionDataStoreを監視
         self._order_id = None
@@ -35,7 +35,8 @@ class ExecutionWatcher(WatchStoreMixin, Plugin):
         self._event.set()
         return self
 
-    async def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
+    async def _on_watch(self, store: "DataStore", operation: str, source: dict,
+                        data: dict):
         """流れてきた約定情報が監視中の注文に関するものであるかをチェック
 
         ExecutionStoreを監視してるので、流れてくるdictはExecutionItem

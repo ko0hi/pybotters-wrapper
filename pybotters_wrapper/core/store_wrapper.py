@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Awaitable, Callable, Generic, Literal
+from typing import TYPE_CHECKING, Awaitable, Generic, Literal
 
 import aiohttp
 import pybotters
 from loguru import logger
 from pybotters.store import DataStore
 
-from .._typedefs import TDataStoreManager
 from . import (
     ExecutionStore,
     OrderbookStore,
@@ -23,6 +22,7 @@ from .store_initializer import StoreInitializer
 from .websocket_connection import WebSocketConnection, WebsocketOnReconnectionCallback
 from .websocket_request_builder import WebSocketRequestBuilder
 from .websocket_resquest_customizer import WebSocketRequestCustomizer
+from .._typedefs import TDataStoreManager
 
 if TYPE_CHECKING:
     from pybotters import Item
@@ -31,14 +31,14 @@ if TYPE_CHECKING:
 
 class DataStoreWrapper(Generic[TDataStoreManager]):
     def __init__(
-        self,
-        store: TDataStoreManager,
-        *,
-        exchange_property: ExchangeProperty,
-        store_initializer: StoreInitializer,
-        normalized_store_builder: NormalizedStoreBuilder,
-        websocket_request_builder: WebSocketRequestBuilder,
-        websocket_request_customizer: WebSocketRequestCustomizer,
+            self,
+            store: TDataStoreManager,
+            *,
+            exchange_property: ExchangeProperty,
+            store_initializer: StoreInitializer,
+            normalized_store_builder: NormalizedStoreBuilder,
+            websocket_request_builder: WebSocketRequestBuilder,
+            websocket_request_customizer: WebSocketRequestCustomizer,
     ):
         self._store = store
         self._ws_connections = []
@@ -56,9 +56,10 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         await self.close()
 
     async def initialize(
-        self,
-        aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
-        client: "pybotters.Client",
+            self,
+            aws_or_names: list[
+                Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
+            client: "pybotters.Client",
     ) -> "DataStoreWrapper":
         return await self._initializer.initialize(aws_or_names, client)
 
@@ -90,24 +91,24 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         return await self._initializer.initialize_position(client, **params)
 
     def subscribe(
-        self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
+            self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
     ) -> "DataStoreWrapper":
         self._ws_request_builder.subscribe(channel, **kwargs)
         return self
 
     async def connect(
-        self,
-        client: "pybotters.Client",
-        *,
-        endpoint: str = None,
-        send: any = None,
-        hdlr: WsStrHandler | WsBytesHandler = None,
-        waits: list[DataStore | str] = None,
-        send_type: Literal["json", "str", "byte"] = "json",
-        hdlr_type: Literal["json", "str", "byte"] = "json",
-        auto_reconnect: bool = False,
-        on_reconnection: WebsocketOnReconnectionCallback | None = None,
-        **kwargs,
+            self,
+            client: "pybotters.Client",
+            *,
+            endpoint: str = None,
+            send: any = None,
+            hdlr: WsStrHandler | WsBytesHandler = None,
+            waits: list[DataStore | str] = None,
+            send_type: Literal["json", "str", "byte"] = "json",
+            hdlr_type: Literal["json", "str", "byte"] = "json",
+            auto_reconnect: bool = False,
+            on_reconnection: WebsocketOnReconnectionCallback | None = None,
+            **kwargs,
     ) -> DataStoreWrapper:
         self._websocket_request_customizer.set_client(client)
         ws_requests = self._ws_request_builder.get(
@@ -177,14 +178,14 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         return stores
 
     def _get_normalized_store(
-        self, name: str
+            self, name: str
     ) -> (
-        TickerStore
-        | TradesStore
-        | OrderbookStore
-        | OrderStore
-        | ExecutionStore
-        | PositionStore
+            TickerStore
+            | TradesStore
+            | OrderbookStore
+            | OrderStore
+            | ExecutionStore
+            | PositionStore
     ):
         store = self._normalized_stores[name]
         if store is None:

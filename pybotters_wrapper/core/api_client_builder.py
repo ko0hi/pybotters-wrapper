@@ -21,7 +21,7 @@ class APIClientBuilder:
         return self
 
     def set_exchange_property(
-        self, exchange_property: ExchangeProperty
+            self, exchange_property: ExchangeProperty
     ) -> APIClientBuilder:
         self._exchange_property = exchange_property
         return self

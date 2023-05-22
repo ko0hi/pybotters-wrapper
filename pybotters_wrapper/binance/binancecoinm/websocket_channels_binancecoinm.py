@@ -1,6 +1,5 @@
-from typing import Literal
-
 import time
+from typing import Literal
 
 from ..common.listenkey_fetcher import DUMMY_LISTEN_KEY
 from ...core import WebSocketChannels
@@ -76,5 +75,5 @@ class BinanceCOINMWebsocketChannels(
         return {
             "method": "SUBSCRIBE",
             "params": [parameter],
-            "id": int(time.monotonic() * 10**9),
+            "id": int(time.monotonic() * 10 ** 9),
         }

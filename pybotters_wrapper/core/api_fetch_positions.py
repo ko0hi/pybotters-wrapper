@@ -39,7 +39,8 @@ class PositionsFetchAPI(
     ]
 ):
     async def fetch_positions(
-        self, symbol: TSymbol, *, extra_params: dict = None, request_params: dict = None
+            self, symbol: TSymbol, *, extra_params: dict = None,
+            request_params: dict = None
     ) -> PositionsFetchAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}

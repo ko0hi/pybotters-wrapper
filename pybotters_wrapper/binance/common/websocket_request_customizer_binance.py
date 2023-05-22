@@ -2,8 +2,8 @@ import time
 
 import pybotters
 
-from ...core import WebSocketRequestCustomizer
 from .listenkey_fetcher import BinanceListenKeyFetcher, DUMMY_LISTEN_KEY
+from ...core import WebSocketRequestCustomizer
 
 
 class BinanceWebSocketRequestCustomizer(WebSocketRequestCustomizer):
@@ -29,7 +29,7 @@ class BinanceWebSocketRequestCustomizer(WebSocketRequestCustomizer):
         new_request_list = {
             "method": "SUBSCRIBE",
             "params": new_params,
-            "id": int(time.monotonic() * 10**9),
+            "id": int(time.monotonic() * 10 ** 9),
         }
 
         return endpoint, new_request_list

@@ -39,7 +39,8 @@ class TickerFetchAPI(
     ]
 ):
     async def fetch_ticker(
-        self, symbol: TSymbol, *, extra_params: dict = None, request_params: dict = None
+            self, symbol: TSymbol, *, extra_params: dict = None,
+            request_params: dict = None
     ) -> TickerFetchAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}

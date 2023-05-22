@@ -18,11 +18,13 @@ class PnLItem(TypedDict):
     fee: float
     timestamp: pd.Timestamp
 
+
 class PnL(WatchStoreMixin, Plugin):
     _POSITION_PRECISION = 14
 
     def __init__(
-        self, store: DataStoreWrapper, symbol: str, *, fee: float = 0, snapshot_length=9999, interval=10
+            self, store: DataStoreWrapper, symbol: str, *, fee: float = 0,
+            snapshot_length=9999, interval=10
     ) -> None:
         self._symbol = symbol
         self._fee = fee
@@ -47,17 +49,18 @@ class PnL(WatchStoreMixin, Plugin):
         while True:
             trades = self._store.trades.find()
             if trades:
-                t= trades[-1]
+                t = trades[-1]
                 if t["timestamp"] > self._timestamp:
                     self._update_unrealized_pnl(t["price"], t["timestamp"])
             await asyncio.sleep(interval)
 
     def _on_watch(
-        self, store: "DataStore", operation: str, source: dict, data: dict
+            self, store: "DataStore", operation: str, source: dict, data: dict
     ) -> None:
         if operation == "insert" and data["symbol"] == self._symbol:
             self._snapshots.append(copy.deepcopy(self.status()))
-            self._update_pnl(data["side"], data["price"], data["size"], data["timestamp"])
+            self._update_pnl(data["side"], data["price"], data["size"],
+                             data["timestamp"])
 
     def status(self) -> PnLItem:
         # 手数料
@@ -87,7 +90,8 @@ class PnL(WatchStoreMixin, Plugin):
         self._ltp = price
         self._timestamp = timestamp
 
-    def _update_pnl(self, side: str, price: float, size: float, timestamp: pd.Timestamp) -> None:
+    def _update_pnl(self, side: str, price: float, size: float,
+                    timestamp: pd.Timestamp) -> None:
         if side == "BUY":
             self._buy_size += size
             self._buy_volume += price * size

@@ -9,9 +9,9 @@ from pybotters.store import DataStore
 
 from ..base_plugin import Plugin
 from ..mixins import WatchStoreMixin, PublishQueueMixin
-from ...utils import StreamDataFrame
 from ...core import DataStoreWrapper
 from ...core.normalized_store_trades import TradesItem
+from ...utils import StreamDataFrame
 
 
 class BarStreamDataFrame(WatchStoreMixin, PublishQueueMixin, Plugin):
@@ -27,13 +27,13 @@ class BarStreamDataFrame(WatchStoreMixin, PublishQueueMixin, Plugin):
     ]
 
     def __init__(
-        self,
-        store: DataStoreWrapper,
-        symbol: str,
-        *,
-        maxlen: int = 9999,
-        df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], any] = None,
+            self,
+            store: DataStoreWrapper,
+            symbol: str,
+            *,
+            maxlen: int = 9999,
+            df: pd.DataFrame = None,
+            callback: Callable[[pd.DataFrame], any] = None,
     ):
         if df is not None:
             if len(df.columns) == 7 and df.index.name == "timestamp":
@@ -58,7 +58,7 @@ class BarStreamDataFrame(WatchStoreMixin, PublishQueueMixin, Plugin):
         self._init_bar()
 
     def _on_watch(
-        self, store: DataStore, operation: str, source: dict, data: TradesItem
+            self, store: DataStore, operation: str, source: dict, data: TradesItem
     ):
         if operation == "insert" and data["symbol"] == self._symbol:
             if self._is_new_bar(data, operation):
@@ -181,15 +181,15 @@ class BarStreamDataFrame(WatchStoreMixin, PublishQueueMixin, Plugin):
 
 class TimeBarStreamDataFrame(BarStreamDataFrame):
     def __init__(
-        self,
-        store: DataStoreWrapper,
-        symbol: str,
-        *,
-        seconds: int,
-        maxlen: int = 9999,
-        df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], any] = None,
-        message_delay: int = 2,
+            self,
+            store: DataStoreWrapper,
+            symbol: str,
+            *,
+            seconds: int,
+            maxlen: int = 9999,
+            df: pd.DataFrame = None,
+            callback: Callable[[pd.DataFrame], any] = None,
+            message_delay: int = 2,
     ):
         super(TimeBarStreamDataFrame, self).__init__(
             store,
@@ -242,14 +242,14 @@ class TimeBarStreamDataFrame(BarStreamDataFrame):
 
 class VolumeBarStreamDataFrame(BarStreamDataFrame):
     def __init__(
-        self,
-        store: DataStoreWrapper,
-        symbol: str,
-        *,
-        volume_unit: float,
-        maxlen: int = 9999,
-        df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], any] = None,
+            self,
+            store: DataStoreWrapper,
+            symbol: str,
+            *,
+            volume_unit: float,
+            maxlen: int = 9999,
+            df: pd.DataFrame = None,
+            callback: Callable[[pd.DataFrame], any] = None,
     ):
         super(VolumeBarStreamDataFrame, self).__init__(
             store,

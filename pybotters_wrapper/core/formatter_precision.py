@@ -25,7 +25,7 @@ class PriceSizeFormatter(Formatter):
         self._size_formatter = PrecisionFormatter(size_precisions)
 
     def format(
-        self, symbol: TSymbol, value: float, price_or_size: Literal["price", "size"]
+            self, symbol: TSymbol, value: float, price_or_size: Literal["price", "size"]
     ) -> str:
         if price_or_size == "price":
             formatter = self._price_formatter

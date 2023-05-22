@@ -14,14 +14,14 @@ class BinningBook(WatchStoreMixin, Plugin):
     watch_store: OrderbookStore
 
     def __init__(
-        self,
-        store: DataStoreWrapper,
-        symbol: str,
-        *,
-        min_bin: int,
-        max_bin: int,
-        pips: int = 1,
-        precision: int = 10,
+            self,
+            store: DataStoreWrapper,
+            symbol: str,
+            *,
+            min_bin: int,
+            max_bin: int,
+            pips: int = 1,
+            precision: int = 10,
     ):
         self._symbol = symbol
         self._buckets: dict[BinBucket] = {
@@ -31,7 +31,8 @@ class BinningBook(WatchStoreMixin, Plugin):
         self._mid = None
         self.init_watch_store(store.orderbook)
 
-    def _on_watch(self, store: "DataStore", operation: str, source: dict, data: OrderbookItem):
+    def _on_watch(self, store: "DataStore", operation: str, source: dict,
+                  data: OrderbookItem):
         if data["symbol"] == self._symbol:
             if operation in ("insert", "update"):
                 self._insert(data["side"], data["price"], data["size"])
@@ -122,7 +123,7 @@ class BinningBook(WatchStoreMixin, Plugin):
 
     @classmethod
     def _make_returns(
-        cls, bucket: BinBucket, lhs, rhs, non_zero_only=True, is_bid=False
+            cls, bucket: BinBucket, lhs, rhs, non_zero_only=True, is_bid=False
     ):
         prices = bucket.keys()[lhs:rhs]
         sizes = bucket.values()[lhs:rhs]

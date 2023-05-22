@@ -39,7 +39,7 @@ class OrdersFetchAPI(
     ]
 ):
     async def fetch_orders(
-        self, symbol: str, *, extra_params: dict = None, request_params: dict = None
+            self, symbol: str, *, extra_params: dict = None, request_params: dict = None
     ) -> OrdersFetchAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}

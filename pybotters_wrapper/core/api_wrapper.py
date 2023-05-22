@@ -27,18 +27,18 @@ from .._typedefs import (
 
 class APIWrapper:
     def __init__(
-        self,
-        api_client: APIClient,
-        *,
-        limit_order_api: LimitOrderAPI,
-        market_order_api: MarketOrderAPI,
-        stop_limit_order_api: StopLimitOrderAPI,
-        stop_market_order_api: StopMarketOrderAPI,
-        cancel_order_api: CancelOrderAPI,
-        ticker_fetch_api: TickerFetchAPI,
-        orderbook_fetch_api: OrderbookFetchAPI,
-        orders_fetch_api: OrdersFetchAPI,
-        positions_fetch_api: PositionsFetchAPI,
+            self,
+            api_client: APIClient,
+            *,
+            limit_order_api: LimitOrderAPI,
+            market_order_api: MarketOrderAPI,
+            stop_limit_order_api: StopLimitOrderAPI,
+            stop_market_order_api: StopMarketOrderAPI,
+            cancel_order_api: CancelOrderAPI,
+            ticker_fetch_api: TickerFetchAPI,
+            orderbook_fetch_api: OrderbookFetchAPI,
+            orders_fetch_api: OrdersFetchAPI,
+            positions_fetch_api: PositionsFetchAPI,
     ):
         self._api_client = api_client
         self._limit_order_api = limit_order_api
@@ -52,44 +52,44 @@ class APIWrapper:
         self._positions_fetch_api = positions_fetch_api
 
     async def request(
-        self,
-        method: TRequestMethod,
-        url: str,
-        *,
-        params_or_data: dict | None = None,
-        **kwargs,
+            self,
+            method: TRequestMethod,
+            url: str,
+            *,
+            params_or_data: dict | None = None,
+            **kwargs,
     ) -> ClientResponse:
         return await self._api_client.request(
             method, url, params_or_data=params_or_data, **kwargs
         )
 
     async def get(
-        self, url: str, *, params: dict | None = None, **kwargs
+            self, url: str, *, params: dict | None = None, **kwargs
     ) -> ClientResponse:
         return await self._api_client.get(url, params=params, **kwargs)
 
     async def post(
-        self, url: str, *, data: dict | None = None, **kwargs
+            self, url: str, *, data: dict | None = None, **kwargs
     ) -> ClientResponse:
         return await self._api_client.post(url, data=data, **kwargs)
 
     async def put(
-        self, url: str, *, data: dict | None = None, **kwargs
+            self, url: str, *, data: dict | None = None, **kwargs
     ) -> ClientResponse:
         return await self._api_client.put(url, data=data, **kwargs)
 
     async def delete(
-        self, url: str, *, data: dict | None = None, **kwargs
+            self, url: str, *, data: dict | None = None, **kwargs
     ) -> ClientResponse:
         return await self._api_client.delete(url, data=data, **kwargs)
 
     def srequest(
-        self,
-        method: TRequestMethod,
-        url: str,
-        *,
-        params_or_data: dict | None = None,
-        **kwargs,
+            self,
+            method: TRequestMethod,
+            url: str,
+            *,
+            params_or_data: dict | None = None,
+            **kwargs,
     ) -> Response:
         return self._api_client.srequest(
             method, url, params_or_data=params_or_data, **kwargs
@@ -108,14 +108,14 @@ class APIWrapper:
         return self._api_client.sdelete(url, data=data, **kwargs)
 
     async def limit_order(
-        self,
-        symbol: TSymbol,
-        side: TSide,
-        price: TPrice,
-        size: TSize,
-        *,
-        extra_params: dict = None,
-        request_params: dict = None,
+            self,
+            symbol: TSymbol,
+            side: TSide,
+            price: TPrice,
+            size: TSize,
+            *,
+            extra_params: dict = None,
+            request_params: dict = None,
     ) -> LimitOrderAPIResponse:
         if self._limit_order_api is None:
             raise RuntimeError("limit_order is not supported.")
@@ -129,13 +129,13 @@ class APIWrapper:
         )
 
     async def market_order(
-        self,
-        symbol: TSymbol,
-        side: TSide,
-        size: TSize,
-        *,
-        extra_params: dict = None,
-        request_params: dict = None,
+            self,
+            symbol: TSymbol,
+            side: TSide,
+            size: TSize,
+            *,
+            extra_params: dict = None,
+            request_params: dict = None,
     ) -> MarketOrderAPIResponse:
         if self._market_order_api is None:
             raise RuntimeError("market_order is not supported.")
@@ -144,15 +144,15 @@ class APIWrapper:
         )
 
     async def stop_limit_order(
-        self,
-        symbol: TSymbol,
-        side: TSide,
-        price: TPrice,
-        size: TSize,
-        trigger: TTrigger,
-        *,
-        extra_params: dict = None,
-        request_params: dict = None,
+            self,
+            symbol: TSymbol,
+            side: TSide,
+            price: TPrice,
+            size: TSize,
+            trigger: TTrigger,
+            *,
+            extra_params: dict = None,
+            request_params: dict = None,
     ) -> StopLimitOrderAPIResponse:
         if self._stop_limit_order_api is None:
             raise RuntimeError("stop_limit_order is not supported.")
@@ -167,14 +167,14 @@ class APIWrapper:
         )
 
     async def stop_market_order(
-        self,
-        symbol: TSymbol,
-        side: TSide,
-        size: TSize,
-        trigger: TTrigger,
-        *,
-        extra_params: dict = None,
-        request_params: dict = None,
+            self,
+            symbol: TSymbol,
+            side: TSide,
+            size: TSize,
+            trigger: TTrigger,
+            *,
+            extra_params: dict = None,
+            request_params: dict = None,
     ) -> StopMarketOrderAPIResponse:
         if self._stop_market_order_api is None:
             raise RuntimeError("stop_market_order is not supported.")
@@ -188,12 +188,12 @@ class APIWrapper:
         )
 
     async def cancel_order(
-        self,
-        symbol: TSymbol,
-        order_id: TOrderId,
-        *,
-        extra_params: dict = None,
-        request_params: dict = None,
+            self,
+            symbol: TSymbol,
+            order_id: TOrderId,
+            *,
+            extra_params: dict = None,
+            request_params: dict = None,
     ) -> CancelOrderAPIResponse:
         if self._cancel_order_api is None:
             raise RuntimeError("cancel_order is not supported.")
@@ -215,11 +215,11 @@ class APIWrapper:
         return await self._orderbook_fetch_api.fetch_orderbook(symbol)
 
     async def fetch_orders(
-        self,
-        symbol: TSymbol,
-        *,
-        extra_params: dict = None,
-        request_params: dict = None,
+            self,
+            symbol: TSymbol,
+            *,
+            extra_params: dict = None,
+            request_params: dict = None,
     ) -> OrdersFetchAPIResponse:
         if self._orders_fetch_api is None:
             raise RuntimeError("fetch_orders is not supported.")
@@ -228,11 +228,11 @@ class APIWrapper:
         )
 
     async def fetch_positions(
-        self,
-        symbol: TSymbol,
-        *,
-        extra_params: dict = None,
-        request_params: dict = None,
+            self,
+            symbol: TSymbol,
+            *,
+            extra_params: dict = None,
+            request_params: dict = None,
     ) -> PositionsFetchAPIResponse:
         if self._positions_fetch_api is None:
             raise RuntimeError("fetch_positions is not supported.")

@@ -1,3 +1,4 @@
+from .api_fetch_builder import FetchAPIBuilder
 from .api_fetch_orders import (
     OrdersFetchAPI,
     OrdersFetchAPIResponse,
@@ -5,9 +6,6 @@ from .api_fetch_orders import (
     OrdersFetchAPITranslateParametersParameters,
     OrdersFetchAPIWrapResponseParameters,
 )
-
-
-from .api_fetch_builder import FetchAPIBuilder
 
 
 class OrdersFetchAPIBuilder(

@@ -1,3 +1,4 @@
+from .api_fetch_builder import FetchAPIBuilder
 from .api_fetch_positions import (
     PositionsFetchAPI,
     PositionsFetchAPIResponse,
@@ -5,8 +6,6 @@ from .api_fetch_positions import (
     PositionsFetchAPITranslateParametersParameters,
     PositionsFetchAPIWrapResponseParameters,
 )
-
-from .api_fetch_builder import FetchAPIBuilder
 
 
 class PositionsFetchAPIBuilder(

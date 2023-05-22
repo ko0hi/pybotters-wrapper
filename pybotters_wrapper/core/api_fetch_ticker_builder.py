@@ -1,3 +1,4 @@
+from .api_fetch_builder import FetchAPIBuilder
 from .api_fetch_ticker import (
     TickerFetchAPI,
     TickerFetchAPIResponse,
@@ -5,8 +6,6 @@ from .api_fetch_ticker import (
     TickerFetchAPITranslateParametersParameters,
     TickerFetchAPIWrapResponseParameters,
 )
-
-from .api_fetch_builder import FetchAPIBuilder
 
 
 class TickerFetchAPIBuilder(

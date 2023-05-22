@@ -18,12 +18,12 @@ WebsocketOnReconnectionCallback = Callable[
 
 class WebSocketConnection:
     def __init__(
-        self,
-        endpoint: str,
-        send: dict | list[dict] | str,
-        hdlr: WsHandler | list[WsHandler],
-        send_type: Literal["json", "str", "byte"] = "json",
-        hdlr_type: Literal["json", "str", "byte"] = "json",
+            self,
+            endpoint: str,
+            send: dict | list[dict] | str,
+            hdlr: WsHandler | list[WsHandler],
+            send_type: Literal["json", "str", "byte"] = "json",
+            hdlr_type: Literal["json", "str", "byte"] = "json",
     ):
         self._ws: WebSocketRunner | None = None
         self._endpoint = endpoint
@@ -36,11 +36,11 @@ class WebSocketConnection:
         self._hdlr_type = hdlr_type
 
     async def connect(
-        self,
-        client: "pybotters.Client",
-        auto_reconnect: bool = False,
-        on_reconnection: Optional[WebsocketOnReconnectionCallback] = None,
-        **kwargs,
+            self,
+            client: "pybotters.Client",
+            auto_reconnect: bool = False,
+            on_reconnection: Optional[WebsocketOnReconnectionCallback] = None,
+            **kwargs,
     ) -> WebSocketConnection:
         """
         WebSocketに接続します。
@@ -72,10 +72,10 @@ class WebSocketConnection:
         self._ws = None
 
     async def _auto_reconnect(
-        self,
-        client: "pybotters.Client",
-        on_reconnection: Optional[WebsocketOnReconnectionCallback] = None,
-        **kwargs,
+            self,
+            client: "pybotters.Client",
+            on_reconnection: Optional[WebsocketOnReconnectionCallback] = None,
+            **kwargs,
     ):
         while True:
             if not self.connected:

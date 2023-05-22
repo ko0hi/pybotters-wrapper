@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import NamedTuple
 
-
 from ..base_plugin import Plugin
 from ..mixins import WatchStoreMixin, WaitStoreMixin
 from ...core import DataStoreWrapper

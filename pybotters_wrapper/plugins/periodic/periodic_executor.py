@@ -1,6 +1,7 @@
 import asyncio
 from collections import deque
 from typing import Callable
+
 from loguru import logger
 
 from ..base_plugin import Plugin
@@ -9,12 +10,12 @@ from ..mixins import PublishQueueMixin
 
 class PeriodicExecutor(PublishQueueMixin, Plugin):
     def __init__(
-        self,
-        fn: Callable,
-        params: dict | Callable = None,
-        interval: int = 10,
-        handler: Callable = None,
-        history: int = 999,
+            self,
+            fn: Callable,
+            params: dict | Callable = None,
+            interval: int = 10,
+            handler: Callable = None,
+            history: int = 999,
     ):
         super(PeriodicExecutor, self).__init__()
         self._fn = fn

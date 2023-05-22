@@ -2,8 +2,8 @@ from typing import NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
-from .._typedefs import TEndpoint, TSymbol, TSide, TSize, TPrice
 from .api_order import OrderAPI
+from .._typedefs import TEndpoint, TSymbol, TSide, TSize, TPrice
 
 
 class StopMarketOrderAPIResponse(NamedTuple):
@@ -44,14 +44,14 @@ class StopMarketOrderAPI(
     ]
 ):
     async def stop_market_order(
-        self,
-        symbol: TSymbol,
-        side: TSide,
-        size: TSize,
-        trigger: TPrice,
-        *,
-        extra_params: dict = None,
-        request_params: dict = None,
+            self,
+            symbol: TSymbol,
+            side: TSide,
+            size: TSize,
+            trigger: TPrice,
+            *,
+            extra_params: dict = None,
+            request_params: dict = None,
     ) -> StopMarketOrderAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}

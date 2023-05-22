@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import Literal, Generic, Union, TypeVar, NamedTuple
 
-import pybotters
-
 TChannelName = TypeVar("TChannelName")
 
 
@@ -24,12 +22,13 @@ class WebSocketChannels(Generic[TChannelName]):
     _ENDPOINT: str = None
 
     def channel(
-        self,
-        name: Union[
-            TChannelName,
-            Literal["ticker", "trades", "orderbook", "order", "execution", "position"],
-        ],
-        **params,
+            self,
+            name: Union[
+                TChannelName,
+                Literal[
+                    "ticker", "trades", "orderbook", "order", "execution", "position"],
+            ],
+            **params,
     ) -> SubscribeItem:
         try:
             method = getattr(self, name)
@@ -70,4 +69,3 @@ class WebSocketChannels(Generic[TChannelName]):
 
     def _parameter_template(self, parameter: str | dict) -> str | dict:
         return parameter
-

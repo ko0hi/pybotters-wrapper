@@ -15,7 +15,7 @@ class PositionStore(NormalizedDataStore[PositionItem]):
     _NAME = "position"
     _KEYS = ["symbol"]
 
-    def size(self, symbol: str, side: str=None) -> float:
+    def size(self, symbol: str, side: str = None) -> float:
         query = {"symbol": symbol}
         if side is None:
             items = self.find(query)

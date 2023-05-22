@@ -28,7 +28,8 @@ class CSVWriterMixin(WriterMixin):
             self.__f.close()
 
     def init_csv_writer(
-        self, path: str, per_day: bool, columns: list[str] = None, flush: bool = False
+            self, path: str, per_day: bool, columns: list[str] = None,
+            flush: bool = False
     ):
         self.__path = path
         self.__columns = columns
