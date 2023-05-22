@@ -15,14 +15,14 @@ async def _jsonify_handler(item: aiohttp.ClientResponse) -> any:
 
 class Poller(PeriodicExecutor):
     def __init__(
-            self,
-            api: APIWrapper,
-            url: str,
-            interval: int,
-            params: dict | Callable = None,
-            handler: Callable = None,
-            history: int = 999,
-            method: str = "GET",
+        self,
+        api: APIWrapper,
+        url: str,
+        interval: int,
+        params: dict | Callable = None,
+        handler: Callable = None,
+        history: int = 999,
+        method: str = "GET",
     ):
         super(Poller, self).__init__(
             api.request,

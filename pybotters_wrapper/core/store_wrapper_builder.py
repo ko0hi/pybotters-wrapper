@@ -37,31 +37,31 @@ class DataStoreWrapperBuilder(Generic[T]):
         return self
 
     def set_exchange_property(
-            self, exchange_property: ExchangeProperty
+        self, exchange_property: ExchangeProperty
     ) -> DataStoreWrapperBuilder:
         self._exchange_property = exchange_property
         return self
 
     def set_store_initializer(
-            self, store_initializer: StoreInitializer
+        self, store_initializer: StoreInitializer
     ) -> DataStoreWrapperBuilder:
         self._store_initializer = store_initializer
         return self
 
     def set_normalized_store_builder(
-            self, normalized_store_builder: NormalizedStoreBuilder
+        self, normalized_store_builder: NormalizedStoreBuilder
     ) -> DataStoreWrapperBuilder:
         self._normalized_store_builder = normalized_store_builder
         return self
 
     def set_websocket_request_builder(
-            self, websocket_request_builder: WebSocketRequestBuilder
+        self, websocket_request_builder: WebSocketRequestBuilder
     ) -> DataStoreWrapperBuilder:
         self._websocket_request_builder = websocket_request_builder
         return self
 
     def set_websocket_request_customizer(
-            self, websocket_request_customizer: WebSocketRequestCustomizer
+        self, websocket_request_customizer: WebSocketRequestCustomizer
     ) -> DataStoreWrapperBuilder:
         self._websocket_request_customizer = websocket_request_customizer
         return self

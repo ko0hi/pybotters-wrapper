@@ -30,7 +30,7 @@ def init_logdir(*subdirs: str) -> str:
 
 
 def init_logger(
-        logfile=None, retention=3, rotation="10MB", format: str = None, **kwargs
+    logfile=None, retention=3, rotation="10MB", format: str = None, **kwargs
 ):
     format = format or LOG_FORMAT
     [logger.remove(h) for h in logger._core.handlers]

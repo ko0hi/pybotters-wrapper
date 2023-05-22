@@ -22,9 +22,9 @@ class FetchAPIBuilder(
     ]
 ):
     def __init__(
-            self,
-            fetch_api_class: Type[FetchAPI],
-            fetch_api_response_wrapper_class: Type[NamedTuple],
+        self,
+        fetch_api_class: Type[FetchAPI],
+        fetch_api_response_wrapper_class: Type[NamedTuple],
     ):
         super(FetchAPIBuilder, self).__init__(
             fetch_api_class, fetch_api_response_wrapper_class
@@ -32,8 +32,8 @@ class FetchAPIBuilder(
         self._response_itemizer: Callable[[ClientResponse, any], Any] | None = None
 
     def set_response_itemizer(
-            self,
-            response_itemizer: Callable[[ClientResponse, any], Any],
+        self,
+        response_itemizer: Callable[[ClientResponse, any], Any],
     ) -> FetchAPIBuilder:
         self._response_itemizer = response_itemizer
         return self

@@ -14,7 +14,7 @@ from .._typedefs import TRequestMethod
 
 
 async def format_aiohttp_response(
-        resp: ClientResponse, method: str, url: str, params: dict
+    resp: ClientResponse, method: str, url: str, params: dict
 ) -> str:
     if resp.status == 200:
         return f"Request: [{resp.status}] {method} {url} with {params}"
@@ -27,7 +27,7 @@ async def format_aiohttp_response(
 
 
 def format_requests_response(
-        resp: Response, method: str, url: str, params: dict
+    resp: Response, method: str, url: str, params: dict
 ) -> str:
     if resp.status_code == 200:
         return f"Request: [{resp.status_code}] {method} {url} with {params}"
@@ -41,11 +41,11 @@ def format_requests_response(
 
 class APIClient:
     def __init__(
-            self,
-            client: pybotters.Client,
-            verbose: bool = False,
-            *,
-            exchange_property: ExchangeProperty,
+        self,
+        client: pybotters.Client,
+        verbose: bool = False,
+        *,
+        exchange_property: ExchangeProperty,
     ):
         self._client = client
         self._verbose = verbose
@@ -53,12 +53,12 @@ class APIClient:
         self._validate()
 
     async def request(
-            self,
-            method: TRequestMethod,
-            url: str,
-            *,
-            params_or_data: dict | None = None,
-            **kwargs,
+        self,
+        method: TRequestMethod,
+        url: str,
+        *,
+        params_or_data: dict | None = None,
+        **kwargs,
     ) -> ClientResponse:
         url = self._attach_base_url(url)
         if method == "GET":
@@ -71,32 +71,32 @@ class APIClient:
         return resp
 
     async def get(
-            self, url: str, *, params: dict | None = None, **kwargs
+        self, url: str, *, params: dict | None = None, **kwargs
     ) -> ClientResponse:
         return await self.request("GET", url, params_or_data=params, **kwargs)
 
     async def post(
-            self, url: str, *, data: dict | None = None, **kwargs
+        self, url: str, *, data: dict | None = None, **kwargs
     ) -> ClientResponse:
         return await self.request("POST", url, params_or_data=data, **kwargs)
 
     async def put(
-            self, url: str, *, data: dict | None = None, **kwargs
+        self, url: str, *, data: dict | None = None, **kwargs
     ) -> ClientResponse:
         return await self.request("PUT", url, params_or_data=data, **kwargs)
 
     async def delete(
-            self, url: str, *, data: dict | None = None, **kwargs
+        self, url: str, *, data: dict | None = None, **kwargs
     ) -> ClientResponse:
         return await self.request("DELETE", url, params_or_data=data, **kwargs)
 
     def srequest(
-            self,
-            method: TRequestMethod,
-            url: str,
-            *,
-            params_or_data: dict | None = None,
-            **kwargs,
+        self,
+        method: TRequestMethod,
+        url: str,
+        *,
+        params_or_data: dict | None = None,
+        **kwargs,
     ) -> Response:
         # TODO: 網羅的なテスト
         # aiohttp.ClientSession._requestをpybotters.Clientから呼び出した時の処理を抜き出している
@@ -155,13 +155,13 @@ class APIClient:
             logger.log(level, msg)
 
     async def _log_aiohttp_response(
-            self, resp: ClientResponse, method: str, url: str, params: dict
+        self, resp: ClientResponse, method: str, url: str, params: dict
     ):
         msg = await format_aiohttp_response(resp, method, url, params)
         self._log(msg) if resp.status == 200 else logger.error(msg)
 
     def _log_request_response(
-            self, resp: Response, method: str, url: str, params: dict
+        self, resp: Response, method: str, url: str, params: dict
     ):
         msg = format_requests_response(resp, method, url, params)
         self._log(msg) if resp.status_code == 200 else logger.error(msg)

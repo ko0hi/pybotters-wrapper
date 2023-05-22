@@ -29,7 +29,7 @@ class BinanceWebSocketRequestCustomizer(WebSocketRequestCustomizer):
         new_request_list = {
             "method": "SUBSCRIBE",
             "params": new_params,
-            "id": int(time.monotonic() * 10 ** 9),
+            "id": int(time.monotonic() * 10**9),
         }
 
         return endpoint, new_request_list

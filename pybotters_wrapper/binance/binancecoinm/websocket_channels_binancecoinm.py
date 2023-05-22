@@ -75,5 +75,5 @@ class BinanceCOINMWebsocketChannels(
         return {
             "method": "SUBSCRIBE",
             "params": [parameter],
-            "id": int(time.monotonic() * 10 ** 9),
+            "id": int(time.monotonic() * 10**9),
         }

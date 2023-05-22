@@ -26,24 +26,24 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
     _NORMALIZED_ITEM_CLASS: Type[TypedDict] | None = None
 
     def __init__(
-            self,
-            store: DataStore | None,
-            *,
-            mapper: Union[
-                dict[str, str | Callable[[DataStore, str, dict, dict], any]],
-                Callable[[DataStore, str, dict, dict], dict],
-                None,
-            ] = None,
-            name: str | None = None,
-            keys: list[str] | None = None,
-            data: list[Item] | None = None,
-            auto_cast=False,
-            target_operations: tuple[str] = ("insert", "update", "delete"),
-            on_wait: Callable[[NormalizedDataStore], None] | None = None,
-            on_msg: Callable[[NormalizedDataStore, Item], None] | None = None,
-            on_watch_get_operation: Callable[[StoreChange], str] | None = None,
-            on_watch_make_item: Callable[[TNormalizedItem, StoreChange], dict]
-                                | None = None,
+        self,
+        store: DataStore | None,
+        *,
+        mapper: Union[
+            dict[str, str | Callable[[DataStore, str, dict, dict], any]],
+            Callable[[DataStore, str, dict, dict], dict],
+            None,
+        ] = None,
+        name: str | None = None,
+        keys: list[str] | None = None,
+        data: list[Item] | None = None,
+        auto_cast=False,
+        target_operations: tuple[str] = ("insert", "update", "delete"),
+        on_wait: Callable[[NormalizedDataStore], None] | None = None,
+        on_msg: Callable[[NormalizedDataStore, Item], None] | None = None,
+        on_watch_get_operation: Callable[[StoreChange], str] | None = None,
+        on_watch_make_item: Callable[[TNormalizedItem, StoreChange], dict]
+        | None = None,
     ):
         self._base_store: DataStore = store
         self._normalized_store: DataStore = DataStore(
@@ -150,7 +150,7 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
             op_fn([item])
 
     def _normalize(
-            self, store: "DataStore", operation: str, source: dict, data: dict
+        self, store: "DataStore", operation: str, source: dict, data: dict
     ) -> "TNormalizedItem":
         assert self._mapper is not None
         if callable(self._mapper):
@@ -174,7 +174,7 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
             return change.operation
 
     def _make_item(
-            self, normalized_item: "TNormalizedItem", change: "StoreChange"
+        self, normalized_item: "TNormalizedItem", change: "StoreChange"
     ) -> "Item":
         # ストアに格納するアイテムとしてはchange.sourceは不要かもしれないが、watchした際に元のitemの
         # sourceをたどりたい場合がありうるので付帯させる

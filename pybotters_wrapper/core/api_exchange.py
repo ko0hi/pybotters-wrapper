@@ -45,20 +45,20 @@ class ExchangeAPI(
     """
 
     def __init__(
-            self,
-            api_client: APIClient,
-            method: TRequestMethod,
-            *,
-            endpoint_generator: TEndpoint
-                                | Callable[[TGenerateEndpointParameters], str]
-                                | None = None,
-            parameter_translater: Callable[[TTranslateParametersParameters], dict]
-                                  | None = None,
-            response_wrapper_cls: Type[NamedTuple] = None,
-            response_decoder: Callable[
-                                  [ClientResponse], dict | list | Awaitable[dict | list]
-                              ]
-                              | None = None,
+        self,
+        api_client: APIClient,
+        method: TRequestMethod,
+        *,
+        endpoint_generator: TEndpoint
+        | Callable[[TGenerateEndpointParameters], str]
+        | None = None,
+        parameter_translater: Callable[[TTranslateParametersParameters], dict]
+        | None = None,
+        response_wrapper_cls: Type[NamedTuple] = None,
+        response_decoder: Callable[
+            [ClientResponse], dict | list | Awaitable[dict | list]
+        ]
+        | None = None,
     ):
         self._api_client = api_client
         self._method = method
@@ -68,7 +68,7 @@ class ExchangeAPI(
         self._response_decoder = response_decoder
 
     async def request(
-            self, url: str, params_or_data: dict = None, **kwargs
+        self, url: str, params_or_data: dict = None, **kwargs
     ) -> ClientResponse:
         return await self._api_client.request(
             self._method, url, params_or_data=params_or_data, **kwargs

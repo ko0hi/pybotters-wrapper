@@ -29,12 +29,12 @@ class InitializeRequestItem(NamedTuple):
             raise TypeError(err_msg)
         else:
             if not (
-                    isinstance(item.method, str)
-                    and isinstance(item.url, str)
-                    and (
-                            item.required_params is None
-                            or isinstance(item.required_params, set)
-                    )
+                isinstance(item.method, str)
+                and isinstance(item.url, str)
+                and (
+                    item.required_params is None
+                    or isinstance(item.required_params, set)
+                )
             ):
                 raise TypeError(err_msg)
             return item
@@ -75,21 +75,21 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
     _DEFAULT_INITIALIZE_CONFIG: dict[str, InitializeRequestItem] = {}
 
     def __init__(
-            self,
-            store: TDataStoreManager,
-            config: dict[str, tuple[str, str, set | None]] = None,
+        self,
+        store: TDataStoreManager,
+        config: dict[str, tuple[str, str, set | None]] = None,
     ):
         self._store: TDataStoreManager = store
         self._config: dict[str, tuple[str, str, set | None]] = (
-                config or self._DEFAULT_INITIALIZE_CONFIG
+            config or self._DEFAULT_INITIALIZE_CONFIG
         )
 
     async def initialize(
-            self,
-            aw_or_key_or_key_and_params_list: list[
-                Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]
-                ],
-            client: pybotters.Client,
+        self,
+        aw_or_key_or_key_and_params_list: list[
+            Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]
+        ],
+        client: pybotters.Client,
     ):
         awaitables = [
             self._to_initialize_awaitable(a_or_n, client)
@@ -126,61 +126,61 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
         return await self.initialize([("position", params)], client)
 
     def register_config(
-            self, key: str, method: str, url: str, required_params: set | None = None
+        self, key: str, method: str, url: str, required_params: set | None = None
     ):
         self._config[key] = InitializeRequestItem(method, url, required_params)
 
     def register_token_config(
-            self, method: str, url: str, requred_params: set | None = None
+        self, method: str, url: str, requred_params: set | None = None
     ):
         self.register_config("token", method, url, requred_params)
 
     def register_token_public_config(
-            self, method: str, url: str, requred_params: set | None = None
+        self, method: str, url: str, requred_params: set | None = None
     ):
         self.register_config("token_public", method, url, requred_params)
 
     def register_token_private_config(
-            self, method: str, url: str, requred_params: set | None = None
+        self, method: str, url: str, requred_params: set | None = None
     ):
         self.register_config("token_private", method, url, requred_params)
 
     def register_ticker_config(
-            self, method: str, url: str, requred_params: set | None = None
+        self, method: str, url: str, requred_params: set | None = None
     ):
         self.register_config("ticker", method, url, requred_params)
 
     def register_trades_config(
-            self, method: str, url: str, requred_params: set | None = None
+        self, method: str, url: str, requred_params: set | None = None
     ):
         self.register_config("trades", method, url, requred_params)
 
     def register_orderbook_config(
-            self, method: str, url: str, requred_params: set | None = None
+        self, method: str, url: str, requred_params: set | None = None
     ):
         self.register_config("orderbook", method, url, requred_params)
 
     def register_order_config(
-            self, method: str, url: str, requred_params: set | None = None
+        self, method: str, url: str, requred_params: set | None = None
     ):
         self.register_config("order", method, url, requred_params)
 
     def register_execution_config(
-            self, method: str, url: str, requred_params: set | None = None
+        self, method: str, url: str, requred_params: set | None = None
     ):
         self.register_config("execution", method, url, requred_params)
 
     def register_position_config(
-            self, method: str, url: str, requred_params: set | None = None
+        self, method: str, url: str, requred_params: set | None = None
     ):
         self.register_config("position", method, url, requred_params)
 
     def _to_initialize_awaitable(
-            self,
-            aw_or_key_or_key_and_params: Awaitable[aiohttp.ClientResponse]
-                                         | str
-                                         | tuple[str, dict],
-            client: pybotters.Client,
+        self,
+        aw_or_key_or_key_and_params: Awaitable[aiohttp.ClientResponse]
+        | str
+        | tuple[str, dict],
+        client: pybotters.Client,
     ) -> Awaitable[aiohttp.ClientResponse]:
         """store.initializeに渡されるAwaitableに変換する。"""
         if isinstance(aw_or_key_or_key_and_params, Awaitable):
@@ -192,10 +192,10 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
                 client, aw_or_key_or_key_and_params
             )
         elif (
-                isinstance(aw_or_key_or_key_and_params, tuple)
-                and len(aw_or_key_or_key_and_params) == 2
-                and isinstance(aw_or_key_or_key_and_params[0], str)
-                and isinstance(aw_or_key_or_key_and_params[1], dict)
+            isinstance(aw_or_key_or_key_and_params, tuple)
+            and len(aw_or_key_or_key_and_params) == 2
+            and isinstance(aw_or_key_or_key_and_params[0], str)
+            and isinstance(aw_or_key_or_key_and_params[1], dict)
         ):
             # config（引数あり）
             return self._to_initialize_awaitable_from_config(
@@ -213,10 +213,10 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
         return InitializeRequestItem(*self._config[key])
 
     def _to_initialize_awaitable_from_config(
-            self,
-            client: pybotters.Client,
-            key: str,
-            **params: dict,
+        self,
+        client: pybotters.Client,
+        key: str,
+        **params: dict,
     ) -> Awaitable:
         params = dict(params)
         item = self._get_initialize_request_item(key)
@@ -239,10 +239,10 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
 
     @classmethod
     def _request_with_initialize_request_item(
-            cls,
-            client: "pybotters.Client",
-            item: InitializeRequestItem,
-            params_or_data: Optional[dict] = None,
+        cls,
+        client: "pybotters.Client",
+        item: InitializeRequestItem,
+        params_or_data: Optional[dict] = None,
     ) -> Awaitable:
         method = item.method
         url = item.url
@@ -252,7 +252,7 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
 
     @classmethod
     def _validate_required_params(
-            cls, item: InitializeRequestItem, params: dict | None
+        cls, item: InitializeRequestItem, params: dict | None
     ):
         if item.required_params:
             if params is None:

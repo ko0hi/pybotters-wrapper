@@ -39,8 +39,7 @@ class OrderbookFetchAPI(
     ]
 ):
     async def fetch_orderbook(
-            self, symbol: TSymbol, *, extra_params: dict = None,
-            request_params: dict = None
+        self, symbol: TSymbol, *, extra_params: dict = None, request_params: dict = None
     ) -> OrderbookFetchAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}

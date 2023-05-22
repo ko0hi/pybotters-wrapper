@@ -6,7 +6,7 @@ from .helper import generate_attribute_checker, execute_fn
 
 
 def _unwrap(
-        change: pybotters.store.StoreChange,
+    change: pybotters.store.StoreChange,
 ) -> tuple[pybotters.store.DataStore, str, dict, dict]:
     return (
         change.store,
@@ -21,9 +21,7 @@ class WatchStoreMixin:
     __break: bool
     __watch_task: asyncio.Task
 
-    _checker = generate_attribute_checker(
-        "init_watch_store", "_WatchStoreMixin__store"
-    )
+    _checker = generate_attribute_checker("init_watch_store", "_WatchStoreMixin__store")
 
     def init_watch_store(self, store: pybotters.store.DataStore):
         self.__store = store
@@ -60,13 +58,11 @@ class WatchStoreMixin:
         ...
 
     def _on_watch_first(
-            self, store: "DataStore", operation: str, source: dict, data: dict
+        self, store: "DataStore", operation: str, source: dict, data: dict
     ):
         ...
 
-    def _on_watch(
-            self, store: "DataStore", operation: str, source: dict, data: dict
-    ):
+    def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
         ...
 
     def _on_watch_after(self):
@@ -142,13 +138,11 @@ class WatchMultipleStoreMixin:
         ...
 
     def _on_watch_first(
-            self, store: "DataStore", operation: str, source: dict, data: dict
+        self, store: "DataStore", operation: str, source: dict, data: dict
     ):
         ...
 
-    def _on_watch(
-            self, store: "DataStore", operation: str, source: dict, data: dict
-    ):
+    def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
         ...
 
     def _on_watch_after(self):

@@ -35,7 +35,7 @@ class StreamDataFrame:
 
     def init(self, df):
         if df.shape[0] < self._df.shape[0]:
-            self._df.iloc[-df.shape[0]:] = df
+            self._df.iloc[-df.shape[0] :] = df
         else:
             self._df = df
         self.__prune()
@@ -46,7 +46,6 @@ class StreamDataFrame:
         self.__apply_callback()
 
     def concat(self, df, overwrite_by_index=True):
-
         if overwrite_by_index:
             lhs = self._df[~self._df.index.isin(df.index)]
         else:
@@ -58,7 +57,7 @@ class StreamDataFrame:
 
     def __prune(self):
         if self._df.shape[0] > self._maxlen:
-            self._df = self._df.iloc[-self._maxlen:]
+            self._df = self._df.iloc[-self._maxlen :]
 
     def __apply_callback(self):
         for cb in self._callback:

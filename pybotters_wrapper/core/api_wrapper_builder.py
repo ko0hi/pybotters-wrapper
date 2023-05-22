@@ -35,49 +35,49 @@ class APIWrapperBuilder:
         return self
 
     def set_market_order_api(
-            self, market_order_api: MarketOrderAPI
+        self, market_order_api: MarketOrderAPI
     ) -> APIWrapperBuilder:
         self._market_order_api = market_order_api
         return self
 
     def set_stop_limit_order_api(
-            self, stop_limit_order_api: StopLimitOrderAPI
+        self, stop_limit_order_api: StopLimitOrderAPI
     ) -> APIWrapperBuilder:
         self._stop_limit_order_api = stop_limit_order_api
         return self
 
     def set_stop_market_order_api(
-            self, stop_market_order_api: StopMarketOrderAPI
+        self, stop_market_order_api: StopMarketOrderAPI
     ) -> APIWrapperBuilder:
         self._stop_market_order_api = stop_market_order_api
         return self
 
     def set_cancel_order_api(
-            self, cancel_order_api: CancelOrderAPI
+        self, cancel_order_api: CancelOrderAPI
     ) -> APIWrapperBuilder:
         self._cancel_order_api = cancel_order_api
         return self
 
     def set_ticker_fetch_api(
-            self, ticker_fetch_api: TickerFetchAPI
+        self, ticker_fetch_api: TickerFetchAPI
     ) -> APIWrapperBuilder:
         self._ticker_fetch_api = ticker_fetch_api
         return self
 
     def set_orderbook_fetch_api(
-            self, orderbook_fetch_api: OrderbookFetchAPI
+        self, orderbook_fetch_api: OrderbookFetchAPI
     ) -> APIWrapperBuilder:
         self._orderbook_fetch_api = orderbook_fetch_api
         return self
 
     def set_orders_fetch_api(
-            self, orders_fetch_api: OrdersFetchAPI
+        self, orders_fetch_api: OrdersFetchAPI
     ) -> APIWrapperBuilder:
         self._orders_fetch_api = orders_fetch_api
         return self
 
     def set_positions_fetch_api(
-            self, positions_fetch_api: PositionsFetchAPI
+        self, positions_fetch_api: PositionsFetchAPI
     ) -> APIWrapperBuilder:
         self._positions_fetch_api = positions_fetch_api
         return self

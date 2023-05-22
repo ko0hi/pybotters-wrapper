@@ -4,8 +4,11 @@ from typing import TYPE_CHECKING, Callable, NamedTuple, Type
 
 from aiohttp import ClientResponse
 
-from .api_exchange import TGenerateEndpointParameters, TTranslateParametersParameters, \
-    TWrapResponseParameters
+from .api_exchange import (
+    TGenerateEndpointParameters,
+    TTranslateParametersParameters,
+    TWrapResponseParameters,
+)
 from .api_exchange_builder import ExchangeAPIBuilder, TExchangeAPI
 
 if TYPE_CHECKING:
@@ -22,9 +25,9 @@ class OrderAPIBuilder(
     ]
 ):
     def __init__(
-            self,
-            order_api_class: Type[OrderAPI],
-            order_api_response_wrapper_class: Type[NamedTuple],
+        self,
+        order_api_class: Type[OrderAPI],
+        order_api_response_wrapper_class: Type[NamedTuple],
     ):
         super(OrderAPIBuilder, self).__init__(
             order_api_class,
@@ -33,8 +36,8 @@ class OrderAPIBuilder(
 
         self._order_id_key: str | None = None
         self._order_id_extractor: Callable[
-                                      [ClientResponse, dict, str], str | None
-                                  ] | None = None
+            [ClientResponse, dict, str], str | None
+        ] | None = None
         self._price_size_formatter: PriceSizeFormatter | None = None
         self._price_format_keys: list[str] | None = None
         self._size_format_keys: list[str] | None = None
@@ -44,15 +47,15 @@ class OrderAPIBuilder(
         return self
 
     def set_order_id_extractor(
-            self,
-            order_id_extractor: Callable[[ClientResponse, dict, str], str | None],
+        self,
+        order_id_extractor: Callable[[ClientResponse, dict, str], str | None],
     ) -> OrderAPIBuilder:
         self._order_id_extractor = order_id_extractor
         return self
 
     def set_price_size_formatter(
-            self,
-            price_size_formatter: PriceSizeFormatter,
+        self,
+        price_size_formatter: PriceSizeFormatter,
     ) -> OrderAPIBuilder:
         self._price_size_formatter = price_size_formatter
         return self

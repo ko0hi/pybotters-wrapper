@@ -9,7 +9,7 @@ class WebSocketRequestCustomizer(metaclass=ABCMeta):
         self._client = client
 
     def __call__(
-            self, endpoint: str, request_list: list[dict, str]
+        self, endpoint: str, request_list: list[dict, str]
     ) -> tuple[str, list[dict, str]]:
         return self.customize(endpoint, request_list)
 
@@ -18,13 +18,13 @@ class WebSocketRequestCustomizer(metaclass=ABCMeta):
 
     @abstractmethod
     def customize(
-            self, endpoint: str, request_list: list[dict, str]
+        self, endpoint: str, request_list: list[dict, str]
     ) -> tuple[str, list[dict, str]]:
         return endpoint, request_list
 
     @classmethod
     def compress_request_list(
-            cls, request_list: list[dict | str], hash_fn: Callable = str
+        cls, request_list: list[dict | str], hash_fn: Callable = str
     ) -> list[dict | str]:
         compressed = []
         for req in request_list:
@@ -36,13 +36,13 @@ class WebSocketRequestCustomizer(metaclass=ABCMeta):
 
 class WebSocketDefaultRequestCustomizer(WebSocketRequestCustomizer):
     def customize(
-            self, endpoint: str, request_list: list[dict, str]
+        self, endpoint: str, request_list: list[dict, str]
     ) -> tuple[str, list[dict, str]]:
         return endpoint, self.compress_request_list(request_list)
 
     @classmethod
     def compress_request_list(
-            cls, request_list: list[dict | str], hash_fn: Callable = str
+        cls, request_list: list[dict | str], hash_fn: Callable = str
     ) -> list[dict | str]:
         compressed = []
         for req in request_list:

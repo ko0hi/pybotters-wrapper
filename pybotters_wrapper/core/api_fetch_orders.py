@@ -39,7 +39,7 @@ class OrdersFetchAPI(
     ]
 ):
     async def fetch_orders(
-            self, symbol: str, *, extra_params: dict = None, request_params: dict = None
+        self, symbol: str, *, extra_params: dict = None, request_params: dict = None
     ) -> OrdersFetchAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
@@ -56,7 +56,5 @@ class OrdersFetchAPI(
         data = await self._decode_response(resp)
         item = self._itemize_response(resp, data)
         return self._wrap_response(
-            OrdersFetchAPIWrapResponseParameters(
-                orders=item, resp=resp, data=data
-            )
+            OrdersFetchAPIWrapResponseParameters(orders=item, resp=resp, data=data)
         )

@@ -23,26 +23,26 @@ class OrderAPI(
     ]
 ):
     def __init__(
-            self,
-            api_client: APIClient,
-            method: TRequestMethod,
-            *,
-            order_id_key: str,
-            order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
-                                | None = None,
-            price_size_formatter: PriceSizeFormatter | None = None,
-            price_format_keys: list[str] | None = None,
-            size_format_keys: list[str] | None = None,
-            endpoint_generator: TEndpoint
-                                | Callable[[TGenerateEndpointParameters], str]
-                                | None = None,
-            parameter_translater: Callable[[TTranslateParametersParameters], dict]
-                                  | None = None,
-            response_wrapper_cls: Type[NamedTuple] = None,
-            response_decoder: Callable[
-                                  [ClientResponse], dict | list | Awaitable[dict | list]
-                              ]
-                              | None = None,
+        self,
+        api_client: APIClient,
+        method: TRequestMethod,
+        *,
+        order_id_key: str,
+        order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
+        | None = None,
+        price_size_formatter: PriceSizeFormatter | None = None,
+        price_format_keys: list[str] | None = None,
+        size_format_keys: list[str] | None = None,
+        endpoint_generator: TEndpoint
+        | Callable[[TGenerateEndpointParameters], str]
+        | None = None,
+        parameter_translater: Callable[[TTranslateParametersParameters], dict]
+        | None = None,
+        response_wrapper_cls: Type[NamedTuple] = None,
+        response_decoder: Callable[
+            [ClientResponse], dict | list | Awaitable[dict | list]
+        ]
+        | None = None,
     ):
         super(OrderAPI, self).__init__(
             api_client,
@@ -59,9 +59,9 @@ class OrderAPI(
         self._size_format_keys = size_format_keys or []
 
     def _extract_order_id(
-            self,
-            resp: ClientResponse,
-            data: dict,
+        self,
+        resp: ClientResponse,
+        data: dict,
     ) -> str | None:
         if self._order_id_extractor is not None:
             return self._order_id_extractor(resp, data, self._order_id_key)
@@ -86,7 +86,7 @@ class OrderAPI(
 
     @classmethod
     def _default_order_id_extractor(
-            cls, resp: ClientResponse, data: dict, order_id_key: str
+        cls, resp: ClientResponse, data: dict, order_id_key: str
     ) -> str | None:
         if resp.status == 200:
             order_id = data

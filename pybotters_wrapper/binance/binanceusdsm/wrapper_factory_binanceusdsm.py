@@ -72,7 +72,7 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_store_initializer(
-            cls, store: TDataStoreManager | None = None
+        cls, store: TDataStoreManager | None = None
     ) -> StoreInitializer:
         base_url = cls.create_exchange_property().base_url
         return StoreInitializer(
@@ -88,7 +88,7 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_normalized_store_builder(
-            cls, store: TDataStoreManager | None = None
+        cls, store: TDataStoreManager | None = None
     ) -> BinanceNormalizedStoreBuilder:
         return BinanceNormalizedStoreBuilder(store or BinanceUSDSMDataStore())
 
@@ -149,7 +149,7 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_api_client(
-            cls, client: pybotters.Client, verbose: bool = False
+        cls, client: pybotters.Client, verbose: bool = False
     ) -> APIClient:
         return (
             APIClientBuilder()
@@ -161,12 +161,12 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_limit_order_api(
-            cls,
-            client: pybotters.Client,
-            verbose: bool = False,
+        cls,
+        client: pybotters.Client,
+        verbose: bool = False,
     ) -> LimitOrderAPI:
         def parameter_translater(
-                params: LimitOrderAPITranslateParametersParameters,
+            params: LimitOrderAPITranslateParametersParameters,
         ) -> dict:
             return {
                 "symbol": params["symbol"].upper(),
@@ -193,10 +193,10 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_market_order_api(
-            cls, client: pybotters.Client, verbose: bool = False
+        cls, client: pybotters.Client, verbose: bool = False
     ) -> MarketOrderAPI:
         def parameter_translater(
-                params: MarketOrderAPITranslateParametersParameters,
+            params: MarketOrderAPITranslateParametersParameters,
         ) -> dict:
             return {
                 "symbol": params["symbol"].upper(),
@@ -219,10 +219,10 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_cancel_order_api(
-            cls, client: pybotters.Client, verbose: bool = False
+        cls, client: pybotters.Client, verbose: bool = False
     ) -> CancelOrderAPI:
         def parameter_translater(
-                params: CancelOrderAPITranslateParametersParameters,
+            params: CancelOrderAPITranslateParametersParameters,
         ) -> dict:
             return {"symbol": params["symbol"].upper(), "orderId": params["order_id"]}
 
@@ -238,10 +238,10 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_stop_limit_order_api(
-            cls, client: pybotters.Client, verbose: bool = False
+        cls, client: pybotters.Client, verbose: bool = False
     ) -> StopLimitOrderAPI:
         def parameter_translater(
-                params: StopLimitOrderAPITranslateParametersParameters,
+            params: StopLimitOrderAPITranslateParametersParameters,
         ) -> dict:
             return {
                 "symbol": params["symbol"].upper(),
@@ -268,10 +268,10 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_stop_market_order_api(
-            cls, client: pybotters.Client, verbose: bool = False
+        cls, client: pybotters.Client, verbose: bool = False
     ) -> StopMarketOrderAPI:
         def parameter_translater(
-                params: StopMarketOrderAPITranslateParametersParameters,
+            params: StopMarketOrderAPITranslateParametersParameters,
         ) -> dict:
             return {
                 "symbol": params["symbol"].upper(),
@@ -296,15 +296,15 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_ticker_fetch_api(
-            cls, client: pybotters.Client, verbose: bool = False
+        cls, client: pybotters.Client, verbose: bool = False
     ) -> TickerFetchAPI:
         def parameter_translater(
-                params: TickerFetchAPITranslateParametersParameters,
+            params: TickerFetchAPITranslateParametersParameters,
         ) -> dict:
             return {"symbol": params["symbol"].upper()}
 
         def response_itemizer(
-                resp: aiohttp.ClientResponse, resp_data: dict
+            resp: aiohttp.ClientResponse, resp_data: dict
         ) -> TickerItem:
             return {"symbol": resp_data["symbol"], "price": float(resp_data["price"])}
 
@@ -320,15 +320,15 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_orderbook_fetch_api(
-            cls, client: pybotters.Client, verbose: bool = False
+        cls, client: pybotters.Client, verbose: bool = False
     ) -> OrderbookFetchAPI:
         def parameter_translater(
-                params: OrderbookFetchAPITranslateParametersParameters,
+            params: OrderbookFetchAPITranslateParametersParameters,
         ) -> dict:
             return {"symbol": params["symbol"].upper()}
 
         def response_itemizer(
-                resp: aiohttp.ClientResponse, resp_data: dict
+            resp: aiohttp.ClientResponse, resp_data: dict
         ) -> dict[TSide, list[OrderbookItem]]:
             symbol = resp.request_info.url.query["symbol"]
             asks = [
@@ -357,15 +357,15 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_orders_fetch_api(
-            cls, client: pybotters.Client, verbose: bool = False
+        cls, client: pybotters.Client, verbose: bool = False
     ) -> OrdersFetchAPI:
         def parameter_translater(
-                params: OrdersFetchAPITranslateParametersParameters,
+            params: OrdersFetchAPITranslateParametersParameters,
         ) -> dict:
             return {"symbol": params["symbol"].upper()}
 
         def response_itemizer(
-                resp: aiohttp.ClientResponse, resp_data: dict
+            resp: aiohttp.ClientResponse, resp_data: dict
         ) -> list[OrderItem]:
             return [
                 OrderItem(
@@ -392,15 +392,15 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_positions_fetch_api(
-            cls, client: pybotters.Client, verbose: bool = False
+        cls, client: pybotters.Client, verbose: bool = False
     ) -> PositionsFetchAPI:
         def parameter_translater(
-                params: PositionsFetchAPITranslateParametersParameters,
+            params: PositionsFetchAPITranslateParametersParameters,
         ) -> dict:
             return {"symbol": params["symbol"].upper()}
 
         def response_itemizer(
-                resp: aiohttp.ClientResponse, resp_data: dict
+            resp: aiohttp.ClientResponse, resp_data: dict
         ) -> list[PositionItem]:
             return [
                 PositionItem(

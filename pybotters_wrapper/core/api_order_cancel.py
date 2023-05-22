@@ -40,12 +40,12 @@ class CancelOrderAPI(
     ]
 ):
     async def cancel_order(
-            self,
-            symbol: TSymbol,
-            order_id: TOrderId,
-            *,
-            extra_params: dict = None,
-            request_params: dict = None,
+        self,
+        symbol: TSymbol,
+        order_id: TOrderId,
+        *,
+        extra_params: dict = None,
+        request_params: dict = None,
     ) -> CancelOrderAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}

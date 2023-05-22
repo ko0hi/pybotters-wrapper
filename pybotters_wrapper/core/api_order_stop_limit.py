@@ -53,15 +53,15 @@ class StopLimitOrderAPI(
     ]
 ):
     async def stop_limit_order(
-            self,
-            symbol: TSymbol,
-            side: TSide,
-            price: TPrice,
-            size: TSize,
-            trigger: TTrigger,
-            *,
-            extra_params: dict = None,
-            request_params: dict = None,
+        self,
+        symbol: TSymbol,
+        side: TSide,
+        price: TPrice,
+        size: TSize,
+        trigger: TTrigger,
+        *,
+        extra_params: dict = None,
+        request_params: dict = None,
     ) -> StopLimitOrderAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}

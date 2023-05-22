@@ -22,13 +22,12 @@ class WebSocketChannels(Generic[TChannelName]):
     _ENDPOINT: str = None
 
     def channel(
-            self,
-            name: Union[
-                TChannelName,
-                Literal[
-                    "ticker", "trades", "orderbook", "order", "execution", "position"],
-            ],
-            **params,
+        self,
+        name: Union[
+            TChannelName,
+            Literal["ticker", "trades", "orderbook", "order", "execution", "position"],
+        ],
+        **params,
     ) -> SubscribeItem:
         try:
             method = getattr(self, name)

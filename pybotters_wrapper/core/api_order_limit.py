@@ -44,14 +44,14 @@ class LimitOrderAPI(
     ]
 ):
     async def limit_order(
-            self,
-            symbol: TSymbol,
-            side: TSide,
-            price: TPrice,
-            size: TSize,
-            *,
-            extra_params: dict = None,
-            request_params: dict = None,
+        self,
+        symbol: TSymbol,
+        side: TSide,
+        price: TPrice,
+        size: TSize,
+        *,
+        extra_params: dict = None,
+        request_params: dict = None,
     ) -> LimitOrderAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
@@ -81,7 +81,5 @@ class LimitOrderAPI(
         data = await self._decode_response(resp)
         order_id = self._extract_order_id(resp, data)
         return self._wrap_response(
-            LimitOrderAPIWrapResponseParameters(
-                order_id=order_id, resp=resp, data=data
-            )
+            LimitOrderAPIWrapResponseParameters(order_id=order_id, resp=resp, data=data)
         )

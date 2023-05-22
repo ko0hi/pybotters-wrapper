@@ -39,16 +39,24 @@ class NormalizedStoreBuilder(Generic[TDataStoreManager], metaclass=ABCMeta):
         raise NotImplementedError
 
     def get(
-            self, *names: str
-    ) -> dict[
-             str,
-             TickerStore
-             | TradesStore
-             | OrderbookStore
-             | OrderbookStore
-             | ExecutionStore
-             | PositionStore,
-         ] | TickerStore | TradesStore | OrderbookStore | OrderStore | ExecutionStore | PositionStore:
+        self, *names: str
+    ) -> (
+        dict[
+            str,
+            TickerStore
+            | TradesStore
+            | OrderbookStore
+            | OrderbookStore
+            | ExecutionStore
+            | PositionStore,
+        ]
+        | TickerStore
+        | TradesStore
+        | OrderbookStore
+        | OrderStore
+        | ExecutionStore
+        | PositionStore
+    ):
         if len(names) == 0:
             names = ["ticker", "trades", "orderbook", "order", "execution", "position"]
 
