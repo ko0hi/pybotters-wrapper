@@ -1,6 +1,7 @@
 from . import plugins, utils
 from .binance import binanceusdsm, binancecoinm
 from .factory import (
+    create_factory,
     create_client,
     create_api,
     create_store,

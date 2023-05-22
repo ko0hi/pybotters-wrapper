@@ -23,6 +23,10 @@ _EXCHANGE2FACTORY: dict[str, WrapperFactory] = {
 }
 
 
+def create_factory(exchange: str) -> WrapperFactory:
+    return _EXCHANGE2FACTORY[exchange]
+
+
 def create_client(
     apis: dict[str, list[str]] | str | None = None,
     base_url: str = "",
