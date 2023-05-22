@@ -263,12 +263,3 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
 
     def watch(self) -> "StoreStream":
         return self._normalized_store.watch()
-
-
-class A:
-    def __init__(self):
-        self._task = asyncio.create_task(self._run_forever())
-
-    async def _run_forever(self):
-        while True:
-            await asyncio.sleep(1)
