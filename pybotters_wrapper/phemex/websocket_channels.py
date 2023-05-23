@@ -25,6 +25,15 @@ class PhemexWebsocketChannels(WebSocketChannels[Literal["tick", "trade"]]):
         """https://github.com/phemex/phemex-api-docs/blob/master/Public-Contract-API-en.md#subscribe-full-orderbook"""
         return {"method": "orderbook", "params": [symbol, True]}
 
+    def order(self, **kwargs) -> PhemexWebsocketParameter:
+        return self.aop()
+
+    def position(self, **kwargs) -> PhemexWebsocketParameter:
+        return self.aop()
+
+    def execution(self, **kwargs) -> PhemexWebsocketParameter:
+        return self.aop()
+
     def tick(self, symbol: str) -> PhemexWebsocketParameter:
         """https://github.com/phemex/phemex-api-docs/blob/master/Public-Contract-API-en.md#subscribe-tick-event-for-symbol-price"""
         return {"method": "tick", "params": [symbol]}
@@ -32,6 +41,30 @@ class PhemexWebsocketChannels(WebSocketChannels[Literal["tick", "trade"]]):
     def trade(self, symbol: str) -> PhemexWebsocketParameter:
         """https://github.com/phemex/phemex-api-docs/blob/master/Public-Contract-API-en.md#subscribe-trade"""
         return {"method": "trade", "params": [symbol]}
+
+    def kline(self, symbol: str, interval: int) -> PhemexWebsocketParameter:
+        supported_intervals = [
+            60,
+            300,
+            900,
+            1800,
+            3600,
+            14400,
+            86400,
+            604800,
+            2592000,
+            7776000,
+            31104000,
+        ]
+        if interval not in supported_intervals:
+            raise ValueError(
+                f"Unsupported interval: {interval} (supported: {supported_intervals})"
+            )
+        return {"method": "kline", "params": [symbol, interval]}
+
+    def aop(self) -> PhemexWebsocketParameter:
+        return {"method": "aop", "params": []}
+
 
     def _parameter_template(self, parameter: PhemexWebsocketParameter) -> dict:
         return {
