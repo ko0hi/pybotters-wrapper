@@ -7,7 +7,7 @@ from pybotters_wrapper.binance.binancecoinm import BinanceCOINMWrapperFactory
 @pytest.fixture
 def patch_price_size_precision_fetcher(mocker: pytest_mock.MockerFixture):
     mocker.patch(
-        "pybotters_wrapper.binance.common.price_size_precisions_fetcher_binance.BinancePriceSizePrecisionsFetcher.fetch_precisions",
+        "pybotters_wrapper.binance.common.price_size_precisions_fetcher_binance.BinancePriceSizePrecisionFetcher.fetch_precisions",
         return_value={"price": {"BNBUSD_230929": 2}, "size": {"BNBUSD_230929": 0}},
     )
 
