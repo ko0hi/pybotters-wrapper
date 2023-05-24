@@ -1,5 +1,6 @@
 import pybotters
 
+from .websocket_channels import bitFlyerWebsocketChannels
 from .._typedefs import TDataStoreManager
 from ..core import (
     WrapperFactory,
@@ -14,6 +15,7 @@ from ..core import (
     LimitOrderAPI,
     APIClient,
     APIWrapper,
+    PriceSizePrecisionFetcher,
     DataStoreWrapper,
     PriceSizeFormatter,
     WebSocketRequestCustomizer,
@@ -22,16 +24,17 @@ from ..core import (
     StoreInitializer,
     ExchangeProperty,
 )
-from .websocket_channels import bitFlyerWebsocketChannels
+from ..core.websocket_resquest_customizer import WebSocketDefaultRequestCustomizer
+
+from .price_size_precision_fetcher import bitFlyerPriceSizePrecisionFetcher
 
 
 class bitFlyerWrapperFactory(WrapperFactory):
     @classmethod
     def create_exchange_property(cls) -> ExchangeProperty:
-        return ExchangeProperty({
-            "base_url": "https://api.bitflyer.com",
-            "exchange": "bitflyer"
-        })
+        return ExchangeProperty(
+            {"base_url": "https://api.bitflyer.com", "exchange": "bitflyer"}
+        )
 
     @classmethod
     def create_store_initializer(
@@ -51,11 +54,16 @@ class bitFlyerWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_websocket_request_customizer(cls) -> WebSocketRequestCustomizer:
-        pass
+        return WebSocketDefaultRequestCustomizer()
+
+    @classmethod
+    def create_price_size_precisions_fetcher(cls) -> PriceSizePrecisionFetcher:
+        return bitFlyerPriceSizePrecisionFetcher()
 
     @classmethod
     def create_price_size_formatter(cls) -> PriceSizeFormatter:
-        pass
+        precisions = cls.create_price_size_precisions_fetcher().fetch_precisions()
+        return PriceSizeFormatter(precisions["price"], precisions["size"])
 
     @classmethod
     def create_store(cls, store: TDataStoreManager | None = None) -> DataStoreWrapper:
