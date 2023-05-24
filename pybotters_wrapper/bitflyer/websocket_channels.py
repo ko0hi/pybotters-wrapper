@@ -42,7 +42,7 @@ class bitFlyerWebsocketChannels(WebSocketChannels):
     def parent_order_events(self) -> str:
         return "parent_order_events"
 
-    def _parameter_template(self, parameter: str | list[str]) -> str:
+    def _parameter_template(self, parameter: str) -> str:
         return {
             "method": "subscribe",
             "params": {"channel": parameter, "id": int(time.monotonic() * 10**9)},
