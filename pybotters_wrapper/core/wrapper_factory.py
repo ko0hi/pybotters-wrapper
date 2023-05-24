@@ -14,6 +14,7 @@ from .api_order_stop_limit import StopLimitOrderAPI
 from .api_order_stop_market import StopMarketOrderAPI
 from .api_wrapper import APIWrapper
 from .exchange_property import ExchangeProperty
+from .fetcher_price_size_precisions import PriceSizePrecisionFetcher
 from .formatter_precision import PriceSizeFormatter
 from .normalized_store_builder import NormalizedStoreBuilder
 from .store_initializer import StoreInitializer
@@ -53,6 +54,11 @@ class WrapperFactory(metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def create_websocket_request_customizer(cls) -> WebSocketRequestCustomizer:
+        raise NotImplementedError
+
+    @classmethod
+    @abstractmethod
+    def create_price_size_precisions_fetcher(cls) -> PriceSizePrecisionFetcher:
         raise NotImplementedError
 
     @classmethod
