@@ -49,6 +49,8 @@ class WebSocketRequestBuilder:
         channel: str
         | list[str | tuple[str, dict]]
         | Literal["all", "public", "private"],
+        *,
+        symbol: str = None,
         **kwargs,
     ):
         if channel == "all":
@@ -65,6 +67,8 @@ class WebSocketRequestBuilder:
 
         elif channel == "private":
             channel = ["order", "execution", "position"]
+
+        kwargs["symbol"] = symbol
 
         if isinstance(channel, str):
             return self._subscribe_by_channel_name(channel, **kwargs)
@@ -86,8 +90,13 @@ class WebSocketRequestBuilder:
     def _subscribe_by_channel_name(
         self, channel_name: str, **kwargs
     ) -> TWebsocketRequestBuilder:
-        item = self._channels.channel(channel_name, **kwargs)
-        return self._register(item.endpoint, item.parameter)
+        subscribe_item = self._channels.channel(channel_name, **kwargs)
+        if isinstance(subscribe_item, list):
+            for item in subscribe_item:
+                self._register(item.endpoint, item.parameter)
+        else:
+            self._register(subscribe_item.endpoint, subscribe_item.parameter)
+        return self
 
     def _register(self, endpoint: str, parameter: any) -> TWebsocketRequestBuilder:
         self._request_lists[endpoint].append(parameter)

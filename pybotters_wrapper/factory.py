@@ -5,6 +5,7 @@ import pybotters
 from ._typedefs import TDataStoreManager
 from .binance.binancecoinm import BinanceCOINMWrapperFactory
 from .binance.binanceusdsm import BinanceUSDSMWrapperFactory
+from .bitflyer import bitFlyerWrapperFactory
 from .core import (
     APIWrapper,
     DataStoreWrapper,
@@ -19,6 +20,7 @@ from .phemex import PhemexWrapperFactory
 _EXCHANGE2FACTORY: dict[str, WrapperFactory] = {
     "binancecoinm": BinanceCOINMWrapperFactory,
     "binanceusdsm": BinanceUSDSMWrapperFactory,
+    "bitflyer": bitFlyerWrapperFactory,
     "phemex": PhemexWrapperFactory,
 }
 

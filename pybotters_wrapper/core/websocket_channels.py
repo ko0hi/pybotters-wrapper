@@ -28,37 +28,45 @@ class WebSocketChannels(Generic[TChannelName]):
             Literal["ticker", "trades", "orderbook", "order", "execution", "position"],
         ],
         **params,
-    ) -> SubscribeItem:
+    ) -> SubscribeItem | list[SubscribeItem]:
         try:
             method = getattr(self, name)
         except AttributeError as e:
             raise AttributeError(f"Unsupported channel: {name}")
         parameter = method(**params)
-        endpoint = self._get_endpoint(parameter)
-        parameter_in_template = self._parameter_template(parameter)
-        return SubscribeItem(endpoint, parameter_in_template)
+        if isinstance(parameter, list):
+            subscribe_items = []
+            for _parameter in parameter:
+                endpoint = self._get_endpoint(_parameter)
+                parameter_in_template = self._parameter_template(_parameter)
+                subscribe_items.append(SubscribeItem(endpoint, parameter_in_template))
+            return subscribe_items
+        else:
+            endpoint = self._get_endpoint(parameter)
+            parameter_in_template = self._parameter_template(parameter)
+            return SubscribeItem(endpoint, parameter_in_template)
 
-    def ticker(self, symbol: str, **kwargs) -> dict | str:
+    def ticker(self, symbol: str, **kwargs) -> dict | str | list[dict | str]:
         """TickerStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
-    def trades(self, symbol: str, **kwargs) -> dict | str:
+    def trades(self, symbol: str, **kwargs) -> dict | str | list[dict | str]:
         """TradesStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
-    def orderbook(self, symbol: str, **kwargs) -> dict | str:
+    def orderbook(self, symbol: str, **kwargs) -> dict | str | list[dict | str]:
         """OrderbookStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
-    def order(self, **kwargs) -> dict | str:
+    def order(self, **kwargs) -> dict | str | list[dict | str]:
         """OrderStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
-    def execution(self, **kwargs) -> dict | str:
+    def execution(self, **kwargs) -> dict | str | list[dict | str]:
         """ExecutionStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
-    def position(self, **kwargs) -> dict | str:
+    def position(self, **kwargs) -> dict | str | list[dict | str]:
         """PositionStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
