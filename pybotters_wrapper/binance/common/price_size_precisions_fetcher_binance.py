@@ -8,7 +8,7 @@ from pybotters_wrapper.core.fetcher_price_size_precisions import (
 )
 
 
-class BinancePriceSizePrecisionsFetcher(PriceSizePrecisionFetcher):
+class BinancePriceSizePrecisionFetcher(PriceSizePrecisionFetcher):
     _ENDPOINTS = {
         "binancespot": "https://api.binance.com/api/v3/exchangeInfo",
         "binanceusdsm": "https://fapi.binance.com/fapi/v1/exchangeInfo",

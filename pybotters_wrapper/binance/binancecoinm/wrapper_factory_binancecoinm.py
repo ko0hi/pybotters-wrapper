@@ -8,7 +8,7 @@ from . import (
 from ..common import (
     BinanceNormalizedStoreBuilder,
     BinanceWebSocketRequestCustomizer,
-    BinancePriceSizePrecisionsFetcher,
+    BinancePriceSizePrecisionFetcher,
 )
 from ..._typedefs import TDataStoreManager, TSide
 from ...core import (
@@ -103,12 +103,16 @@ class BinanceCOINMWrapperFactory(WrapperFactory):
         )
 
     @classmethod
+    def create_price_size_precisions_fetcher(cls) -> BinancePriceSizePrecisionFetcher:
+        return BinancePriceSizePrecisionFetcher(
+            cls.create_exchange_property().exchange
+        )
+
+    @classmethod
     def create_price_size_formatter(cls) -> PriceSizeFormatter:
         if cls._CACHE_PRICE_SIZE_FORMATTER is not None:
             return cls._CACHE_PRICE_SIZE_FORMATTER
-        precisions = BinancePriceSizePrecisionsFetcher(
-            cls.create_exchange_property().exchange
-        ).fetch_precisions()
+        precisions = cls.create_price_size_precisions_fetcher().fetch_precisions()
         cls._CACHE_PRICE_SIZE_FORMATTER = PriceSizeFormatter(
             precisions["price"], precisions["size"]
         )
