@@ -1,8 +1,10 @@
 import math
+from typing import Literal
 
 import requests
 from loguru import logger
 
+from ..core import TSymbol
 from ..core.fetcher.price_size_precision import PriceSizePrecisionFetcher
 
 
@@ -16,20 +18,14 @@ class BinancePriceSizePrecisionFetcher(PriceSizePrecisionFetcher):
     }
 
     def __init__(self, exchange: str):
+        super(BinancePriceSizePrecisionFetcher, self).__init__()
         self._exchange = exchange
-        self._precisions = None
-        self._exchange_info = None
 
-    def fetch_precisions(self, cache: bool = True) -> dict:
-        if self._precisions is not None and cache:
-            return self._precisions
-        self._exchange_info = self.fetch_exchange_info()
-        self._precisions = self._extract_precisions_from_exchange_info(
-            self._exchange_info
-        )
-        return self._precisions
+    def fetch_precisions(self) -> dict[Literal["price", "size"], dict[TSymbol, int]]:
+        exchange_info = self._fetch_exchange_info()
+        return self._extract_precisions_from_exchange_info(exchange_info)
 
-    def fetch_exchange_info(self) -> dict:
+    def _fetch_exchange_info(self) -> dict:
         resp = requests.get(self._ENDPOINTS[self._exchange])
         if resp.status_code != 200:
             msg = f"Failed to fetch binance exchange info {resp.json()}"
