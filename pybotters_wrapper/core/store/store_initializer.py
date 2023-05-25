@@ -98,31 +98,34 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
         await self._initialize_with_validation(*awaitables)
 
     # aliases
-    async def initialize_token(self, client: "pybotters.APIClient", **params):
+    async def initialize_token(self, client: "pybotters.Client", **params):
+        """ トークン発行用の初期化メソッド。BinanceやGMO CoinなどのAPIで使う。
+
+        """
         return await self.initialize([("token", params)], client)
 
-    async def initialize_token_public(self, client: "pybotters.APIClient", **params):
+    async def initialize_token_public(self, client: "pybotters.Client", **params):
         return await self.initialize([("token_public", params)], client)
 
-    async def initialize_token_private(self, client: "pybotters.APIClient", **params):
+    async def initialize_token_private(self, client: "pybotters.Client", **params):
         return await self.initialize([("token_private", params)], client)
 
-    async def initialize_ticker(self, client: "pybotters.APIClient", **params):
+    async def initialize_ticker(self, client: "pybotters.Client", **params):
         return await self.initialize([("ticker", params)], client)
 
-    async def initialize_trades(self, client: "pybotters.APIClient", **params):
+    async def initialize_trades(self, client: "pybotters.Client", **params):
         return await self.initialize([("trades", params)], client)
 
-    async def initialize_orderbook(self, client: "pybotters.APIClient", **params):
+    async def initialize_orderbook(self, client: "pybotters.Client", **params):
         return await self.initialize([("orderbook", params)], client)
 
-    async def initialize_order(self, client: "pybotters.APIClient", **params):
+    async def initialize_order(self, client: "pybotters.Client", **params):
         return await self.initialize([("order", params)], client)
 
-    async def initialize_execution(self, client: "pybotters.APIClient", **params):
+    async def initialize_execution(self, client: "pybotters.Client", **params):
         return await self.initialize([("execution", params)], client)
 
-    async def initialize_position(self, client: "pybotters.APIClient", **params):
+    async def initialize_position(self, client: "pybotters.Client", **params):
         return await self.initialize([("position", params)], client)
 
     def register_config(
