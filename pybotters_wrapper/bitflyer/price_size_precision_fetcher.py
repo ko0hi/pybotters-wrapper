@@ -1,6 +1,6 @@
 from typing import Literal
 
-from .._typedefs import TSymbol
+from pybotters_wrapper.core.typedefs.typing import TSymbol
 from ..core import PriceSizePrecisionFetcher
 
 

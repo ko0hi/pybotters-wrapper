@@ -1,7 +1,7 @@
 import pytest
 
 import pybotters_wrapper as pbw
-from pybotters_wrapper.core.api_client_builder import APIClientBuilder
+from pybotters_wrapper.core.api.client_builder import APIClientBuilder
 from pybotters_wrapper.core.exchange_property import ExchangeProperty
 
 

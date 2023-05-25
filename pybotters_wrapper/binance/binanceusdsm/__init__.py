@@ -1,2 +1,2 @@
-from .websocket_channels_binanceusdsm import BinanceUSDSMWebsocketChannels
-from .wrapper_factory_binanceusdsm import BinanceUSDSMWrapperFactory
+from .websocket_channels import BinanceUSDSMWebsocketChannels
+from .wrapper_factory import BinanceUSDSMWrapperFactory

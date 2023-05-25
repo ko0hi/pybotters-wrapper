@@ -2,19 +2,30 @@ import pybotters
 from aiohttp.client import ClientResponse
 from requests import Response
 
-from .api_client import APIClient
-from .api_fetch_orderbook import OrderbookFetchAPI, OrderbookFetchAPIResponse
-from .api_fetch_orders import OrdersFetchAPI, OrdersFetchAPIResponse
-from .api_fetch_positions import PositionsFetchAPI, PositionsFetchAPIResponse
-from .api_fetch_ticker import TickerFetchAPI, TickerFetchAPIResponse
-from .api_order_cancel import CancelOrderAPI, CancelOrderAPIResponse
-from .api_order_limit import LimitOrderAPI, LimitOrderAPIResponse
-from .api_order_market import MarketOrderAPI, MarketOrderAPIResponse
-from .api_order_stop_limit import StopLimitOrderAPI, StopLimitOrderAPIResponse
-from .api_order_stop_market import StopMarketOrderAPI, StopMarketOrderAPIResponse
+from .api import (
+    APIClient,
+    OrderbookFetchAPI,
+    OrderbookFetchAPIResponse,
+    OrdersFetchAPI,
+    OrdersFetchAPIResponse,
+    PositionsFetchAPI,
+    PositionsFetchAPIResponse,
+    TickerFetchAPI,
+    TickerFetchAPIResponse,
+    CancelOrderAPI,
+    CancelOrderAPIResponse,
+    MarketOrderAPI,
+    MarketOrderAPIResponse,
+    LimitOrderAPI,
+    LimitOrderAPIResponse,
+    StopLimitOrderAPI,
+    StopLimitOrderAPIResponse,
+    StopMarketOrderAPI,
+    StopMarketOrderAPIResponse,
+)
 from .exchange_property import ExchangeProperty
-from .formatter_precision import PriceSizeFormatter
-from .._typedefs import (
+from .formatter import PriceSizePrecisionFormatter
+from .typedefs import (
     TRequestMethod,
     TSymbol,
     TSide,
@@ -245,7 +256,7 @@ class APIWrapper:
         return self._api_client._client
 
     @property
-    def price_size_formatter(self) -> PriceSizeFormatter:
+    def price_size_formatter(self) -> PriceSizePrecisionFormatter:
         return self._limit_order_api._price_size_formatter  # noqa
 
     @property

@@ -1,2 +1,2 @@
-from .websocket_channels_binancecoinm import BinanceCOINMWebsocketChannels
-from .wrapper_factory_binancecoinm import BinanceCOINMWrapperFactory
+from .websocket_channels import BinanceCOINMWebsocketChannels
+from .wrapper_factory import BinanceCOINMWrapperFactory

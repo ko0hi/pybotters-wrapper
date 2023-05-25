@@ -7,22 +7,24 @@ import pybotters
 from loguru import logger
 from pybotters.store import DataStore
 
-from . import (
+
+from .store import (
     ExecutionStore,
     OrderbookStore,
     OrderStore,
     PositionStore,
     TickerStore,
     TradesStore,
-    NormalizedDataStore,
+    StoreInitializer,
+    NormalizedStoreBuilder,
 )
+from .websocket import (
+    WebSocketRequestBuilder,
+    WebSocketRequestCustomizer,
+)
+
+from .typedefs import TDataStoreManager
 from .exchange_property import ExchangeProperty
-from .normalized_store_builder import NormalizedStoreBuilder
-from .store_initializer import StoreInitializer
-from .websocket_connection import WebSocketConnection, WebsocketOnReconnectionCallback
-from .websocket_request_builder import WebSocketRequestBuilder
-from .websocket_resquest_customizer import WebSocketRequestCustomizer
-from .._typedefs import TDataStoreManager
 
 if TYPE_CHECKING:
     from pybotters import Item
@@ -58,35 +60,35 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
     async def initialize(
         self,
         aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
-        client: "pybotters.Client",
+        client: "pybotters.APIClient",
     ) -> "DataStoreWrapper":
         return await self._initializer.initialize(aws_or_names, client)
 
-    async def initialize_token(self, client: "pybotters.Client", **params):
+    async def initialize_token(self, client: "pybotters.APIClient", **params):
         return await self._initializer.initialize_token(client, **params)
 
-    async def initialize_token_public(self, client: "pybotters.Client", **params):
+    async def initialize_token_public(self, client: "pybotters.APIClient", **params):
         return await self._initializer.initialize_token_public(client, **params)
 
-    async def initialize_token_private(self, client: "pybotters.Client", **params):
+    async def initialize_token_private(self, client: "pybotters.APIClient", **params):
         return await self._initializer.initialize_token_private(client, **params)
 
-    async def initialize_ticker(self, client: "pybotters.Client", **params):
+    async def initialize_ticker(self, client: "pybotters.APIClient", **params):
         return await self._initializer.initialize_ticker(client, **params)
 
-    async def initialize_trades(self, client: "pybotters.Client", **params):
+    async def initialize_trades(self, client: "pybotters.APIClient", **params):
         return await self._initializer.initialize_trades(client, **params)
 
-    async def initialize_orderbook(self, client: "pybotters.Client", **params):
+    async def initialize_orderbook(self, client: "pybotters.APIClient", **params):
         return await self._initializer.initialize_orderbook(client, **params)
 
-    async def initialize_order(self, client: "pybotters.Client", **params):
+    async def initialize_order(self, client: "pybotters.APIClient", **params):
         return await self._initializer.initialize_order(client, **params)
 
-    async def initialize_execution(self, client: "pybotters.Client", **params):
+    async def initialize_execution(self, client: "pybotters.APIClient", **params):
         return await self._initializer.initialize_execution(client, **params)
 
-    async def initialize_position(self, client: "pybotters.Client", **params):
+    async def initialize_position(self, client: "pybotters.APIClient", **params):
         return await self._initializer.initialize_position(client, **params)
 
     def subscribe(
@@ -97,7 +99,7 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
 
     async def connect(
         self,
-        client: "pybotters.Client",
+        client: "pybotters.APIClient",
         *,
         endpoint: str = None,
         send: any = None,

@@ -1,7 +1,7 @@
 import pybotters
 
 from .websocket_channels import bitFlyerWebsocketChannels
-from .._typedefs import TDataStoreManager
+from pybotters_wrapper.core.typedefs.typing import TDataStoreManager
 from ..core import (
     WrapperFactory,
     PositionsFetchAPI,
@@ -17,15 +17,17 @@ from ..core import (
     APIWrapper,
     PriceSizePrecisionFetcher,
     DataStoreWrapper,
-    PriceSizeFormatter,
+    PriceSizePrecisionFormatter,
     WebSocketRequestCustomizer,
     WebSocketRequestBuilder,
     NormalizedStoreBuilder,
     StoreInitializer,
     ExchangeProperty,
 )
-from ..core.websocket_resquest_customizer import WebSocketDefaultRequestCustomizer
 
+from ..core.websocket.websocket_resquest_customizer import (
+    WebSocketDefaultRequestCustomizer,
+)
 from .price_size_precision_fetcher import bitFlyerPriceSizePrecisionFetcher
 
 
@@ -61,9 +63,9 @@ class bitFlyerWrapperFactory(WrapperFactory):
         return bitFlyerPriceSizePrecisionFetcher()
 
     @classmethod
-    def create_price_size_formatter(cls) -> PriceSizeFormatter:
+    def create_price_size_formatter(cls) -> PriceSizePrecisionFormatter:
         precisions = cls.create_price_size_precisions_fetcher().fetch_precisions()
-        return PriceSizeFormatter(precisions["price"], precisions["size"])
+        return PriceSizePrecisionFormatter(precisions["price"], precisions["size"])
 
     @classmethod
     def create_store(cls, store: TDataStoreManager | None = None) -> DataStoreWrapper:

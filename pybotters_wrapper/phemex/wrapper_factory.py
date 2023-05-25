@@ -1,29 +1,28 @@
 import pybotters
 
-from .websocket_channels import PhemexWebsocketChannels
-
-from .._typedefs import TDataStoreManager
 from ..core import (
-    WrapperFactory,
-    PositionsFetchAPI,
-    OrdersFetchAPI,
-    OrderbookFetchAPI,
-    TickerFetchAPI,
-    StopMarketOrderAPI,
-    StopLimitOrderAPI,
-    CancelOrderAPI,
-    MarketOrderAPI,
-    LimitOrderAPI,
     APIClient,
     APIWrapper,
+    CancelOrderAPI,
     DataStoreWrapper,
-    PriceSizeFormatter,
-    WebSocketRequestCustomizer,
-    WebSocketRequestBuilder,
-    NormalizedStoreBuilder,
-    StoreInitializer,
     ExchangeProperty,
+    LimitOrderAPI,
+    MarketOrderAPI,
+    NormalizedStoreBuilder,
+    OrderbookFetchAPI,
+    OrdersFetchAPI,
+    PositionsFetchAPI,
+    PriceSizePrecisionFormatter,
+    StopLimitOrderAPI,
+    StopMarketOrderAPI,
+    StoreInitializer,
+    TDataStoreManager,
+    TickerFetchAPI,
+    WebSocketRequestBuilder,
+    WebSocketRequestCustomizer,
+    WrapperFactory,
 )
+from .websocket_channels import PhemexWebsocketChannels
 
 
 class PhemexWrapperFactory(WrapperFactory):
@@ -52,7 +51,7 @@ class PhemexWrapperFactory(WrapperFactory):
         pass
 
     @classmethod
-    def create_price_size_formatter(cls) -> PriceSizeFormatter:
+    def create_price_size_formatter(cls) -> PriceSizePrecisionFormatter:
         pass
 
     @classmethod

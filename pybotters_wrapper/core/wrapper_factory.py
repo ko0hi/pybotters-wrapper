@@ -2,26 +2,26 @@ from abc import ABCMeta, abstractmethod
 
 import pybotters
 
-from .api_client import APIClient
-from .api_fetch_orderbook import OrderbookFetchAPI
-from .api_fetch_orders import OrdersFetchAPI
-from .api_fetch_positions import PositionsFetchAPI
-from .api_fetch_ticker import TickerFetchAPI
-from .api_order_cancel import CancelOrderAPI
-from .api_order_limit import LimitOrderAPI
-from .api_order_market import MarketOrderAPI
-from .api_order_stop_limit import StopLimitOrderAPI
-from .api_order_stop_market import StopMarketOrderAPI
 from .api_wrapper import APIWrapper
+from .api import (
+    APIClient,
+    CancelOrderAPI,
+    LimitOrderAPI,
+    MarketOrderAPI,
+    StopLimitOrderAPI,
+    StopMarketOrderAPI,
+    TickerFetchAPI,
+    OrderbookFetchAPI,
+    OrdersFetchAPI,
+    PositionsFetchAPI,
+)
 from .exchange_property import ExchangeProperty
-from .fetcher_price_size_precisions import PriceSizePrecisionFetcher
-from .formatter_precision import PriceSizeFormatter
-from .normalized_store_builder import NormalizedStoreBuilder
-from .store_initializer import StoreInitializer
+from .fetcher import PriceSizePrecisionFetcher
+from .formatter import PriceSizePrecisionFormatter
+from .store import NormalizedStoreBuilder, StoreInitializer
 from .store_wrapper import DataStoreWrapper
-from .websocket_request_builder import WebSocketRequestBuilder
-from .websocket_resquest_customizer import WebSocketRequestCustomizer
-from .._typedefs import TDataStoreManager
+from .typedefs import TDataStoreManager
+from .websocket import WebSocketRequestBuilder, WebSocketRequestCustomizer
 
 
 class WrapperFactory(metaclass=ABCMeta):
@@ -63,7 +63,7 @@ class WrapperFactory(metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def create_price_size_formatter(cls) -> PriceSizeFormatter:
+    def create_price_size_formatter(cls) -> PriceSizePrecisionFormatter:
         raise NotImplementedError
 
     @classmethod

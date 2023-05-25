@@ -2,19 +2,20 @@ from typing import Literal
 
 import pybotters
 
-from ._typedefs import TDataStoreManager
+from pybotters_wrapper.core.typedefs.typing import TDataStoreManager
 from .binance.binancecoinm import BinanceCOINMWrapperFactory
 from .binance.binanceusdsm import BinanceUSDSMWrapperFactory
 from .bitflyer import bitFlyerWrapperFactory
 from .core import (
     APIWrapper,
     DataStoreWrapper,
-    WebSocketConnection,
-    WrapperFactory,
     StoreInitializer,
+    TWsHandler,
+    TWebsocketOnReconnectionCallback,
+    WebSocketConnection,
     WebSocketRequestBuilder,
+    WrapperFactory,
 )
-from .core.websocket_connection import WebsocketOnReconnectionCallback, WsHandler
 from .phemex import PhemexWrapperFactory
 
 _EXCHANGE2FACTORY: dict[str, WrapperFactory] = {
@@ -72,7 +73,7 @@ def create_websocket_request_builder(exchange: str) -> WebSocketRequestBuilder:
 def create_websocket_connection(
     endpoint: str,
     send: dict | list[dict] | str,
-    hdlr: WsHandler | list[WsHandler],
+    hdlr: TWsHandler | list[TWsHandler],
     send_type: Literal["json", "str", "byte"] = "json",
     hdlr_type: Literal["json", "str", "byte"] = "json",
 ) -> WebSocketConnection:
@@ -83,11 +84,11 @@ async def create_and_connect_websocket_connection(
     client: pybotters.Client,
     endpoint: str,
     send: dict | list[dict] | str,
-    hdlr: WsHandler | list[WsHandler],
+    hdlr: TWsHandler | list[TWsHandler],
     send_type: Literal["json", "str", "byte"] = "json",
     hdlr_type: Literal["json", "str", "byte"] = "json",
     auto_reconnect: bool = False,
-    on_reconnection: WebsocketOnReconnectionCallback | None = None,
+    on_reconnection: TWebsocketOnReconnectionCallback | None = None,
     **kwargs,
 ) -> WebSocketConnection:
     conn = create_websocket_connection(endpoint, send, hdlr, send_type, hdlr_type)

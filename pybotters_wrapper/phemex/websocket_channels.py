@@ -65,7 +65,6 @@ class PhemexWebsocketChannels(WebSocketChannels[Literal["tick", "trade"]]):
     def aop(self) -> PhemexWebsocketParameter:
         return {"method": "aop", "params": []}
 
-
     def _parameter_template(self, parameter: PhemexWebsocketParameter) -> dict:
         return {
             "id": int(time.monotonic() * 10**9),

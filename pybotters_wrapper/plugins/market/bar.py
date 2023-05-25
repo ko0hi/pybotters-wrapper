@@ -10,7 +10,7 @@ from pybotters.store import DataStore
 from ..base_plugin import Plugin
 from ..mixins import WatchStoreMixin, PublishQueueMixin
 from ...core import DataStoreWrapper
-from ...core.normalized_store_trades import TradesItem
+from ...core.typedefs import TradesItem
 from ...utils import StreamDataFrame
 
 
