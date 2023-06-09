@@ -1,5 +1,7 @@
 # pybotters-wrapper
 
+[別ブランチ](https://github.com/ko0hi/pybotters-wrapper/tree/feature/class-architecture)でリファクタ中。
+
 A high-level api collection for pybotters
 
 ## Requires
