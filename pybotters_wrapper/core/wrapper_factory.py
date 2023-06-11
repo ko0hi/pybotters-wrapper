@@ -5,6 +5,7 @@ import pybotters
 from .api_wrapper import APIWrapper
 from .api import (
     APIClient,
+    APIClientBuilder,
     CancelOrderAPI,
     LimitOrderAPI,
     MarketOrderAPI,
@@ -74,11 +75,16 @@ class WrapperFactory(metaclass=ABCMeta):
         raise NotImplementedError
 
     @classmethod
-    @abstractmethod
     def create_api_client(
         cls, client: pybotters.Client, verbose: bool = False
     ) -> APIClient:
-        raise NotImplementedError
+        return (
+            APIClientBuilder()
+            .set_client(client)
+            .set_verbose(verbose)
+            .set_exchange_property(cls.create_exchange_property())
+            .get()
+        )
 
     @classmethod
     @abstractmethod
