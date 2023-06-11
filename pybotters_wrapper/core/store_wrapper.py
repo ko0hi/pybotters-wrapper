@@ -7,7 +7,7 @@ import pybotters
 from loguru import logger
 from pybotters.store import DataStore
 
-
+from .exchange_property import ExchangeProperty
 from .store import (
     ExecutionStore,
     OrderbookStore,
@@ -18,13 +18,12 @@ from .store import (
     StoreInitializer,
     NormalizedStoreBuilder,
 )
+from .typedefs import TDataStoreManager
 from .websocket import (
     WebSocketRequestBuilder,
     WebSocketRequestCustomizer,
+    WebSocketConnection
 )
-
-from .typedefs import TDataStoreManager
-from .exchange_property import ExchangeProperty
 
 if TYPE_CHECKING:
     from pybotters import Item

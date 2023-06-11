@@ -11,13 +11,20 @@ from typing import (
     Literal,
     Type,
     TypeVar,
+    TypedDict,
     Union,
 )
 
 import pybotters
-from pybotters.store import DataStore, Item, StoreChange, ClientWebSocketResponse
+from pybotters.store import (
+    DataStore,
+    Item,
+    StoreChange,
+    StoreStream,
+    ClientWebSocketResponse,
+)
 
-TNormalizedItem = TypeVar("TNormalizedItem")
+TNormalizedItem = TypeVar("TNormalizedItem", bound=TypedDict)
 
 
 class NormalizedDataStore(Generic[TNormalizedItem]):
@@ -43,7 +50,7 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
         | None = None,
         on_wait: Callable[[NormalizedDataStore], None] | None = None,
         on_msg: Callable[[NormalizedDataStore, Item], None] | None = None,
-        on_watch_get_operation: Callable[[StoreChange], str] | None = None,
+        on_watch_get_operation: Callable[[StoreChange], str | None] | None = None,
         on_watch_make_item: Callable[[TNormalizedItem, StoreChange], dict]
         | None = None,
     ):

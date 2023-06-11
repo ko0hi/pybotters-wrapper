@@ -4,5 +4,5 @@ from ..typedefs import ExecutionItem
 
 class ExecutionStore(NormalizedDataStore[ExecutionItem]):
     _NAME = "execution"
-    _KEYS = []
+    _KEYS = ["id"]
     _NORMALIZED_ITEM_CLASS = ExecutionItem

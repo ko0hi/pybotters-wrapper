@@ -41,11 +41,4 @@ include = '\.pyi?$'
 exclude = '__pycache__,\.egg-info,\.git,\.mypy_cache,\.tox,\.venv,\.direnv'
 
 [tool.mypy]
-strict = false
-pretty = true
 ignore_missing_imports = true
-show_column_numbers = true
-show_error_codes = true
-show_error_context = true
-show_traceback = true
-follow_imports = "silent"
