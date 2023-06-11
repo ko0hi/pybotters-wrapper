@@ -3,49 +3,53 @@ from __future__ import annotations
 import asyncio
 import uuid
 from typing import (
+    Any,
     Callable,
     Generic,
     Hashable,
     Iterator,
+    Literal,
     Type,
     TypeVar,
-    TypedDict,
     Union,
 )
 
 import pybotters
-from pybotters.store import DataStore, Item, StoreChange
+from pybotters.store import DataStore, Item, StoreChange, ClientWebSocketResponse
 
-TNormalizedItem = TypeVar("TNormalizedItem", bound=TypedDict)
+TNormalizedItem = TypeVar("TNormalizedItem", bound=dict[str, Any])
 
 
 class NormalizedDataStore(Generic[TNormalizedItem]):
     _BASE_STORE_NAME: str | None = None
     _NAME: str | None = None
     _KEYS: list[str] | None = []
-    _NORMALIZED_ITEM_CLASS: Type[TypedDict] | None = None
+    _NORMALIZED_ITEM_CLASS: Type[TNormalizedItem] | None = None
 
     def __init__(
         self,
         store: DataStore | None,
         *,
         mapper: Union[
-            dict[str, str | Callable[[DataStore, str, dict, dict], any]],
-            Callable[[DataStore, str, dict, dict], dict],
+            dict[str, str | Callable[[DataStore, str, dict, dict], Any]],
+            Callable[[DataStore, str, dict, dict], Any],
             None,
         ] = None,
         name: str | None = None,
         keys: list[str] | None = None,
         data: list[Item] | None = None,
-        auto_cast=False,
-        target_operations: tuple[str] = ("insert", "update", "delete"),
+        auto_cast: bool = False,
+        target_operations: tuple[Literal["insert", "update", "delete"], ...]
+        | None = None,
         on_wait: Callable[[NormalizedDataStore], None] | None = None,
         on_msg: Callable[[NormalizedDataStore, Item], None] | None = None,
         on_watch_get_operation: Callable[[StoreChange], str] | None = None,
         on_watch_make_item: Callable[[TNormalizedItem, StoreChange], dict]
         | None = None,
     ):
+        # 参照元のデータストア
         self._base_store: DataStore = store
+        # 正規化したデータストア
         self._normalized_store: DataStore = DataStore(
             name or self._NAME or self._base_store.name,
             keys or self._KEYS,
@@ -54,7 +58,7 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
         )
 
         self._mapper = mapper
-        self._target_operations: tuple[str] = target_operations
+        self._target_operations = target_operations or ("insert", "update", "delete")
 
         self._wait_task: asyncio.Task | None = None
         self._watch_task: asyncio.Task | None = None
@@ -78,7 +82,7 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
         self._queue_task = asyncio.create_task(self._wait_msg())
         return self
 
-    async def close(self):
+    async def close(self) -> None:
         if self._wait_task:
             try:
                 self._wait_task.cancel()
@@ -100,7 +104,7 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
             except asyncio.CancelledError:
                 ...
 
-    def synchronize(self):
+    def synchronize(self) -> None:
         """元ストアと強制同期する"""
         self._clear()
         items = []
@@ -112,32 +116,34 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
             items.append(item)
         self._insert(items)
 
-    def _onmessage(self, msg: "Item", ws: "ClientWebSocketResponse"):
-        self._queue.onmessage(msg, ws)
+    def _onmessage(self, msg: "Item", ws: "ClientWebSocketResponse") -> None:
+        if self._queue is not None:
+            self._queue.onmessage(msg, ws)
 
-    async def _wait_store(self):
+    async def _wait_store(self) -> None:
         while True:
             await self._base_store.wait()
             self._on_wait()
 
-    def _on_wait(self):
+    def _on_wait(self) -> None:
         if self._on_wait_fn is not None:
             self._on_wait_fn(self)
 
-    async def _wait_msg(self):
-        async for msg in self._queue.iter_msg():
-            self._on_msg(msg)
+    async def _wait_msg(self) -> None:
+        if self._queue is not None:
+            async for msg in self._queue.iter_msg():
+                self._on_msg(msg)
 
-    def _on_msg(self, msg: "Item"):
+    def _on_msg(self, msg: "Item") -> None:
         if self._on_msg_fn is not None:
             self._on_msg_fn(self, msg)
 
-    async def _watch_store(self):
+    async def _watch_store(self) -> None:
         with self._base_store.watch() as stream:
             async for change in stream:
                 self._on_watch(change)
 
-    def _on_watch(self, change: "StoreChange"):
+    def _on_watch(self, change: "StoreChange") -> None:
         op = self._get_operation(change)
         if op is not None:
             # StoreChange.[data|source]はdeep copyされたものが入っている
@@ -157,8 +163,13 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
             return self._mapper(store, operation, source, data)
         elif isinstance(self._mapper, dict):
             values = {}
-            for k, fn in self._mapper.items():
-                values[k] = fn(store, operation, source, data)
+            for k, value_or_fn in self._mapper.items():
+                if isinstance(value_or_fn, str):
+                    values[k] = value_or_fn
+                elif callable(value_or_fn):
+                    values[k] = value_or_fn(store, operation, source, data)
+                else:
+                    raise TypeError(f"Unsupported dict mapper: {self._mapper}")
             return self._itemize(**values)
         else:
             raise TypeError(f"Unsupported mapper: {self._mapper}")
