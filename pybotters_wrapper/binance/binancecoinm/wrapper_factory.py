@@ -69,11 +69,11 @@ class BinanceCOINMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_store_initializer(
-        cls, store: TDataStoreManager | None = None
+        cls, store: BinanceCOINMDataStore = None
     ) -> StoreInitializer:
         base_url = cls.create_exchange_property().base_url
         return StoreInitializer(
-            store or BinanceCOINMDataStore(),
+            store,
             {
                 "token": ("POST", f"{base_url}/dapi/v1/listenKey"),
                 "token_private": ("POST", f"{base_url}/dapi/v1/listenKey"),
