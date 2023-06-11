@@ -17,7 +17,7 @@ from typing import (
 import pybotters
 from pybotters.store import DataStore, Item, StoreChange, ClientWebSocketResponse
 
-TNormalizedItem = TypeVar("TNormalizedItem", bound=dict[str, Any])
+TNormalizedItem = TypeVar("TNormalizedItem")
 
 
 class NormalizedDataStore(Generic[TNormalizedItem]):
