@@ -32,10 +32,7 @@ class WrapperFactory(metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def create_store_initializer(
-        cls,
-        store: TDataStoreManager | None = None,
-    ) -> StoreInitializer:
+    def create_store_initializer(cls, store: TDataStoreManager) -> StoreInitializer:
         raise NotImplementedError
 
     @classmethod

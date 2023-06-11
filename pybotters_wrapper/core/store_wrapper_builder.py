@@ -1,68 +1,66 @@
 from __future__ import annotations
 
-from collections import namedtuple
-from typing import Generic, TypeVar
-
-from pybotters.store import DataStoreManager
+from typing import TypeVar
 
 from .exchange_property import ExchangeProperty
 from .store import StoreInitializer, NormalizedStoreBuilder
 from .store_wrapper import DataStoreWrapper
+from .typedefs import TDataStoreManager
 from .websocket import (
     WebSocketDefaultRequestCustomizer,
     WebSocketRequestBuilder,
     WebSocketRequestCustomizer,
 )
 
-
-T = TypeVar("T", bound=DataStoreManager)
-InitializeRequestConfig = namedtuple(
-    "InitializeRequestConf", ("method", "url", "params")
+TDataStoreWrapperBuilder = TypeVar(
+    "TDataStoreWrapperBuilder", bound="DataStoreWrapperBuilder"
 )
 
 
-class DataStoreWrapperBuilder(Generic[T]):
+class DataStoreWrapperBuilder:
     def __init__(self):
-        self._store: T | None = None
-        self._exchange_property: ExchangeProperty | None = None
-        self._store_initializer: StoreInitializer | None = None
-        self._normalized_store_builder: NormalizedStoreBuilder | None = None
-        self._websocket_request_builder: WebSocketRequestBuilder | None = None
-        self._websocket_request_customizer: WebSocketRequestCustomizer | None = (
-            WebSocketDefaultRequestCustomizer()
-        )
+        self._store = None
+        self._exchange_property = None
+        self._store_initializer = None
+        self._normalized_store_builder = None
+        self._websocket_request_builder = None
+        self._websocket_request_customizer = WebSocketDefaultRequestCustomizer()
 
-    def set_store(self, store: T) -> DataStoreWrapperBuilder:
+    def set_store(
+        self: TDataStoreWrapperBuilder, store: TDataStoreManager
+    ) -> TDataStoreWrapperBuilder:
         self._store = store
         return self
 
     def set_exchange_property(
-        self, exchange_property: ExchangeProperty
-    ) -> DataStoreWrapperBuilder:
+        self: TDataStoreWrapperBuilder, exchange_property: ExchangeProperty
+    ) -> TDataStoreWrapperBuilder:
         self._exchange_property = exchange_property
         return self
 
     def set_store_initializer(
-        self, store_initializer: StoreInitializer
-    ) -> DataStoreWrapperBuilder:
+        self: TDataStoreWrapperBuilder, store_initializer: StoreInitializer
+    ) -> TDataStoreWrapperBuilder:
         self._store_initializer = store_initializer
         return self
 
     def set_normalized_store_builder(
-        self, normalized_store_builder: NormalizedStoreBuilder
-    ) -> DataStoreWrapperBuilder:
+        self: TDataStoreWrapperBuilder, normalized_store_builder: NormalizedStoreBuilder
+    ) -> TDataStoreWrapperBuilder:
         self._normalized_store_builder = normalized_store_builder
         return self
 
     def set_websocket_request_builder(
-        self, websocket_request_builder: WebSocketRequestBuilder
-    ) -> DataStoreWrapperBuilder:
+        self: TDataStoreWrapperBuilder,
+        websocket_request_builder: WebSocketRequestBuilder,
+    ) -> TDataStoreWrapperBuilder:
         self._websocket_request_builder = websocket_request_builder
         return self
 
     def set_websocket_request_customizer(
-        self, websocket_request_customizer: WebSocketRequestCustomizer
-    ) -> DataStoreWrapperBuilder:
+        self: TDataStoreWrapperBuilder,
+        websocket_request_customizer: WebSocketRequestCustomizer,
+    ) -> TDataStoreWrapperBuilder:
         self._websocket_request_customizer = websocket_request_customizer
         return self
 

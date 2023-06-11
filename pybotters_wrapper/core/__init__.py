@@ -12,6 +12,7 @@ from .typedefs import *
 from .websocket import *
 from .wrapper_factory import WrapperFactory
 
+
 __all__ = [
     *api.__all__,
     "APIWrapper",
