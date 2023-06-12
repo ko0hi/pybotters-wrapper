@@ -2,8 +2,10 @@ import aiohttp
 import pybotters
 from pybotters import bitFlyerDataStore
 
+from .normalized_store_builder import bitFlyerNormalizedStoreBuilder
+from .price_size_precision_fetcher import bitFlyerPriceSizePrecisionFetcher
+from .websocket_channels import bitFlyerWebsocketChannels
 from ..core import (
-    APIWrapper,
     CancelOrderAPI,
     CancelOrderAPIBuilder,
     DataStoreWrapper,
@@ -34,9 +36,6 @@ from ..core import (
     WebSocketRequestCustomizer,
     WrapperFactory,
 )
-from .normalized_store_builder import bitFlyerNormalizedStoreBuilder
-from .price_size_precision_fetcher import bitFlyerPriceSizePrecisionFetcher
-from .websocket_channels import bitFlyerWebsocketChannels
 
 
 class bitFlyerWrapperFactory(WrapperFactory):
@@ -95,10 +94,6 @@ class bitFlyerWrapperFactory(WrapperFactory):
             .set_websocket_request_customizer(cls.create_websocket_request_customizer())
             .get()
         )
-
-    @classmethod
-    def create_api(cls, client: pybotters.Client, verbose: bool = False) -> APIWrapper:
-        ...
 
     @classmethod
     def create_limit_order_api(
