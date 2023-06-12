@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 
 import pybotters
 
-from .api_wrapper import APIWrapper
+from . import APIWrapperBuilder
 from .api import (
     APIClient,
     APIClientBuilder,
@@ -16,6 +16,7 @@ from .api import (
     OrdersFetchAPI,
     PositionsFetchAPI,
 )
+from .api_wrapper import APIWrapper
 from .exchange_property import ExchangeProperty
 from .fetcher import PriceSizePrecisionFetcher
 from .formatter import PriceSizePrecisionFormatter
@@ -70,11 +71,6 @@ class WrapperFactory(metaclass=ABCMeta):
         raise NotImplementedError
 
     @classmethod
-    @abstractmethod
-    def create_api(cls, client: pybotters.Client, verbose: bool = False) -> APIWrapper:
-        raise NotImplementedError
-
-    @classmethod
     def create_api_client(
         cls, client: pybotters.Client, verbose: bool = False
     ) -> APIClient:
@@ -83,6 +79,25 @@ class WrapperFactory(metaclass=ABCMeta):
             .set_client(client)
             .set_verbose(verbose)
             .set_exchange_property(cls.create_exchange_property())
+            .get()
+        )
+
+    @classmethod
+    def create_api(cls, client: pybotters.Client, verbose: bool = False) -> APIWrapper:
+        return (
+            APIWrapperBuilder()
+            .set_api_client(cls.create_api_client(client, verbose))
+            .set_limit_order_api(cls.create_limit_order_api(client, verbose))
+            .set_market_order_api(cls.create_market_order_api(client, verbose))
+            .set_cancel_order_api(cls.create_cancel_order_api(client, verbose))
+            .set_stop_limit_order_api(cls.create_stop_limit_order_api(client, verbose))
+            .set_stop_market_order_api(
+                cls.create_stop_market_order_api(client, verbose)
+            )
+            .set_ticker_fetch_api(cls.create_ticker_fetch_api(client, verbose))
+            .set_orderbook_fetch_api(cls.create_orderbook_fetch_api(client, verbose))
+            .set_orders_fetch_api(cls.create_orders_fetch_api(client, verbose))
+            .set_positions_fetch_api(cls.create_positions_fetch_api(client, verbose))
             .get()
         )
 

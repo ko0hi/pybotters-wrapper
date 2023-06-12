@@ -186,7 +186,6 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
             .set_size_format_keys("quantity")
             .get()
         )
-        pass
 
     @classmethod
     def create_market_order_api(

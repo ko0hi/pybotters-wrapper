@@ -39,8 +39,8 @@ class OrderAPIBuilder(
             [ClientResponse, dict, str], str | None
         ] | None = None
         self._price_size_formatter: PriceSizePrecisionFormatter | None = None
-        self._price_format_keys: list[str] | None = None
-        self._size_format_keys: list[str] | None = None
+        self._price_format_keys: tuple[str, ...] | None = None
+        self._size_format_keys: tuple[str, ...] | None = None
 
     def set_order_id_key(self, order_id_key: str) -> OrderAPIBuilder:
         self._order_id_key = order_id_key

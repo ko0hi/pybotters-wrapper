@@ -66,7 +66,6 @@ class CancelOrderAPI(
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)
         data = await self._decode_response(resp)
-        order_id = self._extract_order_id(resp, data)
         return self._wrap_response(
             CancelOrderAPIWrapResponseParameters(
                 order_id=order_id, resp=resp, data=data

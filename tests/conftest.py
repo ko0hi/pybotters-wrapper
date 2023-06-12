@@ -81,6 +81,11 @@ class FetchAPITester:
             data = await resp.json()
             return resp, data
 
+    async def test_api(self):
+        async with create_client() as client:
+            api = self.factory_method(client)
+            return await getattr(api, self._FETCH_METHOD)(self.symbol)
+
     async def test_generate_endpoint(self):
         async with create_client() as client:
             api = self.factory_method(client)
