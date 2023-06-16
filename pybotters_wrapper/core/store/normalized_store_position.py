@@ -4,6 +4,7 @@ from ..typedefs import PositionItem
 class PositionStore(NormalizedDataStore[PositionItem]):
     _NAME = "position"
     _KEYS = ["symbol"]
+    _NORMALIZED_ITEM_CLASS = PositionItem
 
     def size(self, symbol: str, side: str = None) -> float:
         query = {"symbol": symbol}

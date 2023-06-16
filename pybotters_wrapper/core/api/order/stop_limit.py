@@ -1,4 +1,4 @@
-from typing import NamedTuple, TypedDict
+from typing import Any, NamedTuple, TypedDict, cast
 
 from aiohttp.client import ClientResponse
 
@@ -15,9 +15,9 @@ from ...typedefs import (
 
 
 class StopLimitOrderAPIResponse(NamedTuple):
-    order_id: str
+    order_id: str | None
     resp: ClientResponse | None = None
-    data: dict | None = None
+    data: Any = None
 
 
 class StopLimitOrderAPIGenerateEndpointParameters(TypedDict):
@@ -40,9 +40,9 @@ class StopLimitOrderAPITranslateParametersParameters(TypedDict):
 
 
 class StopLimitOrderAPIWrapResponseParameters(TypedDict):
-    order_id: str
+    order_id: str | None
     resp: ClientResponse
-    data: dict
+    data: Any
 
 
 class StopLimitOrderAPI(
@@ -61,43 +61,39 @@ class StopLimitOrderAPI(
         size: TSize,
         trigger: TTrigger,
         *,
-        extra_params: dict = None,
-        request_params: dict = None,
+        extra_params: dict | None = None,
+        request_params: dict | None = None,
     ) -> StopLimitOrderAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
         endpoint = self._generate_endpoint(
-            StopLimitOrderAPIGenerateEndpointParameters(
-                symbol=symbol,
-                side=side,
-                price=price,
-                size=size,
-                trigger=trigger,
-                extra_params=extra_params,
-            )
+            {
+                "symbol": symbol,
+                "side": side,
+                "price": price,
+                "size": size,
+                "trigger": trigger,
+                "extra_params": extra_params,
+            }
         )
         parameters = self._translate_parameters(
-            StopLimitOrderAPITranslateParametersParameters(
-                endpoint=endpoint,
-                symbol=symbol,
-                side=side,
-                price=price,
-                size=size,
-                trigger=trigger,
-                extra_params=extra_params,
-            )
+            {
+                "endpoint": endpoint,
+                "symbol": symbol,
+                "side": side,
+                "price": price,
+                "size": size,
+                "trigger": trigger,
+                "extra_params": extra_params,
+            }
         )
         parameters = {**parameters, **extra_params}
         parameters = self._format_price(parameters, symbol)
         parameters = self._format_size(parameters, symbol)
         resp = await self.request(endpoint, parameters, **request_params)
-        data = await self._decode_response(resp)
+        data = cast(dict, await self._decode_response(resp))
         order_id = self._extract_order_id(resp, data)
-        return self._wrap_response(
-            StopLimitOrderAPIWrapResponseParameters(
-                order_id=order_id, resp=resp, data=data
-            )
-        )
+        return self._wrap_response({"order_id": order_id, "resp": resp, "data": data})
 
 
 class StopLimitOrderAPIBuilder(

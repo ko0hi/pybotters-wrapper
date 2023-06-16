@@ -1,4 +1,5 @@
 import pandas as pd
+import pybotters
 import pytest
 
 import pybotters_wrapper as pbw
@@ -6,6 +7,7 @@ import pybotters_wrapper as pbw
 
 @pytest.fixture
 def tester(orderbook_normalized_store_tester):
+    # Boardストアの処理を実行させるのが面倒なのでwatchで流れてくるものをコピペ
     dummy_data = {
         "price": 3682693.0,
         "product_code": "FX_BTC_JPY",
@@ -24,7 +26,6 @@ def tester(orderbook_normalized_store_tester):
             "side": "BUY",
             "price": 3682693.0,
             "size": 0.04,
-            "info": {"data": dummy_data, "source": {}},
         },
     )
 

@@ -16,7 +16,6 @@ def tester(orderbook_normalized_store_tester):
             "side": "BUY",
             "price": 29516.9,
             "size": 181.0,
-            "info": {"data": dummy_data, "source": {}},
         },
     )
 

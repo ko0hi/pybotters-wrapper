@@ -49,7 +49,6 @@ def tester(order_normalized_store_tester):
             "price": 2099.21,
             "size": 1000.0,
             "type": "LIMIT",
-            "info": {"data": dummy_data, "source": {}},
         },
     )
 

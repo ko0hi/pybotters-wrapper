@@ -1,4 +1,4 @@
-from typing import Awaitable, Callable, NamedTuple, Type
+from typing import Awaitable, Callable
 
 from aiohttp.client import ClientResponse
 
@@ -31,14 +31,14 @@ class OrderAPI(
         order_id_extractor: Callable[[ClientResponse, dict, str], str | None]
         | None = None,
         price_size_formatter: PriceSizePrecisionFormatter | None = None,
-        price_format_keys: list[str] | None = None,
-        size_format_keys: list[str] | None = None,
+        price_format_keys: tuple[str, ...] | None = None,
+        size_format_keys: tuple[str, ...] | None = None,
         endpoint_generator: TEndpoint
         | Callable[[TGenerateEndpointParameters], str]
         | None = None,
         parameter_translater: Callable[[TTranslateParametersParameters], dict]
         | None = None,
-        response_wrapper_cls: Type[NamedTuple] = None,
+        response_wrapper_cls: TResponseWrapper | None = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]

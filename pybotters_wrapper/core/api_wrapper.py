@@ -125,8 +125,8 @@ class APIWrapper:
         price: TPrice,
         size: TSize,
         *,
-        extra_params: dict = None,
-        request_params: dict = None,
+        extra_params: dict | None = None,
+        request_params: dict | None = None,
     ) -> LimitOrderAPIResponse:
         if self._limit_order_api is None:
             raise RuntimeError("limit_order is not supported.")
@@ -145,8 +145,8 @@ class APIWrapper:
         side: TSide,
         size: TSize,
         *,
-        extra_params: dict = None,
-        request_params: dict = None,
+        extra_params: dict | None = None,
+        request_params: dict | None = None,
     ) -> MarketOrderAPIResponse:
         if self._market_order_api is None:
             raise RuntimeError("market_order is not supported.")
@@ -162,8 +162,8 @@ class APIWrapper:
         size: TSize,
         trigger: TTrigger,
         *,
-        extra_params: dict = None,
-        request_params: dict = None,
+        extra_params: dict | None = None,
+        request_params: dict | None = None,
     ) -> StopLimitOrderAPIResponse:
         if self._stop_limit_order_api is None:
             raise RuntimeError("stop_limit_order is not supported.")
@@ -184,8 +184,8 @@ class APIWrapper:
         size: TSize,
         trigger: TTrigger,
         *,
-        extra_params: dict = None,
-        request_params: dict = None,
+        extra_params: dict | None = None,
+        request_params: dict | None = None,
     ) -> StopMarketOrderAPIResponse:
         if self._stop_market_order_api is None:
             raise RuntimeError("stop_market_order is not supported.")
@@ -203,8 +203,8 @@ class APIWrapper:
         symbol: TSymbol,
         order_id: TOrderId,
         *,
-        extra_params: dict = None,
-        request_params: dict = None,
+        extra_params: dict | None = None,
+        request_params: dict | None = None,
     ) -> CancelOrderAPIResponse:
         if self._cancel_order_api is None:
             raise RuntimeError("cancel_order is not supported.")
@@ -229,8 +229,8 @@ class APIWrapper:
         self,
         symbol: TSymbol,
         *,
-        extra_params: dict = None,
-        request_params: dict = None,
+        extra_params: dict | None = None,
+        request_params: dict | None = None,
     ) -> OrdersFetchAPIResponse:
         if self._orders_fetch_api is None:
             raise RuntimeError("fetch_orders is not supported.")
@@ -242,8 +242,8 @@ class APIWrapper:
         self,
         symbol: TSymbol,
         *,
-        extra_params: dict = None,
-        request_params: dict = None,
+        extra_params: dict | None = None,
+        request_params: dict | None = None,
     ) -> PositionsFetchAPIResponse:
         if self._positions_fetch_api is None:
             raise RuntimeError("fetch_positions is not supported.")

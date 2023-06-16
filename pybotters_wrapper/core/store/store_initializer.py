@@ -23,6 +23,10 @@ TConfigKey: TypeAlias = Literal[
 ]
 TUrl: TypeAlias = str
 TRequiredParameters: TypeAlias = set[str]
+TInitializerConfig: TypeAlias = dict[
+    TConfigKey,
+    tuple[TRequestMethod, TUrl, TRequiredParameters | None],
+]
 
 
 class InitializeRequestItem(NamedTuple):

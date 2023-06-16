@@ -1,8 +1,16 @@
 from abc import ABCMeta, abstractmethod
+from typing import Literal, Type
 
 import pybotters
+from pybotters.store import DataStoreManager
 
-from . import APIWrapperBuilder
+from . import (
+    APIWrapperBuilder,
+    WebSocketChannels,
+    WebSocketDefaultRequestCustomizer,
+    TSymbol,
+    DataStoreWrapperBuilder,
+)
 from .api import (
     APIClient,
     APIClientBuilder,
@@ -17,58 +25,153 @@ from .api import (
     PositionsFetchAPI,
 )
 from .api_wrapper import APIWrapper
-from .exchange_property import ExchangeProperty
+from .exchange_property import ExchangeProperty, ExchangeProperties
 from .fetcher import PriceSizePrecisionFetcher
 from .formatter import PriceSizePrecisionFormatter
 from .store import NormalizedStoreBuilder, StoreInitializer
+from .store.store_initializer import TInitializerConfig
 from .store_wrapper import DataStoreWrapper
 from .typedefs import TDataStoreManager
 from .websocket import WebSocketRequestBuilder, WebSocketRequestCustomizer
 
 
 class WrapperFactory(metaclass=ABCMeta):
+    _EXCHANGE_PROPERTIES: ExchangeProperties
+    _INITIALIZER_CONFIG: TInitializerConfig
+    _DATASTORE_MANAGER: Type[DataStoreManager]
+    _WEBSOCKET_CHANNELS: Type[WebSocketChannels]
+    _NORMALIZED_STORE_BUILDER: Type[NormalizedStoreBuilder]
+
+    _EXCHANGE_PROPERTY: Type[ExchangeProperty] = ExchangeProperty
+    _STORE_INITIALIZER: Type[StoreInitializer] = StoreInitializer
+    _WEBSOCKET_REQUEST_BUILDER: Type[WebSocketRequestBuilder] = WebSocketRequestBuilder
+    _WEBSOCKET_REQUEST_CUSTOMIZER: Type[
+        WebSocketRequestCustomizer
+    ] = WebSocketDefaultRequestCustomizer
+    _PRICE_SIZE_PRECISION_FETCHER: Type[PriceSizePrecisionFetcher]
+
     @classmethod
     @abstractmethod
+    def create_limit_order_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> LimitOrderAPI:
+        raise NotImplementedError
+
+    @classmethod
+    @abstractmethod
+    def create_market_order_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> MarketOrderAPI:
+        raise NotImplementedError
+
+    @classmethod
+    @abstractmethod
+    def create_cancel_order_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> CancelOrderAPI:
+        raise NotImplementedError
+
+    @classmethod
+    def create_stop_limit_order_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> StopLimitOrderAPI | None:
+        return None
+
+    @classmethod
+    def create_stop_market_order_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> StopMarketOrderAPI | None:
+        return None
+
+    @classmethod
+    def create_ticker_fetch_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> TickerFetchAPI | None:
+        return None
+
+    @classmethod
+    def create_orderbook_fetch_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> OrderbookFetchAPI | None:
+        return None
+
+    @classmethod
+    def create_orders_fetch_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> OrdersFetchAPI | None:
+        return None
+
+    @classmethod
+    def create_positions_fetch_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> PositionsFetchAPI | None:
+        return None
+
+    @classmethod
     def create_exchange_property(cls) -> ExchangeProperty:
-        raise NotImplementedError
+        return cls._EXCHANGE_PROPERTY(cls._EXCHANGE_PROPERTIES)
 
     @classmethod
-    @abstractmethod
     def create_store_initializer(cls, store: TDataStoreManager) -> StoreInitializer:
-        raise NotImplementedError
+        return cls._STORE_INITIALIZER(store, cls._INITIALIZER_CONFIG)
 
     @classmethod
-    @abstractmethod
     def create_normalized_store_builder(
-        cls,
-        store: TDataStoreManager | None = None,
+        cls, store: TDataStoreManager | None = None
     ) -> NormalizedStoreBuilder:
-        raise NotImplementedError
+        assert cls._NORMALIZED_STORE_BUILDER is not None
+        return cls._NORMALIZED_STORE_BUILDER(store or cls.create_datastore_manager())
 
     @classmethod
-    @abstractmethod
-    def create_websocket_request_builder(cls) -> WebSocketRequestBuilder:
-        raise NotImplementedError
+    def create_websocket_channels(cls) -> WebSocketChannels:
+        assert cls._WEBSOCKET_CHANNELS is not None
+        return cls._WEBSOCKET_CHANNELS()
 
     @classmethod
-    @abstractmethod
-    def create_websocket_request_customizer(cls) -> WebSocketRequestCustomizer:
-        raise NotImplementedError
+    def create_datastore_manager(cls) -> DataStoreManager:
+        assert cls._DATASTORE_MANAGER is not None
+        return cls._DATASTORE_MANAGER()
 
     @classmethod
-    @abstractmethod
-    def create_price_size_precisions_fetcher(cls) -> PriceSizePrecisionFetcher:
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
-    def create_price_size_formatter(cls) -> PriceSizePrecisionFormatter:
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
     def create_store(cls, store: TDataStoreManager | None = None) -> DataStoreWrapper:
-        raise NotImplementedError
+        store = store or cls.create_datastore_manager()
+        return (
+            DataStoreWrapperBuilder()
+            .set_store(store)
+            .set_exchange_property(cls.create_exchange_property())
+            .set_store_initializer(cls.create_store_initializer(store))
+            .set_normalized_store_builder(cls.create_normalized_store_builder(store))
+            .set_websocket_request_builder(cls.create_websocket_request_builder())
+            .set_websocket_request_customizer(cls.create_websocket_request_customizer())
+            .get()
+        )
+
+    @classmethod
+    def create_websocket_request_builder(cls) -> WebSocketRequestBuilder:
+        assert cls._WEBSOCKET_REQUEST_BUILDER is not None
+        return cls._WEBSOCKET_REQUEST_BUILDER(cls.create_websocket_channels())
+
+    @classmethod
+    def create_websocket_request_customizer(cls) -> WebSocketRequestCustomizer:
+        assert cls._WEBSOCKET_REQUEST_CUSTOMIZER is not None
+        return cls._WEBSOCKET_REQUEST_CUSTOMIZER()
+
+    @classmethod
+    def create_price_size_precisions_fetcher(cls) -> PriceSizePrecisionFetcher:
+        class DummyPriceSizePrecisionFetcher(PriceSizePrecisionFetcher):
+            """No format"""
+
+            def fetch_precisions(
+                self,
+            ) -> dict[Literal["price", "size"], dict[TSymbol, int]]:
+                return {"price": {}, "size": {}}
+
+        return DummyPriceSizePrecisionFetcher()
+
+    @classmethod
+    def create_price_size_formatter(cls) -> PriceSizePrecisionFormatter:
+        precisions = cls.create_price_size_precisions_fetcher().fetch_precisions()
+        return PriceSizePrecisionFormatter(precisions["price"], precisions["size"])
 
     @classmethod
     def create_api_client(
@@ -100,66 +203,3 @@ class WrapperFactory(metaclass=ABCMeta):
             .set_positions_fetch_api(cls.create_positions_fetch_api(client, verbose))
             .get()
         )
-
-    @classmethod
-    @abstractmethod
-    def create_limit_order_api(
-        cls, client: pybotters.Client, verbose: bool = False
-    ) -> LimitOrderAPI:
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
-    def create_market_order_api(
-        cls, client: pybotters.Client, verbose: bool = False
-    ) -> MarketOrderAPI:
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
-    def create_cancel_order_api(
-        cls, client: pybotters.Client, verbose: bool = False
-    ) -> CancelOrderAPI:
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
-    def create_stop_limit_order_api(
-        cls, client: pybotters.Client, verbose: bool = False
-    ) -> StopLimitOrderAPI:
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
-    def create_stop_market_order_api(
-        cls, client: pybotters.Client, verbose: bool = False
-    ) -> StopMarketOrderAPI:
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
-    def create_ticker_fetch_api(
-        cls, client: pybotters.Client, verbose: bool = False
-    ) -> TickerFetchAPI:
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
-    def create_orderbook_fetch_api(
-        cls, client: pybotters.Client, verbose: bool = False
-    ) -> OrderbookFetchAPI:
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
-    def create_orders_fetch_api(
-        cls, client: pybotters.Client, verbose: bool = False
-    ) -> OrdersFetchAPI:
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
-    def create_positions_fetch_api(
-        cls, client: pybotters.Client, verbose: bool = False
-    ) -> PositionsFetchAPI:
-        raise NotImplementedError

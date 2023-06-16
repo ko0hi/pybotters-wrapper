@@ -278,3 +278,4 @@ class bitFlyerWrapperFactory(WrapperFactory):
             )
             .get()
         )
+

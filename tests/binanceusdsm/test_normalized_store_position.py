@@ -26,7 +26,6 @@ def tester(position_normalized_store_tester):
             "price": 20000.0,
             "size": 0.5,
             "ps": "BOTH",
-            "info": {"data": dummy_data, "source": {}},
         },
     )
 

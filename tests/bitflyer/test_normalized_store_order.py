@@ -1,3 +1,4 @@
+import pybotters
 import pytest
 
 import pybotters_wrapper as pbw
@@ -5,18 +6,32 @@ import pybotters_wrapper as pbw
 
 @pytest.fixture
 def tester(order_normalized_store_tester):
-    dummy_data = {
-        "product_code": "FX_BTC_JPY",
-        "child_order_id": "JFX20230611-180201-440296F",
-        "child_order_acceptance_id": "JRF20230611-180201-097176",
-        "event_date": "2023-06-11T18:02:01.6573082Z",
-        "event_type": "ORDER",
-        "child_order_type": "LIMIT",
-        "side": "BUY",
-        "price": 3000000,
-        "size": 0.01,
-        "expire_date": "2023-07-11T18:02:01",
-    }
+    store = pybotters.bitFlyerDataStore()
+    store.onmessage(
+        {
+            "jsonrpc": "2.0",
+            "method": "channelMessage",
+            "params": {
+                "channel": "child_order_events",
+                "message": [
+                    {
+                        "product_code": "FX_BTC_JPY",
+                        "child_order_id": "JFX20230611-180201-440296F",
+                        "child_order_acceptance_id": "JRF20230611-180201-097176",
+                        "event_date": "2023-06-11T18:02:01.6573082Z",
+                        "event_type": "ORDER",
+                        "child_order_type": "LIMIT",
+                        "side": "BUY",
+                        "price": 3000000,
+                        "size": 0.01,
+                        "expire_date": "2023-07-11T18:02:01",
+                    },
+                ],
+            },
+        },
+        None,
+    )
+    dummy_data = store.childorderevents.find()[0]
     return order_normalized_store_tester(
         builder_factory_method=pbw.create_factory(
             "bitflyer"
@@ -31,7 +46,6 @@ def tester(order_normalized_store_tester):
             "price": 3000000.0,
             "size": 0.01,
             "type": "LIMIT",
-            "info": {"data": dummy_data, "source": {}},
         },
     )
 

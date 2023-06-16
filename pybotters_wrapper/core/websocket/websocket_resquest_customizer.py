@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 from typing import Callable
 
@@ -9,17 +11,18 @@ class WebSocketRequestCustomizer(metaclass=ABCMeta):
         self._client = client
 
     def __call__(
-        self, endpoint: str, request_list: list[dict, str]
-    ) -> tuple[str, list[dict, str]]:
+        self, endpoint: str, request_list: list[dict | str]
+    ) -> tuple[str, list[dict | str]]:
         return self.customize(endpoint, request_list)
 
-    def set_client(self, client: pybotters.Client):
+    def set_client(self, client: pybotters.Client) -> WebSocketRequestCustomizer:
         self._client = client
+        return self
 
     @abstractmethod
     def customize(
-        self, endpoint: str, request_list: list[dict, str]
-    ) -> tuple[str, list[dict, str]]:
+        self, endpoint: str, request_list: list[dict | str]
+    ) -> tuple[str, list[dict | str]]:
         return endpoint, request_list
 
     @classmethod
@@ -36,8 +39,8 @@ class WebSocketRequestCustomizer(metaclass=ABCMeta):
 
 class WebSocketDefaultRequestCustomizer(WebSocketRequestCustomizer):
     def customize(
-        self, endpoint: str, request_list: list[dict, str]
-    ) -> tuple[str, list[dict, str]]:
+        self, endpoint: str, request_list: list[dict | str]
+    ) -> tuple[str, list[dict | str]]:
         return endpoint, self.compress_request_list(request_list)
 
     @classmethod

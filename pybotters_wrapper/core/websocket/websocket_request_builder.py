@@ -16,8 +16,8 @@ class WebsocketRequest(NamedTuple):
 
 
 class WebSocketRequestBuilder:
-    _ENDPOINT: str = None
-    _DEFAULT_WEBSOCKET_CHANNELS_CLASS: Type[WebSocketChannels] = None
+    _ENDPOINT: str
+    _DEFAULT_WEBSOCKET_CHANNELS_CLASS: Type[WebSocketChannels]
 
     def __init__(
         self,
@@ -31,7 +31,7 @@ class WebSocketRequestBuilder:
     def get(
         self,
         *,
-        request_customizer: WebSocketRequestCustomizer = None,
+        request_customizer: WebSocketRequestCustomizer | None = None,
     ) -> list[WebsocketRequest]:
         request_lists = self._request_lists
         if request_customizer is not None:

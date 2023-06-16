@@ -29,7 +29,7 @@ class FetchAPI(
         method: TRequestMethod,
         *,
         response_itemizer: Callable[
-            [ClientResponse, any], dict[TSide, list[OrderbookItem]]
+            [ClientResponse, Any], dict[TSide, list[OrderbookItem]]
         ]
         | None,
         endpoint_generator: TEndpoint
@@ -37,7 +37,7 @@ class FetchAPI(
         | None = None,
         parameter_translater: Callable[[TTranslateParametersParameters], dict]
         | None = None,
-        response_wrapper_cls: Type[NamedTuple] = None,
+        response_wrapper_cls: Type[NamedTuple] | None = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]

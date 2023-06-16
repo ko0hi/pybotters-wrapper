@@ -23,12 +23,14 @@ aioresponses = "^0.7.4"
 flake8 = "^6.0.0"
 mypy = "^1.3.0"
 mypy-extensions = "^1.0.0"
+types-requests = "^2.31.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.isort]
+profile = "black"
 multi_line_output = 2
 include_trailing_comma = false
 force_grid_wrap = 0
@@ -42,3 +44,4 @@ exclude = '__pycache__,\.egg-info,\.git,\.mypy_cache,\.tox,\.venv,\.direnv'
 
 [tool.mypy]
 ignore_missing_imports = true
+check_untyped_defs = true

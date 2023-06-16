@@ -1,6 +1,6 @@
 import asyncio
 from abc import ABCMeta
-from typing import Awaitable, Callable, Generic, NamedTuple, Type, TypeVar
+from typing import Any, Awaitable, Callable, Generic, TypeVar, TypedDict
 
 from aiohttp.client import ClientResponse
 from requests import Response
@@ -54,7 +54,7 @@ class ExchangeAPI(
         | None = None,
         parameter_translater: Callable[[TTranslateParametersParameters], dict]
         | None = None,
-        response_wrapper_cls: Type[NamedTuple] = None,
+        response_wrapper_cls: TResponseWrapper | None = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]
@@ -68,13 +68,15 @@ class ExchangeAPI(
         self._response_decoder = response_decoder
 
     async def request(
-        self, url: str, params_or_data: dict = None, **kwargs
+        self, url: str, params_or_data: dict | None = None, **kwargs: Any
     ) -> ClientResponse:
         return await self._api_client.request(
             self._method, url, params_or_data=params_or_data, **kwargs
         )
 
-    def srequest(self, url: str, params_or_data: dict = None, **kwargs) -> Response:
+    def srequest(
+        self, url: str, params_or_data: dict | None = None, **kwargs: Any
+    ) -> Response:
         if self._method == "GET":
             kwargs["params"] = params_or_data
         else:
@@ -95,6 +97,8 @@ class ExchangeAPI(
         return self._parameter_translater(params)
 
     def _wrap_response(self, params: TWrapResponseParameters) -> TResponseWrapper:
+        if self._response_wrapper_cls is None:
+            raise ValueError("response_wrapper_cls is not set")
         return self._response_wrapper_cls(**params)
 
     async def _decode_response(self, resp: ClientResponse) -> dict | list:

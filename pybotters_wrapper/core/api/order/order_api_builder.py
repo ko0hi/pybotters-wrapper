@@ -1,24 +1,34 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, NamedTuple, Type
+from typing import TYPE_CHECKING, Callable, NamedTuple, Type, TypeVar
 
 from aiohttp import ClientResponse
 
-from ..exchange_api_builder import ExchangeAPIBuilder, TExchangeAPI
+from .order_api import OrderAPI
 from ..exchange_api import (
     TGenerateEndpointParameters,
     TTranslateParametersParameters,
     TWrapResponseParameters,
 )
+from ..exchange_api_builder import ExchangeAPIBuilder
 
 if TYPE_CHECKING:
+    from pybotters_wrapper.core.formatter.price_size_precision import (
+        PriceSizePrecisionFormatter,
+    )
+
     from .order_api import OrderAPI
-    from pybotters_wrapper.core.formatter.price_size_precision import PriceSizePrecisionFormatter
+
+TOrderAPI = TypeVar("TOrderAPI", bound=OrderAPI)
+TOrderAPIBuilder = TypeVar(
+    "TOrderAPIBuilder",
+    bound="OrderAPIBuilder",
+)
 
 
 class OrderAPIBuilder(
     ExchangeAPIBuilder[
-        TExchangeAPI,
+        TOrderAPI,
         TGenerateEndpointParameters,
         TTranslateParametersParameters,
         TWrapResponseParameters,
@@ -26,7 +36,7 @@ class OrderAPIBuilder(
 ):
     def __init__(
         self,
-        order_api_class: Type[OrderAPI],
+        order_api_class: Type[TOrderAPI],
         order_api_response_wrapper_class: Type[NamedTuple],
     ):
         super(OrderAPIBuilder, self).__init__(
@@ -42,34 +52,45 @@ class OrderAPIBuilder(
         self._price_format_keys: tuple[str, ...] | None = None
         self._size_format_keys: tuple[str, ...] | None = None
 
-    def set_order_id_key(self, order_id_key: str) -> OrderAPIBuilder:
+    def set_order_id_key(self: TOrderAPIBuilder, order_id_key: str) -> TOrderAPIBuilder:
         self._order_id_key = order_id_key
         return self
 
     def set_order_id_extractor(
-        self,
+        self: TOrderAPIBuilder,
         order_id_extractor: Callable[[ClientResponse, dict, str], str | None],
-    ) -> OrderAPIBuilder:
+    ) -> TOrderAPIBuilder:
         self._order_id_extractor = order_id_extractor
         return self
 
     def set_price_size_formatter(
-        self,
+        self: TOrderAPIBuilder,
         price_size_formatter: PriceSizePrecisionFormatter,
-    ) -> OrderAPIBuilder:
+    ) -> TOrderAPIBuilder:
         self._price_size_formatter = price_size_formatter
         return self
 
-    def set_price_format_keys(self, *price_format_keys: str) -> OrderAPIBuilder:
+    def set_price_format_keys(
+        self: TOrderAPIBuilder, *price_format_keys: str
+    ) -> TOrderAPIBuilder:
         self._price_format_keys = price_format_keys
         return self
 
-    def set_size_format_keys(self, *size_format_keys: str) -> OrderAPIBuilder:
+    def set_size_format_keys(
+        self: TOrderAPIBuilder, *size_format_keys: str
+    ) -> TOrderAPIBuilder:
         self._size_format_keys = size_format_keys
         return self
 
-    def get(self) -> TExchangeAPI:
-        self.validate()
+    def get(self) -> TOrderAPI:
+        self._null_check(
+            "_api_client",
+            "_method",
+            "_order_id_key",
+            "_endpoint_generator",
+            "_parameter_translater",
+            "_response_wrapper_cls",
+        )
         return self._exchange_api_class(
             api_client=self._api_client,
             method=self._method,
@@ -83,18 +104,3 @@ class OrderAPIBuilder(
             price_format_keys=self._price_format_keys,
             size_format_keys=self._size_format_keys,
         )
-
-    def validate(self) -> None:
-        required_fields = [
-            "api_client",
-            "method",
-            "order_id_key",
-            "endpoint_generator",
-            "parameter_translater",
-            "response_wrapper_cls",
-        ]
-        missing_fields = [
-            field for field in required_fields if getattr(self, f"_{field}") is None
-        ]
-        if missing_fields:
-            raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")

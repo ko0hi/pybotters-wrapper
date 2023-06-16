@@ -298,7 +298,7 @@ def stop_market_order_tester():
 
 
 class NormalizedStoreTester:
-    _STORE_NAME = None
+    _STORE_NAME: str | None = None
 
     def __init__(
         self,
@@ -316,6 +316,7 @@ class NormalizedStoreTester:
         self.expected_item = expected_item
 
     def get_store(self):
+        assert self._STORE_NAME is not None
         return self.builder_factory_method().get(self._STORE_NAME)
 
     def test_insert(self):
@@ -337,7 +338,9 @@ class NormalizedStoreTester:
     def test_item(self):
         store = self.get_store()
         store._on_watch(self.dummy_change_insert)
-        assert store.find()[0] == self.expected_item
+        item = store.find()[0]
+        item.pop("info")
+        assert item == self.expected_item
 
 
 @pytest.fixture

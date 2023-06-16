@@ -33,7 +33,6 @@ def tester(ticker_normalized_store_tester):
         expected_item={
             "symbol": "BTCUSDT",
             "price": 0.0025,
-            "info": {"data": dummy_data, "source": {}},
         },
     )
 

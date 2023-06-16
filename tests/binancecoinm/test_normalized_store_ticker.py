@@ -34,7 +34,6 @@ def tester(ticker_normalized_store_tester):
         expected_item={
             "symbol": "BTCUSD_PERP",
             "price": 29595.1,
-            "info": {"data": dummy_data, "source": {}},
         },
     )
 

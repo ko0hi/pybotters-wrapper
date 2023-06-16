@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Type
 
 import pybotters
 
@@ -16,12 +16,14 @@ from .core import (
     WebSocketRequestBuilder,
     WrapperFactory,
 )
+from .gmocoin import GMOCoinWrapperFactory
 from .phemex import PhemexWrapperFactory
 
-_EXCHANGE2FACTORY: dict[str, WrapperFactory] = {
+_EXCHANGE2FACTORY: dict[str, Type[WrapperFactory]] = {
     "binancecoinm": BinanceCOINMWrapperFactory,
     "binanceusdsm": BinanceUSDSMWrapperFactory,
     "bitflyer": bitFlyerWrapperFactory,
+    "gmocoin": GMOCoinWrapperFactory,
     "phemex": PhemexWrapperFactory,
 }
 

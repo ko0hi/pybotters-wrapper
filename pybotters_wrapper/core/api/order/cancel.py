@@ -1,4 +1,4 @@
-from typing import NamedTuple, TypedDict
+from typing import Any, NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
@@ -8,9 +8,9 @@ from ...typedefs import TEndpoint, TOrderId, TSymbol
 
 
 class CancelOrderAPIResponse(NamedTuple):
-    order_id: str
+    order_id: str | None
     resp: ClientResponse | None = None
-    data: dict | None = None
+    data: Any = None
 
 
 class CancelOrderAPIGenerateEndpointParameters(TypedDict):
@@ -27,9 +27,9 @@ class CancelOrderAPITranslateParametersParameters(TypedDict):
 
 
 class CancelOrderAPIWrapResponseParameters(TypedDict):
-    order_id: str
+    order_id: str | None
     resp: ClientResponse
-    data: dict
+    data: Any
 
 
 class CancelOrderAPI(
@@ -45,32 +45,26 @@ class CancelOrderAPI(
         symbol: TSymbol,
         order_id: TOrderId,
         *,
-        extra_params: dict = None,
-        request_params: dict = None,
+        extra_params: dict | None = None,
+        request_params: dict | None = None,
     ) -> CancelOrderAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
         endpoint = self._generate_endpoint(
-            CancelOrderAPIGenerateEndpointParameters(
-                symbol=symbol, order_id=order_id, extra_params=extra_params
-            )
+            {"symbol": symbol, "order_id": order_id, "extra_params": extra_params}
         )
         parameters = self._translate_parameters(
-            CancelOrderAPITranslateParametersParameters(
-                endpoint=endpoint,
-                symbol=symbol,
-                order_id=order_id,
-                extra_params=extra_params,
-            )
+            {
+                "endpoint": endpoint,
+                "symbol": symbol,
+                "order_id": order_id,
+                "extra_params": extra_params,
+            }
         )
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)
         data = await self._decode_response(resp)
-        return self._wrap_response(
-            CancelOrderAPIWrapResponseParameters(
-                order_id=order_id, resp=resp, data=data
-            )
-        )
+        return self._wrap_response({"order_id": order_id, "resp": resp, "data": data})
 
 
 class CancelOrderAPIBuilder(

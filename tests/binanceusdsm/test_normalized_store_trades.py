@@ -30,7 +30,6 @@ def tester(trades_normalized_store_tester):
             "price": 0.001,
             "size": 100.0,
             "timestamp": pd.to_datetime(123456785, unit="ms", utc=True),
-            "info": {"data": dummy_data, "source": {}},
         },
     )
 

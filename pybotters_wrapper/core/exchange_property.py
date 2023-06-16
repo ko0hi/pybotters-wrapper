@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import Any, TypedDict
 
 
 class ExchangeProperties(TypedDict):
@@ -11,17 +11,17 @@ class ExchangeProperty:
         self._properties = properties
         self._validate()
 
-    def _get(self, key: str) -> any:
+    def _get(self, key: str) -> Any:
         if key not in self._properties:
             raise ValueError(f"Unknown key: {key}")
         return self._properties.get(key)
 
     @property
-    def base_url(self) -> str:
+    def base_url(self) -> str | None:
         return self._properties.get("base_url")
 
     @property
-    def exchange(self) -> str:
+    def exchange(self) -> str | None:
         return self._properties.get("exchange")
 
     def _validate(self):

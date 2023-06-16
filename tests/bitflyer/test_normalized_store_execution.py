@@ -1,6 +1,7 @@
 import pandas as pd
 import pytest
 import pytest_mock
+import pybotters
 from pybotters.store import StoreChange
 
 import pybotters_wrapper as pbw
@@ -8,20 +9,34 @@ import pybotters_wrapper as pbw
 
 @pytest.fixture
 def tester(execution_normalized_store_tester):
-    dummy_data = {
-        "child_order_acceptance_id": "JRF20220809-131731-061756",
-        "child_order_id": "JFX20220809-131731-449862F",
-        "commission": 0,
-        "event_date": "2022-08-09T13:17:31.3350519Z",
-        "event_type": "EXECUTION",
-        "exec_id": 2373644588,
-        "outstanding_size": 0,
-        "price": 3133605,
-        "product_code": "FX_BTC_JPY",
-        "sfd": 0,
-        "side": "BUY",
-        "size": 0.01,
-    }
+    store = pybotters.bitFlyerDataStore()
+    store.onmessage(
+        {
+            "jsonrpc": "2.0",
+            "method": "channelMessage",
+            "params": {
+                "channel": "child_order_events",
+                "message": [
+                    {
+                        "child_order_acceptance_id": "JRF20220809-131731-061756",
+                        "child_order_id": "JFX20220809-131731-449862F",
+                        "commission": 0,
+                        "event_date": "2022-08-09T13:17:31.3350519Z",
+                        "event_type": "EXECUTION",
+                        "exec_id": 2373644588,
+                        "outstanding_size": 0,
+                        "price": 3133605,
+                        "product_code": "FX_BTC_JPY",
+                        "sfd": 0,
+                        "side": "BUY",
+                        "size": 0.01,
+                    },
+                ],
+            },
+        },
+        None,
+    )
+    dummy_data = store.childorderevents.find()[0]
     return execution_normalized_store_tester(
         builder_factory_method=pbw.create_factory(
             "bitflyer"
@@ -36,7 +51,6 @@ def tester(execution_normalized_store_tester):
             "price": 3133605.0,
             "size": 0.01,
             "timestamp": pd.to_datetime("2022-08-09T13:17:31.3350519Z"),
-            "info": {"data": dummy_data, "source": {}},
         },
     )
 

@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import Literal, Generic, Union, TypeVar, NamedTuple
+from typing import Any, Literal, Generic, Union, TypeVar, NamedTuple, cast
 
 TChannelName = TypeVar("TChannelName")
 
 
 class SubscribeItem(NamedTuple):
     endpoint: str
-    parameter: any
+    parameter: Any
 
 
 class WebSocketChannels(Generic[TChannelName]):
@@ -19,7 +19,7 @@ class WebSocketChannels(Generic[TChannelName]):
 
     """
 
-    _ENDPOINT: str = None
+    _ENDPOINT: str | None = None
 
     def channel(
         self,
@@ -30,7 +30,7 @@ class WebSocketChannels(Generic[TChannelName]):
         **params,
     ) -> SubscribeItem | list[SubscribeItem]:
         try:
-            method = getattr(self, name)
+            method = getattr(self, cast(str, name))
         except AttributeError as e:
             raise AttributeError(f"Unsupported channel: {name}")
         parameter = method(**params)
@@ -70,9 +70,10 @@ class WebSocketChannels(Generic[TChannelName]):
         """PositionStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
-    def _get_endpoint(self, parameter: str | dict) -> str:
+    def _get_endpoint(self, parameter: str | dict[str, Any]) -> str:
         assert self._ENDPOINT is not None
         return self._ENDPOINT
 
-    def _parameter_template(self, parameter: str | dict) -> str | dict:
+    def _parameter_template(self, parameter: str | dict[str, Any]) -> str | dict[str, Any]:
         return parameter
+

@@ -6,6 +6,7 @@ import pybotters_wrapper as pbw
 
 
 def test_ignore_non_execution_event(mocker: pytest_mock.MockerFixture):
+    # positionストアは特殊なので
     store = pbw.create_factory("bitflyer").create_normalized_store_builder().position()
 
     dummy_data1 = {

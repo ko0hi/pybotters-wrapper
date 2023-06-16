@@ -2,13 +2,13 @@ from typing import NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
+from ...typedefs import TEndpoint, TOrderbook, TSymbol
 from .fetch_api import FetchAPI
 from .fetch_api_builder import FetchAPIBuilder
-from ...typedefs import OrderbookItem, TEndpoint, TSide, TSymbol
 
 
 class OrderbookFetchAPIResponse(NamedTuple):
-    orderbook: dict[TSide, list[OrderbookItem]]
+    orderbook: TOrderbook
     resp: ClientResponse | None = None
     data: dict | None = None
 
@@ -25,7 +25,7 @@ class OrderbookFetchAPITranslateParametersParameters(TypedDict):
 
 
 class OrderbookFetchAPIWrapResponseParameters(TypedDict):
-    orderbook: dict[TSide, list[OrderbookItem]]
+    orderbook: TOrderbook
     resp: ClientResponse
     data: dict
 
@@ -48,24 +48,17 @@ class OrderbookFetchAPI(
         extra_params = extra_params or {}
         request_params = request_params or {}
         endpoint = self._generate_endpoint(
-            OrderbookFetchAPIGenerateEndpointParameters(
-                symbol=symbol, extra_params=extra_params
-            )
+            {"symbol": symbol, "extra_params": extra_params}
         )
         parameters = self._translate_parameters(
-            OrderbookFetchAPITranslateParametersParameters(
-                endpoint=endpoint, symbol=symbol, extra_params=extra_params
-            )
+            {"endpoint": endpoint, "symbol": symbol, "extra_params": extra_params}
         )
+
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)
         data = await self._decode_response(resp)
         item = self._itemize_response(resp, data)
-        return self._wrap_response(
-            OrderbookFetchAPIWrapResponseParameters(
-                orderbook=item, resp=resp, data=data
-            )
-        )
+        return self._wrap_response({"orderbook": item, "resp": resp, "data": data})
 
 
 class OrderbookFetchAPIBuilder(

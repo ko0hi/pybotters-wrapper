@@ -1,4 +1,4 @@
-from typing import NamedTuple, TypedDict
+from typing import Any, NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
@@ -10,7 +10,7 @@ from ...typedefs import PositionItem, TEndpoint, TSymbol
 class PositionsFetchAPIResponse(NamedTuple):
     positions: list[PositionItem]
     resp: ClientResponse | None = None
-    data: dict | None = None
+    data: Any = None
 
 
 class PositionsFetchAPIGenerateEndpointParameters(TypedDict):
@@ -27,7 +27,7 @@ class PositionsFetchAPITranslateParametersParameters(TypedDict):
 class PositionsFetchAPIWrapResponseParameters(TypedDict):
     positions: list[PositionItem]
     resp: ClientResponse
-    data: dict
+    data: Any
 
 
 class PositionsFetchAPI(
@@ -39,29 +39,26 @@ class PositionsFetchAPI(
     ]
 ):
     async def fetch_positions(
-        self, symbol: TSymbol, *, extra_params: dict = None, request_params: dict = None
+        self,
+        symbol: TSymbol,
+        *,
+        extra_params: dict | None = None,
+        request_params: dict | None = None
     ) -> PositionsFetchAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
         endpoint = self._generate_endpoint(
-            PositionsFetchAPIGenerateEndpointParameters(
-                symbol=symbol, extra_params=extra_params
-            )
+            {"symbol": symbol, "extra_params": extra_params}
         )
         parameters = self._translate_parameters(
-            PositionsFetchAPITranslateParametersParameters(
-                endpoint=endpoint, symbol=symbol, extra_params=extra_params
-            )
+            {"endpoint": endpoint, "symbol": symbol, "extra_params": extra_params}
         )
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)
         data = await self._decode_response(resp)
         item = self._itemize_response(resp, data)
-        return self._wrap_response(
-            PositionsFetchAPIWrapResponseParameters(
-                positions=item, resp=resp, data=data
-            )
-        )
+        return self._wrap_response({"positions": item, "resp": resp, "data": data})
+
 
 class PositionsFetchAPIBuilder(
     FetchAPIBuilder[

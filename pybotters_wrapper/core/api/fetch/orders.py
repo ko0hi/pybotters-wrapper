@@ -1,10 +1,10 @@
-from typing import NamedTuple, TypedDict
+from typing import Any, NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
+from ...typedefs import OrderItem, TEndpoint, TSymbol
 from .fetch_api import FetchAPI
 from .fetch_api_builder import FetchAPIBuilder
-from ...typedefs import OrderItem, TEndpoint
 
 
 class OrdersFetchAPIResponse(NamedTuple):
@@ -27,7 +27,7 @@ class OrdersFetchAPITranslateParametersParameters(TypedDict):
 class OrdersFetchAPIWrapResponseParameters(TypedDict):
     orders: list[OrderItem]
     resp: ClientResponse
-    data: dict
+    data: Any
 
 
 class OrdersFetchAPI(
@@ -39,25 +39,25 @@ class OrdersFetchAPI(
     ]
 ):
     async def fetch_orders(
-        self, symbol: str, *, extra_params: dict = None, request_params: dict = None
+        self,
+        symbol: TSymbol,
+        *,
+        extra_params: dict | None = None,
+        request_params: dict | None = None
     ) -> OrdersFetchAPIResponse:
         extra_params = extra_params or {}
         request_params = request_params or {}
         endpoint = self._generate_endpoint(
-            OrdersFetchAPIGenerateEndpointParameters(symbol=symbol)
+            {"symbol": symbol, "extra_params": extra_params}
         )
         parameters = self._translate_parameters(
-            OrdersFetchAPITranslateParametersParameters(
-                endpoint=endpoint, symbol=symbol, extra_params=extra_params
-            )
+            {"endpoint": endpoint, "symbol": symbol, "extra_params": extra_params}
         )
         parameters = {**parameters, **extra_params}
         resp = await self.request(endpoint, parameters, **request_params)
         data = await self._decode_response(resp)
         item = self._itemize_response(resp, data)
-        return self._wrap_response(
-            OrdersFetchAPIWrapResponseParameters(orders=item, resp=resp, data=data)
-        )
+        return self._wrap_response({"orders": item, "resp": resp, "data": data})
 
 
 class OrdersFetchAPIBuilder(
