@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import Any, Literal, Generic, Union, TypeVar, NamedTuple, cast
 
 TChannelName = TypeVar("TChannelName")
+TParameterTemplateInput = TypeVar("TParameterTemplateInput")
+TParameterTemplateOutput = TypeVar("TParameterTemplateOutput")
 
 
 class SubscribeItem(NamedTuple):
@@ -10,7 +12,9 @@ class SubscribeItem(NamedTuple):
     parameter: Any
 
 
-class WebSocketChannels(Generic[TChannelName]):
+class WebSocketChannels(
+    Generic[TChannelName, TParameterTemplateInput, TParameterTemplateOutput]
+):
     """Websocketのチャンネル購読リクエストを生成するクラス。
 
     - 取引所が提供する各チャンネル用のメソッドを提供する
@@ -46,34 +50,35 @@ class WebSocketChannels(Generic[TChannelName]):
             parameter_in_template = self._parameter_template(parameter)
             return SubscribeItem(endpoint, parameter_in_template)
 
-    def ticker(self, symbol: str, **kwargs) -> dict | str | list[dict | str]:
+    def ticker(self, symbol: str, **kwargs) -> TParameterTemplateInput:
         """TickerStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
-    def trades(self, symbol: str, **kwargs) -> dict | str | list[dict | str]:
+    def trades(self, symbol: str, **kwargs) -> TParameterTemplateInput:
         """TradesStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
-    def orderbook(self, symbol: str, **kwargs) -> dict | str | list[dict | str]:
+    def orderbook(self, symbol: str, **kwargs) -> TParameterTemplateInput:
         """OrderbookStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
-    def order(self, **kwargs) -> dict | str | list[dict | str]:
+    def order(self, **kwargs) -> TParameterTemplateInput:
         """OrderStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
-    def execution(self, **kwargs) -> dict | str | list[dict | str]:
+    def execution(self, **kwargs) -> TParameterTemplateInput:
         """ExecutionStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
-    def position(self, **kwargs) -> dict | str | list[dict | str]:
+    def position(self, **kwargs) -> TParameterTemplateInput:
         """PositionStore用のチャンネルをsubscribeする"""
         raise NotImplementedError
 
-    def _get_endpoint(self, parameter: str | dict[str, Any]) -> str:
+    def _get_endpoint(self, parameter: TParameterTemplateInput) -> str:
         assert self._ENDPOINT is not None
         return self._ENDPOINT
 
-    def _parameter_template(self, parameter: str | dict[str, Any]) -> str | dict[str, Any]:
+    def _parameter_template(
+        self, parameter: TParameterTemplateInput
+    ) -> TParameterTemplateInput | TParameterTemplateOutput:
         return parameter
-

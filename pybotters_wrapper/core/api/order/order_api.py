@@ -55,8 +55,8 @@ class OrderAPI(
         self._order_id_key = order_id_key
         self._order_id_extractor = order_id_extractor
         self._price_size_formatter = price_size_formatter
-        self._price_format_keys = price_format_keys or []
-        self._size_format_keys = size_format_keys or []
+        self._price_format_keys = price_format_keys or ()
+        self._size_format_keys = size_format_keys or ()
 
     def _extract_order_id(
         self,

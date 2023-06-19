@@ -1,10 +1,11 @@
-from typing import Literal, Type
+from typing import Any, Literal, Type
 
 import pybotters
 
 from pybotters_wrapper.core.typedefs.typing import TDataStoreManager
 from .binance.binancecoinm import BinanceCOINMWrapperFactory
 from .binance.binanceusdsm import BinanceUSDSMWrapperFactory
+from .bitbank import bitbankWrapperFactory
 from .bitflyer import bitFlyerWrapperFactory
 from .core import (
     APIWrapper,
@@ -22,20 +23,21 @@ from .phemex import PhemexWrapperFactory
 _EXCHANGE2FACTORY: dict[str, Type[WrapperFactory]] = {
     "binancecoinm": BinanceCOINMWrapperFactory,
     "binanceusdsm": BinanceUSDSMWrapperFactory,
+    "bitbank": bitbankWrapperFactory,
     "bitflyer": bitFlyerWrapperFactory,
     "gmocoin": GMOCoinWrapperFactory,
     "phemex": PhemexWrapperFactory,
 }
 
 
-def create_factory(exchange: str) -> WrapperFactory:
+def create_factory(exchange: str) -> Type[WrapperFactory]:
     return _EXCHANGE2FACTORY[exchange]
 
 
 def create_client(
     apis: dict[str, list[str]] | str | None = None,
     base_url: str = "",
-    **kwargs: any,
+    **kwargs: Any,
 ) -> pybotters.Client:
     return pybotters.Client(apis, base_url, **kwargs)
 
@@ -76,8 +78,8 @@ def create_websocket_connection(
     endpoint: str,
     send: dict | list[dict] | str,
     hdlr: TWsHandler | list[TWsHandler],
-    send_type: Literal["json", "str", "byte"] = "json",
-    hdlr_type: Literal["json", "str", "byte"] = "json",
+    send_type: Literal["json", "str", "byte"] | None = None,
+    hdlr_type: Literal["json", "str", "byte"] | None = None,
 ) -> WebSocketConnection:
     return WebSocketConnection(endpoint, send, hdlr, send_type, hdlr_type)
 
@@ -87,8 +89,8 @@ async def create_and_connect_websocket_connection(
     endpoint: str,
     send: dict | list[dict] | str,
     hdlr: TWsHandler | list[TWsHandler],
-    send_type: Literal["json", "str", "byte"] = "json",
-    hdlr_type: Literal["json", "str", "byte"] = "json",
+    send_type: Literal["json", "str", "byte"] | None = None,
+    hdlr_type: Literal["json", "str", "byte"] | None = None,
     auto_reconnect: bool = False,
     on_reconnection: TWebsocketOnReconnectionCallback | None = None,
     **kwargs,

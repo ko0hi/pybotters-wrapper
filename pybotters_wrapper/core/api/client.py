@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from json import JSONDecodeError
+from typing import Callable
 
 import aiohttp
 import pybotters
@@ -46,10 +47,12 @@ class APIClient:
         verbose: bool = False,
         *,
         exchange_property: ExchangeProperty,
+        base_url_attacher: Callable[[str], str] | None = None,
     ):
         self._client = client
         self._verbose = verbose
         self._eprop = exchange_property
+        self._base_url_attacher = base_url_attacher
         self._validate()
 
     async def request(
@@ -144,7 +147,10 @@ class APIClient:
         return self.srequest("DELETE", url, params_or_data=data, **kwargs)
 
     def _attach_base_url(self, url: str) -> str:
-        return self._eprop.base_url + url
+        if self._base_url_attacher is None:
+            return self._eprop.base_url + url
+        else:
+            return self._base_url_attacher(url)
 
     def _validate(self):
         if self._client._base_url != "":

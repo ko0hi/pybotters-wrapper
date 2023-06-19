@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Awaitable, Generic, Literal
+from typing import TYPE_CHECKING, Any, Awaitable, Generic, Literal
 
 import aiohttp
 import pybotters
@@ -100,10 +100,10 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         self,
         client: "pybotters.APIClient",
         *,
-        endpoint: str = None,
-        send: any = None,
+        endpoint: str | None = None,
+        send: Any | None = None,
         hdlr: WsStrHandler | WsBytesHandler = None,
-        waits: list[DataStore | str] = None,
+        waits: list[DataStore | str] | None = None,
         send_type: Literal["json", "str", "byte"] = "json",
         hdlr_type: Literal["json", "str", "byte"] = "json",
         auto_reconnect: bool = False,

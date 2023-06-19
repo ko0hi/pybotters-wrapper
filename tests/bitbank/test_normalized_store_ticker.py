@@ -6,30 +6,20 @@ import pybotters_wrapper as pbw
 
 @pytest.fixture
 def tester(ticker_normalized_store_tester):
-    store = pybotters.GMOCoinDataStore()
+    store = pybotters.bitbankDataStore()
     store._onmessage(
-        {
-            "channel": "ticker",
-            "ask": "750760",
-            "bid": "750600",
-            "high": "762302",
-            "last": "756662",
-            "low": "704874",
-            "symbol": "BTC",
-            "timestamp": "2018-03-30T12:34:56.789Z",
-            "volume": "194785.8484",
-        },
+        """42["message",{"room_name":"ticker_btc_jpy","message":{"data":{"sell":"3788372","buy":"3787616","open":"3747147","high":"3832258","low":"3725036","last":"3787616","vol":"296.9391","timestamp":1687210959113}}}]""",
         None,
     )
     dummy_data = store.ticker.find()[0]
     return ticker_normalized_store_tester(
         builder_factory_method=pbw.create_factory(
-            "gmocoin"
+            "bitbank"
         ).create_normalized_store_builder,
         dummy_data=dummy_data,
         expected_item={
-            "symbol": "BTC",
-            "price": 756662.0,
+            "symbol": "btc_jpy",
+            "price": 3787616.0,
         },
     )
 

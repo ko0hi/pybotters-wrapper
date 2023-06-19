@@ -8,9 +8,7 @@ def tester(orderbook_normalized_store_tester):
     dummy_data = {"s": "BTCUSD_PERP", "S": "BUY", "p": "29516.9", "q": "181"}
     return orderbook_normalized_store_tester(
         builder_factory_method=BinanceCOINMWrapperFactory.create_normalized_store_builder,
-        dummy_data_insert=dummy_data,
-        dummy_data_update=dummy_data,
-        dummy_data_delete=dummy_data,
+        dummy_data=dummy_data,
         expected_item={
             "symbol": "BTCUSD_PERP",
             "side": "BUY",

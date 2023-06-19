@@ -304,15 +304,13 @@ class NormalizedStoreTester:
         self,
         *,
         builder_factory_method: Callable[[], NormalizedStoreBuilder],
-        dummy_data_insert: dict,
-        dummy_data_update: dict,
-        dummy_data_delete: dict,
+        dummy_data: dict,
         expected_item: dict,
     ):
         self.builder_factory_method = builder_factory_method
-        self.dummy_change_insert = StoreChange(None, "insert", {}, dummy_data_insert)
-        self.dummy_change_update = StoreChange(None, "update", {}, dummy_data_update)
-        self.dummy_change_delete = StoreChange(None, "delete", {}, dummy_data_delete)
+        self.dummy_change_insert = StoreChange(None, "insert", {}, dummy_data)
+        self.dummy_change_update = StoreChange(None, "update", {}, dummy_data)
+        self.dummy_change_delete = StoreChange(None, "delete", {}, dummy_data)
         self.expected_item = expected_item
 
     def get_store(self):

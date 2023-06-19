@@ -18,7 +18,9 @@ class BinanceCOINMWebsocketChannels(
             "index_price",
             "index_price_kline",
             "listenkey",
-        ]
+        ],
+        str,
+        dict
     ]
 ):
     _ENDPOINT = "wss://dstream.binance.com/ws"

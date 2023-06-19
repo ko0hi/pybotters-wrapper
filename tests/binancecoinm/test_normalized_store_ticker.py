@@ -28,9 +28,7 @@ def tester(ticker_normalized_store_tester):
     }
     return ticker_normalized_store_tester(
         builder_factory_method=BinanceCOINMWrapperFactory.create_normalized_store_builder,
-        dummy_data_insert=dummy_data,
-        dummy_data_update=dummy_data,
-        dummy_data_delete=dummy_data,
+        dummy_data=dummy_data,
         expected_item={
             "symbol": "BTCUSD_PERP",
             "price": 29595.1,

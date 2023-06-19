@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Literal, Type
+from typing import Literal, Type, Callable
 
 import pybotters
 from pybotters.store import DataStoreManager
@@ -37,13 +37,13 @@ from .websocket import WebSocketRequestBuilder, WebSocketRequestCustomizer
 
 class WrapperFactory(metaclass=ABCMeta):
     _EXCHANGE_PROPERTIES: ExchangeProperties
-    _INITIALIZER_CONFIG: TInitializerConfig
     _DATASTORE_MANAGER: Type[DataStoreManager]
     _WEBSOCKET_CHANNELS: Type[WebSocketChannels]
     _NORMALIZED_STORE_BUILDER: Type[NormalizedStoreBuilder]
 
     _EXCHANGE_PROPERTY: Type[ExchangeProperty] = ExchangeProperty
     _STORE_INITIALIZER: Type[StoreInitializer] = StoreInitializer
+    _INITIALIZER_CONFIG: TInitializerConfig | None = None
     _WEBSOCKET_REQUEST_BUILDER: Type[WebSocketRequestBuilder] = WebSocketRequestBuilder
     _WEBSOCKET_REQUEST_CUSTOMIZER: Type[
         WebSocketRequestCustomizer
@@ -175,7 +175,11 @@ class WrapperFactory(metaclass=ABCMeta):
 
     @classmethod
     def create_api_client(
-        cls, client: pybotters.Client, verbose: bool = False
+        cls,
+        client: pybotters.Client,
+        verbose: bool = False,
+        *,
+        base_url_attacher: Callable[[str], str] | None = None
     ) -> APIClient:
         return (
             APIClientBuilder()

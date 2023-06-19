@@ -1,17 +1,19 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Callable, TypeVar, Optional, Literal, Union, Awaitable
+from typing import Callable, TypeVar, Optional, Literal, Union, Awaitable, TypeAlias
 
 import pybotters
 from loguru import logger
 from pybotters.typedefs import WsBytesHandler, WsJsonHandler, WsStrHandler
 from pybotters.ws import WebSocketRunner
 
-TWsHandler = WsStrHandler | WsBytesHandler | WsJsonHandler
-TWebsocketChannels = TypeVar("TWebsocketChannels", bound="WebsocketChannels")
+from .websocket_channels import WebSocketChannels
+
+TWsHandler: TypeAlias = WsStrHandler | WsBytesHandler | WsJsonHandler
+TWebsocketChannels = TypeVar("TWebsocketChannels", bound=WebSocketChannels)
 TWebsocketOnReconnectionCallback = Callable[
-    ["WebsocketConnection", pybotters.Client], Union[None, Awaitable[None]]
+    ["WebSocketConnection", pybotters.Client], Union[None, Awaitable[None]]
 ]
 
 
@@ -21,8 +23,8 @@ class WebSocketConnection:
         endpoint: str,
         send: dict | list[dict] | str,
         hdlr: TWsHandler | list[TWsHandler],
-        send_type: Literal["json", "str", "byte"] = "json",
-        hdlr_type: Literal["json", "str", "byte"] = "json",
+        send_type: Literal["json", "str", "byte"] | None,
+        hdlr_type: Literal["json", "str", "byte"] | None,
     ):
         self._ws: WebSocketRunner | None = None
         self._endpoint = endpoint
@@ -31,8 +33,8 @@ class WebSocketConnection:
             self._hdlr = lambda msg, ws: [c(msg, ws) for c in hdlr]  # noqa
         else:
             self._hdlr = hdlr
-        self._send_type = send_type
-        self._hdlr_type = hdlr_type
+        self._send_type = send_type or self._guess_type(send)
+        self._hdlr_type = hdlr_type or self._guess_type(send)
 
     async def connect(
         self,
@@ -106,3 +108,21 @@ class WebSocketConnection:
     @property
     def connected(self) -> bool:
         return self._ws and self._ws.connected
+
+    @classmethod
+    def _guess_type(
+        cls, send: str | dict | list[dict]
+    ) -> Literal["json", "str", "byte"]:
+        if isinstance(send, str):
+            return "str"
+        elif isinstance(send, dict):
+            return "json"
+        elif isinstance(send, list):
+            if isinstance(send[0], dict):
+                return "json"
+            elif isinstance(send[0], str):
+                return "str"
+            else:
+                raise ValueError(f"Invalid send type: {type(send[0])}")
+        else:
+            raise ValueError(f"Invalid send type: {type(send)}")

@@ -41,9 +41,7 @@ def tester(execution_normalized_store_tester):
         builder_factory_method=pbw.create_factory(
             "bitflyer"
         ).create_normalized_store_builder,
-        dummy_data_insert=dummy_data,
-        dummy_data_update=dummy_data,
-        dummy_data_delete=dummy_data,
+        dummy_data=dummy_data,
         expected_item={
             "id": "JRF20220809-131731-061756",
             "symbol": "FX_BTC_JPY",

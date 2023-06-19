@@ -93,10 +93,11 @@ class GMOCoinWrapperFactory(WrapperFactory):
             CancelOrderAPIBuilder()
             .set_api_client(cls.create_api_client(client, verbose))
             .set_method("POST")
+            .set_order_id_key("data")
             .set_endpoint_generator("/private/v1/cancelOrder")
             .set_parameter_translater(
                 lambda params: {
-                    "order_id": int(params["order_id"]),
+                    "orderId": int(params["order_id"]),
                 }
             )
             .get()

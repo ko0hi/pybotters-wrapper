@@ -9,7 +9,9 @@ class PhemexWebsocketParameter(TypedDict):
     params: list[str]
 
 
-class PhemexWebsocketChannels(WebSocketChannels[Literal["tick", "trade"]]):
+class PhemexWebsocketChannels(
+    WebSocketChannels[Literal["tick", "trade"], PhemexWebsocketParameter, dict]
+):
     _ENDPOINT = "wss://phemex.com/ws"
 
     def ticker(self, symbol: str, **kwargs) -> PhemexWebsocketParameter:

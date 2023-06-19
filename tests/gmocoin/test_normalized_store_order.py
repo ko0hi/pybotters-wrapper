@@ -32,9 +32,7 @@ def tester(order_normalized_store_tester):
         builder_factory_method=pbw.create_factory(
             "gmocoin"
         ).create_normalized_store_builder,
-        dummy_data_insert=dummy_data,
-        dummy_data_update=dummy_data,
-        dummy_data_delete=dummy_data,
+        dummy_data=dummy_data,
         expected_item={
             "id": "123456789",
             "symbol": "BTC_JPY",

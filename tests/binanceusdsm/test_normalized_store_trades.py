@@ -20,9 +20,7 @@ def tester(trades_normalized_store_tester):
     }
     return trades_normalized_store_tester(
         builder_factory_method=BinanceUSDSMWrapperFactory.create_normalized_store_builder,
-        dummy_data_insert=dummy_data,
-        dummy_data_update=dummy_data,
-        dummy_data_delete=dummy_data,
+        dummy_data=dummy_data,
         expected_item={
             "id": "5933014",
             "symbol": "BTCUSDT",

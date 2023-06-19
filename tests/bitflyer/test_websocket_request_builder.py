@@ -11,7 +11,7 @@ def patch_time(mocker: pytest_mock.MockerFixture):
 
 
 @pytest.fixture
-def public_expected() -> dict:
+def public_send() -> dict:
     return [
         {
             "method": "subscribe",
@@ -62,11 +62,11 @@ def private_expected() -> dict:
     ]
 
 
-def test_public(patch_time, public_expected):
+def test_public(patch_time, public_send):
     expected = [
         WebsocketRequest(
             "wss://ws.lightstream.bitflyer.com/json-rpc",
-            public_expected,
+            public_send,
         )
     ]
 
@@ -96,11 +96,11 @@ def test_private(patch_time, private_expected):
     assert expected == actual
 
 
-def test_all(patch_time, public_expected, private_expected):
+def test_all(patch_time, public_send, private_expected):
     expected = [
         WebsocketRequest(
             "wss://ws.lightstream.bitflyer.com/json-rpc",
-            public_expected + private_expected,
+            public_send + private_expected,
         )
     ]
 

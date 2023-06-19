@@ -19,7 +19,7 @@ def patch_token(mocker: pytest_mock.MockerFixture):
 
 
 @pytest.fixture
-def public_expected() -> dict:
+def public_expected() -> list[dict]:
     return [
         {"command": "subscribe", "channel": "ticker", "symbol": "BTC_JPY"},
         {
@@ -44,7 +44,7 @@ def private_expected() -> list[dict[str, str]]:
     ]
 
 
-def test_public( public_expected):
+def test_public(public_expected):
     expected = [
         WebsocketRequest(
             "wss://api.coin.z.com/ws/public/v1",

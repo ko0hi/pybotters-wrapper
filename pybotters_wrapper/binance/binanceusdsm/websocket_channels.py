@@ -16,7 +16,9 @@ class BinanceUSDSMWebsocketChannels(
             "continuous_kline",
             "mark_price",
             "composite_index",
-        ]
+        ],
+        str,
+        dict,
     ]
 ):
     _ENDPOINT = "wss://fstream.binance.com/ws"
