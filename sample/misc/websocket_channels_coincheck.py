@@ -8,7 +8,7 @@ async def main():
     symbol = "btc_jpy"
 
     async with pybotters.Client() as client:
-        channels = pbw.coincheck.CoinCheckWebsocketChannels()
+        channels = pbw.coincheck.CoincheckWebsocketChannels()
         subscribes = channels.ticker(symbol).trades(symbol).orderbook(symbol).get()
 
         for endpoint, send in subscribes.items():

@@ -203,6 +203,11 @@ class OrderAPITester:
             api = self.factory_method(client)
             return await getattr(api, self._ORDER_METHOD)(**self.dummy_order_parameters)
 
+    async def test_api(self):
+        async with create_client() as client:
+            api = self.factory_method(client)
+            return await getattr(api, self._ORDER_METHOD)(**self.dummy_order_parameters)  # type: ignore
+
     async def test_generate_endpoint(self):
         async with create_client() as client:
             api = self.factory_method(client)
