@@ -24,6 +24,8 @@ from ..core import (
     OrderbookItem,
     OrdersFetchAPI,
     OrdersFetchAPIBuilder,
+    PositionsFetchAPIBuilder,
+    PositionsFetchAPI,
 )
 
 
@@ -207,6 +209,30 @@ class bitbankWrapperFactory(WrapperFactory):
                         ),
                     }
                     for d in data["data"]["orders"]
+                ]
+            )
+            .get()
+        )
+
+    @classmethod
+    def create_positions_fetch_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> PositionsFetchAPI:
+        return (
+            PositionsFetchAPIBuilder()
+            .set_api_client(cls.create_api_client(client, verbose))
+            .set_method("GET")
+            .set_endpoint_generator("/user/assets")
+            .set_parameter_translater(lambda params: {})
+            .set_response_itemizer(
+                lambda resp, data: [
+                    {
+                        "symbol": d["asset"],
+                        "price": 0.0,
+                        "size": float(d["free_amount"]),
+                        "side": "BUY",
+                    }
+                    for d in data["data"]["assets"] if float(d["onhand_amount"]) > 0
                 ]
             )
             .get()
