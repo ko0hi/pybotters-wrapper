@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import TypeVar
 
 from .api import (
     APIClient,
@@ -16,6 +17,9 @@ from .api import (
 from .api_wrapper import APIWrapper
 
 
+TAPIWrapperBuilder = TypeVar("TAPIWrapperBuilder", bound="APIWrapperBuilder")
+
+
 class APIWrapperBuilder:
     def __init__(self):
         self._api_client: APIClient | None = None
@@ -29,29 +33,33 @@ class APIWrapperBuilder:
         self._orders_fetch_api: OrdersFetchAPI | None = None
         self._positions_fetch_api: PositionsFetchAPI | None = None
 
-    def set_api_client(self, api_client: APIClient) -> APIWrapperBuilder:
+    def set_api_client(
+        self: TAPIWrapperBuilder, api_client: APIClient
+    ) -> TAPIWrapperBuilder:
         self._api_client = api_client
         return self
 
-    def set_limit_order_api(self, limit_order_api: LimitOrderAPI) -> APIWrapperBuilder:
+    def set_limit_order_api(
+        self: TAPIWrapperBuilder, limit_order_api: LimitOrderAPI
+    ) -> TAPIWrapperBuilder:
         self._limit_order_api = limit_order_api
         return self
 
     def set_market_order_api(
-        self, market_order_api: MarketOrderAPI
-    ) -> APIWrapperBuilder:
+        self: TAPIWrapperBuilder, market_order_api: MarketOrderAPI
+    ) -> TAPIWrapperBuilder:
         self._market_order_api = market_order_api
         return self
 
     def set_stop_limit_order_api(
-        self, stop_limit_order_api: StopLimitOrderAPI
-    ) -> APIWrapperBuilder:
+        self: TAPIWrapperBuilder, stop_limit_order_api: StopLimitOrderAPI
+    ) -> TAPIWrapperBuilder:
         self._stop_limit_order_api = stop_limit_order_api
         return self
 
     def set_stop_market_order_api(
-        self, stop_market_order_api: StopMarketOrderAPI
-    ) -> APIWrapperBuilder:
+        self: TAPIWrapperBuilder, stop_market_order_api: StopMarketOrderAPI
+    ) -> TAPIWrapperBuilder:
         self._stop_market_order_api = stop_market_order_api
         return self
 
@@ -62,31 +70,32 @@ class APIWrapperBuilder:
         return self
 
     def set_ticker_fetch_api(
-        self, ticker_fetch_api: TickerFetchAPI
-    ) -> APIWrapperBuilder:
+        self: TAPIWrapperBuilder, ticker_fetch_api: TickerFetchAPI
+    ) -> TAPIWrapperBuilder:
         self._ticker_fetch_api = ticker_fetch_api
         return self
 
     def set_orderbook_fetch_api(
-        self, orderbook_fetch_api: OrderbookFetchAPI
-    ) -> APIWrapperBuilder:
+        self: TAPIWrapperBuilder, orderbook_fetch_api: OrderbookFetchAPI
+    ) -> TAPIWrapperBuilder:
         self._orderbook_fetch_api = orderbook_fetch_api
         return self
 
     def set_orders_fetch_api(
-        self, orders_fetch_api: OrdersFetchAPI
-    ) -> APIWrapperBuilder:
+        self: TAPIWrapperBuilder, orders_fetch_api: OrdersFetchAPI
+    ) -> TAPIWrapperBuilder:
         self._orders_fetch_api = orders_fetch_api
         return self
 
     def set_positions_fetch_api(
-        self, positions_fetch_api: PositionsFetchAPI
-    ) -> APIWrapperBuilder:
+        self: TAPIWrapperBuilder, positions_fetch_api: PositionsFetchAPI
+    ) -> TAPIWrapperBuilder:
         self._positions_fetch_api = positions_fetch_api
         return self
 
     def get(self) -> APIWrapper:
-        self.validate()
+        if self._api_client is None:
+            raise ValueError("Missing required field: api_client")
         return APIWrapper(
             self._api_client,
             limit_order_api=self._limit_order_api,
@@ -99,11 +108,3 @@ class APIWrapperBuilder:
             orders_fetch_api=self._orders_fetch_api,
             positions_fetch_api=self._positions_fetch_api,
         )
-
-    def validate(self) -> None:
-        required_fields = ["api_client"]
-        missing_fields = [
-            field for field in required_fields if getattr(self, f"_{field}") is None
-        ]
-        if missing_fields:
-            raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")
