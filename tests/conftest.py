@@ -84,7 +84,7 @@ class FetchAPITester:
     async def test_api(self):
         async with create_client() as client:
             api = self.factory_method(client)
-            return await getattr(api, self._FETCH_METHOD)(self.symbol)
+            return await getattr(api, self._FETCH_METHOD)(self.symbol)  # type: ignore
 
     async def test_generate_endpoint(self):
         async with create_client() as client:

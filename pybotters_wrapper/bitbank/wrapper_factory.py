@@ -1,5 +1,6 @@
 from typing import Callable
 
+import pandas as pd
 import pybotters
 from pybotters import bitbankDataStore
 
@@ -16,6 +17,13 @@ from ..core import (
     MarketOrderAPIBuilder,
     CancelOrderAPI,
     CancelOrderAPIBuilder,
+    TickerFetchAPIBuilder,
+    TickerFetchAPI,
+    OrderbookFetchAPI,
+    OrderbookFetchAPIBuilder,
+    OrderbookItem,
+    OrdersFetchAPI,
+    OrdersFetchAPIBuilder,
 )
 
 
@@ -37,7 +45,7 @@ class bitbankWrapperFactory(WrapperFactory):
         client: pybotters.Client,
         verbose: bool = False,
         *,
-        base_url_attacher: Callable[[str], str] | None = None
+        base_url_attacher: Callable[[str], str] | None = None,
     ) -> APIClient:
         return (
             APIClientBuilder()
@@ -113,6 +121,93 @@ class bitbankWrapperFactory(WrapperFactory):
                     "pair": params["symbol"],
                     "order_id": params["order_id"],
                 }
+            )
+            .get()
+        )
+
+    @classmethod
+    def create_ticker_fetch_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> TickerFetchAPI:
+        return (
+            TickerFetchAPIBuilder()
+            .set_api_client(cls.create_api_client(client, verbose))
+            .set_method("GET")
+            .set_endpoint_generator(lambda params: f"/{params['symbol']}/ticker")
+            .set_parameter_translater(lambda params: {})
+            .set_response_itemizer(
+                lambda resp, data: {
+                    "symbol": resp.url.raw_parts[1],
+                    "price": float(data["data"]["last"]),
+                }
+            )
+            .get()
+        )
+
+    @classmethod
+    def create_orderbook_fetch_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> OrderbookFetchAPI:
+        return (
+            OrderbookFetchAPIBuilder()
+            .set_api_client(cls.create_api_client(client, verbose))
+            .set_method("GET")
+            .set_endpoint_generator(lambda params: f"/{params['symbol']}/depth")
+            .set_parameter_translater(lambda params: {})
+            .set_response_itemizer(
+                lambda resp, data: {
+                    "SELL": [
+                        OrderbookItem(
+                            symbol=resp.url.raw_parts[1],
+                            side="SELL",
+                            price=float(d[0]),
+                            size=float(d[1]),
+                        )
+                        for d in data["data"]["asks"]
+                    ],
+                    "BUY": [
+                        OrderbookItem(
+                            symbol=resp.url.raw_parts[1],
+                            side="BUY",
+                            price=float(d[0]),
+                            size=float(d[1]),
+                        )
+                        for d in data["data"]["bids"]
+                    ],
+                }
+            )
+            .get()
+        )
+
+    @classmethod
+    def create_orders_fetch_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> OrdersFetchAPI:
+        return (
+            OrdersFetchAPIBuilder()
+            .set_api_client(cls.create_api_client(client, verbose))
+            .set_method("GET")
+            .set_endpoint_generator("/user/spot/active_orders")
+            .set_parameter_translater(
+                lambda params: {
+                    "pair": params["symbol"],
+                }
+            )
+            .set_response_itemizer(
+                lambda resp, data: [
+                    {
+                        "id": str(d["order_id"]),
+                        "symbol": d["pair"],
+                        "side": d["side"].upper(),
+                        "price": float(d["price"]),
+                        "size": float(d["remaining_amount"]),
+                        "type": d["type"],
+                        "timestamp": pd.to_datetime(
+                            d["ordered_at"], utc=True, unit="ms"
+                        ),
+                    }
+                    for d in data["data"]["orders"]
+                ]
             )
             .get()
         )
