@@ -71,17 +71,19 @@ class OrderAPI(
     def _format_price(self, parameters: dict, symbol: TSymbol) -> dict:
         if self._price_size_formatter:
             for k in self._price_format_keys:
-                parameters[k] = self._price_size_formatter.format(
-                    symbol, parameters[k], "price"
-                )
+                if k in parameters:
+                    parameters[k] = self._price_size_formatter.format(
+                        symbol, parameters[k], "price"
+                    )
         return parameters
 
     def _format_size(self, parameters: dict, symbol: TSymbol) -> dict:
         if self._price_size_formatter:
             for k in self._size_format_keys:
-                parameters[k] = self._price_size_formatter.format(
-                    symbol, parameters[k], "size"
-                )
+                if k in parameters:
+                    parameters[k] = self._price_size_formatter.format(
+                        symbol, parameters[k], "size"
+                    )
         return parameters
 
     @classmethod
