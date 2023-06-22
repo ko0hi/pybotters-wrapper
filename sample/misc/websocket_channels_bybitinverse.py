@@ -7,7 +7,7 @@ async def main():
     symbol = "BTCUSD"
 
     async with pybotters.Client() as client:
-        channels = pbw.bybit.BybitInverseWebsocketChannels()
+        channels = pbw.bybit.BybitInverseWebSocketChannels()
         subscribes = (
             channels.ticker(symbol)
             .trades(symbol)

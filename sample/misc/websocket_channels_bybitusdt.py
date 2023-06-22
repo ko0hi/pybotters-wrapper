@@ -8,7 +8,7 @@ async def main():
     symbol = "BTCUSDT"
 
     async with pybotters.Client() as client:
-        channels = pbw.bybit.BybitUSDTWebsocketChannels()
+        channels = pbw.bybit.BybitUSDTWebSocketChannels()
         subscribes = (
             channels
             .ticker(symbol)

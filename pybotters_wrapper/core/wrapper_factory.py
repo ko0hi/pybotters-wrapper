@@ -158,15 +158,18 @@ class WrapperFactory(metaclass=ABCMeta):
 
     @classmethod
     def create_price_size_precisions_fetcher(cls) -> PriceSizePrecisionFetcher:
-        class DummyPriceSizePrecisionFetcher(PriceSizePrecisionFetcher):
-            """No format"""
+        if cls._PRICE_SIZE_PRECISION_FETCHER is None:
+            class DummyPriceSizePrecisionFetcher(PriceSizePrecisionFetcher):
+                """No format"""
 
-            def fetch_precisions(
-                self,
-            ) -> dict[Literal["price", "size"], dict[TSymbol, int]]:
-                return {"price": {}, "size": {}}
+                def fetch_precisions(
+                    self,
+                ) -> dict[Literal["price", "size"], dict[TSymbol, int]]:
+                    return {"price": {}, "size": {}}
 
-        return DummyPriceSizePrecisionFetcher()
+            return DummyPriceSizePrecisionFetcher()
+        else:
+            return cls._PRICE_SIZE_PRECISION_FETCHER()
 
     @classmethod
     def create_price_size_formatter(cls) -> PriceSizePrecisionFormatter:

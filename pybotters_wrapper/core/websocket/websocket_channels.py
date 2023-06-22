@@ -52,27 +52,27 @@ class WebSocketChannels(
 
     def ticker(self, symbol: str, **kwargs) -> TParameterTemplateInput:
         """TickerStore用のチャンネルをsubscribeする"""
-        raise NotImplementedError
+        raise NotImplementedError("ticker channel")
 
     def trades(self, symbol: str, **kwargs) -> TParameterTemplateInput:
         """TradesStore用のチャンネルをsubscribeする"""
-        raise NotImplementedError
+        raise NotImplementedError("trades channel")
 
     def orderbook(self, symbol: str, **kwargs) -> TParameterTemplateInput:
         """OrderbookStore用のチャンネルをsubscribeする"""
-        raise NotImplementedError
+        raise NotImplementedError("orderbook channel")
 
     def order(self, **kwargs) -> TParameterTemplateInput:
         """OrderStore用のチャンネルをsubscribeする"""
-        raise NotImplementedError
+        raise NotImplementedError("order channel")
 
     def execution(self, **kwargs) -> TParameterTemplateInput:
         """ExecutionStore用のチャンネルをsubscribeする"""
-        raise NotImplementedError
+        raise NotImplementedError("execution channel")
 
     def position(self, **kwargs) -> TParameterTemplateInput:
         """PositionStore用のチャンネルをsubscribeする"""
-        raise NotImplementedError
+        raise NotImplementedError("position channel")
 
     def _get_endpoint(self, parameter: TParameterTemplateInput) -> str:
         assert self._ENDPOINT is not None
