@@ -1,17 +1,13 @@
-from typing import Callable
-
 import pandas as pd
 import pybotters
 from pybotters import CoincheckDataStore
 
-from .websocket_channels import CoincheckWebsocketChannels
 from .normalized_store_builder import CoincheckNormalizedStoreBuilder
+from .websocket_channels import CoincheckWebsocketChannels
 from ..core import (
     WrapperFactory,
     LimitOrderAPI,
     LimitOrderAPIBuilder,
-    APIClient,
-    APIClientBuilder,
     MarketOrderAPI,
     MarketOrderAPIBuilder,
     CancelOrderAPI,
@@ -25,6 +21,10 @@ from ..core import (
     OrdersFetchAPIBuilder,
     PositionsFetchAPIBuilder,
     PositionsFetchAPI,
+    StopMarketOrderAPI,
+    StopMarketOrderAPIBuilder,
+    MarketOrderAPITranslateParametersParameters,
+    StopMarketOrderAPITranslateParametersParameters,
 )
 
 
@@ -77,8 +77,8 @@ class CoincheckWrapperFactory(WrapperFactory):
             .set_parameter_translater(
                 lambda params: {
                     "pair": params["symbol"],
-                    "order_type": params["side"].lower() + "_market",
-                    "amount": params["size"],
+                    "order_type": "market_" + params["side"].lower(),
+                    **cls._amount_parameter(params),
                 }
             )
             .set_price_size_formatter(cls.create_price_size_formatter())
@@ -100,6 +100,30 @@ class CoincheckWrapperFactory(WrapperFactory):
                 lambda params: f"/api/exchange/orders/{params['order_id']}"
             )
             .set_parameter_translater(lambda params: {})
+            .get()
+        )
+
+    @classmethod
+    def create_stop_market_order_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> StopMarketOrderAPI:
+        return (
+            StopMarketOrderAPIBuilder()
+            .set_api_client(cls.create_api_client(client, verbose))
+            .set_method("POST")
+            .set_order_id_key(cls.__ORDER_ID_KEY)
+            .set_endpoint_generator("/api/exchange/orders")
+            .set_parameter_translater(
+                lambda params: {
+                    "pair": params["symbol"],
+                    "order_type": "market_" + params["side"].lower(),
+                    "stop_loss_rate": params["trigger"],
+                    **cls._amount_parameter(params),
+                }
+            )
+            .set_price_size_formatter(cls.create_price_size_formatter())
+            .set_price_format_keys("rate")
+            .set_size_format_keys("amount")
             .get()
         )
 
@@ -211,4 +235,16 @@ class CoincheckWrapperFactory(WrapperFactory):
                 ]
             )
             .get()
+        )
+
+    @classmethod
+    def _amount_parameter(
+        cls,
+        params: MarketOrderAPITranslateParametersParameters
+        | StopMarketOrderAPITranslateParametersParameters,
+    ) -> dict:
+        return (
+            {"market_buy_amount": params["size"]}
+            if params["side"] == "BUY"
+            else {"amount": params["size"]}
         )

@@ -13,7 +13,7 @@ def tester(market_order_tester):
         dummy_order_parameters={
             "symbol": "btc_jpy",
             "side": "BUY",
-            "size": 0.01,
+            "size": 5000,
             "extra_params": {},
         },
         dummy_response={
@@ -30,8 +30,8 @@ def tester(market_order_tester):
         expected_generate_endpoint="/api/exchange/orders",
         expected_translate_parameters={
             "pair": "btc_jpy",
-            "order_type": "buy_market",
-            "amount": 0.01,
+            "order_type": "market_buy",
+            "market_buy_amount": 5000,
         },
         expected_order_id="12345",
     )
