@@ -26,8 +26,8 @@ class BybitUSDTWrapperFactory(WrapperFactory):
     _NORMALIZED_STORE_BUILDER = BybitNormalizedStoreBuilder
     _PRICE_SIZE_PRECISION_FETCHER = BybitPriceSizePrecisionFetcher
     _INITIALIZER_CONFIG = {
-        "order": ("GET", "/private/linear/order/search", {"symbol"}),
-        "position": ("GET", "/private/linear/position/list", None),
+        "order": ("GET", f"{__BASE_URL}/private/linear/order/search", {"symbol"}),
+        "position": ("GET", f"{__BASE_URL}/private/linear/position/list", None),
     }
 
     @classmethod

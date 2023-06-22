@@ -20,6 +20,7 @@ from .core import (
     WrapperFactory,
 )
 from .gmocoin import GMOCoinWrapperFactory
+from .kucoin import KuCoinFuturesWrapperFactory, KuCoinSpotWrapperFactory
 from .phemex import PhemexWrapperFactory
 
 _EXCHANGE2FACTORY: dict[str, Type[WrapperFactory]] = {
@@ -31,6 +32,8 @@ _EXCHANGE2FACTORY: dict[str, Type[WrapperFactory]] = {
     "bybitusdt": BybitUSDTWrapperFactory,
     "coincheck": CoincheckWrapperFactory,
     "gmocoin": GMOCoinWrapperFactory,
+    "kucoinfutures": KuCoinFuturesWrapperFactory,
+    "kucoinspot": KuCoinSpotWrapperFactory,
     "phemex": PhemexWrapperFactory,
 }
 

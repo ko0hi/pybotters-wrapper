@@ -26,8 +26,8 @@ class BybitInverseWrapperFactory(WrapperFactory):
     _NORMALIZED_STORE_BUILDER = BybitNormalizedStoreBuilder
     _PRICE_SIZE_PRECISION_FETCHER = BybitPriceSizePrecisionFetcher
     _INITIALIZER_CONFIG = {
-        "order": ("GET", "/v2/private/order", {"symbol"}),
-        "position": ("GET", "/v2/private/position/list", None),
+        "order": ("GET", f"{__BASE_URL}/v2/private/order", {"symbol"}),
+        "position": ("GET", f"{__BASE_URL}/v2/private/position/list", None),
     }
 
     @classmethod

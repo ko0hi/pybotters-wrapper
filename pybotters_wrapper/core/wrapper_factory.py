@@ -152,13 +152,16 @@ class WrapperFactory(metaclass=ABCMeta):
         return cls._WEBSOCKET_REQUEST_BUILDER(cls.create_websocket_channels())
 
     @classmethod
-    def create_websocket_request_customizer(cls) -> WebSocketRequestCustomizer:
+    def create_websocket_request_customizer(
+        cls, client: pybotters.Client | None = None
+    ) -> WebSocketRequestCustomizer:
         assert cls._WEBSOCKET_REQUEST_CUSTOMIZER is not None
-        return cls._WEBSOCKET_REQUEST_CUSTOMIZER()
+        return cls._WEBSOCKET_REQUEST_CUSTOMIZER(client)
 
     @classmethod
     def create_price_size_precisions_fetcher(cls) -> PriceSizePrecisionFetcher:
         if cls._PRICE_SIZE_PRECISION_FETCHER is None:
+
             class DummyPriceSizePrecisionFetcher(PriceSizePrecisionFetcher):
                 """No format"""
 

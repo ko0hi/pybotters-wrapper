@@ -20,7 +20,6 @@ class BybitWebSocketChannelsMixin:
     def trade(self, symbol: str) -> str:
         return f"trade.{symbol}"
 
-
     def instrument_info(self, symbol: str) -> str:
         return f"instrument_info.100ms.{symbol}"
 
