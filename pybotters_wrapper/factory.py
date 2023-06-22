@@ -7,6 +7,7 @@ from .binance.binancecoinm import BinanceCOINMWrapperFactory
 from .binance.binanceusdsm import BinanceUSDSMWrapperFactory
 from .bitbank import bitbankWrapperFactory
 from .bitflyer import bitFlyerWrapperFactory
+from .bitget import BitgetWrapperFactory
 from .bybit import BybitInverseWrapperFactory, BybitUSDTWrapperFactory
 from .coincheck import CoincheckWrapperFactory
 from .core import (
@@ -28,6 +29,7 @@ _EXCHANGE2FACTORY: dict[str, Type[WrapperFactory]] = {
     "binanceusdsm": BinanceUSDSMWrapperFactory,
     "bitbank": bitbankWrapperFactory,
     "bitflyer": bitFlyerWrapperFactory,
+    "bitget": BitgetWrapperFactory,
     "bybitinverse": BybitInverseWrapperFactory,
     "bybitusdt": BybitUSDTWrapperFactory,
     "coincheck": CoincheckWrapperFactory,
