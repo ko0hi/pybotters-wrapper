@@ -58,7 +58,7 @@ class NormalizedStoreBuilder(Generic[TDataStoreManager], metaclass=ABCMeta):
         | PositionStore
     ):
         if len(names) == 0:
-            names = ["ticker", "trades", "orderbook", "order", "execution", "position"]
+            names = ("ticker", "trades", "orderbook", "order", "execution", "position")
 
         if len(names) == 1:
             return getattr(self, names[0])()

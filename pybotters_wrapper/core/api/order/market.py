@@ -9,7 +9,7 @@ from ...typedefs import TEndpoint, TSide, TSize, TSymbol
 
 class MarketOrderAPIResponse(NamedTuple):
     order_id: str
-    resp: ClientResponse | None = None
+    resp: ClientResponse
     data: Any = None
 
 

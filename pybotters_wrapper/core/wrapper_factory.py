@@ -48,7 +48,7 @@ class WrapperFactory(metaclass=ABCMeta):
     _WEBSOCKET_REQUEST_CUSTOMIZER: Type[
         WebSocketRequestCustomizer
     ] = WebSocketDefaultRequestCustomizer
-    _PRICE_SIZE_PRECISION_FETCHER: Type[PriceSizePrecisionFetcher]
+    _PRICE_SIZE_PRECISION_FETCHER: Type[PriceSizePrecisionFetcher] | None = None
 
     @classmethod
     @abstractmethod

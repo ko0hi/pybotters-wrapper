@@ -30,10 +30,10 @@ class KuCoinFuturesWrapperFactory(WrapperFactory):
     _WEBSOCKET_REQUEST_CUSTOMIZER = create_websocket_request_customizer("kucoinfutures")
     _PRICE_SIZE_PRECISION_FETCHER = KuCoinFuturesPriceSizePrecisionFetcher
     _INITIALIZER_CONFIG = {
-        "token": ("POST", "/api/v1/bullet-private", None),
-        "token_public": ("POST", "/api/v1/bullet-public", None),
-        "token_private": ("POST", "/api/v1/bullet-private", None),
-        "position": ("GET", "/api/v1/positions", None),
+        "token": ("POST", f"{__BASE_URL}/api/v1/bullet-private", None),
+        "token_public": ("POST", f"{__BASE_URL}/api/v1/bullet-public", None),
+        "token_private": ("POST", f"{__BASE_URL}/api/v1/bullet-private", None),
+        "position": ("GET", f"{__BASE_URL}/api/v1/positions", None),
     }
 
     @classmethod

@@ -19,7 +19,7 @@ class BybitNormalizedStoreBuilder(
             self._store.instrument,
             mapper={
                 "symbol": lambda store, o, s, d: d["symbol"],
-                "last_price": lambda store, o, s, d: float(d["last_price"]),
+                "price": lambda store, o, s, d: float(d["last_price"]),
             },
         )
 
@@ -59,6 +59,7 @@ class BybitNormalizedStoreBuilder(
                 raise RuntimeError(f"ID not found: {data}")
 
         return OrderStore(
+            self._store.order,
             mapper={
                 "id": _extract_order_id,
                 "symbol": lambda store, o, s, d: d["symbol"],

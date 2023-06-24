@@ -40,6 +40,7 @@ class OrderItem(TypedDict):
     price: TPrice
     size: TSize
     type: str
+    trigger: TPrice | None  # TODO
 
 
 class PositionItem(TypedDict):

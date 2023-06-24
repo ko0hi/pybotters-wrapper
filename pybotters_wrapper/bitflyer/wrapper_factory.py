@@ -164,18 +164,6 @@ class bitFlyerWrapperFactory(WrapperFactory):
         )
 
     @classmethod
-    def create_stop_limit_order_api(
-        cls, client: pybotters.Client, verbose: bool = False
-    ) -> StopLimitOrderAPI:
-        raise NotImplementedError
-
-    @classmethod
-    def create_stop_market_order_api(
-        cls, client: pybotters.Client, verbose: bool = False
-    ) -> StopMarketOrderAPI:
-        raise NotImplementedError
-
-    @classmethod
     def create_ticker_fetch_api(
         cls, client: pybotters.Client, verbose: bool = False
     ) -> TickerFetchAPI:

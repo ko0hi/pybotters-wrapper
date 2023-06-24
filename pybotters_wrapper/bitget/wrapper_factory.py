@@ -4,6 +4,7 @@ from ..core import WrapperFactory
 
 from .websocket_channels import BitgetWebSocketChannels
 from .price_size_precision_fetcher import BitgetPriceSizePrecisionFetcher
+from .normalized_store_builder import BitgetNormalizedStoreBuilder
 
 class BitgetWrapperFactory(WrapperFactory):
     __BASE_URL = "https://api.bitget.com"
@@ -14,3 +15,4 @@ class BitgetWrapperFactory(WrapperFactory):
     _DATASTORE_MANAGER = BitgetDataStore
     _WEBSOCKET_CHANNELS = BitgetWebSocketChannels
     _PRICE_SIZE_PRECISION_FETCHER = BitgetPriceSizePrecisionFetcher
+    _NORMALIZED_STORE_BUILDER = BitgetNormalizedStoreBuilder

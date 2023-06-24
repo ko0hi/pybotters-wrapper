@@ -24,6 +24,7 @@ from .gmocoin import GMOCoinWrapperFactory
 from .kucoin import KuCoinFuturesWrapperFactory, KuCoinSpotWrapperFactory
 from .okx import OKXWrapperFactory
 from .phemex import PhemexWrapperFactory
+from .sandbox import SandboxEngine, SandboxDataStoreWrapper, SandboxAPIWrapper
 
 _EXCHANGE2FACTORY: dict[str, Type[WrapperFactory]] = {
     "binancecoinm": BinanceCOINMWrapperFactory,
@@ -72,8 +73,19 @@ def create_store_and_api(
     *,
     store: TDataStoreManager | None = None,
     verbose: bool = False,
-) -> tuple[DataStoreWrapper, APIWrapper]:
+) -> tuple[DataStoreWrapper[TDataStoreManager], APIWrapper]:
     return create_store(exchange, store), create_api(exchange, client, verbose)
+
+
+def create_sandbox(
+    exchange: str,
+    client: pybotters.Client,
+    *,
+    store: TDataStoreManager | None = None,
+    verbose: bool = False,
+) -> tuple[SandboxDataStoreWrapper, SandboxAPIWrapper]:
+    store, api = create_store_and_api(exchange, client, store=store, verbose=verbose)
+    return SandboxEngine.register(store, api)
 
 
 def create_store_initializer(

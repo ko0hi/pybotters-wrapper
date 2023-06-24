@@ -15,8 +15,8 @@ from ...typedefs import (
 
 
 class StopLimitOrderAPIResponse(NamedTuple):
-    order_id: str | None
-    resp: ClientResponse | None = None
+    order_id: str
+    resp: ClientResponse
     data: Any = None
 
 

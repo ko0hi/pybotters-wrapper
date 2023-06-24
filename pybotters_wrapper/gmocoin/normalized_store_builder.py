@@ -26,7 +26,7 @@ class GMOCoinNormalizedStoreBuilder(NormalizedStoreBuilder[GMOCoinDataStore]):
 
     def trades(self) -> TradesStore:
         return TradesStore(
-            self._store.executions,
+            self._store.trades,
             mapper={
                 "id": str(uuid.uuid4()),
                 "symbol": lambda store, o, s, d: d["symbol"].name,

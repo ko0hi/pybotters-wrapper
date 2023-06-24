@@ -1,3 +1,5 @@
+from typing import Literal
+
 import pybotters
 from aiohttp.client import ClientResponse
 from requests import Response
@@ -250,6 +252,41 @@ class APIWrapper:
         return await self._positions_fetch_api.fetch_positions(
             symbol, extra_params=extra_params, request_params=request_params
         )
+
+    def is_available(
+        self,
+        method: Literal[
+            "limit_order",
+            "market_order",
+            "cancel_order",
+            "stop_limit_order",
+            "stop_market_order∫",
+            "fetch_ticker",
+            "fetch_orderbook",
+            "fetch_orders",
+            "fetch_positions",
+        ],
+    ) -> bool:
+        if method == "limit_order":
+            return self._limit_order_api is not None
+        elif method == "market_order":
+            return self._market_order_api is not None
+        elif method == "cancel_order":
+            return self._cancel_order_api is not None
+        elif method == "stop_limit_order":
+            return self._stop_limit_order_api is not None
+        elif method == "stop_market_order":
+            return self._stop_market_order_api is not None
+        elif method == "fetch_ticker":
+            return self._ticker_fetch_api is not None
+        elif method == "fetch_orderbook":
+            return self._orderbook_fetch_api is not None
+        elif method == "fetch_orders":
+            return self._orders_fetch_api is not None
+        elif method == "fetch_positions":
+            return self._positions_fetch_api is not None
+        else:
+            raise ValueError(f"Unknown method: {method}")
 
     @property
     def client(self) -> pybotters.Client:

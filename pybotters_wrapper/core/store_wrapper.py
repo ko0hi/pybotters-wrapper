@@ -22,7 +22,8 @@ from .typedefs import TDataStoreManager
 from .websocket import (
     WebSocketRequestBuilder,
     WebSocketRequestCustomizer,
-    WebSocketConnection
+    WebSocketConnection,
+    TWebsocketOnReconnectionCallback,
 )
 
 if TYPE_CHECKING:
@@ -91,9 +92,14 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         return await self._initializer.initialize_position(client, **params)
 
     def subscribe(
-        self, channel: str | list[str] | list[tuple[str, dict]], **kwargs
+        self,
+        channel: str
+        | list[str | tuple[str, dict]]
+        | Literal["all", "public", "private"],
+        symbol: str | None = None,
+        **kwargs,
     ) -> "DataStoreWrapper":
-        self._ws_request_builder.subscribe(channel, **kwargs)
+        self._ws_request_builder.subscribe(channel, symbol=symbol, **kwargs)
         return self
 
     async def connect(
@@ -104,10 +110,10 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         send: Any | None = None,
         hdlr: WsStrHandler | WsBytesHandler = None,
         waits: list[DataStore | str] | None = None,
-        send_type: Literal["json", "str", "byte"] = "json",
-        hdlr_type: Literal["json", "str", "byte"] = "json",
+        send_type: Literal["json", "str", "byte"] | None = None,
+        hdlr_type: Literal["json", "str", "byte"] | None = None,
         auto_reconnect: bool = False,
-        on_reconnection: WebsocketOnReconnectionCallback | None = None,
+        on_reconnection: TWebsocketOnReconnectionCallback | None = None,
         **kwargs,
     ) -> DataStoreWrapper:
         self._websocket_request_customizer.set_client(client)
@@ -173,8 +179,9 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
     def _build_normalized_stores(self) -> dict[str, NormalizedDataStore]:
         stores = {}
         for name, store in self._normalized_store_builder.get().items():
-            store.start()
-            stores[name] = store
+            if store is not None:
+                store.start()
+                stores[name] = store
         return stores
 
     def _get_normalized_store(
