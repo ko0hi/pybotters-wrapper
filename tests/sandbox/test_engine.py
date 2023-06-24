@@ -33,7 +33,7 @@ class TestCreateOrderItem:
         mocker.patch("uuid.uuid4", return_value="uuid")
         mocker.patch("pandas.Timestamp.utcnow", return_value="2022-02-22 02:22:22")
 
-    async def test_limit(self, engine: SandboxEngine):
+    def test_limit(self, engine: SandboxEngine):
         item = engine._create_order_item(SYMBOL, "BUY", 10, 1, "LIMIT")
         assert {
             "id": "uuid",
