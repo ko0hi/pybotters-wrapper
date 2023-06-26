@@ -23,6 +23,12 @@ from pybotters_wrapper.core import (
 )
 
 
+# disable logging: https://github.com/Delgan/loguru/issues/138
+from loguru import logger
+
+logger.remove(0)
+
+
 class MockAsyncResponse:
     def __init__(self, url: str, response: Any, status: int = 200):
         self._url = url
