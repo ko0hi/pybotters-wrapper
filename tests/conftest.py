@@ -44,7 +44,7 @@ class MockAsyncResponse:
 
     def as_request_method(self):
         async def _mock_async_request(*args, **kwargs):
-            return MockAsyncResponse(self._response)
+            return MockAsyncResponse(self._url, self._response)
 
         return _mock_async_request
 
@@ -235,7 +235,7 @@ class OrderAPITester:
         async with create_client() as client:
             api = self.factory_method(client)
             actual = api._extract_order_id(
-                MockAsyncResponse(self.dummy_response, 200),  # noqa
+                MockAsyncResponse(self.url, self.dummy_response, 200),  # type: ignore
                 self.dummy_response,  # noqa
             )
             assert actual == self.expected_order_id

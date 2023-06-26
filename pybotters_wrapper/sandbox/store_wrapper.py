@@ -18,6 +18,7 @@ from pybotters_wrapper.core import (
     TickerStore,
     TradesStore,
     TWebsocketOnReconnectionCallback,
+    NormalizedDataStore,
 )
 
 from ..core import DataStoreWrapper
@@ -25,49 +26,60 @@ from ..core import DataStoreWrapper
 from .engine import SandboxEngine
 
 
-class SandboxDataStoreWrapper:
+class SandboxDataStoreWrapper(DataStoreWrapper):
     def __init__(self, simulate_store: DataStoreWrapper):
         self._simulate_store = simulate_store
         self._store = self._simulate_store.store
-        self._engine: SandboxEngine = None
+        self._engine: SandboxEngine | None = None
+        super(SandboxDataStoreWrapper, self).__init__(
+            None,
+            exchange_property=self._simulate_store._eprop,
+            store_initializer=None,  # type: ignore
+            normalized_store_builder=None,  # type: ignore
+            websocket_request_customizer=None,  # type: ignore
+            websocket_request_builder=None,  # type: ignore
+        )
 
-        self._order = OrderStore(None)
-        self._execution = ExecutionStore(None)
-        self._position = PositionStore(None)
+    def _build_normalized_stores(self) -> dict[str, NormalizedDataStore]:
+        return {
+            "order": OrderStore(None),
+            "execution": ExecutionStore(None),
+            "position": PositionStore(None),
+        }
 
     async def initialize(
         self,
         aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
-        client: "pybotters.APIClient",
+        client: "pybotters.Client",
     ) -> SandboxDataStoreWrapper:
         await self._simulate_store.initialize(aws_or_names, client)
         return self
 
-    async def initialize_token(self, client: "pybotters.APIClient", **params):
+    async def initialize_token(self, client: "pybotters.Client", **params):
         return await self._simulate_store.initialize_token(client, **params)
 
-    async def initialize_token_public(self, client: "pybotters.APIClient", **params):
+    async def initialize_token_public(self, client: "pybotters.Client", **params):
         return await self._simulate_store.initialize_token_public(client, **params)
 
-    async def initialize_token_private(self, client: "pybotters.APIClient", **params):
+    async def initialize_token_private(self, client: "pybotters.Client", **params):
         return await self._simulate_store.initialize_token_private(client, **params)
 
-    async def initialize_ticker(self, client: "pybotters.APIClient", **params):
+    async def initialize_ticker(self, client: "pybotters.Client", **params):
         return await self._simulate_store.initialize_ticker(client, **params)
 
-    async def initialize_trades(self, client: "pybotters.APIClient", **params):
+    async def initialize_trades(self, client: "pybotters.Client", **params):
         return await self._simulate_store.initialize_trades(client, **params)
 
-    async def initialize_orderbook(self, client: "pybotters.APIClient", **params):
+    async def initialize_orderbook(self, client: "pybotters.Client", **params):
         return await self._simulate_store.initialize_orderbook(client, **params)
 
-    async def initialize_order(self, client: "pybotters.APIClient", **params):
+    async def initialize_order(self, client: "pybotters.Client", **params):
         return await self._simulate_store.initialize_order(client, **params)
 
-    async def initialize_execution(self, client: "pybotters.APIClient", **params):
+    async def initialize_execution(self, client: "pybotters.Client", **params):
         return await self._simulate_store.initialize_execution(client, **params)
 
-    async def initialize_position(self, client: "pybotters.APIClient", **params):
+    async def initialize_position(self, client: "pybotters.Client", **params):
         return await self._simulate_store.initialize_position(client, **params)
 
     def subscribe(
@@ -83,7 +95,7 @@ class SandboxDataStoreWrapper:
 
     async def connect(
         self,
-        client: "pybotters.APIClient",
+        client: "pybotters.Client",
         *,
         endpoint: str | None = None,
         send: Any | None = None,
@@ -135,23 +147,19 @@ class SandboxDataStoreWrapper:
 
     @property
     def order(self) -> OrderStore:
-        return self._order
+        return self._normalized_stores["order"]
 
     @property
     def execution(self) -> ExecutionStore:
-        return self._execution
+        return self._normalized_stores["execution"]
 
     @property
     def position(self) -> PositionStore:
-        return self._position
+        return self._normalized_stores["position"]
 
     def _link_to_engine(self, engine: "SandboxEngine"):
         self._engine = engine
 
     @property
     def exchange(self) -> str:
-        return self._simulate_store.exchange
-
-    @property
-    def package(self) -> str:
-        return self._simulate_store.package
+        return self._simulate_store._eprop.exchange
