@@ -19,6 +19,7 @@ from pybotters_wrapper.core import (
     TradesStore,
     TWebsocketOnReconnectionCallback,
     NormalizedDataStore,
+    TDataStoreManager,
 )
 
 from ..core import DataStoreWrapper
@@ -26,7 +27,7 @@ from ..core import DataStoreWrapper
 from .engine import SandboxEngine
 
 
-class SandboxDataStoreWrapper(DataStoreWrapper):
+class SandboxDataStoreWrapper(DataStoreWrapper[TDataStoreManager]):
     def __init__(self, simulate_store: DataStoreWrapper):
         self._simulate_store = simulate_store
         self._store = self._simulate_store.store

@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import asyncio
 from collections import deque
-from typing import Callable
+from typing import Callable, Any
 
 from loguru import logger
 
@@ -12,9 +14,9 @@ class PeriodicExecutor(PublishQueueMixin, Plugin):
     def __init__(
         self,
         fn: Callable,
-        params: dict | Callable = None,
-        interval: int = 10,
-        handler: Callable = None,
+        params: dict | Callable | None = None,
+        interval: int | float = 10,
+        handler: Callable | None = None,
         history: int = 999,
     ):
         super(PeriodicExecutor, self).__init__()
@@ -26,7 +28,7 @@ class PeriodicExecutor(PublishQueueMixin, Plugin):
         self._is_coro_params = asyncio.iscoroutinefunction(self._params)
         self._is_coro_handler = asyncio.iscoroutinefunction(self._handler)
         self._task = asyncio.create_task(self._periodic_execute())
-        self._history = deque(maxlen=history)
+        self._history: deque = deque(maxlen=history)
         self.init_publish_queue()
 
     async def execute(self):
@@ -36,14 +38,12 @@ class PeriodicExecutor(PublishQueueMixin, Plugin):
         self._history.append(item)
         self.put(item)
 
-    @logger.catch
-    async def _execute(self):
-        """_periodic_executeでexceptionをcatchするためのwrapper"""
-        await self.execute()
-
     async def _periodic_execute(self):
         while True:
-            await self._execute()
+            try:
+                await self.execute()
+            except Exception as e:
+                logger.error(f"Polling error: {e}")
             await asyncio.sleep(self._interval)
 
     async def _get_params(self) -> dict:
@@ -61,13 +61,13 @@ class PeriodicExecutor(PublishQueueMixin, Plugin):
                 "Unsupported params type: should be either of None, dict, or Callable."
             )
 
-    async def _call(self, params: dict) -> any:
+    async def _call(self, params: dict) -> Any:
         if self._is_coro_fn:
             return await self._fn(**params)
         else:
             return self._fn(**params)
 
-    async def _handle(self, item: any) -> any:
+    async def _handle(self, item: Any) -> Any:
         if self._handler is None:
             return item
         else:
@@ -84,11 +84,11 @@ class PeriodicExecutor(PublishQueueMixin, Plugin):
         return self._task
 
     @property
-    def history(self) -> list[any]:
+    def history(self) -> list[Any]:
         return self._history
 
     @property
-    def last(self) -> any:
+    def last(self) -> Any:
         try:
             return self._history[-1]
         except IndexError:

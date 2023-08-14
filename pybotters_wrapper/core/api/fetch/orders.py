@@ -9,7 +9,7 @@ from .fetch_api_builder import FetchAPIBuilder
 
 class OrdersFetchAPIResponse(NamedTuple):
     orders: list[OrderItem]
-    resp: ClientResponse | None = None
+    resp: ClientResponse
     data: dict | None = None
 
 

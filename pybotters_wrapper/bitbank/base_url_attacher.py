@@ -1,3 +1,5 @@
+from yarl import URL
+
 class bitbankBaseUrlAttacher:
     _PRIVATE_ENDPOINTS = {
         "/user/assets",
@@ -14,7 +16,7 @@ class bitbankBaseUrlAttacher:
     }
 
     def __call__(self, url: str) -> str:
-        if url is not None and url in self._PRIVATE_ENDPOINTS:
+        if URL(url).path in self._PRIVATE_ENDPOINTS:
             return f"https://api.bitbank.cc/v1{url}"
         else:
             return f"https://public.bitbank.cc{url}"

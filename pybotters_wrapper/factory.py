@@ -74,10 +74,7 @@ def create_store_and_api(
     store: TDataStoreManager | None = None,
     verbose: bool = False,
     sandbox: bool = False,
-) -> (
-    tuple[DataStoreWrapper[TDataStoreManager], APIWrapper]
-    | tuple[SandboxDataStoreWrapper, SandboxAPIWrapper]
-):
+) -> tuple[DataStoreWrapper, APIWrapper]:
     if sandbox:
         return create_sandbox(exchange, client, store=store, verbose=verbose)
     else:
@@ -91,8 +88,8 @@ def create_sandbox(
     store: TDataStoreManager | None = None,
     verbose: bool = False,
 ) -> tuple[SandboxDataStoreWrapper, SandboxAPIWrapper]:
-    store, api = create_store_and_api(exchange, client, store=store, verbose=verbose)
-    return SandboxEngine.register(store, api)
+    _store, _api = create_store_and_api(exchange, client, store=store, verbose=verbose)
+    return SandboxEngine.register(_store, _api)
 
 
 def create_store_initializer(

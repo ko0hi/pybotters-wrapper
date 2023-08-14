@@ -18,7 +18,7 @@ from ...core import (
 class BybitUSDTWrapperFactory(WrapperFactory):
     __BASE_URL = "https://api.bybit.com"
     _EXCHANGE_PROPERTIES = {
-        "exchange": "bybitinverse",
+        "exchange": "bybitusdt",
         "base_url": __BASE_URL,
     }
     _DATASTORE_MANAGER = BybitUSDTDataStore

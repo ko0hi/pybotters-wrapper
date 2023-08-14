@@ -2,11 +2,13 @@ from typing import Callable
 
 import pandas as pd
 import pybotters
+from aiohttp import ClientResponse
 from pybotters import bitbankDataStore
 
 from .base_url_attacher import bitbankBaseUrlAttacher
 from .normalized_store_builder import bitbankNormalizedStoreBuilder
 from .websocket_channels import bitbankWebsocketChannels
+from .price_size_precision_fetcher import bitbankPriceSizePrecisionFetcher
 from ..core import (
     WrapperFactory,
     LimitOrderAPI,
@@ -26,6 +28,7 @@ from ..core import (
     OrdersFetchAPIBuilder,
     PositionsFetchAPIBuilder,
     PositionsFetchAPI,
+    OrderAPI,
 )
 
 
@@ -38,6 +41,7 @@ class bitbankWrapperFactory(WrapperFactory):
     _DATASTORE_MANAGER = bitbankDataStore
     _WEBSOCKET_CHANNELS = bitbankWebsocketChannels
     _NORMALIZED_STORE_BUILDER = bitbankNormalizedStoreBuilder
+    _PRICE_SIZE_PRECISION_FETCHER = bitbankPriceSizePrecisionFetcher
 
     __ORDER_ID_KEY = "data.order_id"
 
@@ -81,6 +85,7 @@ class bitbankWrapperFactory(WrapperFactory):
             .set_price_size_formatter(cls.create_price_size_formatter())
             .set_price_format_keys("price")
             .set_size_format_keys("amount")
+            .set_order_id_extractor(cls._order_id_extractor)
             .get()
         )
 
@@ -105,6 +110,7 @@ class bitbankWrapperFactory(WrapperFactory):
             .set_price_size_formatter(cls.create_price_size_formatter())
             .set_price_format_keys("price")
             .set_size_format_keys("amount")
+            .set_order_id_extractor(cls._order_id_extractor)
             .get()
         )
 
@@ -232,8 +238,21 @@ class bitbankWrapperFactory(WrapperFactory):
                         "size": float(d["free_amount"]),
                         "side": "BUY",
                     }
-                    for d in data["data"]["assets"] if float(d["onhand_amount"]) > 0
+                    for d in data["data"]["assets"]
+                    if float(d["onhand_amount"]) > 0
                 ]
             )
             .get()
         )
+
+    @classmethod
+    def _order_id_extractor(
+        cls, resp: ClientResponse, data: dict, order_id_key: str
+    ) -> str | None:
+        # bitbankはstatus_codeではなくbodyのsuccess fieldで成功の可否を判定する
+        if data["success"] == 0:
+            return None
+        else:
+            return OrderAPI._default_order_id_extractor(  # noqa
+                resp, data, order_id_key
+            )

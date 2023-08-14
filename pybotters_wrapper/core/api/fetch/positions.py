@@ -9,7 +9,7 @@ from ...typedefs import PositionItem, TEndpoint, TSymbol
 
 class PositionsFetchAPIResponse(NamedTuple):
     positions: list[PositionItem]
-    resp: ClientResponse | None = None
+    resp: ClientResponse
     data: Any = None
 
 

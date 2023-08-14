@@ -9,7 +9,7 @@ class OrderbookStore(NormalizedDataStore[OrderbookItem]):
     _KEYS = ["symbol", "side", "price"]
     _NORMALIZED_ITEM_CLASS = OrderbookItem
 
-    def sorted(self, query: Item = None) -> dict[TSide, list[Item]]:
+    def sorted(self, query: Item = None) -> dict[TSide, list[OrderbookItem]]:
         if query is None:
             query = {}
         result: dict[TSide, list[Item]] = {"SELL": [], "BUY": []}

@@ -8,15 +8,13 @@ from ..exceptions import FetchPrecisionsError
 
 class bitbankPriceSizePrecisionFetcher(PriceSizePrecisionFetcher):
     def fetch_precisions(self) -> dict[Literal["price", "size"], dict[TSymbol, int]]:
-
         res = requests.get("https://api.bitbank.cc/v1/spot/pairs")
 
-        if res.status_code != 200:
+        data = res.json()
+        if data["success"] == 0:
             raise FetchPrecisionsError(
                 f"Failed to fetch bitbank precisions {res.json()}"
             )
-
-        data = res.json()
 
         return {
             "price": {p["name"]: p["price_digits"] for p in data["data"]["pairs"]},

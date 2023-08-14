@@ -53,6 +53,7 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
         on_watch_get_operation: Callable[[StoreChange], str | None] | None = None,
         on_watch_make_item: Callable[[TNormalizedItem, StoreChange], dict]
         | None = None,
+        max_len: int = 99999
     ):
         # 参照元のデータストア
         self._base_store: DataStore = store
@@ -63,6 +64,9 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
             data or [],
             auto_cast=auto_cast,
         )
+
+        # self._base_store._MAXLEN = max_len
+        # self._normalized_store._MAXLEN = max_len
 
         self._mapper = mapper
         self._target_operations = target_operations or ("insert", "update", "delete")

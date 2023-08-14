@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from typing import Callable
 
 import pandas as pd
+import pybotters
 
 from .market import (
     BinningBook,
@@ -79,16 +82,16 @@ def bookticker(store: DataStoreWrapper, symbol: str) -> BookTicker:
 
 
 def poller(
-    api: APIWrapper,
+    client_or_api: pybotters.Client | APIWrapper,
     *,
     url: str,
-    interval: int,
-    params: dict | Callable = None,
-    handler: Callable = None,
+    interval: int | float,
+    params: dict | Callable | None = None,
+    handler: Callable | None = None,
     history: int = 999,
     method: str = "GET",
 ) -> Poller:
-    return Poller(api, url, interval, params, handler, history, method)
+    return Poller(client_or_api, url, interval, params, handler, history, method)
 
 
 def pnl(store: DataStoreWrapper, symbol: str, fee: float = 0.0, interval=10) -> PnL:
@@ -98,7 +101,7 @@ def pnl(store: DataStoreWrapper, symbol: str, fee: float = 0.0, interval=10) -> 
 def execution_watcher(
     store: DataStoreWrapper,
     *,
-    store_name: str = None,
+    store_name: str | None = None,
     is_target: Callable[["DataStore", str, dict, dict], bool] = None,
 ) -> ExecutionWatcher:
     return ExecutionWatcher(store, store_name=store_name, is_target=is_target)
@@ -110,9 +113,9 @@ def watch_csvwriter(
     path: str,
     *,
     per_day: bool = False,
-    columns: list[str] = None,
+    columns: list[str] | None = None,
     flush: bool = False,
-    operations: list[str] = None,
+    operations: list[str] | None = None,
 ) -> DataStoreWatchCSVWriter:
     return DataStoreWatchCSVWriter(
         store,
@@ -131,7 +134,7 @@ def wait_csvwriter(
     path: str,
     *,
     per_day: bool = False,
-    columns: list[str] = None,
+    columns: list[str] | None = None,
     flush: bool = False,
 ) -> DataStoreWaitCSVWriter:
     return DataStoreWaitCSVWriter(

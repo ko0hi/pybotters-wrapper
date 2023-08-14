@@ -22,7 +22,7 @@ async def format_aiohttp_response(
     else:
         try:
             data = await resp.json()
-        except JSONDecodeError:
+        except (JSONDecodeError, aiohttp.ContentTypeError):
             data = None
         return f"Request failed: [{resp.status}] {method} {url} with {params} -> {data}"
 

@@ -9,7 +9,7 @@ from ...typedefs import TEndpoint, TickerItem, TSymbol
 
 class TickerFetchAPIResponse(NamedTuple):
     ticker: TickerItem
-    resp: ClientResponse | None = None
+    resp: ClientResponse
     data: Any | None = None
 
 

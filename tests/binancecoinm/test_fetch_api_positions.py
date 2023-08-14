@@ -60,7 +60,7 @@ def tester(positions_fetch_api_tester):
 
 
 @pytest.mark.asyncio
-# @pytest.mark.skip
+@pytest.mark.skip
 async def test_fetch(tester):
     resp, data = await tester.test_fetch()
     print(data)

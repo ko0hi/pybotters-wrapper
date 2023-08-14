@@ -21,7 +21,7 @@ class ExchangeProperty:
         return self._properties.get("base_url")
 
     @property
-    def exchange(self) -> str | None:
+    def exchange(self) -> str:
         return self._properties.get("exchange")
 
     def _validate(self):
