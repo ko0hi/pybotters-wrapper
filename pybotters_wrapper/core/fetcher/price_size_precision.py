@@ -1,8 +1,6 @@
-from typing import Literal
-
-from abc import ABCMeta, abstractmethod
 import math
-
+from abc import ABCMeta, abstractmethod
+from typing import Literal
 
 from ..typedefs import TSymbol
 

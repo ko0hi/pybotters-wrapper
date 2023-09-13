@@ -3,19 +3,19 @@ import uuid
 import pybotters
 from pybotters import KuCoinDataStore
 
-from .price_size_precision_fetcher import KuCoinFuturesPriceSizePrecisionFetcher
-from .websocket_channels import KuCoinFuturesWebSocketChannels
-from ..normalized_store_builder import KuCoinNormalizedStoreBuilder
-from ..websocket_request_customizer import create_websocket_request_customizer
 from ...core import (
-    WrapperFactory,
+    CancelOrderAPI,
+    CancelOrderAPIBuilder,
     LimitOrderAPI,
     LimitOrderAPIBuilder,
     MarketOrderAPI,
     MarketOrderAPIBuilder,
-    CancelOrderAPI,
-    CancelOrderAPIBuilder,
+    WrapperFactory,
 )
+from ..normalized_store_builder import KuCoinNormalizedStoreBuilder
+from ..websocket_request_customizer import create_websocket_request_customizer
+from .price_size_precision_fetcher import KuCoinFuturesPriceSizePrecisionFetcher
+from .websocket_channels import KuCoinFuturesWebSocketChannels
 
 
 class KuCoinFuturesWrapperFactory(WrapperFactory):
@@ -80,6 +80,7 @@ class KuCoinFuturesWrapperFactory(WrapperFactory):
                     "leverage": 1,
                 }
             )
+            .get()
         )
 
     @classmethod
@@ -93,6 +94,6 @@ class KuCoinFuturesWrapperFactory(WrapperFactory):
             .set_endpoint_generator(
                 lambda params: f"/api/v1/orders/{params['order_id']}"
             )
-            .set_parameter_translater({})
+            .set_parameter_translater(lambda params: {})
             .get()
         )

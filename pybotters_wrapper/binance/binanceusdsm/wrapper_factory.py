@@ -1,11 +1,9 @@
+from typing import Callable
+
 import aiohttp
 import pybotters
 from pybotters import BinanceUSDSMDataStore
 
-from . import BinanceUSDSMWebsocketChannels
-from ..normalized_store_builder import BinanceNormalizedStoreBuilder
-from ..price_size_precision_fetcher import BinancePriceSizePrecisionFetcher
-from ..websocket_request_customizer import BinanceWebSocketRequestCustomizer
 from ...core import (
     APIClient,
     APIClientBuilder,
@@ -23,11 +21,11 @@ from ...core import (
     MarketOrderAPI,
     MarketOrderAPIBuilder,
     MarketOrderAPITranslateParametersParameters,
-    OrderItem,
     OrderbookFetchAPI,
     OrderbookFetchAPIBuilder,
     OrderbookFetchAPITranslateParametersParameters,
     OrderbookItem,
+    OrderItem,
     OrdersFetchAPI,
     OrdersFetchAPIBuilder,
     OrdersFetchAPITranslateParametersParameters,
@@ -36,23 +34,27 @@ from ...core import (
     PositionsFetchAPIBuilder,
     PositionsFetchAPITranslateParametersParameters,
     PriceSizePrecisionFormatter,
-    StoreInitializer,
     StopLimitOrderAPI,
     StopLimitOrderAPIBuilder,
     StopLimitOrderAPITranslateParametersParameters,
     StopMarketOrderAPI,
     StopMarketOrderAPIBuilder,
     StopMarketOrderAPITranslateParametersParameters,
+    StoreInitializer,
     TDataStoreManager,
-    TSide,
     TickerFetchAPI,
     TickerFetchAPIBuilder,
     TickerFetchAPITranslateParametersParameters,
     TickerItem,
+    TSide,
     WebSocketRequestBuilder,
     WebSocketRequestCustomizer,
     WrapperFactory,
 )
+from ..normalized_store_builder import BinanceNormalizedStoreBuilder
+from ..price_size_precision_fetcher import BinancePriceSizePrecisionFetcher
+from ..websocket_request_customizer import BinanceWebSocketRequestCustomizer
+from . import BinanceUSDSMWebsocketChannels
 
 
 class BinanceUSDSMWrapperFactory(WrapperFactory):
@@ -75,11 +77,11 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
         return StoreInitializer(
             store,
             {
-                "token": ("POST", f"{base_url}/fapi/v1/listenKey"),
-                "token_private": ("POST", f"{base_url}/fapi/v1/listenKey"),
+                "token": ("POST", f"{base_url}/fapi/v1/listenKey", None),
+                "token_private": ("POST", f"{base_url}/fapi/v1/listenKey", None),
                 "orderbook": ("GET", f"{base_url}/fapi/v1/depth", {"symbol"}),
-                "order": ("GET", f"{base_url}/fapi/v1/openOrders"),
-                "position": ("GET", f"{base_url}/fapi/v2/positionRisk"),
+                "order": ("GET", f"{base_url}/fapi/v1/openOrders", None),
+                "position": ("GET", f"{base_url}/fapi/v2/positionRisk", None),
             },
         )
 
@@ -94,7 +96,9 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
         return WebSocketRequestBuilder(BinanceUSDSMWebsocketChannels())
 
     @classmethod
-    def create_websocket_request_customizer(cls) -> WebSocketRequestCustomizer:
+    def create_websocket_request_customizer(
+        cls, client: pybotters.Client | None = None
+    ) -> WebSocketRequestCustomizer:
         return BinanceWebSocketRequestCustomizer(
             cls.create_exchange_property().exchange
         )
@@ -146,7 +150,11 @@ class BinanceUSDSMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_api_client(
-        cls, client: pybotters.Client, verbose: bool = False
+        cls,
+        client: pybotters.Client,
+        verbose: bool = False,
+        *,
+        base_url_attacher: Callable[[str], str] | None = None,
     ) -> APIClient:
         return (
             APIClientBuilder()

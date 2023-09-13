@@ -1,6 +1,5 @@
-from typing import Any
-
 from abc import ABCMeta, abstractmethod
+from typing import Any
 
 
 class Formatter(metaclass=ABCMeta):

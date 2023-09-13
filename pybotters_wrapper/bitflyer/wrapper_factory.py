@@ -2,9 +2,6 @@ import aiohttp
 import pybotters
 from pybotters import bitFlyerDataStore
 
-from .normalized_store_builder import bitFlyerNormalizedStoreBuilder
-from .price_size_precision_fetcher import bitFlyerPriceSizePrecisionFetcher
-from .websocket_channels import bitFlyerWebsocketChannels
 from ..core import (
     CancelOrderAPI,
     CancelOrderAPIBuilder,
@@ -24,8 +21,6 @@ from ..core import (
     PositionsFetchAPIBuilder,
     PriceSizePrecisionFetcher,
     PriceSizePrecisionFormatter,
-    StopLimitOrderAPI,
-    StopMarketOrderAPI,
     StoreInitializer,
     TDataStoreManager,
     TickerFetchAPI,
@@ -36,6 +31,9 @@ from ..core import (
     WebSocketRequestCustomizer,
     WrapperFactory,
 )
+from .normalized_store_builder import bitFlyerNormalizedStoreBuilder
+from .price_size_precision_fetcher import bitFlyerPriceSizePrecisionFetcher
+from .websocket_channels import bitFlyerWebsocketChannels
 
 
 class bitFlyerWrapperFactory(WrapperFactory):
@@ -69,7 +67,9 @@ class bitFlyerWrapperFactory(WrapperFactory):
         return WebSocketRequestBuilder(bitFlyerWebsocketChannels())
 
     @classmethod
-    def create_websocket_request_customizer(cls) -> WebSocketRequestCustomizer:
+    def create_websocket_request_customizer(
+        cls, client: pybotters.Client | None = None
+    ) -> WebSocketRequestCustomizer:
         return WebSocketDefaultRequestCustomizer()
 
     @classmethod
@@ -190,7 +190,10 @@ class bitFlyerWrapperFactory(WrapperFactory):
             symbol = resp.request_info.url.query["product_code"]
             asks = [
                 OrderbookItem(
-                    symbol=symbol, side="SELL", price=i["price"], size=i["size"]
+                    symbol=symbol,
+                    side="SELL",
+                    price=i["price"],
+                    size=i["size"],
                 )
                 for i in data["asks"]
             ]

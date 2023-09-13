@@ -2,14 +2,16 @@ import pandas as pd
 from pybotters import OKXDataStore
 
 from ..core import (
-    NormalizedStoreBuilder,
-    PositionStore,
     ExecutionStore,
-    OrderStore,
+    NormalizedStoreBuilder,
     OrderbookStore,
-    TradesStore,
+    OrderStore,
+    PositionStore,
     TickerStore,
+    TradesStore,
 )
+
+from ..exceptions import UnsupportedStoreError
 
 
 class OKXNormalizedStoreBuilder(NormalizedStoreBuilder[OKXDataStore]):
@@ -49,10 +51,10 @@ class OKXNormalizedStoreBuilder(NormalizedStoreBuilder[OKXDataStore]):
         )
 
     def order(self) -> OrderStore:
-        pass
+        raise UnsupportedStoreError("OKX does not support order store")
 
     def execution(self) -> ExecutionStore:
-        pass
+        raise UnsupportedStoreError("OKX does not support execution store")
 
     def position(self) -> PositionStore:
-        pass
+        raise UnsupportedStoreError("OKX does not support position store")

@@ -40,6 +40,7 @@ class GMOCoinTokenFetcher:
             await asyncio.sleep(interval)
 
     def _init_client(self) -> APIClient:
+
         from .wrapper_factory import GMOCoinWrapperFactory
 
         return GMOCoinWrapperFactory.create_api_client(self._client)

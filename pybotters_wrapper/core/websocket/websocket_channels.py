@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Literal, Generic, Union, TypeVar, NamedTuple, cast
+from typing import Any, Generic, Literal, NamedTuple, TypeVar, Union, cast
 
 TChannelName = TypeVar("TChannelName")
 TParameterTemplateInput = TypeVar("TParameterTemplateInput")

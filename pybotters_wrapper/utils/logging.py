@@ -15,8 +15,6 @@ LOG_FORMAT = (
 def init_logdir(*subdirs: str) -> str:
     import __main__
 
-    subdirs = list(map(str, subdirs))
-
     # /logs/<script_name>/<subdirs1>/<subdirs2>/.../<datetime>
     logdir = os.path.join(
         os.getcwd(),
@@ -30,13 +28,16 @@ def init_logdir(*subdirs: str) -> str:
 
 
 def init_logger(
-    logfile=None, retention=3, rotation="10MB", format: str = None, **kwargs
-):
+    logfile: str | None = None,
+    retention: int = 3,
+    rotation: str = "10MB",
+    format: str | None = None,
+    **kwargs
+) -> None:
+    """loguruのloggerを初期化する。"""
     format = format or LOG_FORMAT
-    [logger.remove(h) for h in logger._core.handlers]
-
+    [logger.remove(h) for h in logger._core.handlers]  # type: ignore
     logger.add(sys.stderr, format=format, **kwargs)
-
     if logfile:
         logger.add(
             logfile, format=format, retention=retention, rotation=rotation, **kwargs

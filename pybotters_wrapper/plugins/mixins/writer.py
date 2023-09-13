@@ -13,7 +13,7 @@ class WriterMixin:
 
 class CSVWriterMixin(WriterMixin):
     __path: str
-    __columns: list[str]
+    __columns: list[str] | None
     __filename: str
     __filepath: str
     __per_day: bool
@@ -28,7 +28,11 @@ class CSVWriterMixin(WriterMixin):
             self.__f.close()
 
     def init_csv_writer(
-        self, path: str, per_day: bool, columns: list[str] = None, flush: bool = False
+        self,
+        path: str,
+        per_day: bool,
+        columns: list[str] | None = None,
+        flush: bool = False,
     ):
         self.__path = path
         self.__columns = columns
@@ -36,8 +40,8 @@ class CSVWriterMixin(WriterMixin):
         self.__filepath = os.path.dirname(self.__path)
         self.__per_day = per_day
         self.__flush = flush
-        self.__f: io.TextIOWrapper = None
-        self.__writer: csv.DictWriter = None
+        self.__f: io.TextIOWrapper | None = None  # type: ignore
+        self.__writer: csv.DictWriter | None = None  # type: ignore
 
     @__checker
     def write(self, d: dict):
@@ -46,7 +50,7 @@ class CSVWriterMixin(WriterMixin):
             self.__f.flush()
 
     @__checker
-    def get_columns(self) -> list[str]:
+    def get_columns(self) -> list[str] | None:
         return self.__columns
 
     @__checker
@@ -73,7 +77,7 @@ class CSVWriterMixin(WriterMixin):
             self.new_writer(filepath)
 
     @__checker
-    def new_writer(self, filepath: str = None):
+    def new_writer(self, filepath: str | None = None):
         filepath = filepath or self.get_filepath()
         assert self.__columns is not None, "Missing columns"
         self.__f = open(filepath, "w", newline="")

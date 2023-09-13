@@ -5,7 +5,6 @@ from .exchange_property import ExchangeProperty
 from .fetcher import *
 from .formatter import *
 from .store import *
-from .store import *
 from .store_wrapper import DataStoreWrapper
 from .store_wrapper_builder import DataStoreWrapperBuilder
 from .typedefs import *

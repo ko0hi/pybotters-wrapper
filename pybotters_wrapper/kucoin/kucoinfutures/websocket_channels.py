@@ -1,5 +1,5 @@
-from typing import Literal
 import uuid
+from typing import Literal
 
 from ...core import WebSocketChannels
 
@@ -34,8 +34,9 @@ class KuCoinFuturesWebSocketChannels(
     def execution(self, **kwargs) -> str:
         return self.contract_market_trade_orders()
 
-    def position(self, symbol: str, **kwargs) -> str:
-        return self.contract_position(symbol)
+    def position(self, **kwargs) -> str:
+        assert "symbol" in kwargs, "symbol is required"
+        return self.contract_position(kwargs["symbol"])
 
     def contract_market_ticker_v2(self, symbol: str) -> str:
         return f"/contractMarket/tickerV2:{symbol}"

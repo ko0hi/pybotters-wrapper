@@ -1,31 +1,30 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Literal, cast
 
 import asyncio
 import uuid
 from decimal import Decimal
+from typing import TYPE_CHECKING, Literal, cast
 
 import pandas as pd
 from loguru import logger
 
 if TYPE_CHECKING:
-    from .store_wrapper import SandboxDataStoreWrapper
     from .api_wrapper import SandboxAPIWrapper
+    from .store_wrapper import SandboxDataStoreWrapper
 
 from ..core import (
-    OrderItem,
-    TradesItem,
-    DataStoreWrapper,
     APIWrapper,
-    PositionItem,
+    DataStoreWrapper,
     ExecutionItem,
+    OrderItem,
+    PositionItem,
+    TradesItem,
 )
 from .exceptions import OrderNotFoundError
 
 
 class SandboxOrderItem(OrderItem):
     timestamp: str
-    trigger: float | None
 
 
 class SandboxEngine:
@@ -114,8 +113,8 @@ class SandboxEngine:
             )
         return False
 
-    def _handle_execution(self, order_item: OrderItem) -> None:
-        logger.info(f"handle execution")
+    def _handle_execution(self, order_item: SandboxOrderItem) -> None:
+        logger.info("handle execution")
 
         # 約定履歴の挿入
         execution_item = self._create_execution_item(order_item)
@@ -142,7 +141,7 @@ class SandboxEngine:
             order_item["side"],
             order_item["price"],
             order_item["size"],
-            type=order_item["type"].replace("STOP_", ""),
+            type=order_item["type"].replace("STOP_", ""),  # type: ignore
             order_id=order_item["id"],
         )
 
@@ -158,7 +157,7 @@ class SandboxEngine:
         **kwargs,
     ) -> SandboxOrderItem:
         if type.startswith("STOP") and trigger is None:
-            raise ValueError(f"trigger must be specified for STOP_MARKET order")
+            raise ValueError("trigger must be specified for STOP_MARKET order")
 
         kwargs = kwargs or {}
         kwargs["timestamp"] = pd.Timestamp.utcnow()
@@ -177,7 +176,7 @@ class SandboxEngine:
         )
         return cast(SandboxOrderItem, order_item)
 
-    def _create_execution_item(self, order_item: OrderItem) -> ExecutionItem:
+    def _create_execution_item(self, order_item: SandboxOrderItem) -> ExecutionItem:
         order_type = order_item["type"]
         if order_type == "LIMIT":
             price = order_item["price"]
@@ -244,7 +243,9 @@ class SandboxEngine:
             else:
                 return e_side, float(abs(remaining_size)), float(e_price)
 
-    def _get_execution_price_for_market_order(self, order_item: OrderItem) -> float:
+    def _get_execution_price_for_market_order(
+        self, order_item: SandboxOrderItem
+    ) -> float:
         # todo: 注文サイズ・スリッページの考慮
         asks, bids = self._store.orderbook.sorted().values()
         if order_item["side"] == "BUY":
@@ -259,7 +260,7 @@ class SandboxEngine:
         from .api_wrapper import SandboxAPIWrapper
         from .store_wrapper import SandboxDataStoreWrapper
 
-        sandbox_store = SandboxDataStoreWrapper(store)
+        sandbox_store: SandboxDataStoreWrapper = SandboxDataStoreWrapper(store)
         sandbox_api = SandboxAPIWrapper(api)
 
         cls._REGISTRY[str(uuid.uuid4())] = SandboxEngine(sandbox_store, sandbox_api)

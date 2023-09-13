@@ -1,14 +1,16 @@
 from abc import ABCMeta, abstractmethod
 from typing import Generic
 
+from pybotters_wrapper.core.typedefs.typing import TDataStoreManager
+
 from .normalized_store_execution import ExecutionStore
 from .normalized_store_order import OrderStore
 from .normalized_store_orderbook import OrderbookStore
 from .normalized_store_position import PositionStore
 from .normalized_store_ticker import TickerStore
 from .normalized_store_trades import TradesStore
-from pybotters_wrapper.core.typedefs.typing import TDataStoreManager
 
+from ...exceptions import UnsupportedStoreError
 
 class NormalizedStoreBuilder(Generic[TDataStoreManager], metaclass=ABCMeta):
     def __init__(self, store: TDataStoreManager):
@@ -65,5 +67,8 @@ class NormalizedStoreBuilder(Generic[TDataStoreManager], metaclass=ABCMeta):
         else:
             rtn = {}
             for name in names:
-                rtn[name] = getattr(self, name)()
+                try:
+                    rtn[name] = getattr(self, name)()
+                except UnsupportedStoreError:
+                    pass
             return rtn

@@ -1,13 +1,12 @@
 # mypy: ignore-errors
 from typing import AsyncGenerator
 
+import pybotters
 import pytest
 import pytest_asyncio
 import pytest_mock
 
-import pybotters
 import pybotters_wrapper as pbw
-
 from pybotters_wrapper.sandbox import SandboxEngine
 
 EXCHANGE = "bitflyer"

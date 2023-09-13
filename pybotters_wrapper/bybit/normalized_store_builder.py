@@ -1,13 +1,14 @@
 import pandas as pd
-from pybotters import BybitUSDTDataStore, BybitInverseDataStore
+from pybotters import BybitInverseDataStore, BybitUSDTDataStore
+
 from ..core import (
-    NormalizedStoreBuilder,
-    PositionStore,
     ExecutionStore,
-    OrderStore,
+    NormalizedStoreBuilder,
     OrderbookStore,
-    TradesStore,
+    OrderStore,
+    PositionStore,
     TickerStore,
+    TradesStore,
 )
 
 
@@ -83,7 +84,7 @@ class BybitNormalizedStoreBuilder(
                     d["trade_time"], utc=True
                 ),
             },
-            on_watch_get_operation=lambda store, o, s, d: "_insert",
+            on_watch_get_operation=lambda change: "_insert",
         )
 
     def position(self) -> PositionStore:

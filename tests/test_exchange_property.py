@@ -1,6 +1,5 @@
 import pytest
 
-
 from pybotters_wrapper.core.exchange_property import ExchangeProperty
 
 

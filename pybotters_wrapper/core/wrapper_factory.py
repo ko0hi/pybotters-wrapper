@@ -1,15 +1,15 @@
 from abc import ABCMeta, abstractmethod
-from typing import Literal, Type, Callable
+from typing import Callable, Literal, Type
 
 import pybotters
 from pybotters.store import DataStoreManager
 
 from . import (
     APIWrapperBuilder,
+    DataStoreWrapperBuilder,
+    TSymbol,
     WebSocketChannels,
     WebSocketDefaultRequestCustomizer,
-    TSymbol,
-    DataStoreWrapperBuilder,
 )
 from .api import (
     APIClient,
@@ -17,15 +17,15 @@ from .api import (
     CancelOrderAPI,
     LimitOrderAPI,
     MarketOrderAPI,
-    StopLimitOrderAPI,
-    StopMarketOrderAPI,
-    TickerFetchAPI,
     OrderbookFetchAPI,
     OrdersFetchAPI,
     PositionsFetchAPI,
+    StopLimitOrderAPI,
+    StopMarketOrderAPI,
+    TickerFetchAPI,
 )
 from .api_wrapper import APIWrapper
-from .exchange_property import ExchangeProperty, ExchangeProperties
+from .exchange_property import ExchangeProperties, ExchangeProperty
 from .fetcher import PriceSizePrecisionFetcher
 from .formatter import PriceSizePrecisionFormatter
 from .store import NormalizedStoreBuilder, StoreInitializer
@@ -197,19 +197,36 @@ class WrapperFactory(metaclass=ABCMeta):
 
     @classmethod
     def create_api(cls, client: pybotters.Client, verbose: bool = False) -> APIWrapper:
-        return (
+        builder = (
             APIWrapperBuilder()
             .set_api_client(cls.create_api_client(client, verbose))
             .set_limit_order_api(cls.create_limit_order_api(client, verbose))
             .set_market_order_api(cls.create_market_order_api(client, verbose))
             .set_cancel_order_api(cls.create_cancel_order_api(client, verbose))
-            .set_stop_limit_order_api(cls.create_stop_limit_order_api(client, verbose))
-            .set_stop_market_order_api(
-                cls.create_stop_market_order_api(client, verbose)
-            )
-            .set_ticker_fetch_api(cls.create_ticker_fetch_api(client, verbose))
-            .set_orderbook_fetch_api(cls.create_orderbook_fetch_api(client, verbose))
-            .set_orders_fetch_api(cls.create_orders_fetch_api(client, verbose))
-            .set_positions_fetch_api(cls.create_positions_fetch_api(client, verbose))
-            .get()
         )
+
+        stop_limit_order_api = cls.create_stop_limit_order_api(client, verbose)
+        if stop_limit_order_api:
+            builder.set_stop_limit_order_api(stop_limit_order_api)
+
+        stop_market_order_api = cls.create_stop_market_order_api(client, verbose)
+        if stop_market_order_api:
+            builder.set_stop_market_order_api(stop_market_order_api)
+
+        ticker_fetch_api = cls.create_ticker_fetch_api(client, verbose)
+        if ticker_fetch_api:
+            builder.set_ticker_fetch_api(ticker_fetch_api)
+
+        orderbook_fetch_api = cls.create_orderbook_fetch_api(client, verbose)
+        if orderbook_fetch_api:
+            builder.set_orderbook_fetch_api(orderbook_fetch_api)
+
+        orders_fetch_api = cls.create_orders_fetch_api(client, verbose)
+        if orders_fetch_api:
+            builder.set_orders_fetch_api(orders_fetch_api)
+
+        positions_fetch_api = cls.create_positions_fetch_api(client, verbose)
+        if positions_fetch_api:
+            builder.set_positions_fetch_api(positions_fetch_api)
+
+        return builder.get()

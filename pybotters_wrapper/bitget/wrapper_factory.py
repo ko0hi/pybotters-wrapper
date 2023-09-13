@@ -1,10 +1,10 @@
+import pybotters
 from pybotters import BitgetDataStore
-from ..core import WrapperFactory
 
-
-from .websocket_channels import BitgetWebSocketChannels
-from .price_size_precision_fetcher import BitgetPriceSizePrecisionFetcher
+from ..core import CancelOrderAPI, LimitOrderAPI, MarketOrderAPI, WrapperFactory
 from .normalized_store_builder import BitgetNormalizedStoreBuilder
+from .price_size_precision_fetcher import BitgetPriceSizePrecisionFetcher
+from .websocket_channels import BitgetWebSocketChannels
 
 
 class BitgetWrapperFactory(WrapperFactory):
@@ -17,3 +17,21 @@ class BitgetWrapperFactory(WrapperFactory):
     _WEBSOCKET_CHANNELS = BitgetWebSocketChannels
     _PRICE_SIZE_PRECISION_FETCHER = BitgetPriceSizePrecisionFetcher
     _NORMALIZED_STORE_BUILDER = BitgetNormalizedStoreBuilder
+
+    @classmethod
+    def create_limit_order_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> LimitOrderAPI:
+        raise NotImplementedError
+
+    @classmethod
+    def create_market_order_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> MarketOrderAPI:
+        raise NotImplementedError
+
+    @classmethod
+    def create_cancel_order_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> CancelOrderAPI:
+        raise NotImplementedError

@@ -1,8 +1,8 @@
 import time
 from typing import Literal
 
-from ..listenkey_fetcher import DUMMY_LISTEN_KEY
 from ...core import WebSocketChannels
+from ..listenkey_fetcher import DUMMY_LISTEN_KEY
 
 
 class BinanceUSDSMWebsocketChannels(

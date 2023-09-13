@@ -1,7 +1,7 @@
 from typing import Literal
 
-from ..websocket_channels import BybitWebSocketChannelsMixin
 from ...core import WebSocketChannels
+from ..websocket_channels import BybitWebSocketChannelsMixin
 
 
 class BybitUSDTWebSocketChannels(
@@ -17,7 +17,7 @@ class BybitUSDTWebSocketChannels(
             "liquidation",
         ],
         str,
-        str,
+        dict,
     ],
 ):
     _ENDPOINT = "wss://stream.bybit.com/realtime_public"

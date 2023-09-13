@@ -1,7 +1,7 @@
 import pybotters
 
-from .token_fetcher import GMOCoinTokenFetcher
 from ..core import WebSocketRequestCustomizer
+from .token_fetcher import GMOCoinTokenFetcher
 
 
 class GMOCoinWebsocketRequestCustomizer(WebSocketRequestCustomizer):
@@ -14,6 +14,8 @@ class GMOCoinWebsocketRequestCustomizer(WebSocketRequestCustomizer):
     ) -> tuple[str, list[dict | str]]:
         if self._token_fetcher is None:
             self._init_token_fetcher()
+
+        assert self._token_fetcher is not None
 
         if "private" in endpoint:
             return f"{endpoint}/{self._token_fetcher.fetch()}", request_list

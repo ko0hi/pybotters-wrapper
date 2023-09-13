@@ -1,7 +1,7 @@
 from pybotters.typedefs import Item
 
-from .normalized_store import NormalizedDataStore
 from ..typedefs import OrderbookItem, TSide
+from .normalized_store import NormalizedDataStore
 
 
 class OrderbookStore(NormalizedDataStore[OrderbookItem]):

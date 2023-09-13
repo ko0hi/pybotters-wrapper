@@ -2,15 +2,17 @@ import uuid
 
 import pandas as pd
 from pybotters import BitgetDataStore
+
 from ..core import (
-    NormalizedStoreBuilder,
-    PositionStore,
     ExecutionStore,
-    OrderStore,
+    NormalizedStoreBuilder,
     OrderbookStore,
-    TradesStore,
+    OrderStore,
+    PositionStore,
     TickerStore,
+    TradesStore,
 )
+from ..exceptions import UnsupportedStoreError
 
 
 class BitgetNormalizedStoreBuilder(NormalizedStoreBuilder[BitgetDataStore]):
@@ -50,10 +52,10 @@ class BitgetNormalizedStoreBuilder(NormalizedStoreBuilder[BitgetDataStore]):
         )
 
     def order(self) -> OrderStore:
-        pass
+        raise UnsupportedStoreError("order")
 
     def execution(self) -> ExecutionStore:
-        pass
+        raise UnsupportedStoreError("execution")
 
     def position(self) -> PositionStore:
-        pass
+        raise UnsupportedStoreError("position")

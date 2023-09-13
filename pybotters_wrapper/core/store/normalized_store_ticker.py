@@ -1,5 +1,5 @@
-from .normalized_store import NormalizedDataStore
 from ..typedefs import TickerItem
+from .normalized_store import NormalizedDataStore
 
 
 class TickerStore(NormalizedDataStore[TickerItem]):

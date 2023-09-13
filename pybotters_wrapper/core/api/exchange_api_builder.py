@@ -5,6 +5,7 @@ from typing import Awaitable, Callable, Generic, NamedTuple, Type, TypeVar
 
 from aiohttp import ClientResponse
 
+from ..typedefs import TEndpoint, TRequestMethod
 from .client import APIClient
 from .exchange_api import (
     ExchangeAPI,
@@ -12,7 +13,6 @@ from .exchange_api import (
     TTranslateParametersParameters,
     TWrapResponseParameters,
 )
-from ..typedefs import TEndpoint, TRequestMethod
 
 TExchangeAPI = TypeVar("TExchangeAPI", bound=ExchangeAPI)
 TExchangeAPIBuilder = TypeVar("TExchangeAPIBuilder", bound="ExchangeAPIBuilder")

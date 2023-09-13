@@ -3,24 +3,27 @@ from __future__ import annotations
 import asyncio
 from abc import ABCMeta
 from json import JSONDecodeError
-from typing import Any, Literal, TypeAlias, Generic, Awaitable, NamedTuple
+from typing import Any, Awaitable, Generic, Literal, NamedTuple, TypeAlias
 
 import aiohttp
 import pybotters  # type: ignore
 
 from ..typedefs import TDataStoreManager, TRequestMethod
 
-TConfigKey: TypeAlias = Literal[
-    "token",
-    "token_public",
-    "token_private",
-    "ticker",
-    "trades",
-    "orderbook",
-    "order",
-    "position",
-    "execution",
-]
+TConfigKey: TypeAlias = (
+    Literal[
+        "token",
+        "token_public",
+        "token_private",
+        "ticker",
+        "trades",
+        "orderbook",
+        "order",
+        "position",
+        "execution",
+    ]
+    | str
+)
 TUrl: TypeAlias = str
 TRequiredParameters: TypeAlias = set[str]
 TInitializerConfig: TypeAlias = dict[
@@ -208,12 +211,12 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
 
     def _get_initialize_request_item(self, key: str) -> InitializeRequestItem:
         """self._configからkeyに対応するInitializeRequestItemを取得する。"""
-        if key not in self._config:
+        if key not in self._config:  # type: ignore
             raise ValueError(
                 f"Unsupported endpoint: {key}, "
-                f"available endpoints are {list(self._config.keys())}",
+                f"available endpoints are {list(self._config.keys())}",  # type: ignore
             )
-        return InitializeRequestItem(*self._config[key])
+        return InitializeRequestItem(*self._config[key])  # type: ignore
 
     def _to_initialize_awaitable_from_config(
         self,

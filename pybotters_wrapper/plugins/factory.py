@@ -1,21 +1,24 @@
 from __future__ import annotations
 
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
+
+if TYPE_CHECKING:
+    from pybotters.store import DataStore
 
 import pandas as pd
 import pybotters
 
+from ..core import APIWrapper, DataStoreWrapper
 from .market import (
     BinningBook,
+    BookTicker,
     TimeBarStreamDataFrame,
     VolumeBarStreamDataFrame,
-    BookTicker,
 )
 from .periodic import Poller
 from .status import PnL
 from .watcher import ExecutionWatcher
-from .writer import DataStoreWatchCSVWriter, DataStoreWaitCSVWriter
-from ..core import DataStoreWrapper, APIWrapper
+from .writer import DataStoreWaitCSVWriter, DataStoreWatchCSVWriter
 
 
 def timebar(
@@ -25,7 +28,7 @@ def timebar(
     seconds: int,
     maxlen: int = 9999,
     df: pd.DataFrame = None,
-    callback: Callable[[pd.DataFrame], dict] = None,
+    callback: Callable[[pd.DataFrame], dict] | None = None,
     message_delay: int = 2,
 ) -> TimeBarStreamDataFrame:
     return TimeBarStreamDataFrame(
@@ -46,7 +49,7 @@ def volumebar(
     volume_unit: float,
     maxlen: int = 9999,
     df: pd.DataFrame = None,
-    callback: Callable[[pd.DataFrame], dict] = None,
+    callback: Callable[[pd.DataFrame], dict] | None = None,
 ) -> VolumeBarStreamDataFrame:
     return VolumeBarStreamDataFrame(
         store,
@@ -102,7 +105,7 @@ def execution_watcher(
     store: DataStoreWrapper,
     *,
     store_name: str | None = None,
-    is_target: Callable[["DataStore", str, dict, dict], bool] = None,
+    is_target: Callable[[DataStore, str, dict, dict], bool] | None = None,
 ) -> ExecutionWatcher:
     return ExecutionWatcher(store, store_name=store_name, is_target=is_target)
 

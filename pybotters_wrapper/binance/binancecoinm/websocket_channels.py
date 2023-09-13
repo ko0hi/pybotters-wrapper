@@ -1,8 +1,8 @@
 import time
 from typing import Literal
 
-from ..listenkey_fetcher import DUMMY_LISTEN_KEY
 from ...core import WebSocketChannels
+from ..listenkey_fetcher import DUMMY_LISTEN_KEY
 
 
 class BinanceCOINMWebsocketChannels(
@@ -34,13 +34,13 @@ class BinanceCOINMWebsocketChannels(
     def orderbook(self, symbol: str, **kwargs) -> str:
         return self.depth(symbol)
 
-    def order(self, listen_key: str = None, **kwargs) -> str:
+    def order(self, listen_key: str | None = None, **kwargs) -> str:
         return self.listenkey(listen_key)
 
-    def execution(self, listen_key: str = None, **kwargs) -> str:
+    def execution(self, listen_key: str | None = None, **kwargs) -> str:
         return self.listenkey(listen_key)
 
-    def position(self, listen_key: str = None, **kwargs) -> str:
+    def position(self, listen_key: str | None = None, **kwargs) -> str:
         return self.listenkey(listen_key)
 
     def agg_trades(self, symbol: str) -> str:
@@ -70,7 +70,7 @@ class BinanceCOINMWebsocketChannels(
     def index_price_kline(self, symbol: str, interval: str) -> str:
         return f"{symbol.lower()}@indexPriceKline_{interval}"
 
-    def listenkey(self, listen_key: str = None) -> str:
+    def listenkey(self, listen_key: str | None = None) -> str:
         return listen_key or DUMMY_LISTEN_KEY
 
     def _parameter_template(self, parameter: str) -> dict:

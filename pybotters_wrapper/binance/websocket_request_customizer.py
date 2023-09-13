@@ -2,17 +2,20 @@ import time
 
 import pybotters
 
-from .listenkey_fetcher import BinanceListenKeyFetcher, DUMMY_LISTEN_KEY
 from pybotters_wrapper.core import WebSocketRequestCustomizer
 
+from .listenkey_fetcher import DUMMY_LISTEN_KEY, BinanceListenKeyFetcher
 
-class BinanceWebSocketRequestCustomizer(WebSocketRequestCustomizer):
+
+class BinanceWebSocketRequestCustomizer(WebSocketRequestCustomizer[dict]):
     def __init__(self, exchange: str, client: pybotters.Client = None):
         super(BinanceWebSocketRequestCustomizer, self).__init__(client)
         self._exchange = exchange
         self._listenkey_fetcher = BinanceListenKeyFetcher(client)
 
-    def customize(self, endpoint: str, request_list: list[dict]) -> tuple[str, dict]:
+    def customize(
+        self, endpoint: str, request_list: list[dict]
+    ) -> tuple[str, list[dict]]:
         old_params = []
         new_params = []
         for rl in request_list:
@@ -32,7 +35,7 @@ class BinanceWebSocketRequestCustomizer(WebSocketRequestCustomizer):
             "id": int(time.monotonic() * 10**9),
         }
 
-        return endpoint, new_request_list
+        return endpoint, [new_request_list]
 
     @property
     def listenkey(self):

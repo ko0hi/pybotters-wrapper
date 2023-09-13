@@ -1,12 +1,8 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any
-from typing import TypeVar, Literal, NamedTuple
+from typing import Any, Literal, NamedTuple, Self
 
-TWebSocketRequestBuilder = TypeVar(
-    "TWebSocketRequestBuilder", bound="WebSocketRequestBuilder"
-)
 from .websocket_channels import WebSocketChannels
 from .websocket_resquest_customizer import WebSocketRequestCustomizer
 
@@ -26,16 +22,17 @@ class WebSocketRequestBuilder:
         *,
         request_customizer: WebSocketRequestCustomizer | None = None,
     ) -> list[WebsocketRequest]:
-        request_lists = self._request_lists
         if request_customizer is not None:
             new_lists = {}
-            for endpoint, request_list in request_lists.items():
+            # 動的にリクエスト内容を書き換える必要がある場合にcustomizerを使う
+            # （例：kucoinのwebsocket endopoint、binanceのlisten key）
+            for endpoint, request_list in self._request_lists.items():
                 new_endpoint, new_request_list = request_customizer(
                     endpoint, request_list
                 )
                 new_lists[new_endpoint] = new_request_list
-            request_lists = new_lists
-        return [WebsocketRequest(k, v) for (k, v) in request_lists.items()]
+            self._request_lists = new_lists
+        return [WebsocketRequest(k, v) for (k, v) in self._request_lists.items()]
 
     def subscribe(
         self,
@@ -45,7 +42,7 @@ class WebSocketRequestBuilder:
         *,
         symbol: str | None = None,
         **kwargs,
-    ):
+    ) -> Self:
         if channel == "all":
             channel = [
                 "ticker",
@@ -75,14 +72,10 @@ class WebSocketRequestBuilder:
                     raise TypeError(f"Unsupported: {_channel}")
             return self
 
-    def subscribe_specific(
-        self: TWebSocketRequestBuilder, endpoint: str, parameter: Any
-    ) -> TWebSocketRequestBuilder:
+    def subscribe_specific(self, endpoint: str, parameter: Any) -> Self:
         return self._register(endpoint, parameter)
 
-    def _subscribe_by_channel_name(
-        self: TWebSocketRequestBuilder, channel_name: str, **kwargs
-    ) -> TWebSocketRequestBuilder:
+    def _subscribe_by_channel_name(self, channel_name: str, **kwargs) -> Self:
         subscribe_item = self._channels.channel(channel_name, **kwargs)
         if isinstance(subscribe_item, list):
             for item in subscribe_item:
@@ -91,8 +84,6 @@ class WebSocketRequestBuilder:
             self._register(subscribe_item.endpoint, subscribe_item.parameter)
         return self
 
-    def _register(
-        self: TWebSocketRequestBuilder, endpoint: str, parameter: Any
-    ) -> TWebSocketRequestBuilder:
+    def _register(self, endpoint: str, parameter: Any) -> Self:
         self._request_lists[endpoint].append(parameter)
         return self

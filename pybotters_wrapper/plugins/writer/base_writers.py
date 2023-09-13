@@ -1,5 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pybotters.store import DataStore
+    from ...core import DataStoreWrapper
+
+
 from datetime import datetime
 
 from ..base_plugin import Plugin
@@ -11,11 +18,11 @@ class DataStoreWatchWriter(WatchStoreMixin, WriterMixin, Plugin):
 
     def __init__(
         self,
-        store: "DataStoreWrapper",
+        store: DataStoreWrapper,
         store_name: str,
         *,
-        fields: list[str] = None,
-        operations: list[str] = None,
+        fields: list[str] | None = None,
+        operations: list[str] | None = None,
     ):
         self._operations = operations or ("insert",)
         self._fields = fields
@@ -25,19 +32,20 @@ class DataStoreWatchWriter(WatchStoreMixin, WriterMixin, Plugin):
         raise NotImplementedError
 
     def _on_watch_first(
-        self, store: "DataStore", operation: str, source: dict, data: dict
+        self, store: DataStore, operation: str, source: dict, data: dict
     ):
         # カラムの指定がなければアイテムの全ての要素をカラムに設定
         if self._fields is None:
             self._fields = list(data.keys())
 
     async def _on_watch(
-        self, store: "DataStore", operation: str, source: dict, data: dict
+        self, store: DataStore, operation: str, source: dict, data: dict
     ):
         if operation in self._operations:
             self.write(self._transform_data(data))
 
     def _transform_data(self, data: dict) -> dict:
+        assert self._fields is not None, "fields must be set"
         return {k: data[k] for k in self._fields}
 
 
@@ -49,7 +57,7 @@ class DataStoreWaitWriter(WaitStoreMixin, WriterMixin, Plugin):
         store: "DataStoreWrapper",
         store_name: str,
         *,
-        fields: list[str] = None,
+        fields: list[str] | None = None,
     ):
         self._fields = fields
         self.init_wait_store(getattr(store, store_name))
@@ -74,4 +82,5 @@ class DataStoreWaitWriter(WaitStoreMixin, WriterMixin, Plugin):
             self.write(transformed)
 
     def _transform_item(self, data: dict):
+        assert self._fields is not None, "fields must be set"
         return {k: data[k] for k in self._fields if k != "wrote_at"}

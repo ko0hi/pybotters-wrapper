@@ -2,7 +2,6 @@ import pandas as pd
 import pytest
 import pytest_mock
 
-
 import pybotters_wrapper as pbw
 
 

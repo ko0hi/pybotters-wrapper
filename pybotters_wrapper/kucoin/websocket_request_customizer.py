@@ -7,7 +7,7 @@ from .endpoint_resolver import KuCoinEndpointResolver
 
 
 class KuCoinWebSocketRequestCustomizer(WebSocketRequestCustomizer):
-    _EXCHANGE: str | None = None
+    _EXCHANGE: str
 
     def __init__(self, client: pybotters.Client | None = None):
         super(KuCoinWebSocketRequestCustomizer, self).__init__(client)

@@ -3,6 +3,7 @@ from typing import Any, Literal, Type
 import pybotters
 
 from pybotters_wrapper.core.typedefs.typing import TDataStoreManager
+
 from .binance.binancecoinm import BinanceCOINMWrapperFactory
 from .binance.binanceusdsm import BinanceUSDSMWrapperFactory
 from .bitbank import bitbankWrapperFactory
@@ -14,8 +15,8 @@ from .core import (
     APIWrapper,
     DataStoreWrapper,
     StoreInitializer,
-    TWsHandler,
     TWebsocketOnReconnectionCallback,
+    TWsHandler,
     WebSocketConnection,
     WebSocketRequestBuilder,
     WrapperFactory,
@@ -24,7 +25,7 @@ from .gmocoin import GMOCoinWrapperFactory
 from .kucoin import KuCoinFuturesWrapperFactory, KuCoinSpotWrapperFactory
 from .okx import OKXWrapperFactory
 from .phemex import PhemexWrapperFactory
-from .sandbox import SandboxEngine, SandboxDataStoreWrapper, SandboxAPIWrapper
+from .sandbox import SandboxAPIWrapper, SandboxDataStoreWrapper, SandboxEngine
 
 _EXCHANGE2FACTORY: dict[str, Type[WrapperFactory]] = {
     "binancecoinm": BinanceCOINMWrapperFactory,
@@ -74,7 +75,10 @@ def create_store_and_api(
     store: TDataStoreManager | None = None,
     verbose: bool = False,
     sandbox: bool = False,
-) -> tuple[DataStoreWrapper, APIWrapper]:
+) -> (
+    tuple[DataStoreWrapper, APIWrapper]
+    | tuple[SandboxDataStoreWrapper, SandboxAPIWrapper]
+):
     if sandbox:
         return create_sandbox(exchange, client, store=store, verbose=verbose)
     else:
@@ -89,6 +93,8 @@ def create_sandbox(
     verbose: bool = False,
 ) -> tuple[SandboxDataStoreWrapper, SandboxAPIWrapper]:
     _store, _api = create_store_and_api(exchange, client, store=store, verbose=verbose)
+    assert isinstance(_store, DataStoreWrapper)
+    assert isinstance(_api, APIWrapper)
     return SandboxEngine.register(_store, _api)
 
 

@@ -1,7 +1,7 @@
 import pandas as pd
+import pybotters
 import pytest
 import pytest_mock
-import pybotters
 from pybotters.store import StoreChange
 
 import pybotters_wrapper as pbw

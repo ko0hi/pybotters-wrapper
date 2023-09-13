@@ -2,9 +2,9 @@ from typing import Any, NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
+from ...typedefs import TEndpoint, TOrderId, TSymbol
 from .order_api import OrderAPI
 from .order_api_builder import OrderAPIBuilder
-from ...typedefs import TEndpoint, TOrderId, TSymbol
 
 
 class CancelOrderAPIResponse(NamedTuple):

@@ -8,3 +8,7 @@ class FetchPrecisionsError(PybottersWrapperError):
 
 class RequestError(PybottersWrapperError):
     """Raised when an error occurred while requesting."""
+
+
+class UnsupportedStoreError(PybottersWrapperError):
+    """Raised when an unsupported operation is attempted."""

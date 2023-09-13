@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING, Callable, NamedTuple, Type, TypeVar
 
 from aiohttp import ClientResponse
 
-from .order_api import OrderAPI
 from ..exchange_api import (
     TGenerateEndpointParameters,
     TTranslateParametersParameters,
     TWrapResponseParameters,
 )
 from ..exchange_api_builder import ExchangeAPIBuilder
+from .order_api import OrderAPI
 
 if TYPE_CHECKING:
     from pybotters_wrapper.core.formatter.price_size_precision import (
@@ -83,14 +83,12 @@ class OrderAPIBuilder(
         return self
 
     def get(self) -> TOrderAPI:
-        self._null_check(
-            "_api_client",
-            "_method",
-            "_order_id_key",
-            "_endpoint_generator",
-            "_parameter_translater",
-            "_response_wrapper_cls",
-        )
+        assert self._api_client is not None
+        assert self._method is not None
+        assert self._order_id_key is not None
+        assert self._endpoint_generator is not None
+        assert self._parameter_translater is not None
+        assert self._response_wrapper_cls is not None
         return self._exchange_api_class(
             api_client=self._api_client,
             method=self._method,

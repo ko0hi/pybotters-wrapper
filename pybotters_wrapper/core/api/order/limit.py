@@ -2,9 +2,9 @@ from typing import Any, NamedTuple, TypedDict, cast
 
 from aiohttp.client import ClientResponse
 
+from ...typedefs import TEndpoint, TPrice, TSide, TSize, TSymbol
 from .order_api import OrderAPI
 from .order_api_builder import OrderAPIBuilder
-from ...typedefs import TEndpoint, TPrice, TSide, TSize, TSymbol
 
 
 class LimitOrderAPIResponse(NamedTuple):

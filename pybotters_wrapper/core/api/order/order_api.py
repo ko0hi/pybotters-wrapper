@@ -1,4 +1,4 @@
-from typing import Awaitable, Callable
+from typing import Awaitable, Callable, Type
 
 from aiohttp.client import ClientResponse
 
@@ -38,7 +38,7 @@ class OrderAPI(
         | None = None,
         parameter_translater: Callable[[TTranslateParametersParameters], dict]
         | None = None,
-        response_wrapper_cls: TResponseWrapper | None = None,
+        response_wrapper_cls: Type[TResponseWrapper] | None = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]

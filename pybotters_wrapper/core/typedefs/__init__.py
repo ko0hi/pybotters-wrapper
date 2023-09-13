@@ -1,22 +1,22 @@
 from .normalized_store_items import (
-    OrderItem,
-    TradesItem,
+    ExecutionItem,
     OrderbookItem,
+    OrderItem,
     PositionItem,
     TickerItem,
-    ExecutionItem,
+    TradesItem,
 )
 from .typing import (
+    TDataStoreManager,
+    TEndpoint,
     TOrderId,
     TPrice,
+    TRequestMethod,
     TSide,
     TSize,
     TSymbol,
-    TTrigger,
-    TEndpoint,
     TTimestamp,
-    TRequestMethod,
-    TDataStoreManager,
+    TTrigger,
 )
 
 TOrderbook = dict[TSide, list[OrderbookItem]]

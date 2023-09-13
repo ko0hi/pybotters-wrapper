@@ -9,7 +9,6 @@ import pybotters
 
 from .client import APIClient
 
-
 TAPIClientBuilder = TypeVar("TAPIClientBuilder", bound="APIClientBuilder")
 
 
@@ -18,7 +17,7 @@ class APIClientBuilder:
         self._client: pybotters.Client | None = None
         self._exchange_property: ExchangeProperty | None = None
         self._base_url_attacher: Callable[[str], str] | None = None
-        self._verbose: bool | None = False
+        self._verbose: bool = False
 
     def set_client(
         self: TAPIClientBuilder, client: pybotters.Client
@@ -43,18 +42,11 @@ class APIClientBuilder:
         return self
 
     def get(self) -> APIClient:
-        self.validate()
+        assert self._client is not None
+        assert self._exchange_property is not None
         return APIClient(
             self._client,
             self._verbose,
             exchange_property=self._exchange_property,
             base_url_attacher=self._base_url_attacher,
         )
-
-    def validate(self) -> None:
-        required_fields = ["client", "exchange_property"]
-        missing_fields = [
-            field for field in required_fields if getattr(self, f"_{field}") is None
-        ]
-        if missing_fields:
-            raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")

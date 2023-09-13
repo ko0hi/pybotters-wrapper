@@ -11,20 +11,20 @@ from typing import (
     Literal,
     Type,
     TypeVar,
-    TypedDict,
     Union,
+    TypedDict,
 )
 
 import pybotters
 from pybotters.store import (
+    ClientWebSocketResponse,
     DataStore,
     Item,
     StoreChange,
     StoreStream,
-    ClientWebSocketResponse,
 )
 
-TNormalizedItem = TypeVar("TNormalizedItem", bound=TypedDict)
+TNormalizedItem = TypeVar("TNormalizedItem", bound=TypedDict)  # type: ignore
 
 
 class NormalizedDataStore(Generic[TNormalizedItem]):
@@ -167,8 +167,8 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
             op_fn([item])
 
     def _normalize(
-        self, store: "DataStore", operation: str, source: dict, data: dict
-    ) -> "TNormalizedItem":
+        self, store: DataStore, operation: str, source: dict, data: dict
+    ) -> TNormalizedItem:
         assert self._mapper is not None
         if callable(self._mapper):
             return self._mapper(store, operation, source, data)
@@ -187,24 +187,22 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
 
     def _itemize(self, *args, **kwargs) -> "TNormalizedItem":
         assert self._NORMALIZED_ITEM_CLASS is not None
-        return self._NORMALIZED_ITEM_CLASS(*args, **kwargs)
+        return self._NORMALIZED_ITEM_CLASS(*args, **kwargs)  # type: ignore
 
-    def _get_operation(self, change: "StoreChange") -> str | None:
+    def _get_operation(self, change: StoreChange) -> str | None:
         if self._on_watch_get_operation is not None:
             return self._on_watch_get_operation(change)
         else:
             return change.operation
 
-    def _make_item(
-        self, normalized_item: "TNormalizedItem", change: "StoreChange"
-    ) -> "Item":
+    def _make_item(self, normalized_item: TNormalizedItem, change: StoreChange) -> Item:
         # ストアに格納するアイテムとしてはchange.sourceは不要かもしれないが、watchした際に元のitemの
         # sourceをたどりたい場合がありうるので付帯させる
         if self._on_watch_make_item is not None:
             return self._on_watch_make_item(normalized_item, change)
         else:
             return {
-                **normalized_item,
+                **normalized_item,  # type: ignore
                 "info": {"data": change.data, "source": change.source},
             }
 
@@ -218,7 +216,8 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
     def __repr__(self):
         return (
             f"{self.__class__.__name__}"
-            f"({self._base_store.__class__.__module__}.{self._base_store.__class__.__name__})"
+            f"({self._base_store.__class__.__module__}."
+            f"{self._base_store.__class__.__name__})"
         )
 
     def __len__(self) -> int:

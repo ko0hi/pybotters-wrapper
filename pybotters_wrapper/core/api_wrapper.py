@@ -1,41 +1,31 @@
-from typing import Literal
-
 import pybotters
 from aiohttp.client import ClientResponse
 from requests import Response
 
 from .api import (
     APIClient,
+    CancelOrderAPI,
+    CancelOrderAPIResponse,
+    LimitOrderAPI,
+    LimitOrderAPIResponse,
+    MarketOrderAPI,
+    MarketOrderAPIResponse,
     OrderbookFetchAPI,
     OrderbookFetchAPIResponse,
     OrdersFetchAPI,
     OrdersFetchAPIResponse,
     PositionsFetchAPI,
     PositionsFetchAPIResponse,
-    TickerFetchAPI,
-    TickerFetchAPIResponse,
-    CancelOrderAPI,
-    CancelOrderAPIResponse,
-    MarketOrderAPI,
-    MarketOrderAPIResponse,
-    LimitOrderAPI,
-    LimitOrderAPIResponse,
     StopLimitOrderAPI,
     StopLimitOrderAPIResponse,
     StopMarketOrderAPI,
     StopMarketOrderAPIResponse,
+    TickerFetchAPI,
+    TickerFetchAPIResponse,
 )
 from .exchange_property import ExchangeProperty
 from .formatter import PriceSizePrecisionFormatter
-from .typedefs import (
-    TRequestMethod,
-    TSymbol,
-    TSide,
-    TPrice,
-    TSize,
-    TTrigger,
-    TOrderId,
-)
+from .typedefs import TOrderId, TPrice, TRequestMethod, TSide, TSize, TSymbol, TTrigger
 
 
 class APIWrapper:
@@ -255,17 +245,7 @@ class APIWrapper:
 
     def is_available(
         self,
-        method: Literal[
-            "limit_order",
-            "market_order",
-            "cancel_order",
-            "stop_limit_order",
-            "stop_market_order∫",
-            "fetch_ticker",
-            "fetch_orderbook",
-            "fetch_orders",
-            "fetch_positions",
-        ],
+        method: str,
     ) -> bool:
         if method == "limit_order":
             return self._limit_order_api is not None
@@ -294,8 +274,11 @@ class APIWrapper:
 
     @property
     def price_size_formatter(self) -> PriceSizePrecisionFormatter:
+        assert self._limit_order_api is not None
+        assert self._limit_order_api._price_size_formatter is not None
         return self._limit_order_api._price_size_formatter  # noqa
 
     @property
     def exchange_property(self) -> ExchangeProperty:
+        assert self._limit_order_api is not None
         return self._limit_order_api._api_client._eprop  # noqa

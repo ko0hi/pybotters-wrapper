@@ -1,4 +1,5 @@
 from typing import Literal
+
 from ...core import WebSocketChannels
 from ..websocket_channels import BybitWebSocketChannelsMixin
 

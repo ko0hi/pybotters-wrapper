@@ -1,8 +1,8 @@
 import pytest
 import pytest_mock
 
-from pybotters_wrapper.core import WebsocketRequest
 from pybotters_wrapper.bitflyer import bitFlyerWrapperFactory
+from pybotters_wrapper.core import WebsocketRequest
 
 
 @pytest.fixture

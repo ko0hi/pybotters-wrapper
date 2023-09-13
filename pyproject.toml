@@ -5,7 +5,7 @@ description = ""
 authors = ["ko0hi <ko0hi.0304@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.10.0,<4.0"
+python = ">=3.11.0,<4.0"
 pybotters = "^0.16.0"
 loguru = "^0.7.2"
 requests = "^2.31.0"
@@ -31,15 +31,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.isort]
 profile = "black"
-multi_line_output = 2
-include_trailing_comma = false
-force_grid_wrap = 0
-use_parentheses = true
-line_length = 88
 
 [tool.flake8]
 max-line-length = 88
-ignore = 'W291,W292,W293,W391'
+ignore = 'W291,W292,W293,W391,W503'
 exclude = '\.git,__pycache__,\.venv,\.eggs,\.mypy_cache'
 
 [tool.black]

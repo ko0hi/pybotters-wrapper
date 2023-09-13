@@ -2,14 +2,15 @@ import pandas as pd
 from pybotters import bitbankDataStore
 
 from ..core import (
+    ExecutionStore,
     NormalizedStoreBuilder,
+    OrderbookStore,
+    OrderStore,
+    PositionStore,
     TickerStore,
     TradesStore,
-    OrderbookStore,
-    PositionStore,
-    ExecutionStore,
-    OrderStore,
 )
+from ..exceptions import UnsupportedStoreError
 
 
 class bitbankNormalizedStoreBuilder(NormalizedStoreBuilder[bitbankDataStore]):
@@ -49,10 +50,10 @@ class bitbankNormalizedStoreBuilder(NormalizedStoreBuilder[bitbankDataStore]):
         )
 
     def order(self) -> OrderStore:
-        pass
+        raise UnsupportedStoreError("order")
 
     def execution(self) -> ExecutionStore:
-        pass
+        raise UnsupportedStoreError("execution")
 
     def position(self) -> PositionStore:
-        pass
+        raise UnsupportedStoreError("position")

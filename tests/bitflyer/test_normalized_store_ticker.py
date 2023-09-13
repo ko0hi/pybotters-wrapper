@@ -1,6 +1,6 @@
+import pybotters
 import pytest
 
-import pybotters
 import pybotters_wrapper as pbw
 
 

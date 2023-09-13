@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Awaitable, Literal, Any
+from typing import TYPE_CHECKING, Any, Awaitable, Literal, cast
 
 if TYPE_CHECKING:
     from pybotters.store import Item
@@ -10,20 +10,20 @@ import aiohttp
 import pybotters
 from pybotters.store import DataStore
 from pybotters.typedefs import WsBytesHandler, WsStrHandler
+
 from pybotters_wrapper.core import (
     ExecutionStore,
+    NormalizedDataStore,
     OrderbookStore,
     OrderStore,
     PositionStore,
+    TDataStoreManager,
     TickerStore,
     TradesStore,
     TWebsocketOnReconnectionCallback,
-    NormalizedDataStore,
-    TDataStoreManager,
 )
 
 from ..core import DataStoreWrapper
-
 from .engine import SandboxEngine
 
 
@@ -33,7 +33,7 @@ class SandboxDataStoreWrapper(DataStoreWrapper[TDataStoreManager]):
         self._store = self._simulate_store.store
         self._engine: SandboxEngine | None = None
         super(SandboxDataStoreWrapper, self).__init__(
-            None,
+            None,  # type: ignore
             exchange_property=self._simulate_store._eprop,
             store_initializer=None,  # type: ignore
             normalized_store_builder=None,  # type: ignore
@@ -41,7 +41,17 @@ class SandboxDataStoreWrapper(DataStoreWrapper[TDataStoreManager]):
             websocket_request_builder=None,  # type: ignore
         )
 
-    def _build_normalized_stores(self) -> dict[str, NormalizedDataStore]:
+    def _build_normalized_stores(
+        self,
+    ) -> dict[
+        str,
+        TickerStore
+        | TradesStore
+        | OrderbookStore
+        | OrderStore
+        | ExecutionStore
+        | PositionStore,
+    ]:
         return {
             "order": OrderStore(None),
             "execution": ExecutionStore(None),
@@ -148,15 +158,15 @@ class SandboxDataStoreWrapper(DataStoreWrapper[TDataStoreManager]):
 
     @property
     def order(self) -> OrderStore:
-        return self._normalized_stores["order"]
+        return cast(OrderStore, self._normalized_stores["order"])
 
     @property
     def execution(self) -> ExecutionStore:
-        return self._normalized_stores["execution"]
+        return cast(ExecutionStore, self._normalized_stores["execution"])
 
     @property
     def position(self) -> PositionStore:
-        return self._normalized_stores["position"]
+        return cast(PositionStore, self._normalized_stores["position"])
 
     def _link_to_engine(self, engine: "SandboxEngine"):
         self._engine = engine

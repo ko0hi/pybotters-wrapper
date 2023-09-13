@@ -1,37 +1,42 @@
 from __future__ import annotations
 
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
+if TYPE_CHECKING:
+    from pybotters.store import DataStore
+
+from ...core import DataStoreWrapper, OrderbookItem
 from ..base_plugin import Plugin
-from ..mixins import WatchStoreMixin, WaitStoreMixin
-from ...core import DataStoreWrapper
+from ..mixins import WaitStoreMixin, WatchStoreMixin
 
 
 class BookTicker(WatchStoreMixin, WaitStoreMixin, Plugin):
     class Item(NamedTuple):
-        asks: list[tuple[float, float]]
-        bids: list[tuple[float, float]]
-        price: float
+        asks: list[OrderbookItem] | None
+        bids: list[OrderbookItem] | None
+        price: float | None
 
         @property
-        def best_ask(self):
-            return self.asks[0]["price"]
+        def best_ask(self) -> float | None:
+            return None if self.asks is None else self.asks[0]["price"]
 
         @property
-        def best_bid(self):
-            return self.bids[0]["price"]
+        def best_bid(self) -> float | None:
+            return None if self.bids is None else self.bids[0]["price"]
 
         @property
-        def best_ask_size(self):
-            return self.asks[0]["size"]
+        def best_ask_size(self) -> float | None:
+            return None if self.asks is None else self.asks[0]["size"]
 
         @property
-        def best_bid_size(self):
-            return self.bids[0]["size"]
+        def best_bid_size(self) -> float | None:
+            return None if self.bids is None else self.bids[0]["size"]
 
         @property
-        def mid(self):
-            return (self.best_ask + self.best_bid) / 2
+        def mid(self) -> float | None:
+            ba = self.best_ask
+            bb = self.best_bid
+            return None if ba is None or bb is None else (ba + bb) / 2
 
     def __init__(self, store: DataStoreWrapper, symbol: str):
         self._tick = self.Item(None, None, None)
@@ -45,11 +50,17 @@ class BookTicker(WatchStoreMixin, WaitStoreMixin, Plugin):
         if len(asks) and len(bids):
             self._update(asks=asks, bids=bids)
 
-    def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
+    def _on_watch(self, store: DataStore, operation: str, source: dict, data: dict):
         if data["symbol"] == self._symbol:
             self._update(price=data["price"])
 
-    def _update(self, *, asks=None, bids=None, price=None):
+    def _update(
+        self,
+        *,
+        asks: list[OrderbookItem] | None = None,
+        bids: list[OrderbookItem] | None = None,
+        price: float | None = None,
+    ):
         self._tick = self.Item(
             asks or self._tick.asks, bids or self._tick.bids, price or self._tick.price
         )

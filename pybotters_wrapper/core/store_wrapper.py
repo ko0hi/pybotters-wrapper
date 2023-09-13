@@ -1,30 +1,33 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Awaitable, Generic, Literal
+from typing import TYPE_CHECKING, Any, Awaitable, Generic, Literal, Self, cast
 
 import aiohttp
 import pybotters
 from loguru import logger
 from pybotters.store import DataStore
+from pybotters.ws import ClientWebSocketResponse
 
 from .exchange_property import ExchangeProperty
 from .store import (
+    NormalizedDataStore,
     ExecutionStore,
+    NormalizedStoreBuilder,
     OrderbookStore,
     OrderStore,
     PositionStore,
+    StoreInitializer,
     TickerStore,
     TradesStore,
-    StoreInitializer,
-    NormalizedStoreBuilder,
 )
 from .typedefs import TDataStoreManager
 from .websocket import (
+    TWebsocketOnReconnectionCallback,
+    WebSocketConnection,
     WebSocketRequestBuilder,
     WebSocketRequestCustomizer,
-    WebSocketConnection,
-    TWebsocketOnReconnectionCallback,
 )
+from ..exceptions import UnsupportedStoreError
 
 if TYPE_CHECKING:
     from pybotters import Item
@@ -43,7 +46,7 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         websocket_request_customizer: WebSocketRequestCustomizer,
     ):
         self._store = store
-        self._ws_connections = []
+        self._ws_connections: list[WebSocketConnection] = []
         self._eprop = exchange_property
         self._initializer = store_initializer
         self._normalized_store_builder = normalized_store_builder
@@ -60,35 +63,36 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
     async def initialize(
         self,
         aws_or_names: list[Awaitable[aiohttp.ClientResponse] | str | tuple[str, dict]],
-        client: "pybotters.APIClient",
-    ) -> "DataStoreWrapper":
-        return await self._initializer.initialize(aws_or_names, client)
+        client: pybotters.Client,
+    ) -> Self:
+        await self._initializer.initialize(aws_or_names, client)
+        return self
 
-    async def initialize_token(self, client: "pybotters.APIClient", **params):
+    async def initialize_token(self, client: pybotters.Client, **params):
         return await self._initializer.initialize_token(client, **params)
 
-    async def initialize_token_public(self, client: "pybotters.APIClient", **params):
+    async def initialize_token_public(self, client: pybotters.Client, **params):
         return await self._initializer.initialize_token_public(client, **params)
 
-    async def initialize_token_private(self, client: "pybotters.APIClient", **params):
+    async def initialize_token_private(self, client: pybotters.Client, **params):
         return await self._initializer.initialize_token_private(client, **params)
 
-    async def initialize_ticker(self, client: "pybotters.APIClient", **params):
+    async def initialize_ticker(self, client: pybotters.Client, **params):
         return await self._initializer.initialize_ticker(client, **params)
 
-    async def initialize_trades(self, client: "pybotters.APIClient", **params):
+    async def initialize_trades(self, client: pybotters.Client, **params):
         return await self._initializer.initialize_trades(client, **params)
 
-    async def initialize_orderbook(self, client: "pybotters.APIClient", **params):
+    async def initialize_orderbook(self, client: pybotters.Client, **params):
         return await self._initializer.initialize_orderbook(client, **params)
 
-    async def initialize_order(self, client: "pybotters.APIClient", **params):
+    async def initialize_order(self, client: pybotters.Client, **params):
         return await self._initializer.initialize_order(client, **params)
 
-    async def initialize_execution(self, client: "pybotters.APIClient", **params):
+    async def initialize_execution(self, client: pybotters.Client, **params):
         return await self._initializer.initialize_execution(client, **params)
 
-    async def initialize_position(self, client: "pybotters.APIClient", **params):
+    async def initialize_position(self, client: pybotters.Client, **params):
         return await self._initializer.initialize_position(client, **params)
 
     def subscribe(
@@ -104,7 +108,7 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
 
     async def connect(
         self,
-        client: "pybotters.APIClient",
+        client: pybotters.Client,
         *,
         endpoint: str | None = None,
         send: Any | None = None,
@@ -155,7 +159,7 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
             if store is not None:
                 await store.close()
 
-    def onmessage(self, msg: "Item", ws: "ClientWebSocketResponse") -> None:
+    def onmessage(self, msg: Item, ws: ClientWebSocketResponse) -> None:
         self._store.onmessage(msg, ws)
         # NormalizedStoreの要素は通常watch経由で更新するが、１：１で対応するストアがない場合に、
         # 全てのwebsocket messageを入力とする経路を用意している
@@ -163,7 +167,7 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
             if store is not None:
                 store._onmessage(msg, ws)
 
-    async def _wait_socket_responses(self, waits):
+    async def _wait_socket_responses(self, waits: list[str]) -> None:
         waits = [getattr(self, w) if isinstance(w, str) else w for w in waits]
 
         while True:
@@ -176,12 +180,31 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
             if all(is_done):
                 break
 
-    def _build_normalized_stores(self) -> dict[str, NormalizedDataStore]:
-        stores = {}
-        for name, store in self._normalized_store_builder.get().items():
-            if store is not None:
-                store.start()
-                stores[name] = store
+    def _build_normalized_stores(
+        self,
+    ) -> dict[
+        str,
+        TickerStore
+        | TradesStore
+        | OrderbookStore
+        | OrderStore
+        | ExecutionStore
+        | PositionStore,
+    ]:
+        stores = cast(
+            dict[
+                str,
+                TickerStore
+                | TradesStore
+                | OrderbookStore
+                | OrderStore
+                | ExecutionStore
+                | PositionStore,
+            ],
+            self._normalized_store_builder.get(),
+        )
+        for store in stores.values():
+            store.start()
         return stores
 
     def _get_normalized_store(
@@ -194,12 +217,12 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
         | ExecutionStore
         | PositionStore
     ):
-        store = self._normalized_stores[name]
-        if store is None:
-            raise RuntimeError(
+        try:
+            return self._normalized_stores[name]
+        except KeyError:
+            raise UnsupportedStoreError(
                 f"Unsupported normalized store for {self._eprop.exchange}: {name}"
             )
-        return store
 
     @property
     def store(self) -> TDataStoreManager:
@@ -208,27 +231,27 @@ class DataStoreWrapper(Generic[TDataStoreManager]):
     # common stores
     @property
     def ticker(self) -> TickerStore:
-        return self._get_normalized_store("ticker")
+        return cast(TickerStore, self._get_normalized_store("ticker"))
 
     @property
     def trades(self) -> TradesStore:
-        return self._get_normalized_store("trades")
+        return cast(TradesStore, self._get_normalized_store("trades"))
 
     @property
     def orderbook(self) -> OrderbookStore:
-        return self._get_normalized_store("orderbook")
+        return cast(OrderbookStore, self._get_normalized_store("orderbook"))
 
     @property
     def order(self) -> OrderStore:
-        return self._get_normalized_store("order")
+        return cast(OrderStore, self._get_normalized_store("order"))
 
     @property
     def execution(self) -> ExecutionStore:
-        return self._get_normalized_store("execution")
+        return cast(ExecutionStore, self._get_normalized_store("execution"))
 
     @property
     def position(self) -> PositionStore:
-        return self._get_normalized_store("position")
+        return cast(PositionStore, self._get_normalized_store("position"))
 
     @property
     def ws_connections(self) -> list[WebSocketConnection]:

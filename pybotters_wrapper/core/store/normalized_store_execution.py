@@ -1,5 +1,5 @@
-from .normalized_store import NormalizedDataStore
 from ..typedefs import ExecutionItem
+from .normalized_store import NormalizedDataStore
 
 
 class ExecutionStore(NormalizedDataStore[ExecutionItem]):

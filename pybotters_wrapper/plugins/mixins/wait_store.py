@@ -2,7 +2,7 @@ import asyncio
 
 import pybotters.store
 
-from .helper import generate_attribute_checker, execute_fn
+from .helper import execute_fn, generate_attribute_checker
 
 
 class WaitStoreMixin:
@@ -77,7 +77,7 @@ class WaitMultipleStoreMixin:
     _checker = generate_attribute_checker("init_wait_multiple_storse", "__store")
 
     def init_wait_multiple_stores(self, *stores: pybotters.store.DataStore):
-        self.__stores = stores
+        self.__stores = list(stores)
         self.__break = False
         self.__wait_tasks = [
             asyncio.create_task(self.__run_wait_task_one(s)) for s in stores

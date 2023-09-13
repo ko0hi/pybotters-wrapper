@@ -1,17 +1,16 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Callable
+from typing import Any, Callable
 
 import numpy as np
 import pandas as pd
 from pybotters.store import DataStore
 
-from ..base_plugin import Plugin
-from ..mixins import WatchStoreMixin, PublishQueueMixin
 from ...core import DataStoreWrapper
-from ...core.typedefs import TradesItem
 from ...utils import StreamDataFrame
+from ..base_plugin import Plugin
+from ..mixins import PublishQueueMixin, WatchStoreMixin
 
 
 class BarStreamDataFrame(WatchStoreMixin, PublishQueueMixin, Plugin):
@@ -33,7 +32,7 @@ class BarStreamDataFrame(WatchStoreMixin, PublishQueueMixin, Plugin):
         *,
         maxlen: int = 9999,
         df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], any] = None,
+        callback: Callable[[pd.DataFrame], Any] | None = None,
     ):
         if df is not None:
             if len(df.columns) == 7 and df.index.name == "timestamp":
@@ -50,16 +49,22 @@ class BarStreamDataFrame(WatchStoreMixin, PublishQueueMixin, Plugin):
             dtypes={c: float for c in self.COLUMNS if c != "timestamp"},
         )
 
-        self._cur_bar = None
+        self._cur_bar: dict = {
+            "timestamp": None,
+            "open": None,
+            "high": -np.inf,
+            "low": np.inf,
+            "close": None,
+            "size": 0,
+            "buy_size": 0,
+            "sell_size": 0,
+        }
 
         self.init_watch_store(store.trades)
         self.init_publish_queue()
-
         self._init_bar()
 
-    def _on_watch(
-        self, store: DataStore, operation: str, source: dict, data: TradesItem
-    ):
+    def _on_watch(self, store: DataStore, operation: str, source: dict, data: dict):
         if operation == "insert" and data["symbol"] == self._symbol:
             if self._is_new_bar(data, operation):
                 self._next_bar(data)
@@ -87,7 +92,7 @@ class BarStreamDataFrame(WatchStoreMixin, PublishQueueMixin, Plugin):
         elif d["side"] == "SELL":
             self._cur_bar["sell_size"] += d["size"]
 
-    def _init_bar(self, d=None) -> None:
+    def _init_bar(self, d: dict | None = None) -> None:
         if d is None:
             self._cur_bar = {
                 "timestamp": None,
@@ -115,7 +120,7 @@ class BarStreamDataFrame(WatchStoreMixin, PublishQueueMixin, Plugin):
         """未確定足込みのDataFrameを返す。TODO: copyしない。"""
 
         lhs = self.df
-        if self._cur_bar["timestamp"] is None:
+        if self._cur_bar is None or self._cur_bar["timestamp"] is None:
             return lhs
         else:
             rhs = pd.DataFrame(self.cur_bar, index=[-1])
@@ -188,7 +193,7 @@ class TimeBarStreamDataFrame(BarStreamDataFrame):
         seconds: int,
         maxlen: int = 9999,
         df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], any] = None,
+        callback: Callable[[pd.DataFrame], Any] | None = None,
         message_delay: int = 2,
     ):
         super(TimeBarStreamDataFrame, self).__init__(
@@ -249,10 +254,11 @@ class VolumeBarStreamDataFrame(BarStreamDataFrame):
         volume_unit: float,
         maxlen: int = 9999,
         df: pd.DataFrame = None,
-        callback: Callable[[pd.DataFrame], any] = None,
+        callback: Callable[[pd.DataFrame], Any] | None = None,
     ):
         super(VolumeBarStreamDataFrame, self).__init__(
             store,
+            symbol,
             maxlen=maxlen,
             df=df,
             callback=callback,

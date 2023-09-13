@@ -4,14 +4,16 @@ import pandas as pd
 from pybotters.models.phemex import PhemexDataStore
 
 from ..core import (
-    NormalizedStoreBuilder,
-    PositionStore,
     ExecutionStore,
-    OrderStore,
+    NormalizedStoreBuilder,
     OrderbookStore,
-    TradesStore,
+    OrderStore,
+    PositionStore,
     TickerStore,
+    TradesStore,
 )
+
+from ..exceptions import UnsupportedStoreError
 
 
 class PhemexNormalizedStoreBuilder(NormalizedStoreBuilder[PhemexDataStore]):
@@ -51,10 +53,10 @@ class PhemexNormalizedStoreBuilder(NormalizedStoreBuilder[PhemexDataStore]):
         )
 
     def order(self) -> OrderStore:
-        pass
+        raise UnsupportedStoreError("Phemex does not support order store")
 
     def execution(self) -> ExecutionStore:
-        pass
+        raise UnsupportedStoreError("Phemex does not support execution store")
 
     def position(self) -> PositionStore:
-        pass
+        raise UnsupportedStoreError("Phemex does not support position store")

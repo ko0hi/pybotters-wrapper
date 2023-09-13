@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Callable, TypeVar, Optional, Literal, Union, Awaitable, TypeAlias
+from typing import Awaitable, Callable, Literal, Optional, TypeAlias, TypeVar, Union
 
 import pybotters
 from loguru import logger
@@ -65,7 +65,7 @@ class WebSocketConnection:
 
     async def close(self):
         if self._ws is not None:
-            self._ws._task.cancel()
+            self._ws._task.cancel()  # noqa
             try:
                 await self._ws._task
             except asyncio.CancelledError:
@@ -107,7 +107,7 @@ class WebSocketConnection:
 
     @property
     def connected(self) -> bool:
-        return self._ws and self._ws.connected
+        return False if self._ws is None else self._ws.connected
 
     @classmethod
     def _guess_type(

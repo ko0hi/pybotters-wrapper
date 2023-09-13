@@ -18,11 +18,15 @@ class ExchangeProperty:
 
     @property
     def base_url(self) -> str | None:
-        return self._properties.get("base_url")
+        base_url = self._properties.get("base_url")
+        assert base_url is not None
+        return base_url
 
     @property
     def exchange(self) -> str:
-        return self._properties.get("exchange")
+        exchange = self._properties.get("exchange")
+        assert exchange is not None
+        return exchange
 
     def _validate(self):
         missing_properties = []

@@ -4,6 +4,7 @@ from collections import deque
 from typing import TypedDict
 
 import pandas as pd
+from pybotters.store import DataStore
 
 from ..base_plugin import Plugin
 from ..mixins import WatchStoreMixin
@@ -33,19 +34,19 @@ class PnL(WatchStoreMixin, Plugin):
     ) -> None:
         self._symbol = symbol
         self._fee = fee
-        self._snapshots = deque(maxlen=snapshot_length)
-        self._buy_size = 0
-        self._buy_volume = 0
-        self._sell_size = 0
-        self._sell_volume = 0
+        self._snapshots: deque = deque(maxlen=snapshot_length)
+        self._buy_size = 0.0
+        self._buy_volume = 0.0
+        self._sell_size = 0.0
+        self._sell_volume = 0.0
         self.init_watch_store(store.execution)
 
         # 未実現損益計算用
-        self._unrealized_volume = 0
-        self._last_position = 0
+        self._unrealized_volume = 0.0
+        self._last_position = 0.0
 
         # ltp更新用
-        self._ltp = 0
+        self._ltp = 0.0
         self._timestamp = pd.Timestamp.now(tz="UTC")
         self._store = store
         self._ltp_update_task = asyncio.create_task(self._auto_ltp_update(interval))
@@ -60,7 +61,7 @@ class PnL(WatchStoreMixin, Plugin):
             await asyncio.sleep(interval)
 
     def _on_watch(
-        self, store: "DataStore", operation: str, source: dict, data: dict
+        self, store: DataStore, operation: str, source: dict, data: dict
     ) -> None:
         if operation == "insert" and data["symbol"] == self._symbol:
             self._snapshots.append(copy.deepcopy(self.status()))

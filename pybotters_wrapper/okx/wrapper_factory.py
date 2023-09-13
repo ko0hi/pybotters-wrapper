@@ -1,8 +1,10 @@
+import pybotters
 from pybotters import OKXDataStore
-from ..core import WrapperFactory
-from .websocket_channels import OKXWebSocketChannels
+
+from ..core import CancelOrderAPI, LimitOrderAPI, MarketOrderAPI, WrapperFactory
 from .normalized_store_builder import OKXNormalizedStoreBuilder
 from .price_size_precision_fetcher import OKXPriceSizePrecisionFetcher
+from .websocket_channels import OKXWebSocketChannels
 
 
 class OKXWrapperFactory(WrapperFactory):
@@ -15,3 +17,21 @@ class OKXWrapperFactory(WrapperFactory):
     _WEBSOCKET_CHANNELS = OKXWebSocketChannels
     _NORMALIZED_STORE_BUILDER = OKXNormalizedStoreBuilder
     _PRICE_SIZE_PRECISION_FETCHER = OKXPriceSizePrecisionFetcher
+
+    @classmethod
+    def create_limit_order_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> LimitOrderAPI:
+        raise NotImplementedError
+
+    @classmethod
+    def create_market_order_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> MarketOrderAPI:
+        raise NotImplementedError
+
+    @classmethod
+    def create_cancel_order_api(
+        cls, client: pybotters.Client, verbose: bool = False
+    ) -> CancelOrderAPI:
+        raise NotImplementedError

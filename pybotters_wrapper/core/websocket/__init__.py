@@ -1,11 +1,11 @@
 from .websocket_channels import WebSocketChannels
 from .websocket_connection import (
-    WebSocketConnection,
-    TWsHandler,
     TWebsocketOnReconnectionCallback,
+    TWsHandler,
+    WebSocketConnection,
 )
 from .websocket_request_builder import WebsocketRequest, WebSocketRequestBuilder
 from .websocket_resquest_customizer import (
-    WebSocketRequestCustomizer,
     WebSocketDefaultRequestCustomizer,
+    WebSocketRequestCustomizer,
 )

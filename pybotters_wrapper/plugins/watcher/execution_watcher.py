@@ -1,31 +1,34 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Callable
+from typing import TYPE_CHECKING, Callable, cast
 
+if TYPE_CHECKING:
+    from pybotters.store import DataStore
+
+from ...core import DataStoreWrapper, ExecutionItem
 from ..base_plugin import Plugin
 from ..mixins import WatchStoreMixin
-from ...core import DataStoreWrapper, ExecutionItem
 
 
 class ExecutionWatcher(WatchStoreMixin, Plugin):
     def __init__(
         self,
-        store: "DataStoreWrapper",
+        store: DataStoreWrapper,
         *,
-        store_name: str = None,
-        is_target: Callable[["DataStore", str, dict, dict], bool] = None,
+        store_name: str | None = None,
+        is_target: Callable[[DataStore, str, dict, dict], bool] | None = None,
     ):
         # ExecutionDataStoreを監視
-        self._order_id = None
-        self._item = None
-        self._done = None
-        self._event = asyncio.Event()
+        self._order_id: str | None = None
+        self._item: ExecutionItem | None = None
+        self._done: bool = False
+        self._event: asyncio.Event = asyncio.Event()
         self._is_target_fn = is_target
 
         self.init_watch_store(getattr(store, store_name or "execution"))
 
-    def set(self, order_id: str = None) -> ExecutionWatcher:
+    def set(self, order_id: str | None = None) -> ExecutionWatcher:
         """監視対象の注文IDをセット"""
         if self._order_id is not None:
             raise RuntimeError(
@@ -51,7 +54,7 @@ class ExecutionWatcher(WatchStoreMixin, Plugin):
 
         if self._is_target(store, operation, source, data):
             self._done = True
-            self._item = data
+            self._item = cast(ExecutionItem, data)
             self.set_break()
 
     def _is_target(self, store: "DataStore", operation: str, source: dict, data: dict):
@@ -63,12 +66,12 @@ class ExecutionWatcher(WatchStoreMixin, Plugin):
     def done(self) -> bool:
         return self._done
 
-    def result(self) -> ExecutionItem:
+    def result(self) -> ExecutionItem | None:
         return self._item
 
     async def wait(self):
         return await self.watch_task
 
     @property
-    def order_id(self) -> str:
+    def order_id(self) -> str | None:
         return self._order_id

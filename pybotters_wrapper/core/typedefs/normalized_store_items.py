@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 from .typing import TOrderId, TPrice, TSide, TSize, TSymbol, TTimestamp
 
@@ -6,6 +6,7 @@ from .typing import TOrderId, TPrice, TSide, TSize, TSymbol, TTimestamp
 class TickerItem(TypedDict):
     symbol: TSymbol
     price: TPrice
+    info: NotRequired[dict]
 
 
 class TradesItem(TypedDict):
@@ -15,6 +16,7 @@ class TradesItem(TypedDict):
     price: TPrice
     size: TSize
     timestamp: TTimestamp
+    info: NotRequired[dict]
 
 
 class OrderbookItem(TypedDict):
@@ -22,6 +24,7 @@ class OrderbookItem(TypedDict):
     side: TSide
     price: TPrice
     size: TSize
+    info: NotRequired[dict]
 
 
 class ExecutionItem(TypedDict):
@@ -31,6 +34,7 @@ class ExecutionItem(TypedDict):
     price: TPrice
     size: TSize
     timestamp: TTimestamp
+    info: NotRequired[dict]
 
 
 class OrderItem(TypedDict):
@@ -40,7 +44,8 @@ class OrderItem(TypedDict):
     price: TPrice
     size: TSize
     type: str
-    trigger: TPrice | None  # TODO
+    trigger: NotRequired[TPrice]
+    info: NotRequired[dict]
 
 
 class PositionItem(TypedDict):
@@ -48,3 +53,4 @@ class PositionItem(TypedDict):
     side: TSide
     price: TPrice
     size: TSize
+    info: NotRequired[dict]

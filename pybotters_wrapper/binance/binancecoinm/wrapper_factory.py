@@ -1,11 +1,9 @@
+from typing import Callable
+
 import aiohttp
 import pybotters
 from pybotters import BinanceCOINMDataStore
 
-from . import BinanceCOINMWebsocketChannels
-from ..normalized_store_builder import BinanceNormalizedStoreBuilder
-from ..price_size_precision_fetcher import BinancePriceSizePrecisionFetcher
-from ..websocket_request_customizer import BinanceWebSocketRequestCustomizer
 from ...core import (
     APIClient,
     APIClientBuilder,
@@ -53,6 +51,10 @@ from ...core import (
     WebSocketRequestCustomizer,
     WrapperFactory,
 )
+from ..normalized_store_builder import BinanceNormalizedStoreBuilder
+from ..price_size_precision_fetcher import BinancePriceSizePrecisionFetcher
+from ..websocket_request_customizer import BinanceWebSocketRequestCustomizer
+from . import BinanceCOINMWebsocketChannels
 
 
 class BinanceCOINMWrapperFactory(WrapperFactory):
@@ -75,11 +77,11 @@ class BinanceCOINMWrapperFactory(WrapperFactory):
         return StoreInitializer(
             store,
             {
-                "token": ("POST", f"{base_url}/dapi/v1/listenKey"),
-                "token_private": ("POST", f"{base_url}/dapi/v1/listenKey"),
+                "token": ("POST", f"{base_url}/dapi/v1/listenKey", None),
+                "token_private": ("POST", f"{base_url}/dapi/v1/listenKey", None),
                 "orderbook": ("GET", f"{base_url}/dapi/v1/depth", {"symbol"}),
-                "order": ("GET", f"{base_url}/dapi/v1/openOrders"),
-                "position": ("GET", f"{base_url}/dapi/v1/positionRisk"),
+                "order": ("GET", f"{base_url}/dapi/v1/openOrders", None),
+                "position": ("GET", f"{base_url}/dapi/v1/positionRisk", None),
             },
         )
 
@@ -94,7 +96,9 @@ class BinanceCOINMWrapperFactory(WrapperFactory):
         return WebSocketRequestBuilder(BinanceCOINMWebsocketChannels())
 
     @classmethod
-    def create_websocket_request_customizer(cls) -> WebSocketRequestCustomizer:
+    def create_websocket_request_customizer(
+        cls, client: pybotters.Client | None = None
+    ) -> WebSocketRequestCustomizer:
         return BinanceWebSocketRequestCustomizer(
             cls.create_exchange_property().exchange
         )
@@ -148,7 +152,11 @@ class BinanceCOINMWrapperFactory(WrapperFactory):
 
     @classmethod
     def create_api_client(
-        cls, client: pybotters.Client, verbose: bool = False
+        cls,
+        client: pybotters.Client,
+        verbose: bool = False,
+        *,
+        base_url_attacher: Callable[[str], str] | None = None,
     ) -> APIClient:
         return (
             APIClientBuilder()
@@ -407,7 +415,7 @@ class BinanceCOINMWrapperFactory(WrapperFactory):
                     side=("BUY" if float(i["positionAmt"]) > 0 else "SELL"),
                     price=float(i["entryPrice"]),
                     size=float(i["positionAmt"]),
-                    info=i,  # noqa
+                    info=i,
                 )
                 for i in resp_data
             ]

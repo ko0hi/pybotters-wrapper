@@ -1,5 +1,5 @@
-import pytest_mock
 import pytest
+import pytest_mock
 
 
 @pytest.fixture(autouse=True)

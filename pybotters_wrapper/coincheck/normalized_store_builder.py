@@ -2,14 +2,15 @@ import pandas as pd
 from pybotters import CoincheckDataStore
 
 from ..core import (
-    NormalizedStoreBuilder,
-    PositionStore,
     ExecutionStore,
-    OrderStore,
+    NormalizedStoreBuilder,
     OrderbookStore,
-    TradesStore,
+    OrderStore,
+    PositionStore,
     TickerStore,
+    TradesStore,
 )
+from ..exceptions import UnsupportedStoreError
 
 
 class CoincheckNormalizedStoreBuilder(NormalizedStoreBuilder[CoincheckDataStore]):
@@ -49,10 +50,10 @@ class CoincheckNormalizedStoreBuilder(NormalizedStoreBuilder[CoincheckDataStore]
         )
 
     def order(self) -> OrderStore:
-        pass
+        raise UnsupportedStoreError("Coincheck does not support order store")
 
     def execution(self) -> ExecutionStore:
-        pass
+        raise UnsupportedStoreError("Coincheck does not support execution store")
 
     def position(self) -> PositionStore:
-        pass
+        raise UnsupportedStoreError("Coincheck does not support position store")

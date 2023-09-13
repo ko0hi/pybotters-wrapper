@@ -1,9 +1,9 @@
+import pybotters
 import pytest
 from aioresponses import aioresponses
 
-import pybotters
-from pybotters_wrapper.core import StoreInitializer
 import pybotters_wrapper as pbw
+from pybotters_wrapper.core import StoreInitializer
 
 
 @pytest.fixture

@@ -13,5 +13,5 @@ TPrice = float
 TSize = float
 TTrigger = float
 TTimestamp = pd.Timestamp
-TRequestMethod = Literal["GET", "POST", "PUT", "DELETE"]
+TRequestMethod = Literal["GET", "POST", "PUT", "DELETE"] | str
 TDataStoreManager = TypeVar("TDataStoreManager", bound=DataStoreManager)

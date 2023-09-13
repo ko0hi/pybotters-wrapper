@@ -1,7 +1,7 @@
 from typing import Literal
 
-from .formatter import Formatter
 from ..typedefs import TSymbol
+from .formatter import Formatter
 
 
 class PrecisionFormatter(Formatter):

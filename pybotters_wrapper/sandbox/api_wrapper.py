@@ -10,25 +10,24 @@ from .exceptions import OrderNotFoundError
 if TYPE_CHECKING:
     from pybotters_wrapper.sandbox import SandboxEngine
 
-
 from ..core import (
     APIWrapper,
-    TSymbol,
-    TSide,
-    TPrice,
-    TSize,
+    CancelOrderAPIResponse,
     LimitOrderAPIResponse,
     MarketOrderAPIResponse,
-    TTrigger,
-    StopLimitOrderAPIResponse,
-    StopMarketOrderAPIResponse,
-    TOrderId,
-    CancelOrderAPIResponse,
-    TickerFetchAPIResponse,
     OrderbookFetchAPIResponse,
-    TRequestMethod,
     OrdersFetchAPIResponse,
     PositionsFetchAPIResponse,
+    StopLimitOrderAPIResponse,
+    StopMarketOrderAPIResponse,
+    TickerFetchAPIResponse,
+    TOrderId,
+    TPrice,
+    TRequestMethod,
+    TSide,
+    TSize,
+    TSymbol,
+    TTrigger,
 )
 
 
@@ -43,7 +42,7 @@ class SandboxResponse(NamedTuple):
 class SandboxAPIWrapper:
     def __init__(self, simulate_api: APIWrapper, **kwargs):
         self._simulate_api = simulate_api
-        self._engine: SandboxEngine = None
+        self._engine: SandboxEngine
 
     async def limit_order(
         self,
@@ -131,7 +130,9 @@ class SandboxAPIWrapper:
         else:
             status = 200
         return CancelOrderAPIResponse(
-            order_id=order_id, resp=SandboxResponse(status=status), data={}  # type: ignore
+            order_id=order_id,
+            resp=SandboxResponse(status=status),  # type: ignore
+            data={},
         )
 
     async def fetch_ticker(self, symbol: TSymbol) -> TickerFetchAPIResponse:
@@ -222,10 +223,14 @@ class SandboxAPIWrapper:
     def sdelete(self, url: str, *, data: dict | None = None, **kwargs) -> Response:
         return self._simulate_api.sdelete(url, data=data, **kwargs)
 
-    def _check_is_api_available(self, api_name: str) -> bool:
-        if not self._simulate_api.is_available(api_name):
+    def _check_is_api_available(
+        self,
+        api_name: str,
+    ) -> None:
+        if not self._simulate_api.is_available(api_name):  # type: ignore
             raise RuntimeError(
-                f"{api_name} is not supported for: {self._simulate_api.exchange_property.exchange}."
+                f"{api_name} is not supported for: "
+                f"{self._simulate_api.exchange_property.exchange}."
             )
 
     def _link_to_engine(self, engine: "SandboxEngine"):

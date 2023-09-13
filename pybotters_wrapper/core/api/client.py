@@ -117,7 +117,7 @@ class APIClient:
             sess._build_url(self._attach_base_url(url)),
             params=params,
             data=data,
-            headers=sess._prepare_headers([]),
+            headers=sess._prepare_headers([]),  # type: ignore
             session=sess,
             auth=pybotters.auth.Auth,
         )
@@ -125,13 +125,13 @@ class APIClient:
         if isinstance(req.body, aiohttp.payload.BytesPayload):
             data = req.body._value
         else:
-            data = req.body
+            data = req.body  # type: ignore
         # paramsはurlに埋め込まれている
         resp = requests.request(
             method=req.method, url=str(req.url), data=data, headers=headers, **kwargs
         )
 
-        self._log_request_response(resp, req.method, str(req.url), data)
+        self._log_request_response(resp, req.method, str(req.url), data)  # type: ignore
         return resp
 
     def sget(self, url: str, *, params: dict | None = None, **kwargs) -> Response:
@@ -148,7 +148,10 @@ class APIClient:
 
     def _attach_base_url(self, url: str) -> str:
         if self._base_url_attacher is None:
-            return self._eprop.base_url + url
+            if self._eprop is None:
+                return url
+            else:
+                return (self._eprop.base_url or "") + url
         else:
             return self._base_url_attacher(url)
 

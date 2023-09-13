@@ -1,21 +1,20 @@
 from __future__ import annotations
+
 from typing import TypeVar
 
 from .api import (
     APIClient,
-    OrderbookFetchAPI,
-    OrdersFetchAPI,
-    PositionsFetchAPI,
-    TickerFetchAPI,
     CancelOrderAPI,
     LimitOrderAPI,
     MarketOrderAPI,
+    OrderbookFetchAPI,
+    OrdersFetchAPI,
+    PositionsFetchAPI,
     StopLimitOrderAPI,
     StopMarketOrderAPI,
+    TickerFetchAPI,
 )
-
 from .api_wrapper import APIWrapper
-
 
 TAPIWrapperBuilder = TypeVar("TAPIWrapperBuilder", bound="APIWrapperBuilder")
 

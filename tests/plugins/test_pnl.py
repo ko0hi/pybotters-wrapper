@@ -1,8 +1,9 @@
 import unittest
 
 import pandas as pd
-import pybotters_wrapper as pbw
 import pytest
+
+import pybotters_wrapper as pbw
 
 
 @pytest.fixture

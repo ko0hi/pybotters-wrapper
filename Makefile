@@ -1,6 +1,6 @@
 .PHONY: format lint typecheck test
 format:
-	poetry run black pybotters_wrapper tests
+	poetry run black pybotters_wrapper tests && poetry run isort pybotters_wrapper tests
 lint:
 	poetry run pflake8 pybotters_wrapper
 typecheck:

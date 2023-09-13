@@ -1,14 +1,15 @@
 from __future__ import annotations
+
 from typing import Any, Callable
 
 import aiohttp
-
 import pybotters
-from .periodic_executor import PeriodicExecutor
+
 from ...core import APIWrapper
+from .periodic_executor import PeriodicExecutor
 
 
-async def _jsonify_handler(item: aiohttp.ClientResponse) -> any:
+async def _jsonify_handler(item: aiohttp.ClientResponse) -> Any:
     try:
         return await item.json()
     except aiohttp.ContentTypeError:

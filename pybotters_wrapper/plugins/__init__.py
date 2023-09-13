@@ -1,1 +1,1 @@
-from .factory import timebar, volumebar, binningbook, bookticker, poller, pnl
+from .factory import binningbook, bookticker, pnl, poller, timebar, volumebar

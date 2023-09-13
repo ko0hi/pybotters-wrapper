@@ -132,16 +132,18 @@ async def test_with_customizer(builder, customizer, mocker: pytest_mock.MockerFi
     expected = [
         WebsocketRequest(
             "wss://fstream.binance.com/ws",
-            {
-                "id": 1 * 10**9,
-                "method": "SUBSCRIBE",
-                "params": [
-                    "btcusdt@ticker",
-                    "btcusdt@aggTrade",
-                    "btcusdt@depth",
-                    "pqia91ma19a5s61cv6a81va65sdf19v8a65a1a5s61cv6a81va65sdf19v8a65a1",
-                ],
-            },
+            [
+                {
+                    "id": 1 * 10**9,
+                    "method": "SUBSCRIBE",
+                    "params": [
+                        "btcusdt@ticker",
+                        "btcusdt@aggTrade",
+                        "btcusdt@depth",
+                        "pqia91ma19a5s61cv6a81va65sdf19v8a65a1a5s61cv6a81va65sdf19v8a65a1",
+                    ],
+                }
+            ],
         )
     ]
     async with create_client() as client:

@@ -1,7 +1,6 @@
 import pytest
 import pytest_mock
 
-
 import pybotters_wrapper as pbw
 
 

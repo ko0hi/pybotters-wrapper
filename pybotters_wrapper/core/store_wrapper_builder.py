@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TypeVar
 
 from .exchange_property import ExchangeProperty
-from .store import StoreInitializer, NormalizedStoreBuilder
+from .store import NormalizedStoreBuilder, StoreInitializer
 from .store_wrapper import DataStoreWrapper
 from .typedefs import TDataStoreManager
 from .websocket import (
@@ -24,7 +24,9 @@ class DataStoreWrapperBuilder:
         self._store_initializer = None
         self._normalized_store_builder = None
         self._websocket_request_builder = None
-        self._websocket_request_customizer = WebSocketDefaultRequestCustomizer()
+        self._websocket_request_customizer: WebSocketRequestCustomizer = (
+            WebSocketDefaultRequestCustomizer()
+        )
 
     def set_store(
         self: TDataStoreWrapperBuilder, store: TDataStoreManager
@@ -65,7 +67,15 @@ class DataStoreWrapperBuilder:
         return self
 
     def get(self) -> DataStoreWrapper:
-        self.validate()
+        assert self._store is not None, "store is not set"
+        assert self._exchange_property is not None, "exchange_property is not set"
+        assert self._store_initializer is not None, "store_initializer is not set"
+        assert (
+            self._normalized_store_builder is not None
+        ), "normalized_store_builder is not set"
+        assert (
+            self._websocket_request_builder is not None
+        ), "websocket_request_builder is not set"
         return DataStoreWrapper(
             self._store,
             exchange_property=self._exchange_property,
@@ -74,17 +84,3 @@ class DataStoreWrapperBuilder:
             websocket_request_builder=self._websocket_request_builder,
             websocket_request_customizer=self._websocket_request_customizer,
         )
-
-    def validate(self) -> None:
-        required_fields = [
-            "store",
-            "exchange_property",
-            "store_initializer",
-            "normalized_store_builder",
-            "websocket_request_builder",
-        ]
-        missing_fields = [
-            field for field in required_fields if getattr(self, f"_{field}") is None
-        ]
-        if missing_fields:
-            raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")

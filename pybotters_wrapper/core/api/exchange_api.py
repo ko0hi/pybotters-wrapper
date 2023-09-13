@@ -1,6 +1,6 @@
 import asyncio
 from abc import ABCMeta
-from typing import Any, Awaitable, Callable, Generic, TypeVar, TypedDict
+from typing import Any, Awaitable, Callable, Generic, TypeVar, Type
 
 from aiohttp.client import ClientResponse
 from requests import Response
@@ -28,7 +28,7 @@ class ExchangeAPI(
 
     - ExchangeAPI: APIClientのラッパーメソッド＋httpリクエストの汎用helper関数を提供
         - FetchAPI: Fetchリクエストの汎用helper関数を提供
-            - OrderFetchAPI: 注文Fetch用のinterface（例：引数の定義とエンドポイント取得・パラメーター変換・レスポンス解析のテンプレート）を提供
+            - OrderFetchAPI: 注文Fetch用のinterface
                 - BinanceUSDSMFetchOrderAPI
                 - bitflyerFetchOrderAPI
                 - ...
@@ -54,7 +54,7 @@ class ExchangeAPI(
         | None = None,
         parameter_translater: Callable[[TTranslateParametersParameters], dict]
         | None = None,
-        response_wrapper_cls: TResponseWrapper | None = None,
+        response_wrapper_cls: Type[TResponseWrapper] | None = None,
         response_decoder: Callable[
             [ClientResponse], dict | list | Awaitable[dict | list]
         ]
@@ -101,11 +101,11 @@ class ExchangeAPI(
             raise ValueError("response_wrapper_cls is not set")
         return self._response_wrapper_cls(**params)
 
-    async def _decode_response(self, resp: ClientResponse) -> dict | list:
+    async def _decode_response(self, resp: ClientResponse) -> dict:
         if self._response_decoder is None:
             return await resp.json()
         else:
             if asyncio.iscoroutinefunction(self._response_decoder):
                 return await self._response_decoder(resp)
             else:
-                return self._response_decoder(resp)
+                return self._response_decoder(resp)  # type: ignore

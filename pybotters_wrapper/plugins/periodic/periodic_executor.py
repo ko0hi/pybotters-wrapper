@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from collections import deque
-from typing import Callable, Any
+from typing import Any, Callable
 
 from loguru import logger
 
@@ -84,7 +84,7 @@ class PeriodicExecutor(PublishQueueMixin, Plugin):
         return self._task
 
     @property
-    def history(self) -> list[Any]:
+    def history(self) -> deque[Any]:
         return self._history
 
     @property

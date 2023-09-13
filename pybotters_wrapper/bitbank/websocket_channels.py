@@ -14,7 +14,7 @@ class bitbankWebsocketChannels(
     def trades(self, symbol: str, **kwargs) -> str:
         return self.transaction(symbol)
 
-    def orderbook(self, symbol: str, **kwargs) -> list[str]:
+    def orderbook(self, symbol: str, **kwargs) -> list[str]:  # type: ignore
         return [self.depth_whole(symbol), self.depth_diff(symbol)]
 
     def depth_whole(self, symbol: str) -> str:

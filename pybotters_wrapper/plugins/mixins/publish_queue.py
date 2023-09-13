@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 from .helper import generate_attribute_checker
 
@@ -16,11 +17,11 @@ class PublishQueueMixin:
 
     @__checker
     def subscribe(self) -> asyncio.Queue:
-        q = asyncio.Queue()
+        q = asyncio.Queue()  # type: ignore
         self.__queues.append(q)
         return q
 
     @__checker
-    def put(self, item: any):
+    def put(self, item: Any) -> None:
         for q in self.__queues:
             q.put_nowait(item)

@@ -1,4 +1,5 @@
 from typing import Literal
+
 import requests
 
 from ..core import PriceSizePrecisionFetcher, TSymbol

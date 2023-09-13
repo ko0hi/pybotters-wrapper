@@ -1,18 +1,18 @@
 import pybotters
 from pybotters import BybitInverseDataStore
 
-from .websocket_channels import BybitInverseWebSocketChannels
-from ..normalized_store_builder import BybitNormalizedStoreBuilder
-from ..price_size_precision_fetcher import BybitPriceSizePrecisionFetcher
 from ...core import (
-    WrapperFactory,
     CancelOrderAPI,
     CancelOrderAPIBuilder,
-    MarketOrderAPI,
-    MarketOrderAPIBuilder,
     LimitOrderAPI,
     LimitOrderAPIBuilder,
+    MarketOrderAPI,
+    MarketOrderAPIBuilder,
+    WrapperFactory,
 )
+from ..normalized_store_builder import BybitNormalizedStoreBuilder
+from ..price_size_precision_fetcher import BybitPriceSizePrecisionFetcher
+from .websocket_channels import BybitInverseWebSocketChannels
 
 
 class BybitInverseWrapperFactory(WrapperFactory):

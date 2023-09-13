@@ -25,7 +25,7 @@ class PhemexWebsocketChannels(
 
     def orderbook(self, symbol: str, **kwargs) -> PhemexWebsocketParameter:
         """https://github.com/phemex/phemex-api-docs/blob/master/Public-Contract-API-en.md#subscribe-full-orderbook"""
-        return {"method": "orderbook", "params": [symbol, True]}
+        return {"method": "orderbook", "params": [symbol, True]}  # type: ignore
 
     def order(self, **kwargs) -> PhemexWebsocketParameter:
         return self.aop()
@@ -62,7 +62,7 @@ class PhemexWebsocketChannels(
             raise ValueError(
                 f"Unsupported interval: {interval} (supported: {supported_intervals})"
             )
-        return {"method": "kline", "params": [symbol, interval]}
+        return {"method": "kline", "params": [symbol, interval]}  # type: ignore
 
     def aop(self) -> PhemexWebsocketParameter:
         return {"method": "aop", "params": []}

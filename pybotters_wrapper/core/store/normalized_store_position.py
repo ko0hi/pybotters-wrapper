@@ -1,5 +1,5 @@
-from .normalized_store import NormalizedDataStore
 from ..typedefs import PositionItem
+from .normalized_store import NormalizedDataStore
 
 
 class PositionStore(NormalizedDataStore[PositionItem]):
@@ -7,7 +7,7 @@ class PositionStore(NormalizedDataStore[PositionItem]):
     _KEYS = ["symbol"]
     _NORMALIZED_ITEM_CLASS = PositionItem
 
-    def size(self, symbol: str, side: str = None) -> float:
+    def size(self, symbol: str, side: str | None = None) -> float:
         query = {"symbol": symbol}
         if side is None:
             items = self.find(query)
@@ -34,10 +34,10 @@ class PositionStore(NormalizedDataStore[PositionItem]):
         rtn["size"] = self.size(symbol)
 
         if rtn["size"] > 0:
-            rtn["side"] = "BUY"
+            rtn["side"] = "BUY"  # type: ignore
         elif rtn["size"] < 0:
-            rtn["side"] = "SELL"
+            rtn["side"] = "SELL"  # type: ignore
         else:
-            rtn["side"] = "NO"
+            rtn["side"] = "NO"  # type: ignore
 
         return rtn

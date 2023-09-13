@@ -4,27 +4,26 @@ import pybotters
 import pytest
 import pytest_mock
 from aioresponses import aioresponses
+
+# disable logging: https://github.com/Delgan/loguru/issues/138
+from loguru import logger
 from pybotters.store import StoreChange
 
 from pybotters_wrapper import create_client
 from pybotters_wrapper.core import (
+    CancelOrderAPI,
     FetchAPI,
+    LimitOrderAPI,
+    MarketOrderAPI,
     NormalizedStoreBuilder,
-    TickerFetchAPI,
+    OrderAPI,
     OrderbookFetchAPI,
     OrdersFetchAPI,
     PositionsFetchAPI,
-    OrderAPI,
-    LimitOrderAPI,
-    MarketOrderAPI,
-    CancelOrderAPI,
     StopLimitOrderAPI,
     StopMarketOrderAPI,
+    TickerFetchAPI,
 )
-
-
-# disable logging: https://github.com/Delgan/loguru/issues/138
-from loguru import logger
 
 logger.remove(0)
 
