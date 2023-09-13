@@ -19,7 +19,7 @@ def tester(orderbook_normalized_store_tester):
         ],
         None,
     )
-    dummy_data = store.orderbook.find({"side":"bids"})[0]
+    dummy_data = store.orderbook.find({"side": "bids"})[0]
     return orderbook_normalized_store_tester(
         builder_factory_method=pbw.create_factory(
             "coincheck"

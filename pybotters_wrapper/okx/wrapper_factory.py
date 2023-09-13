@@ -4,6 +4,7 @@ from .websocket_channels import OKXWebSocketChannels
 from .normalized_store_builder import OKXNormalizedStoreBuilder
 from .price_size_precision_fetcher import OKXPriceSizePrecisionFetcher
 
+
 class OKXWrapperFactory(WrapperFactory):
     __BASE_URL = "https://www.okx.com"
     _EXCHANGE_PROPERTIES = {

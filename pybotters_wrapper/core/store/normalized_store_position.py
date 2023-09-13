@@ -1,6 +1,7 @@
 from .normalized_store import NormalizedDataStore
 from ..typedefs import PositionItem
 
+
 class PositionStore(NormalizedDataStore[PositionItem]):
     _NAME = "position"
     _KEYS = ["symbol"]

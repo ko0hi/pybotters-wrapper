@@ -10,7 +10,7 @@ def public_send() -> list[str]:
         '42["join-room","ticker_btc_jpy"]',
         '42["join-room","transactions_btc_jpy"]',
         '42["join-room","depth_whole_btc_jpy"]',
-        '42["join-room","depth_diff_btc_jpy"]'
+        '42["join-room","depth_diff_btc_jpy"]',
     ]
 
 

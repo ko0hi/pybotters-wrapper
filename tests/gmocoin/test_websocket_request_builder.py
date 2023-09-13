@@ -97,7 +97,7 @@ async def test_all(patch_token, public_expected, private_expected):
         WebsocketRequest(
             "wss://api.coin.z.com/ws/private/v1/xxxxx",
             private_expected,
-        )
+        ),
     ]
 
     async with pbw.create_client() as client:

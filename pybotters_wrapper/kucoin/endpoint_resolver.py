@@ -2,7 +2,6 @@ import pybotters
 
 
 class KuCoinEndpointResolver:
-
     def __init__(self, client: pybotters.Client, exchange: str):
         from pybotters_wrapper.factory import create_factory
 

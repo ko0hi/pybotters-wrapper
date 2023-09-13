@@ -46,4 +46,3 @@ async def test_itemize_response(tester):
 @pytest.mark.asyncio
 async def test_combined(tester, mocker: pytest_mock.MockerFixture):
     await tester.test_combined(mocker)
-

@@ -7,4 +7,3 @@ from .normalized_store_position import PositionStore
 from .normalized_store_ticker import TickerStore
 from .normalized_store_trades import TradesStore
 from .store_initializer import StoreInitializer
-

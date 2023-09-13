@@ -20,4 +20,3 @@ from .typing import (
 )
 
 TOrderbook = dict[TSide, list[OrderbookItem]]
-

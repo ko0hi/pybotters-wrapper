@@ -12,12 +12,10 @@ class OKXPriceSizePrecisionFetcher(PriceSizePrecisionFetcher):
             data += self._fetch_info(it)
         return {
             "price": {
-                d["instId"]: self.value_to_precision(float(d["tickSz"]))
-                for d in data
+                d["instId"]: self.value_to_precision(float(d["tickSz"])) for d in data
             },
             "size": {
-                d["instId"]: self.value_to_precision(float(d["lotSz"]))
-                for d in data
+                d["instId"]: self.value_to_precision(float(d["lotSz"])) for d in data
             },
         }
 

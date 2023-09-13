@@ -94,9 +94,7 @@ def dummy_partially_filled_msg() -> dict:
     }
 
 
-def test_on_msg_filled(
-        execution_store, dummy_filled_msg
-):
+def test_on_msg_filled(execution_store, dummy_filled_msg):
     execution_store._on_msg(dummy_filled_msg)
     assert len(execution_store) == 1
     assert execution_store.find()[0] == {
@@ -110,9 +108,7 @@ def test_on_msg_filled(
     }
 
 
-def test_on_msg_partially_filled(
-        execution_store, dummy_partially_filled_msg
-):
+def test_on_msg_partially_filled(execution_store, dummy_partially_filled_msg):
     execution_store._on_msg(dummy_partially_filled_msg)
     assert len(execution_store) == 1
     assert execution_store.find()[0] == {

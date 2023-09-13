@@ -20,7 +20,7 @@ class BinanceCOINMWebsocketChannels(
             "listenkey",
         ],
         str,
-        dict
+        dict,
     ]
 ):
     _ENDPOINT = "wss://dstream.binance.com/ws"

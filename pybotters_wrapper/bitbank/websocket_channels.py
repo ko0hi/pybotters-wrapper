@@ -28,5 +28,3 @@ class bitbankWebsocketChannels(
 
     def _parameter_template(self, parameter: str) -> str:
         return f'42["join-room","{parameter}"]'
-
-

@@ -1,5 +1,6 @@
 from yarl import URL
 
+
 class bitbankBaseUrlAttacher:
     _PRIVATE_ENDPOINTS = {
         "/user/assets",

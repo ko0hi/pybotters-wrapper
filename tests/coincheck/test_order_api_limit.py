@@ -52,6 +52,7 @@ async def test_api(tester):
     resp = await tester.test_api()
     print(resp)
 
+
 @pytest.mark.asyncio
 async def test_generate_endpoint(tester):
     await tester.test_generate_endpoint()

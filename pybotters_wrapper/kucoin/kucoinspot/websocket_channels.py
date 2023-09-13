@@ -20,6 +20,7 @@ class KuCoinSpotWebSocketChannels(
     ]
 ):
     _ENDPOINT = "DYNAMIC_ENDPOINT"
+
     def ticker(self, symbol: str, **kwargs) -> str:
         return self.market_ticker(symbol)
 

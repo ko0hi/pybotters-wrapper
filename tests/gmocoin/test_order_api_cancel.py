@@ -17,9 +17,7 @@ def tester(cancel_order_tester):
         },
         dummy_response={"status": 0, "responsetime": "2019-03-19T01:07:24.557Z"},
         expected_generate_endpoint="/private/v1/cancelOrder",
-        expected_translate_parameters={
-            "orderId": 0
-        },
+        expected_translate_parameters={"orderId": 0},
         expected_order_id="0",
     )
 

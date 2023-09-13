@@ -6,6 +6,7 @@ from .websocket_channels import BitgetWebSocketChannels
 from .price_size_precision_fetcher import BitgetPriceSizePrecisionFetcher
 from .normalized_store_builder import BitgetNormalizedStoreBuilder
 
+
 class BitgetWrapperFactory(WrapperFactory):
     __BASE_URL = "https://api.bitget.com"
     _EXCHANGE_PROPERTIES = {

@@ -9,6 +9,7 @@ def test_public_queue_mixin_w_init():
         def __init__(self):
             super(Hoge, self).__init__()
             self.init_publish_queue()
+
     p = Hoge()
     p.subscribe()
     p.put(1)

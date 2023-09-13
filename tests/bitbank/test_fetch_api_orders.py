@@ -69,7 +69,7 @@ def tester(orders_fetch_api_tester):
                 "type": "limit",
                 "size": 0.0001,
                 "timestamp": pd.to_datetime(1687321888552, unit="ms", utc=True),
-            }
+            },
         ],
     )
 

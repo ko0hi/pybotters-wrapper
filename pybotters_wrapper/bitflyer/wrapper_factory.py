@@ -266,4 +266,3 @@ class bitFlyerWrapperFactory(WrapperFactory):
             )
             .get()
         )
-

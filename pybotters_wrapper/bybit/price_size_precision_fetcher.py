@@ -28,4 +28,3 @@ class BybitPriceSizePrecisionFetcher(PriceSizePrecisionFetcher):
                 for d in data["result"]["list"]
             },
         }
-

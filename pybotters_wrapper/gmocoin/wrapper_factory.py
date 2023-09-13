@@ -125,4 +125,3 @@ class GMOCoinWrapperFactory(WrapperFactory):
             )
             .get()
         )
-

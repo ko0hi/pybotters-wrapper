@@ -31,7 +31,7 @@ def tester(orderbook_fetch_api_tester):
             "BUY": [
                 {"symbol": "FX_BTC_JPY", "price": 30000, "size": 0.1, "side": "BUY"},
                 {"symbol": "FX_BTC_JPY", "price": 25570, "size": 3, "side": "BUY"},
-            ]
+            ],
         },
     )
 
@@ -48,6 +48,7 @@ async def test_fetch(tester):
 async def test_api(tester):
     resp = await tester.test_api()
     print(resp)
+
 
 @pytest.mark.asyncio
 async def test_generate_endpoint(tester):

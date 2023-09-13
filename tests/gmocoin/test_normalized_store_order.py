@@ -23,7 +23,7 @@ def tester(order_normalized_store_tester):
             "orderExecutedSize": "0",
             "losscutPrice": "0",
             "timeInForce": "FAS",
-            "msgType": "NOR"
+            "msgType": "NOR",
         },
         None,
     )
@@ -39,7 +39,7 @@ def tester(order_normalized_store_tester):
             "side": "BUY",
             "price": 876045.0,
             "size": 0.8,
-            "type": "LIMIT"
+            "type": "LIMIT",
         },
     )
 
@@ -58,5 +58,3 @@ def test_delete(tester):
 
 def test_item(tester):
     tester.test_item()
-
-

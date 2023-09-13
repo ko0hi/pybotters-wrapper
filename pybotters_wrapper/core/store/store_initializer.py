@@ -96,7 +96,8 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
         config: dict[
             TConfigKey,
             tuple[TRequestMethod, TUrl, TRequiredParameters | None],
-        ] | None,
+        ]
+        | None,
     ):
         self._store = store
         self._config = config

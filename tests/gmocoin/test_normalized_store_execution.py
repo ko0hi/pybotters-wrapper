@@ -63,5 +63,3 @@ def test_delete(tester):
 
 def test_item(tester):
     tester.test_item()
-
-

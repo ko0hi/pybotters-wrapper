@@ -342,12 +342,7 @@ def tester(positions_fetch_api_tester):
                 "side": "BUY",
                 "size": 800000.0,
             },
-            {
-                "symbol": "btc",
-                "price": 0,
-                "side": "BUY",
-                "size": 1.0
-            },
+            {"symbol": "btc", "price": 0, "side": "BUY", "size": 1.0},
         ],
     )
 
