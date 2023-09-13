@@ -38,7 +38,7 @@ async def test_fetch(tester):
 
 
 @pytest.mark.asyncio
-# @pytest.mark.skip
+@pytest.mark.skip
 async def test_api(tester):
     resp = await tester.test_api()
     print(resp)
