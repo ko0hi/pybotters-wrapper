@@ -45,7 +45,7 @@ def tester(trades_normalized_store_tester):
             "side": "SELL",
             "price": 2820896.0,
             "size": 5.0,
-            "timestamp": pd.to_datetime(1663318663, unit="s", utc=True),
+            "timestamp": pd.to_datetime("1663318663", unit="s", utc=True),
         },
     )
 
