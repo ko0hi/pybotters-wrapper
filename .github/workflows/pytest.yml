@@ -27,6 +27,9 @@ jobs:
     - name: Install dependencies
       run: |
         poetry install
+    - name: Code formatting
+      run: |
+        make format
     - name: Lint with flake8
       run: |
         make lint
