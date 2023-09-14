@@ -27,12 +27,18 @@ jobs:
     - name: Install dependencies
       run: |
         poetry install
-    - name: Code formatting
-      run: |
-        make format
     - name: Lint with flake8
       run: |
         make lint
     - name: Test with pytest
       run: |
         make test
+    - name: Code formatting
+      run: |
+        make format
+    - name: Check for changes
+      run: |
+        if ! git diff --exit-code; then
+          echo "Changes were found after running make format. Please ensure your code is formatted correctly."
+          exit 1
+        fi
