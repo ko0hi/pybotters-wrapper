@@ -8,6 +8,7 @@ from loguru import logger
 from pybotters.store import DataStore
 from pybotters.ws import ClientWebSocketResponse
 
+from ..exceptions import UnsupportedStoreError
 from .exchange_property import ExchangeProperty
 from .store import (
     ExecutionStore,
@@ -26,7 +27,6 @@ from .websocket import (
     WebSocketRequestBuilder,
     WebSocketRequestCustomizer,
 )
-from ..exceptions import UnsupportedStoreError
 
 if TYPE_CHECKING:
     from pybotters import Item
