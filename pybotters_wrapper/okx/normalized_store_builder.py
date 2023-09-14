@@ -10,7 +10,6 @@ from ..core import (
     TickerStore,
     TradesStore,
 )
-
 from ..exceptions import UnsupportedStoreError
 
 

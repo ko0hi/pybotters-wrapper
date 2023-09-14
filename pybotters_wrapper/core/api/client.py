@@ -37,8 +37,10 @@ def format_requests_response(
             data = resp.json()
         except JSONDecodeError:
             data = None
-        return (f"Request failed: "
-                f"[{resp.status_code}] {method} {url} with {params} -> {data}")
+        return (
+            f"Request failed: "
+            f"[{resp.status_code}] {method} {url} with {params} -> {data}"
+        )
 
 
 class APIClient:

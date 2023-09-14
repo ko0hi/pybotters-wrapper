@@ -1,12 +1,12 @@
 import asyncio
 from abc import ABCMeta
-from typing import Any, Awaitable, Callable, Generic, TypeVar, Type
+from typing import Any, Awaitable, Callable, Generic, Type, TypeVar
 
 from aiohttp.client import ClientResponse
 from requests import Response
 
-from .client import APIClient
 from ..typedefs.typing import TEndpoint, TRequestMethod
+from .client import APIClient
 
 TGenerateEndpointParameters = TypeVar("TGenerateEndpointParameters")
 TTranslateParametersParameters = TypeVar("TTranslateParametersParameters")

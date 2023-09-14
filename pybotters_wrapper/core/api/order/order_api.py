@@ -2,6 +2,8 @@ from typing import Awaitable, Callable, Type
 
 from aiohttp.client import ClientResponse
 
+from ...formatter import PriceSizePrecisionFormatter
+from ...typedefs import TEndpoint, TRequestMethod, TSymbol
 from ..client import APIClient
 from ..exchange_api import (
     ExchangeAPI,
@@ -10,8 +12,6 @@ from ..exchange_api import (
     TTranslateParametersParameters,
     TWrapResponseParameters,
 )
-from ...formatter import PriceSizePrecisionFormatter
-from ...typedefs import TEndpoint, TRequestMethod, TSymbol
 
 
 class OrderAPI(

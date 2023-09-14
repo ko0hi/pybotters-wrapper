@@ -2,7 +2,6 @@ import asyncio
 
 from pybotters.store import DataStore, StoreChange
 
-
 from .helper import execute_fn, generate_attribute_checker
 
 

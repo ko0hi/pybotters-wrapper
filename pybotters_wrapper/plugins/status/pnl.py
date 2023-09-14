@@ -6,9 +6,9 @@ from typing import TypedDict
 import pandas as pd
 from pybotters.store import DataStore
 
+from ...core import DataStoreWrapper
 from ..base_plugin import Plugin
 from ..mixins import WatchStoreMixin
-from ...core import DataStoreWrapper
 
 
 class PnLItem(TypedDict):

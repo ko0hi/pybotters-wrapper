@@ -4,14 +4,14 @@ from typing import Callable, NamedTuple, Type, TypeVar
 
 from aiohttp import ClientResponse
 
-from .order_api import OrderAPI
+from ...formatter.price_size_precision import PriceSizePrecisionFormatter
 from ..exchange_api import (
     TGenerateEndpointParameters,
     TTranslateParametersParameters,
     TWrapResponseParameters,
 )
 from ..exchange_api_builder import ExchangeAPIBuilder
-from ...formatter.price_size_precision import PriceSizePrecisionFormatter
+from .order_api import OrderAPI
 
 TOrderAPI = TypeVar("TOrderAPI", bound=OrderAPI)
 TOrderAPIBuilder = TypeVar(

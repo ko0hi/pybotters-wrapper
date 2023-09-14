@@ -2,9 +2,9 @@ from typing import NamedTuple, TypedDict
 
 from aiohttp.client import ClientResponse
 
+from ...typedefs import TEndpoint, TOrderbook, TSymbol
 from .fetch_api import FetchAPI
 from .fetch_api_builder import FetchAPIBuilder
-from ...typedefs import TEndpoint, TOrderbook, TSymbol
 
 
 class OrderbookFetchAPIResponse(NamedTuple):

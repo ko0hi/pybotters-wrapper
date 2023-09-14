@@ -2,6 +2,7 @@ from typing import Any, Awaitable, Callable, Type
 
 from aiohttp.client import ClientResponse
 
+from ...typedefs import OrderbookItem, TEndpoint, TRequestMethod, TSide
 from ..client import APIClient
 from ..exchange_api import (
     ExchangeAPI,
@@ -10,7 +11,6 @@ from ..exchange_api import (
     TTranslateParametersParameters,
     TWrapResponseParameters,
 )
-from ...typedefs import OrderbookItem, TEndpoint, TRequestMethod, TSide
 
 
 class FetchAPI(

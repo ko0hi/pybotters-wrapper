@@ -3,14 +3,13 @@ from typing import Generic
 
 from pybotters_wrapper.core.typedefs.typing import TDataStoreManager
 
+from ...exceptions import UnsupportedStoreError
 from .normalized_store_execution import ExecutionStore
 from .normalized_store_order import OrderStore
 from .normalized_store_orderbook import OrderbookStore
 from .normalized_store_position import PositionStore
 from .normalized_store_ticker import TickerStore
 from .normalized_store_trades import TradesStore
-
-from ...exceptions import UnsupportedStoreError
 
 
 class NormalizedStoreBuilder(Generic[TDataStoreManager], metaclass=ABCMeta):

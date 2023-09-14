@@ -10,9 +10,9 @@ from typing import (
     Iterator,
     Literal,
     Type,
+    TypedDict,
     TypeVar,
     Union,
-    TypedDict,
 )
 
 import pybotters

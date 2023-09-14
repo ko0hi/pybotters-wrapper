@@ -4,10 +4,10 @@ import numpy as np
 import pybotters
 from pybotters.store import DataStore
 
-from ..base_plugin import Plugin
-from ..mixins import WatchStoreMixin
 from ...core import DataStoreWrapper, OrderbookStore
 from ...utils import BinBucket
+from ..base_plugin import Plugin
+from ..mixins import WatchStoreMixin
 
 
 class BinningBook(WatchStoreMixin, Plugin):
