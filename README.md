@@ -1,6 +1,6 @@
 # pybotters-wrapper
 
-![pytest](https://github.com/ko0hi/pybotters-wrapper/actions/workflows/pytest.yml/badge.svg)
+[![pytest](https://github.com/ko0hi/pybotters-wrapper/actions/workflows/pytest.yml/badge.svg)](https://github.com/ko0hi/pybotters-wrapper/actions/workflows/pytest.yml)
 
 A high-level api collection for pybotters
 
