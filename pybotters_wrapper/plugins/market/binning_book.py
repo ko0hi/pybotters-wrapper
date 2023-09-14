@@ -1,18 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pybotters.store import DataStore
-
 import numpy as np
 import pybotters
 from pybotters.store import DataStore
 
-from ...core import DataStoreWrapper, OrderbookStore
-from ...utils import BinBucket
 from ..base_plugin import Plugin
 from ..mixins import WatchStoreMixin
+from ...core import DataStoreWrapper, OrderbookStore
+from ...utils import BinBucket
 
 
 class BinningBook(WatchStoreMixin, Plugin):

@@ -12,6 +12,7 @@ from .normalized_store_trades import TradesStore
 
 from ...exceptions import UnsupportedStoreError
 
+
 class NormalizedStoreBuilder(Generic[TDataStoreManager], metaclass=ABCMeta):
     def __init__(self, store: TDataStoreManager):
         self._store: TDataStoreManager = store

@@ -154,7 +154,7 @@ class CoincheckWrapperFactory(WrapperFactory):
             OrderbookFetchAPIBuilder()
             .set_api_client(cls.create_api_client(client, verbose))
             .set_method("GET")
-            .set_endpoint_generator(lambda params: f"/api/order_books")
+            .set_endpoint_generator(lambda params: "/api/order_books")
             .set_parameter_translater(lambda params: {"pair": params["symbol"]})
             .set_response_itemizer(
                 lambda resp, data: {

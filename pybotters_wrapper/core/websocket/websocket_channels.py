@@ -35,7 +35,7 @@ class WebSocketChannels(
     ) -> SubscribeItem | list[SubscribeItem]:
         try:
             method = getattr(self, cast(str, name))
-        except AttributeError as e:
+        except AttributeError:
             raise AttributeError(f"Unsupported channel: {name}")
         parameter = method(**params)
         if isinstance(parameter, list):

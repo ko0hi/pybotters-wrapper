@@ -49,7 +49,8 @@ class WebSocketConnection:
         Args:
             client (pybotters.Client): pybottersのクライアントインスタンス。
             auto_reconnect (bool, optional): 自動再接続を有効にするか。デフォルトは False。
-            on_reconnection (WebsocketOnReconnectionCallback, optional): 再接続時に実行するコールバック。デフォルトは None。
+            on_reconnection (WebsocketOnReconnectionCallback, optional): 再接続時に実行する
+                コールバック。デフォルトは None。
             **kwargs: `pybotters.WebSocketRunner`の引数。
 
         Returns:

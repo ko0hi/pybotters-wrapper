@@ -13,7 +13,6 @@ from pybotters.typedefs import WsBytesHandler, WsStrHandler
 
 from pybotters_wrapper.core import (
     ExecutionStore,
-    NormalizedDataStore,
     OrderbookStore,
     OrderStore,
     PositionStore,

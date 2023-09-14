@@ -1,23 +1,17 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, NamedTuple, Type, TypeVar
+from typing import Callable, NamedTuple, Type, TypeVar
 
 from aiohttp import ClientResponse
 
+from .order_api import OrderAPI
 from ..exchange_api import (
     TGenerateEndpointParameters,
     TTranslateParametersParameters,
     TWrapResponseParameters,
 )
 from ..exchange_api_builder import ExchangeAPIBuilder
-from .order_api import OrderAPI
-
-if TYPE_CHECKING:
-    from pybotters_wrapper.core.formatter.price_size_precision import (
-        PriceSizePrecisionFormatter,
-    )
-
-    from .order_api import OrderAPI
+from ...formatter.price_size_precision import PriceSizePrecisionFormatter
 
 TOrderAPI = TypeVar("TOrderAPI", bound=OrderAPI)
 TOrderAPIBuilder = TypeVar(

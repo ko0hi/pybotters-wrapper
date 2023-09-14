@@ -10,7 +10,6 @@ from pybotters.ws import ClientWebSocketResponse
 
 from .exchange_property import ExchangeProperty
 from .store import (
-    NormalizedDataStore,
     ExecutionStore,
     NormalizedStoreBuilder,
     OrderbookStore,

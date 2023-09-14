@@ -46,7 +46,7 @@ class InitializeRequestItem(NamedTuple):
         err_msg = f"Unsupported InitializeRequestItem: {item}"
         try:
             item = cls(*item)
-        except TypeError as e:
+        except TypeError:
             raise TypeError(err_msg)
         else:
             if not (
@@ -231,7 +231,7 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
 
     async def _initialize_with_validation(self, *aws: Awaitable):
         # awaitableの結果をvalidation時に参照したいのでTaskで囲む
-        aws_tasks: list[asyncio.Task] = [asyncio.create_task(aw) for aw in aws]  # type: ignore
+        aws_tasks: list[asyncio.Task] = [asyncio.create_task(aw) for aw in aws]  # type: ignore  # noqa: E501
         try:
             await self._store.initialize(*aws_tasks)
         except AttributeError:
@@ -265,7 +265,8 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
         if item.required_params:
             if params is None:
                 raise ValueError(
-                    f"Missing required parameters for {item.url}: {item.required_params}"
+                    f"Missing required parameters for {item.url}: "
+                    f"{item.required_params}"
                 )
 
             missing_params = item.required_params.difference(params.keys())

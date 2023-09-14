@@ -1,18 +1,14 @@
 import asyncio
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from pybotters.store import DataStore
+from pybotters.store import DataStore, StoreChange
 
-
-import pybotters.store
 
 from .helper import execute_fn, generate_attribute_checker
 
 
 def _unwrap(
-    change: pybotters.store.StoreChange,
-) -> tuple[pybotters.store.DataStore, str, dict, dict]:
+    change: StoreChange,
+) -> tuple[DataStore, str, dict, dict]:
     return (
         change.store,
         change.operation,
@@ -22,13 +18,13 @@ def _unwrap(
 
 
 class WatchStoreMixin:
-    __store: pybotters.store.DataStore
+    __store: DataStore
     __break: bool
     __watch_task: asyncio.Task
 
     _checker = generate_attribute_checker("init_watch_store", "_WatchStoreMixin__store")
 
-    def init_watch_store(self, store: pybotters.store.DataStore):
+    def init_watch_store(self, store: DataStore):
         self.__store = store
         self.__break = False
         self.__watch_task = asyncio.create_task(self.__run_watch_task())
@@ -43,7 +39,7 @@ class WatchStoreMixin:
         await execute_fn(self._on_watch_before, is_aw_on_before)
 
         with self.__store.watch() as stream:
-            c1: pybotters.store.StoreChange = await stream.get()
+            c1: StoreChange = await stream.get()
             await execute_fn(self._on_watch_first, is_aw_on_first, *_unwrap(c1))
             await execute_fn(self._on_watch, is_aw_on_watch, *_unwrap(c1))
             if self.__break:
@@ -121,7 +117,7 @@ class WatchMultipleStoreMixin:
 
         await execute_fn(self._on_watch_before, is_aw_on_before)
 
-        change1: pybotters.store.StoreChange = await self.__queue.get()
+        change1: StoreChange = await self.__queue.get()
         await execute_fn(self._on_watch_first, is_aw_on_first, *_unwrap(change1))
         await execute_fn(self._on_watch, is_aw_on_watch, *_unwrap(change1))
 
@@ -130,7 +126,7 @@ class WatchMultipleStoreMixin:
             return
 
         while True:
-            c: pybotters.store.StoreChange = await self.__queue.get()
+            c: StoreChange = await self.__queue.get()
             await execute_fn(self._on_watch, is_aw_on_watch, *_unwrap(c))
 
             if self.__break:
