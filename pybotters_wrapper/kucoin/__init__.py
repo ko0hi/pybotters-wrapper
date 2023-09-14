@@ -1,12 +1,2 @@
-from .api import KuCoinFuturesAPI, KuCoinSpotAPI
-from .socket import KuCoinFuturesWebsocketChannels, KuCoinSpotWebsocketChannels
-from .store import KuCoinFuturesDataStoreWrapper, KuCoinSpotDataStoreWrapper
-
-__all__ = (
-    "KuCoinSpotAPI",
-    "KuCoinFuturesAPI",
-    "KuCoinSpotWebsocketChannels",
-    "KuCoinFuturesWebsocketChannels",
-    "KuCoinSpotDataStoreWrapper",
-    "KuCoinFuturesDataStoreWrapper",
-)
+from .kucoinfutures.wrapper_factory import KuCoinFuturesWrapperFactory
+from .kucoinspot.wrapper_factory import KuCoinSpotWrapperFactory

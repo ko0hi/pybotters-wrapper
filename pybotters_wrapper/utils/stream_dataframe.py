@@ -40,13 +40,12 @@ class StreamDataFrame:
             self._df = df
         self.__prune()
 
-    def append(self, d: dict):
+    def append(self, d: dict) -> None:
         self._df = self._df.shift(-1)
         self._df.iloc[-1] = [d[c] for c in self._df.columns]
         self.__apply_callback()
 
     def concat(self, df, overwrite_by_index=True):
-
         if overwrite_by_index:
             lhs = self._df[~self._df.index.isin(df.index)]
         else:

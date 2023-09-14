@@ -1,0 +1,44 @@
+name: pytest
+
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11"]
+        poetry-version: ["latest"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Python Poetry Action
+      uses: abatilo/actions-poetry@v2
+      with:
+        poetry-version: ${{ matrix.poetry-version }}
+    - name: Install dependencies
+      run: |
+        poetry install
+    - name: Lint with flake8
+      run: |
+        make lint
+    - name: Test with pytest
+      run: |
+        make test
+    - name: Code formatting
+      run: |
+        make format
+    - name: Check for changes
+      run: |
+        if ! git diff --exit-code; then
+          echo "Changes were found after running make format. Please ensure your code is formatted correctly."
+          exit 1
+        fi

@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pybotters.store import DataStore
+
+
 import asyncio
 import csv
 import io
@@ -7,28 +13,33 @@ import os
 from datetime import datetime
 
 from ...core import DataStoreWrapper
-from .._base import Plugin
+from ..base_plugin import Plugin
 from ..market.bar import BarStreamDataFrame
-from ._base import DataStoreWaitWriter, DataStoreWatchWriter, WriterMixin
-
 from ..mixins import CSVWriterMixin
+from .base_writers import DataStoreWaitWriter, DataStoreWatchWriter, WriterMixin
 
 
 class _CSVWriter:
     def __init__(
-            self, path: str, per_day: bool, columns: list[str] = None,
-            flush: bool = False
+        self,
+        path: str,
+        per_day: bool,
+        columns: list[str] | None = None,
+        flush: bool = False,
     ):
         self._path = path
         self._columns = columns
         self._filename = os.path.basename(self._path)
         self._filepath = os.path.dirname(self._path)
         self._per_day = per_day
-        self._f: io.TextIOWrapper = None
-        self._writer: csv.DictWriter = None
+        self._f: io.TextIOWrapper | None = None
+        self._writer: csv.DictWriter | None = None
         self._flush = flush
 
     def _write(self, d: dict):
+        assert self._writer is not None, "writer is not initialized"
+        assert self._f is not None, "file object is not initialized"
+
         self._writer.writerow(d)
         if self._flush:
             self._f.flush()
@@ -46,15 +57,16 @@ class _CSVWriter:
     def _init_or_update_writer(self):
         filepath = self._get_filepath()
 
-        if self._writer is None:
+        if self._writer is None or self._f is None:
             self._init_writer(filepath)
 
         elif filepath != self._f.name:
             self._f.close()
             self._init_writer(filepath)
 
-    def _init_writer(self, filepath: str):
+    def _init_writer(self, filepath: str) -> None:
         self._f = open(filepath, "w")
+        assert self._columns is not None, "Missing columns"
         self._writer = csv.DictWriter(self._f, fieldnames=self._columns)
         if self._columns is not None:
             self._writer.writeheader()
@@ -62,28 +74,32 @@ class _CSVWriter:
 
 class DataStoreWatchCSVWriter(CSVWriterMixin, DataStoreWatchWriter):
     def __init__(
-            self,
-            store: DataStoreWrapper,
-            store_name: str,
-            path: str,
-            *,
-            per_day: bool = False,
-            columns: list[str] = None,
-            flush: bool = False,
-            operations: list[str] = None,
+        self,
+        store: DataStoreWrapper,
+        store_name: str,
+        path: str,
+        *,
+        per_day: bool = False,
+        columns: list[str] | None = None,
+        flush: bool = False,
+        operations: list[str] | None = None,
     ):
         super(DataStoreWatchCSVWriter, self).__init__(
             store, store_name, operations=operations
         )
         self.init_csv_writer(path, per_day, columns, flush)
 
-    def _on_watch_first(self, store: "DataStore", operation: str, source: dict, data: dict):
+    def _on_watch_first(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ):
         super()._on_watch_first(store, operation, source, data)
         if self.get_columns() is None:
             self.set_columns(self._fields)
         self.new_writer()
 
-    async def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
+    async def _on_watch(
+        self, store: "DataStore", operation: str, source: dict, data: dict
+    ):
         await super()._on_watch(store, operation, source, data)
         # 日付が変わっていた場合writerを更新
         self.new_or_update_writer()
@@ -91,14 +107,14 @@ class DataStoreWatchCSVWriter(CSVWriterMixin, DataStoreWatchWriter):
 
 class DataStoreWaitCSVWriter(CSVWriterMixin, DataStoreWaitWriter):
     def __init__(
-            self,
-            store: DataStoreWrapper,
-            store_name: str,
-            path: str,
-            *,
-            per_day: bool = False,
-            columns: list[str] = None,
-            flush: bool = False,
+        self,
+        store: DataStoreWrapper,
+        store_name: str,
+        path: str,
+        *,
+        per_day: bool = False,
+        columns: list[str] | None = None,
+        flush: bool = False,
     ):
         if columns is not None and "wrote_at" not in columns:
             columns.append("wrote_at")
@@ -119,17 +135,17 @@ class DataStoreWaitCSVWriter(CSVWriterMixin, DataStoreWaitWriter):
 
 class BarCSVWriter(Plugin, WriterMixin):
     def __init__(
-            self,
-            bar: BarStreamDataFrame,
-            path: str,
-            *,
-            per_day: bool = False,
-            flush: bool = False,
+        self,
+        bar: BarStreamDataFrame,
+        path: str,
+        *,
+        per_day: bool = False,
+        flush: bool = False,
     ):
         super(BarCSVWriter)
         self._bar = bar
         self._writer: _CSVWriter = _CSVWriter(path, per_day, self._bar.COLUMNS, flush)
-        self._queue = self._bar.register_queue()
+        self._queue = self._bar.subscribe()
         self._task = asyncio.create_task(self._auto_write())
 
     async def _auto_write(self):

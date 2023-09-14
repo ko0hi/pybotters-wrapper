@@ -2,28 +2,36 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from typing import TYPE_CHECKING
-import pandas as pd
 from decimal import Decimal
+from typing import TYPE_CHECKING, Literal, cast
+
+import pandas as pd
+from loguru import logger
 
 if TYPE_CHECKING:
-    from pybotters_wrapper.core.store import (
-        TradesItem,
-        OrderItem,
-        ExecutionItem,
-        PositionItem,
-    )
-    from pybotters_wrapper.sandbox import SandboxAPI, SandboxDataStoreWrapper
+    from .api_wrapper import SandboxAPIWrapper
+    from .store_wrapper import SandboxDataStoreWrapper
 
-from pybotters_wrapper.core import API, DataStoreWrapper
-from pybotters_wrapper.utils.mixins import LoggingMixin
+from ..core import (
+    APIWrapper,
+    DataStoreWrapper,
+    ExecutionItem,
+    OrderItem,
+    PositionItem,
+    TradesItem,
+)
+from .exceptions import OrderNotFoundError
 
 
-class SandboxEngine(LoggingMixin):
+class SandboxOrderItem(OrderItem):
+    timestamp: str
+
+
+class SandboxEngine:
     SUFFIX = ".sandbox"
     _REGISTRY: dict[str, SandboxEngine] = {}
 
-    def __init__(self, store: SandboxDataStoreWrapper, api: SandboxAPI):
+    def __init__(self, store: SandboxDataStoreWrapper, api: SandboxAPIWrapper):
         self._store = store
         self._api = api
 
@@ -37,18 +45,19 @@ class SandboxEngine(LoggingMixin):
         self,
         symbol: str,
         side: str,
-        price: float,
+        price: float | None,
         size: float,
-        type: str,
+        type: Literal["MARKET", "LIMIT", "STOP_LIMIT", "STOP_MARKET"],
+        trigger: float | None = None,
         **kwargs,
     ) -> str:
         order_item = self._create_order_item(
-            symbol, side, price, size, type, **kwargs
+            symbol, side, price, size, type, trigger=trigger, **kwargs
         )
         self._store.order._insert([order_item])
-        self.log(f"new order: {order_item}")
+        logger.info(f"new order: {order_item}")
 
-        if type == "MARKET" and "trigger" not in order_item:
+        if type == "MARKET":
             self._handle_execution(order_item)
 
         return order_item["id"]
@@ -56,7 +65,7 @@ class SandboxEngine(LoggingMixin):
     def delete_order(self, symbol: str, order_id: str) -> None:
         order_item = self._store.order.find({"symbol": symbol, "id": order_id})
         if len(order_item) == 0:
-            raise RuntimeError(
+            raise OrderNotFoundError(
                 f"No order found with {symbol} and {order_id}. "
                 f"Your order list: {self._store.order.find()}"
             )
@@ -69,9 +78,7 @@ class SandboxEngine(LoggingMixin):
             async for change in stream:
                 if change.operation == "insert":
                     trade_item = change.data
-                    orders = self._store.order.find(
-                        {"symbol": trade_item["symbol"]}
-                    )
+                    orders = self._store.order.find({"symbol": trade_item["symbol"]})
                     for order_item in orders:
                         if self._is_executed(order_item, trade_item):
                             self._handle_execution(order_item)
@@ -79,9 +86,7 @@ class SandboxEngine(LoggingMixin):
                         if self._is_triggered(order_item, trade_item):
                             self._handle_trigger(order_item)
 
-    def _is_executed(
-        self, order_item: OrderItem, trade_item: TradesItem
-    ) -> bool:
+    def _is_executed(self, order_item: OrderItem, trade_item: TradesItem) -> bool:
         if order_item["symbol"] != trade_item["symbol"]:
             return False
 
@@ -93,56 +98,50 @@ class SandboxEngine(LoggingMixin):
         else:
             return order_item["price"] <= trade_item["price"]
 
-    def _is_triggered(
-        self, order_item: OrderItem, trade_item: TradesItem
-    ) -> bool:
+    def _is_triggered(self, order_item: OrderItem, trade_item: TradesItem) -> bool:
         if order_item["symbol"] != trade_item["symbol"]:
             return False
 
-        if "trigger" in order_item:
+        if order_item["type"] in ["STOP_LIMIT", "STOP_MARKET"]:
+            assert "trigger" in order_item
             return (
                 order_item["side"] == "BUY"
-                and trade_item["price"] >= order_item["trigger"]  # noqa
+                and trade_item["price"] >= order_item["trigger"]
             ) or (
                 order_item["side"] == "SELL"
-                and trade_item["price"] <= order_item["trigger"]  # noqa
+                and trade_item["price"] <= order_item["trigger"]
             )
         return False
 
-    def _handle_execution(self, order_item: OrderItem) -> None:
-        self.log(f"handle execution")
+    def _handle_execution(self, order_item: SandboxOrderItem) -> None:
+        logger.info("handle execution")
 
         # 約定履歴の挿入
         execution_item = self._create_execution_item(order_item)
         self._store.execution._insert([execution_item])
-        self.log(f"insert execution: {execution_item}")
+        logger.info(f"insert execution: {execution_item}")
 
         # ポジション状態のアップデート
         # one-side only
         position_item = self._create_position_item(execution_item)
-        position_old = self._store.position.find(
-            {"symbol": order_item["symbol"]}
-        )
+        position_old = self._store.position.find({"symbol": order_item["symbol"]})
         self._store.position._delete(position_old)
         if position_item is not None:
             self._store.position._insert([position_item])
-        position_new = self._store.position.find(
-            {"symbol": order_item["symbol"]}
-        )
-        self.log(f"update position: {position_old} => {position_new}")
+        position_new = self._store.position.find({"symbol": order_item["symbol"]})
+        logger.info(f"update position: {position_old} => {position_new}")
 
         # 注文の削除
         self._store.order._delete([order_item])
-        self.log(f"delete order: {order_item}")
+        logger.info(f"delete order: {order_item}")
 
     def _handle_trigger(self, order_item: OrderItem) -> None:
-        order_item.pop("trigger")
         self.insert_order(
             order_item["symbol"],
             order_item["side"],
             order_item["price"],
             order_item["size"],
-            order_item["type"],
+            type=order_item["type"].replace("STOP_", ""),  # type: ignore
             order_id=order_item["id"],
         )
 
@@ -150,49 +149,55 @@ class SandboxEngine(LoggingMixin):
         self,
         symbol: str,
         side: str,
-        price: float,
+        price: float | None,  # marketの時はNone
         size: float,
-        type: str,
-        order_id: str = None,
+        type: Literal["LIMIT", "MARKET", "STOP_LIMIT", "STOP_MARKET"],
+        order_id: str | None = None,
+        trigger: float | None = None,
         **kwargs,
-    ) -> OrderItem:
+    ) -> SandboxOrderItem:
+        if type.startswith("STOP") and trigger is None:
+            raise ValueError("trigger must be specified for STOP_MARKET order")
+
+        kwargs = kwargs or {}
+        kwargs["timestamp"] = pd.Timestamp.utcnow()
+        if trigger:
+            kwargs["trigger"] = trigger
+
         order_id = order_id or str(uuid.uuid4())
         order_item = self._store.order._itemize(
-            order_id,
-            symbol,
-            side,
-            price,
-            size,
-            type,
-            timestamp=pd.Timestamp.utcnow(),
+            id=order_id,
+            symbol=symbol,
+            side=side,
+            price=price,
+            size=size,
+            type=type,
             **kwargs,
         )
-        return order_item
+        return cast(SandboxOrderItem, order_item)
 
-    def _create_execution_item(self, order_item: OrderItem) -> ExecutionItem:
+    def _create_execution_item(self, order_item: SandboxOrderItem) -> ExecutionItem:
         order_type = order_item["type"]
         if order_type == "LIMIT":
             price = order_item["price"]
         elif order_type == "MARKET":
             price = self._get_execution_price_for_market_order(order_item)
         else:
-            raise RuntimeError(f"Unsupported order type: {order_type}")
+            raise ValueError(f"Unsupported order type: {order_type}")
 
         return self._store.execution._itemize(
-            order_item["id"],
-            order_item["symbol"],
-            order_item["side"],
-            price,
-            order_item["size"],
-            pd.Timestamp.utcnow(),
+            id=order_item["id"],
+            symbol=order_item["symbol"],
+            side=order_item["side"],
+            price=price,
+            size=order_item["size"],
+            timestamp=pd.Timestamp.utcnow(),
         )
 
     def _create_position_item(
         self, execution_item: ExecutionItem
-    ) -> PositionItem:
-        positions = self._store.position.find(
-            {"symbol": execution_item["symbol"]}
-        )
+    ) -> PositionItem | None:
+        positions = self._store.position.find({"symbol": execution_item["symbol"]})
 
         symbol = execution_item["symbol"]
         side = execution_item["side"]
@@ -201,24 +206,24 @@ class SandboxEngine(LoggingMixin):
 
         if len(positions) == 0:
             return self._store.position._itemize(
-                symbol, side, price, float(size)
+                symbol=symbol, side=side, price=price, size=float(size)
             )
         else:
             assert len(positions) == 1
             position_item = positions[0]
-            n_side, n_size, n_price = self._compute_side_size_price(
+            n_side, n_size, n_price = self._compute_position_side_size_price(
                 position_item, execution_item
             )
             if n_size is not None:
                 return self._store.position._itemize(
-                    symbol, n_side, n_price, n_size
+                    symbol=symbol, side=n_side, price=n_price, size=n_size
                 )
             else:
                 return None
 
-    def _compute_side_size_price(
+    def _compute_position_side_size_price(
         self, position_item: PositionItem, execution_item: ExecutionItem
-    ) -> tuple[str, float, float]:
+    ) -> tuple[str | None, float | None, float | None]:
         e_side = execution_item["side"]
         e_price = Decimal(str(execution_item["price"]))
         e_size = Decimal(str(execution_item["size"]))
@@ -239,7 +244,7 @@ class SandboxEngine(LoggingMixin):
                 return e_side, float(abs(remaining_size)), float(e_price)
 
     def _get_execution_price_for_market_order(
-        self, order_item: OrderItem
+        self, order_item: SandboxOrderItem
     ) -> float:
         # todo: 注文サイズ・スリッページの考慮
         asks, bids = self._store.orderbook.sorted().values()
@@ -250,16 +255,14 @@ class SandboxEngine(LoggingMixin):
 
     @classmethod
     def register(
-        cls, store: DataStoreWrapper, api: API
-    ) -> tuple[SandboxDataStoreWrapper, SandboxAPI]:
-        from .api import SandboxAPI
-        from .store import SandboxDataStoreWrapper
+        cls, store: DataStoreWrapper, api: APIWrapper
+    ) -> tuple[SandboxDataStoreWrapper, SandboxAPIWrapper]:
+        from .api_wrapper import SandboxAPIWrapper
+        from .store_wrapper import SandboxDataStoreWrapper
 
-        sandbox_store = SandboxDataStoreWrapper(store)
-        sandbox_api = SandboxAPI(api)
+        sandbox_store: SandboxDataStoreWrapper = SandboxDataStoreWrapper(store)
+        sandbox_api = SandboxAPIWrapper(api)
 
-        cls._REGISTRY[str(uuid.uuid4())] = SandboxEngine(
-            sandbox_store, sandbox_api
-        )
+        cls._REGISTRY[str(uuid.uuid4())] = SandboxEngine(sandbox_store, sandbox_api)
 
         return sandbox_store, sandbox_api

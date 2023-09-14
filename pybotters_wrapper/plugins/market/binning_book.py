@@ -1,56 +1,57 @@
 from __future__ import annotations
 
-from typing import NamedTuple, TypeVar, Union
-
 import numpy as np
 import pybotters
 from pybotters.store import DataStore
 
-from ...utils import Bucket
-from .._base import Plugin
+from ...core import DataStoreWrapper, OrderbookStore
+from ...utils import BinBucket
+from ..base_plugin import Plugin
 from ..mixins import WatchStoreMixin
-
-T = TypeVar("T", bound=DataStore)
-
-
-class BookChange(NamedTuple):
-    op: str
-    side: str
-    price: Union[int, float]
-    size: float
 
 
 class BinningBook(WatchStoreMixin, Plugin):
+    watch_store: OrderbookStore
+
     def __init__(
         self,
-        store: "DataStoreManagerWrapper",
+        store: DataStoreWrapper,
+        symbol: str,
         *,
         min_bin: int,
         max_bin: int,
         pips: int = 1,
         precision: int = 10,
     ):
-        self._buckets: dict[Bucket] = {
-            "SELL": Bucket(min_bin, max_bin, pips, precision),
-            "BUY": Bucket(min_bin, max_bin, pips, precision),
+        self._symbol = symbol
+        self._buckets: dict[str, BinBucket] = {
+            "SELL": BinBucket(min_bin, max_bin, pips, precision),
+            "BUY": BinBucket(min_bin, max_bin, pips, precision),
         }
         self._mid = None
         self.init_watch_store(store.orderbook)
 
-    def _on_watch(self, store: "DataStore", operation: str, source: dict, data: dict):
-        self.set_mid(self.store.mid)
-        if operation in ("insert", "update"):
-            self._insert(data["side"], data["price"], data["size"])
-        elif operation == "delete":
-            self._delete(data["side"], data["price"], data["size"])
+    def _on_watch(self, store: DataStore, operation: str, source: dict, data: dict):
+        if data["symbol"] == self._symbol:
+            if operation in ("insert", "update"):
+                self._insert(data["side"], data["price"], data["size"])
+            elif operation == "delete":
+                self._delete(data["side"], data["price"], data["size"])
 
-    def _insert(self, side: str, price, size):
-        self._buckets[side].insert(price, size)
+    def _insert(self, side: str, price: float, size: float):
+        self._buckets[side].insert(price, size)  # type: ignore
 
-    def _delete(self, side, price, size):
-        self._buckets[side].delete(price, size)
+    def _delete(self, side: str, price: float, size: float):
+        self._buckets[side].delete(price, size)  # type: ignore
 
-    def asks(self, n=100, *, lower=None, upper=None, non_zero_only=True):
+    def asks(
+        self,
+        n: int = 100,
+        *,
+        lower: int | None = None,
+        upper: int | None = None,
+        non_zero_only: bool = True,
+    ):
         if lower is not None:
             begin = self.ask_bucket.bucketize(lower)
         else:
@@ -111,10 +112,6 @@ class BinningBook(WatchStoreMixin, Plugin):
         return self._buckets[side]
 
     @property
-    def store(self) -> T:
-        return self.watch_store
-
-    @property
     def mid(self):
         return self._mid
 
@@ -131,7 +128,14 @@ class BinningBook(WatchStoreMixin, Plugin):
         return self._buckets["BUY"]
 
     @classmethod
-    def _make_returns(cls, bucket: Bucket, lhs, rhs, non_zero_only=True, is_bid=False):
+    def _make_returns(
+        cls,
+        bucket: BinBucket,
+        lhs: int,
+        rhs: int,
+        non_zero_only: bool = True,
+        is_bid: bool = False,
+    ) -> tuple[np.ndarray, np.ndarray]:
         prices = bucket.keys()[lhs:rhs]
         sizes = bucket.values()[lhs:rhs]
         if non_zero_only:

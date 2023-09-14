@@ -1,5 +1,5 @@
 import asyncio
-from typing import Callable
+from typing import Any, Callable
 
 
 def generate_attribute_checker(init_method_name: str, attr: str) -> Callable:
@@ -19,7 +19,7 @@ def generate_attribute_checker(init_method_name: str, attr: str) -> Callable:
     return _decorator
 
 
-async def execute_fn(fn: Callable, is_awaitable: bool = None, *args) -> any:
+async def execute_fn(fn: Callable, is_awaitable: bool | None = None, *args) -> Any:
     if is_awaitable is None:
         is_awaitable = asyncio.iscoroutinefunction(fn)
     if is_awaitable:

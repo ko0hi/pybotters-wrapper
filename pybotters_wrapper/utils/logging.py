@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-import json
 import os
 import sys
 from datetime import datetime
@@ -10,21 +7,15 @@ from loguru import logger
 LOG_FORMAT = (
     "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
     "<level>{level:<8}</level> | "
-    "<level>{message}</level>"
-)
-
-LOG_FORMAT_WITH_ICON = (
-    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
-    "<level>{level.icon:<1}{level:<8}</level> | "
-    "<level>{message}</level>"
+    "<level>{message}</level> ("
+    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan>)"
 )
 
 
-def init_logdir(*subdirs: str):
+def init_logdir(*subdirs: str) -> str:
     import __main__
 
-    subdirs = list(map(str, subdirs))
-
+    # /logs/<script_name>/<subdirs1>/<subdirs2>/.../<datetime>
     logdir = os.path.join(
         os.getcwd(),
         "logs",
@@ -37,26 +28,17 @@ def init_logdir(*subdirs: str):
 
 
 def init_logger(
-    logfile=None, enable_icon=False, retention=3, rotation="10MB", **kwargs
-):
-    [logger.remove(h) for h in logger._core.handlers]
-
-    fmt = LOG_FORMAT_WITH_ICON if enable_icon else LOG_FORMAT
-    logger.add(sys.stderr, format=fmt, **kwargs)
-
+    logfile: str | None = None,
+    retention: int = 3,
+    rotation: str = "10MB",
+    format: str | None = None,
+    **kwargs
+) -> None:
+    """loguruのloggerを初期化する。"""
+    format = format or LOG_FORMAT
+    [logger.remove(h) for h in logger._core.handlers]  # type: ignore
+    logger.add(sys.stderr, format=format, **kwargs)
     if logfile:
         logger.add(
-            logfile, format=fmt, retention=retention, rotation=rotation, **kwargs
+            logfile, format=format, retention=retention, rotation=rotation, **kwargs
         )
-
-    return logger
-
-
-init_logger()
-
-
-def log_command_args(
-    logdir: str, args: "argparse.Namespace", filename: str = "args.json"
-):
-    with open(os.path.join(logdir, filename), "w") as f:
-        json.dump(vars(args), f, indent=4)

@@ -1,3 +1,3 @@
-from .api import SandboxAPI
+from .api_wrapper import SandboxAPIWrapper
 from .engine import SandboxEngine
-from .store import SandboxDataStoreWrapper
+from .store_wrapper import SandboxDataStoreWrapper
