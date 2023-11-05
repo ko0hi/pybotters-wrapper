@@ -10,7 +10,7 @@ class PrecisionFormatter(Formatter):
 
     def format(self, key: str, value: float) -> str:
         precision = self._precisions.get(key)
-        if precision:
+        if precision is not None:
             if precision == 0:
                 return str(int(value))
             else:
