@@ -148,6 +148,12 @@ class bitFlyerWrapperFactory(WrapperFactory):
     def create_cancel_order_api(
         cls, client: pybotters.Client, verbose: bool = False
     ) -> CancelOrderAPI:
+        async def _response_decoder(resp: aiohttp.ClientResponse) -> dict:
+            if resp.status == 200:
+                return {"status": "OK"}
+            else:
+                return await resp.json()
+
         return (
             CancelOrderAPIBuilder()
             .set_api_client(cls.create_api_client(client, verbose))
@@ -160,6 +166,7 @@ class bitFlyerWrapperFactory(WrapperFactory):
                     "child_order_acceptance_id": params["order_id"],
                 }
             )
+            .set_response_decoder(_response_decoder)
             .get()
         )
 
