@@ -84,7 +84,7 @@ class BybitNormalizedStoreBuilder(
                     d["trade_time"], utc=True
                 ),
             },
-            on_watch_get_operation=lambda change: "_insert",
+            on_watch_get_operation=lambda change: "insert",
         )
 
     def position(self) -> PositionStore:

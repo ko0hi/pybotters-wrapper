@@ -97,7 +97,7 @@ class KuCoinNormalizedStoreBuilder(NormalizedStoreBuilder[KuCoinDataStore]):
                     int(d["ts"]), unit="ns", utc=True
                 ),
             },
-            on_watch_get_operation=lambda change: "_insert"
+            on_watch_get_operation=lambda change: "insert"
             if change.data["type"] == "match"
             else None,
         )
