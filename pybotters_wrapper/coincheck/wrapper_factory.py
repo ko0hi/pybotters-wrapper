@@ -206,7 +206,7 @@ class CoincheckWrapperFactory(WrapperFactory):
                         "type": "limit" if d["rate"] else "stop_market",
                         "timestamp": pd.to_datetime(d["created_at"]),
                     }
-                    for d in data["orders"]
+                    for d in data.get("orders", [])  # success: Falseの場合は空
                 ]
             )
             .get()
