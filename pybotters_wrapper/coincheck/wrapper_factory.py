@@ -37,6 +37,9 @@ class CoincheckWrapperFactory(WrapperFactory):
     _DATASTORE_MANAGER = CoincheckDataStore
     _WEBSOCKET_CHANNELS = CoincheckWebsocketChannels
     _NORMALIZED_STORE_BUILDER = CoincheckNormalizedStoreBuilder
+    _INITIALIZER_CONFIG = {
+        "orderbook": ("GET", f"{__BASE_URL}/api/order_books", {"pair"}),
+    }
 
     __ORDER_ID_KEY = "id"
 
