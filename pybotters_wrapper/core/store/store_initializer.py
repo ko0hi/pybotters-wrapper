@@ -211,7 +211,7 @@ class StoreInitializer(Generic[TDataStoreManager], metaclass=ABCMeta):
 
     def _get_initialize_request_item(self, key: str) -> InitializeRequestItem:
         """self._configからkeyに対応するInitializeRequestItemを取得する。"""
-        if key not in self._config:  # type: ignore
+        if self._config is None or key not in self._config:  # type: ignore
             raise ValueError(
                 f"Unsupported endpoint: {key}, "
                 f"available endpoints are {list(self._config.keys())}",  # type: ignore
