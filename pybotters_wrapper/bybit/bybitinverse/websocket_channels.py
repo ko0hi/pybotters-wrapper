@@ -8,26 +8,15 @@ class BybitInverseWebSocketChannels(
     BybitWebSocketChannelsMixin,
     WebSocketChannels[
         Literal[
-            "instrument_info",
             "trade",
-            "orderbook_l2_200",
-            "stop_order",
-            "wallet",
-            "insurance",
-            "kline_v2",
+            "kline",
             "liquidation",
         ],
         str,
         dict,
     ],
 ):
-    _ENDPOINT = "wss://stream.bybit.com/realtime"
-
-    def insurance(self) -> str:
-        return "insurance"
-
-    def kline_v2(self, symbol: str, interval: int | str = 1) -> str:
-        return f"klineV2.{interval}.{symbol}"
-
-    def liquidation(self) -> str:
-        return "liquidation"
+    _ENDPOINT = "wss://stream.bybit.com/v5/public/inverse"
+    _PUBLIC_ENDPOINT = _ENDPOINT
+    _PRIVATE_ENDPOINT = "wss://stream.bybit.com/v5/private"
+    _CATEGORY = "inverse"

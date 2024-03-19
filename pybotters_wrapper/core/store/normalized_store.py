@@ -45,7 +45,6 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
         name: str | None = None,
         keys: list[str] | None = None,
         data: list[Item] | None = None,
-        auto_cast: bool = False,
         target_operations: tuple[Literal["insert", "update", "delete"], ...]
         | None = None,
         on_wait: Callable[[NormalizedDataStore], None] | None = None,
@@ -62,7 +61,6 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
             name or self._NAME or self._base_store.name,
             keys or self._KEYS,
             data or [],
-            auto_cast=auto_cast,
         )
 
         # self._base_store._MAXLEN = max_len
@@ -142,7 +140,7 @@ class NormalizedDataStore(Generic[TNormalizedItem]):
 
     async def _wait_msg(self) -> None:
         if self._queue is not None:
-            async for msg in self._queue.iter_msg():
+            async for msg in self._queue:
                 self._on_msg(msg)
 
     def _on_msg(self, msg: "Item") -> None:
