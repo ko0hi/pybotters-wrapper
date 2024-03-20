@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Callable, Literal, Type
 
 import pybotters
-from pybotters.store import DataStoreManager
+from pybotters.store import DataStoreCollection
 
 from . import (
     APIWrapperBuilder,
@@ -37,7 +37,7 @@ from .websocket import WebSocketRequestBuilder, WebSocketRequestCustomizer
 
 class WrapperFactory(metaclass=ABCMeta):
     _EXCHANGE_PROPERTIES: ExchangeProperties
-    _DATASTORE_MANAGER: Type[DataStoreManager]
+    _DATASTORE_MANAGER: Type[DataStoreCollection]
     _WEBSOCKET_CHANNELS: Type[WebSocketChannels]
     _NORMALIZED_STORE_BUILDER: Type[NormalizedStoreBuilder]
 
@@ -128,7 +128,7 @@ class WrapperFactory(metaclass=ABCMeta):
         return cls._WEBSOCKET_CHANNELS()
 
     @classmethod
-    def create_datastore_manager(cls) -> DataStoreManager:
+    def create_datastore_manager(cls) -> DataStoreCollection:
         assert cls._DATASTORE_MANAGER is not None
         return cls._DATASTORE_MANAGER()
 

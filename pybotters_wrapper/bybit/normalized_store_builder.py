@@ -1,5 +1,5 @@
 import pandas as pd
-from pybotters import BybitInverseDataStore, BybitUSDTDataStore
+from pybotters import BybitDataStore
 
 from ..core import (
     ExecutionStore,
@@ -13,14 +13,14 @@ from ..core import (
 
 
 class BybitNormalizedStoreBuilder(
-    NormalizedStoreBuilder[BybitUSDTDataStore | BybitInverseDataStore]
+    NormalizedStoreBuilder[BybitDataStore]
 ):
     def ticker(self) -> TickerStore:
         return TickerStore(
-            self._store.instrument,
+            self._store.ticker,
             mapper={
                 "symbol": lambda store, o, s, d: d["symbol"],
-                "price": lambda store, o, s, d: float(d["last_price"]),
+                "price": lambda store, o, s, d: float(d["lastPrice"]),
             },
         )
 
@@ -28,13 +28,13 @@ class BybitNormalizedStoreBuilder(
         return TradesStore(
             self._store.trade,
             mapper={
-                "id": lambda store, o, s, d: d["trade_id"],
-                "symbol": lambda store, o, s, d: d["symbol"],
-                "side": lambda store, o, s, d: d["side"].upper(),
-                "price": lambda store, o, s, d: float(d["price"]),
-                "size": lambda store, o, s, d: d["size"],
+                "id": lambda store, o, s, d: d["i"],
+                "symbol": lambda store, o, s, d: d["s"],
+                "side": lambda store, o, s, d: d["S"].upper(),
+                "price": lambda store, o, s, d: float(d["p"]),
+                "size": lambda store, o, s, d: float(d["v"]),
                 "timestamp": lambda store, o, s, d: pd.to_datetime(
-                    d["timestamp"], utc=True
+                    d["T"], unit="ms", utc=True
                 ),
             },
         )
@@ -43,31 +43,23 @@ class BybitNormalizedStoreBuilder(
         return OrderbookStore(
             self._store.orderbook,
             mapper={
-                "symbol": lambda store, o, s, d: d["symbol"],
-                "side": lambda store, o, s, d: d["side"].upper(),
-                "price": lambda store, o, s, d: float(d["price"]),
-                "size": lambda store, o, s, d: float(d["size"]),
+                "symbol": lambda store, o, s, d: d["s"],
+                "side": lambda store, o, s, d: d["S"].upper(),
+                "price": lambda store, o, s, d: float(d["p"]),
+                "size": lambda store, o, s, d: float(d["v"]),
             },
         )
 
     def order(self) -> OrderStore:
-        def _extract_order_id(_store, _operation, _symbol, data: dict) -> str:
-            if "order_id" in data:
-                return data["order_id"]
-            elif "stop_order_id" in data:
-                return data["stop_order_id"]
-            else:
-                raise RuntimeError(f"ID not found: {data}")
-
         return OrderStore(
             self._store.order,
             mapper={
-                "id": _extract_order_id,
+                "id": lambda store, o, s, d: d["orderId"],
                 "symbol": lambda store, o, s, d: d["symbol"],
                 "side": lambda store, o, s, d: d["side"].upper(),
                 "price": lambda store, o, s, d: float(d["price"]),
                 "size": lambda store, o, s, d: d["qty"],
-                "type": lambda store, o, s, d: d["order_type"],
+                "type": lambda store, o, s, d: d["orderType"],
             },
         )
 
@@ -75,13 +67,13 @@ class BybitNormalizedStoreBuilder(
         return ExecutionStore(
             self._store.execution,
             mapper={
-                "id": lambda store, o, s, d: d["order_id"],
+                "id": lambda store, o, s, d: d["orderId"],
                 "symbol": lambda store, o, s, d: d["symbol"],
                 "side": lambda store, o, s, d: d["side"].upper(),
-                "price": lambda store, o, s, d: float(d["price"]),
-                "size": lambda store, o, s, d: d["exec_qty"],
+                "price": lambda store, o, s, d: float(d["execPrice"]),
+                "size": lambda store, o, s, d: d["execQty"],
                 "timestamp": lambda store, o, s, d: pd.to_datetime(
-                    d["trade_time"], utc=True
+                    d["execTime"], unit="ms", utc=True
                 ),
             },
             on_watch_get_operation=lambda change: "insert",
@@ -93,9 +85,9 @@ class BybitNormalizedStoreBuilder(
             mapper={
                 "symbol": lambda store, o, s, d: d["symbol"],
                 "side": lambda store, o, s, d: d["side"].upper(),
-                "price": lambda store, o, s, d: float(d["entry_price"]),
-                "size": lambda store, o, s, d: d["size"],
-                "position_idx": lambda store, o, s, d: d["position_idx"],
+                "price": lambda store, o, s, d: float(d["entryPrice"]),
+                "size": lambda store, o, s, d: float(d["size"]),
+                "positionIdx": lambda store, o, s, d: d["positionIdx"],
             },
-            keys=["symbol", "position_idx"],
+            keys=["symbol", "positionIdx"],
         )

@@ -6,7 +6,7 @@ from typing import Awaitable, Callable, Literal, Optional, TypeAlias, TypeVar, U
 import pybotters
 from loguru import logger
 from pybotters.typedefs import WsBytesHandler, WsJsonHandler, WsStrHandler
-from pybotters.ws import WebSocketRunner
+from pybotters.ws import WebSocketApp
 
 from .websocket_channels import WebSocketChannels
 
@@ -26,7 +26,7 @@ class WebSocketConnection:
         send_type: Literal["json", "str", "byte"] | None,
         hdlr_type: Literal["json", "str", "byte"] | None,
     ):
-        self._ws: WebSocketRunner | None = None
+        self._ws: WebSocketApp | None = None
         self._endpoint = endpoint
         self._send = send
         if isinstance(hdlr, list):
@@ -51,7 +51,7 @@ class WebSocketConnection:
             auto_reconnect (bool, optional): 自動再接続を有効にするか。デフォルトは False。
             on_reconnection (WebsocketOnReconnectionCallback, optional): 再接続時に実行する
                 コールバック。デフォルトは None。
-            **kwargs: `pybotters.WebSocketRunner`の引数。
+            **kwargs: `pybotters.WebSocketApp`の引数。
 
         Returns:
             WebSocketConnection: 自分自身のインスタンス。
@@ -90,7 +90,7 @@ class WebSocketConnection:
                     else:
                         on_reconnection(self, client)
 
-                # pybottersのWebSocketRunnerのタスクを終了する
+                # pybottersのWebSocketAppのタスクを終了する
                 await self.close()
 
                 await self._ws_connect(client, **kwargs)
@@ -108,7 +108,7 @@ class WebSocketConnection:
 
     @property
     def connected(self) -> bool:
-        return False if self._ws is None else self._ws.connected
+        return False if self._ws is None else self._ws.current_ws is not None
 
     @classmethod
     def _guess_type(
